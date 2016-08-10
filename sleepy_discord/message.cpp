@@ -41,13 +41,6 @@ namespace SleepyDiscord {
 		case 'm':
 			switch (name[8]) {
 			case 0: //mentions
-				/*JSON_array* _array = (JSON_array*)value;
-				user* _mentions = new user[_array->count];
-				for (unsigned int i = 0; i < _array->count; i++) {
-					_mentions[i].fillOut((JSON_object*)JSON_accessArray(_array, i));
-				}
-				mentions = _mentions;
-				numberOfMentions = _array->count;*/
 				mentions = fillOutArray<User>(value, numOfMentions); break;
 			case 'r': {		//add a lambda to the fillOutArray function to remove this mess
 				JSON_array* _array = (JSON_array*)value;

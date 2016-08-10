@@ -203,8 +203,8 @@ namespace SleepyDiscord {
 		//		"token":my_token,
 		//		"properties":{
 		//			$os":"windows 10",
-		//			"$browser":"Sleepy C++ Discord Library",
-		//			"$device":"Sleepy C++ Discord Library",
+		//			"$browser":"Sleepy_Discord",
+		//			"$device":"Sleepy_Discord",
 		//			"$referrer":"",			//I don't know what this does
 		//			"$referring_domain":""		//I don't know what this does
 		//		},
@@ -212,7 +212,7 @@ namespace SleepyDiscord {
 		//		"large_threshold":250			/I don't know what this does
 		//	}
 		//}
-		this_client.send(handle, "{\"op\":2,\"d\":{\"token\":\"" + *token + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy C++ Discord Library\",\"$device\":\"Sleepy C++ Discord Library\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}", websocketpp::frame::opcode::text);
+		this_client.send(handle, "{\"op\":2,\"d\":{\"token\":\"" + *token + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}", websocketpp::frame::opcode::text);
 	}
 
 }

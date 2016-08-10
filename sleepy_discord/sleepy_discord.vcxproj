@@ -69,22 +69,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps\cpr\opt;C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps\cpr\opt\curl\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps\include;SDK Path\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\include;SDK Path\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link />
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>C:\Users\steve\Documents\Visual Studio 2015\Projects\White Haired Cat Girl\White Haired Cat Girl\deps\cpr\opt\curl\lib;SDK Path\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\lib;SDK Path\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcurl_a.lib;libeay32MTd.lib;libeay32MT.lib;libeay32MDd.lib;libeay32MD.lib;ssleay32MTd.lib;ssleay32MT.lib;ssleay32MDd.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -172,6 +172,7 @@
     <ClInclude Include="deps\cpr\include\cpr\timeout.h" />
     <ClInclude Include="deps\cpr\include\cpr\util.h" />
     <ClInclude Include="discord_object_interface.h" />
+    <ClInclude Include="embed.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="message.h" />

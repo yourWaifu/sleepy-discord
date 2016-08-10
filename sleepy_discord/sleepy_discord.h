@@ -37,6 +37,9 @@ it's pretty meh
 I don't want some parsed JSON object
 if you're gonna use boost.asio use it all the way through
 https://github.com/Rapptz/Gears/blob/docs/gears/string/predicate.hpp
+
+DigiTechs - Today at 12:17 AM
+That's a pretty bad way of passing data. I guess if it's written in C it makes sense but you should have written a thin wrapper in C++ for it
 */
 
 namespace SleepyDiscord {
