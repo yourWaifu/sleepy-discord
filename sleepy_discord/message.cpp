@@ -42,13 +42,12 @@ namespace SleepyDiscord {
 			switch (name[8]) {
 			case 0: //mentions
 				mentions = fillOutArray<User>(value, numOfMentions); break;
-			case 'r': {		//add a lambda to the fillOutArray function to remove this mess
-				JSON_array* _array = (JSON_array*)value;
-				mention_roles = new std::string[_array->count];
-				for (unsigned int i = 0; i < _array->count; i++)
-					mention_roles[i] = (char*)JSON_accessArray(_array, i);
-				numOfmention_roles = _array->count;
-			} break;
+			case 'r':
+				mention_roles = fillOutArray<std::string>(value, numOfMention_roles,
+					[] (std::string* arrayValue, JSON_array* _array, unsigned int index) {
+						*arrayValue = (char*)JSON_accessArray(_array, index);
+					});
+				break;
 			case 'e': mention_everyone = (bool*)value; break;
 			default: break;
 			} break;

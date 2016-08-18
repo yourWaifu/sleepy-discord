@@ -38,7 +38,7 @@ namespace SleepyDiscord {
 		Embed* embeds;
 		unsigned int numOfEmbeds;
 		std::string* mention_roles;
-		unsigned int numOfmention_roles;
+		unsigned int numOfMention_roles;
 		int64_t nonce;	//nullable
 		bool* pinned;
 
