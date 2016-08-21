@@ -44,6 +44,11 @@ namespace SleepyDiscord {
 		int uploadFile(std::string channel_id, std::string fileLocation, std::string message);
 		int editMessage(std::string channel_id, std::string message_id, std::string newMessage);
 		int deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);
+		int createTextChannel(std::string server_id, std::string name);
+		int editChannel(std::string channel_id, std::string name = "", std::string topic = "");
+		int editChannelName(std::string channel_id, std::string name);
+		int editChannelTopic(std::string channel_id, std::string topic);
+		int deleteChannel(std::string channel_id);
 
 		void waitTilReady();
 		bool isReady() { return ready; }

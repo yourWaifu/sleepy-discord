@@ -87,6 +87,36 @@ namespace SleepyDiscord {
 		return r.status_code;
 	}
 
+	int DiscordClient::createTextChannel(std::string server_id, std::string name) {
+		auto r = request(Post, "guilds/" + server_id + "/channels", "{\"name\": \"" + name + "\", \"type\": \"text\"}");
+		return r.status_code;
+	}
+	
+	int DiscordClient::editChannel(std::string channel_id, std::string name, std::string topic) {
+		std::string json = "{";
+		if (name != "") json += "\"name\": \"" + name + "\"";
+		if (topic != "") {
+			if (json.length() != 1) json += ", ";
+			json += "\"topic\": \"" + topic + "\"";
+		}
+		json.push_back('}');
+		auto r = request(Patch, "channels/" + channel_id, json);
+		return r.status_code;
+	}
+
+	int DiscordClient::editChannelName(std::string channel_id, std::string name) {
+		return editChannel(channel_id, name);
+	}
+
+	int DiscordClient::editChannelTopic(std::string channel_id, std::string topic) {
+		return editChannel(channel_id, "", topic);
+	}
+
+	int DiscordClient::deleteChannel(std::string channel_id) {
+		auto r = request(Delete, "channels/" + channel_id);
+		return r.status_code;
+	}
+
 	void DiscordClient::waitTilReady() {
 		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
