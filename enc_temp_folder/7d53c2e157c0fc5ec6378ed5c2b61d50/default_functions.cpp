@@ -32,10 +32,6 @@ namespace SleepyDiscord {
 	void DiscordClient::onEditedRole(JSON * jsonMessage) {
 
 	}
-
-	void DiscordClient::onDisconnet() {
-
-	}
 	
 	void DiscordClient::tick(float deltaTime) {
 	

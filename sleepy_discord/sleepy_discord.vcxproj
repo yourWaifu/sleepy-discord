@@ -173,6 +173,7 @@
     <ClInclude Include="deps\cpr\include\cpr\util.h" />
     <ClInclude Include="discord_object_interface.h" />
     <ClInclude Include="embed.h" />
+    <ClInclude Include="channel.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="message.h" />

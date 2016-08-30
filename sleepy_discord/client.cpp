@@ -39,7 +39,7 @@ namespace SleepyDiscord {
 			{ "Authorization", "Bot " + token },
 			{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
 			contentType });
-		updateRateLimiter();
+		updateRateLimiter();	//tells the rateLimiter clock that you've send a request
 		switch (method) {
 		case Post: return session.Post(); break;
 		case Patch: return session.Patch(); break;
@@ -114,6 +114,16 @@ namespace SleepyDiscord {
 
 	int DiscordClient::deleteChannel(std::string channel_id) {
 		auto r = request(Delete, "channels/" + channel_id);
+		return r.status_code;
+	}
+
+	int SleepyDiscord::DiscordClient::createRole(std::string server_id) {
+		auto r = request(Post, "guilds/" + server_id + "/roles");
+		return r.status_code;
+	}
+
+	int SleepyDiscord::DiscordClient::deleteRole(std::string server_id, std::string role_id) {
+		auto r = request(Delete, "guilds/" + server_id + "/roles/" + role_id);
 		return r.status_code;
 	}
 
@@ -201,7 +211,11 @@ namespace SleepyDiscord {
 			} else if (t == "MESSAGE_UPDATE") {
 				discord->onEditedMessage(jsonMessage);
 			} else if (t == "GUILD_CREATE") {
-				discord->onGiuld(jsonMessage);
+				discord->onServer(jsonMessage);
+			} else if (t == "CHANNEL_CREATE") {
+				discord->onChannel(jsonMessage);
+			} else if (t == "GUILD_ROLE_CREATE") {
+				discord->onEditedRole(jsonMessage);
 			}
 		}
 		JSON_deallocate(jsonMessage);

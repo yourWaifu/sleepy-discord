@@ -14,7 +14,6 @@
 
 add better support for rate limits for delete message and others
 make http functions return things other then status codes
-remove the boost library
 
 */
 
@@ -66,7 +65,6 @@ namespace SleepyDiscord {
 		virtual void onServer(JSON* jsonMessage);
 		virtual void onChannel(JSON* jsonMessage);
 		virtual void onEditedRole(JSON* jsonMessage);
-		virtual void onDisconnet();
 		virtual void tick(float deltaTime);
 		virtual void onError(int errorCode);
 	private:
