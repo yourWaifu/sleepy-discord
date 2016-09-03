@@ -19,7 +19,7 @@ namespace SleepyDiscord {
 		case 'a': avatar = (char*)value; break;
 		case 'b': bot = *(bool*)value; break;
 		case 'v': verified = *(bool*)value; break;
-		case 'e': avatar = (char*)value; break;
+		case 'e': email = (char*)value; break;
 		default: break;
 		}
 	}

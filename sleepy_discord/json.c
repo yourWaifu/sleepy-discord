@@ -347,6 +347,7 @@ JSON * JSON_allocateJSON(const char * source, const unsigned int sourceSize, con
 		long int arrayNumber = -1;	//the number of arrays counted
 		long int objectIndex = 0;	//the current object that we are finding the size of
 		long int arrayIndex;		//the current array that we are finding the size of
+		OrderedList[0] = (ItemOnList){ .type = JSON_OBJECT, .ID = 0 };
 		while (position < sourceSize) {
 			switch (source[++position]) {
 			case '"': JSON_skipString(source, &position); break;

@@ -11,8 +11,7 @@ namespace SleepyDiscord {
 		delete[] mention_roles;
 	}
 
-	Message::Message(DiscordClient* _client, JSON * jsonMessage) {
-		client = _client;
+	Message::Message(JSON * jsonMessage) {
 		DiscordObject::fillOut(jsonMessage);
 	}
 
@@ -89,9 +88,5 @@ namespace SleepyDiscord {
 
 	bool Message::isMentioned(User& _user) {
 		return isMentioned(_user.id);
-	}
-
-	void Message::reply(std::string message) {
-		client->sendMessage(channel_id, message);
 	}
 }

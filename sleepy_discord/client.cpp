@@ -40,16 +40,22 @@ namespace SleepyDiscord {
 			{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
 			contentType });
 		updateRateLimiter();	//tells the rateLimiter clock that you've send a request
+		cpr::Response response;
 		switch (method) {
-		case Post: return session.Post(); break;
-		case Patch: return session.Patch(); break;
-		case Delete: return session.Delete(); break;
+		case Post: response = session.Post(); break;
+		case Patch: response = session.Patch(); break;
+		case Delete: response = session.Delete(); break;
 		default: {		//unexpected method
 			cpr::Response r;
 			r.status_code = 400;
-			return r;
+			response = r;
 		} break;
 		}
+		switch (response.status_code) {
+		case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
+		default: setError(response.status_code); break;
+		}
+		return response;
 	}
 
 	cpr::Response DiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
@@ -60,10 +66,13 @@ namespace SleepyDiscord {
 		return request(method, url, "", httpParameters);
 	}
 
-	int DiscordClient::sendMessage(std::string channel_id, std::string message) {
-		if (MAX_MESSAGES_SENT_PER_MINUTE <= numOfMessagesSent) return 429;	//Error Code for too many request
+	Message& DiscordClient::sendMessage(std::string channel_id, std::string message) {	//proof of concept
+		//if (MAX_MESSAGES_SENT_PER_MINUTE <= numOfMessagesSent) return 429;	//Error Code for too many request
 		auto r = request(Post, "channels/" + channel_id + "/messages", "{\"content\": \"" + message + "\"}");
-		return r.status_code;
+		JSON* json = JSON_parseJSON(r.text.c_str(), r.text.length());
+		Message _message(json);
+		JSON_deallocate(json);
+		return _message;
 	}
 
 	int DiscordClient::uploadFile(std::string channel_id, std::string fileLocation, std::string message) {
@@ -139,13 +148,19 @@ namespace SleepyDiscord {
 
 	void DiscordClient::runClock_thread() {
 		waitTilReady();
-		while (ready) { 
+		int HalfSecondTimer = 0;
+		while (ready) {
 			client.heartbeat();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-			if (MAX_MESSAGES_SENT_PER_MINUTE <= ++rateLimiterClock)
-				rateLimiterClock = 0;
-			numOfMessagesSent -= rateLimiter[rateLimiterClock];
-			rateLimiter[rateLimiterClock] = 0;
+			if (HalfSecondTimer == 0) {
+				//boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+				if (MAX_MESSAGES_SENT_PER_MINUTE <= ++rateLimiterClock)
+					rateLimiterClock = 0;
+				numOfMessagesSent -= rateLimiter[rateLimiterClock];
+				rateLimiter[rateLimiterClock] = 0;
+			}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+			++HalfSecondTimer;
+			if (HalfSecondTimer == 500) HalfSecondTimer = 0;
 		}
 	}
 
@@ -229,8 +244,8 @@ namespace SleepyDiscord {
 		double epochTimeMillisecond = ms * .001;
 
 		static double nextHeartbeat = 0;
-		if (nextHeartbeat <= epochTimeMillisecond) {
-			if (!nextHeartbeat) nextHeartbeat = epochTimeMillisecond;
+		if (nextHeartbeat <= epochTimeMillisecond) {	//note:this sends the heartbeat early
+			if (nextHeartbeat <= 0) nextHeartbeat = epochTimeMillisecond;
 			nextHeartbeat += heartbeatInterval;
 
 			std::string str = boost::lexical_cast<std::string>(lastSReceived);

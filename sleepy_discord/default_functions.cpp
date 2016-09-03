@@ -14,7 +14,6 @@ namespace SleepyDiscord {
 		//onMessage(jsonMessage); 
 		//because of the fact that on edited messages it'll contain only a subset of the full message object payload
 		//this is will crash the client
-		//for now keep this empty
 	}
 
 	void DiscordClient::onHeartbeat() {
@@ -41,7 +40,7 @@ namespace SleepyDiscord {
 	
 	}
 	
-	void DiscordClient::onError(int errorCode) {
-	
+	void DiscordClient::onError(ErrorCode errorCode, std::string errorMessage) {
+		std::cout << "Error " << errorCode << ": " + errorMessage + '\n';
 	}
 }

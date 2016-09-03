@@ -1,8 +1,14 @@
 #include "discord_object_interface.h"
 
 namespace SleepyDiscord {
-	void DiscordObject::fillOut(JSON * _JSON) {
-		fillOut((JSON_object*)JSON_access1(_JSON, "d"));
+	DiscordObject::DiscordObject(JSON * _JSON) {
+		fillOut(_JSON);
+	}
+
+	void DiscordObject::fillOut(JSON * _JSON) { //I have a feeling that it would a good idea to remove this
+		JSON_object * d_object = (JSON_object*)JSON_access1(_JSON, "d");
+		if(d_object) fillOut(d_object);
+		else fillOut(_JSON->object);
 	}
 
 	void DiscordObject::fillOut(JSON_object * _JSON_object) {

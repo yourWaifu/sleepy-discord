@@ -10,11 +10,19 @@
 #include <cpr\cpr.h>
 #include "json.h"
 
+//objects
+#include "message.h"
+
+#include "error.h"
+
 /*
 
 add better support for rate limits for delete message and others
 make http functions return things other then status codes
 remove the boost library
+rewrite discordObject
+fix random crashing because of failing to send heartbeat
+stop using #define and use static const
 
 */
 
@@ -42,7 +50,7 @@ namespace SleepyDiscord {
 			cpr::Parameters httpParameters = cpr::Parameters{}, cpr::Multipart multipartParameters = cpr::Multipart{});
 		cpr::Response request(RequestMethod method, std::string url, cpr::Multipart multipartParameters);
 		cpr::Response request(RequestMethod method, std::string url, cpr::Parameters httpParameters);
-		int sendMessage(std::string channel_id, std::string message);
+		Message& sendMessage(std::string channel_id, std::string message);
 		int uploadFile(std::string channel_id, std::string fileLocation, std::string message);
 		int editMessage(std::string channel_id, std::string message_id, std::string newMessage);
 		int deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);
@@ -68,7 +76,7 @@ namespace SleepyDiscord {
 		virtual void onEditedRole(JSON* jsonMessage);
 		virtual void onDisconnet();
 		virtual void tick(float deltaTime);
-		virtual void onError(int errorCode);
+		virtual void onError(ErrorCode errorCode, std::string errorMessage);
 	private:
 		class WebsocketClient {
 		public:
@@ -94,10 +102,13 @@ namespace SleepyDiscord {
 		};
 		boost::thread clock_thread;
 		void runClock_thread();
+
 		void updateRateLimiter(const uint8_t numOfMessages = 1);
+
 		WebsocketClient client;
 		std::string token;
 		bool ready;
+
 		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
 		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0
 		//every time you send a message, we'll add one to rateLimiter[rateLimiterClock] and numOfMessagesSent
@@ -108,5 +119,8 @@ namespace SleepyDiscord {
 		uint8_t rateLimiter[MAX_MESSAGES_SENT_PER_MINUTE];
 		uint8_t rateLimiterClock;
 		uint8_t numOfMessagesSent;
+
+		//error handling
+		void setError(int errorCode);
 	};
 }

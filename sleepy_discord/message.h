@@ -3,7 +3,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "user.h"
 #include "attachment.h"
-#include "client.h"
 #include "embed.h"
 #include "discord_object_interface.h"
 
@@ -14,7 +13,7 @@ namespace SleepyDiscord {
 	public:
 		Message();
 		~Message();
-		Message(DiscordClient* client, JSON * jsonMessage);
+		Message(JSON * jsonMessage);
 		Message(JSON_object * messageJSONObject);
 		void fillOut(JSON_object * _JSON_object);
 		void fillOut(const char* name, void * value);
@@ -43,6 +42,5 @@ namespace SleepyDiscord {
 		bool* pinned;
 
 		double* type;
-		DiscordClient* client;
 	};
 }
