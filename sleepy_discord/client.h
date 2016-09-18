@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <cpr\cpr.h>
+#include <chrono>	//for debugging
 #include "json.h"
 
 //objects
@@ -33,7 +34,7 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
-#define MAX_MESSAGES_SENT_PER_MINUTE 120
+#define MAX_MESSAGES_SENT_PER_MINUTE 120	//you should replace remove those
 #define MILLISECONDS_PER_MESSAGES_SENT 60000/MAX_MESSAGES_SENT_PER_MINUTE
 	class DiscordClient {
 	public:
@@ -50,7 +51,11 @@ namespace SleepyDiscord {
 			cpr::Parameters httpParameters = cpr::Parameters{}, cpr::Multipart multipartParameters = cpr::Multipart{});
 		cpr::Response request(RequestMethod method, std::string url, cpr::Multipart multipartParameters);
 		cpr::Response request(RequestMethod method, std::string url, cpr::Parameters httpParameters);
-		Message& sendMessage(std::string channel_id, std::string message);
+#ifdef EXPERIMENTAL
+		Message sendMessage(std::string channel_id, std::string message);
+#else
+		int sendMessage(std::string channel_id, std::string message);
+#endif
 		int uploadFile(std::string channel_id, std::string fileLocation, std::string message);
 		int editMessage(std::string channel_id, std::string message_id, std::string newMessage);
 		int deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);

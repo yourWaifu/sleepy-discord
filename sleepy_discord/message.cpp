@@ -5,10 +5,10 @@ namespace SleepyDiscord {
 	}
 
 	Message::~Message() {
-		delete[] mentions;
-		delete[] embeds;
-		delete[] attachments;
-		delete[] mention_roles;
+		if (0 < numOfMentions) delete[] mentions;
+		if (0 < numOfEmbeds) delete[] embeds;
+		if (0 < numOfAttachments) delete[] attachments;
+		if (0 < numOfMention_roles) delete[] mention_roles;
 	}
 
 	Message::Message(JSON * jsonMessage) {
@@ -19,20 +19,44 @@ namespace SleepyDiscord {
 		DiscordObject::fillOut(messageJSONObject);
 	}
 
-	void Message::fillOut(JSON_object * _JSON_object) {
-		DiscordObject::fillOut(_JSON_object);
+	Message::Message(std::string rawJson) {
+		//set numbers to defaults
+		numOfMentions = 0;
+		numOfAttachments = 0;
+		numOfEmbeds = 0;
+		numOfMention_roles = 0;
+
+		const char * cString = rawJson.c_str();
+		id = JSON_find<std::string>("id", cString);
+		channel_id = JSON_find<std::string>("channel_id", cString);
+		//author = JSON_find<std::string>("author", cString);
+		content = JSON_find<std::string>("content", cString);
+		timestamp = JSON_find<std::string>("timestamp", cString);
+		edited_timestamp = JSON_find<std::string>("edited_timestamp", cString);
+		//tts
+		//mention_everyone
+		//mentions
+		//mention_roles
+		//attachments
+		//embeds
+		//nonce
+		//pinned
 	}
+
+	//void Message::fillOut(JSON_object * _JSON_object) {
+	//	DiscordObject::fillOut(_JSON_object);
+	//}
 
 	void Message::fillOut(const char* name, void * value) {
 		switch (name[0]) {
 		case 't':
 			switch (name[1]) {
 			case 'i': timestamp = (char*)value; break;
-			case 't': tts = (bool*)value; break;
-			case 'y': type = (double*)value; break;
+			case 't': tts = *(bool*)value; break;
+			case 'y': type = *(double*)value; break;
 			default: break;
 			} break;
-		case 'p': pinned = (bool*)value; break;
+		case 'p': pinned = *(bool*)value; break;
 		case 'n':
 			try { nonce = boost::lexical_cast<uint64_t>((char*)value); }
 			catch (const boost::bad_lexical_cast &) { nonce = 0; }
@@ -47,7 +71,7 @@ namespace SleepyDiscord {
 						*arrayValue = (char*)JSON_accessArray(_array, index);
 					});
 				break;
-			case 'e': mention_everyone = (bool*)value; break;
+			case 'e': mention_everyone = *(bool*)value; break;
 			default: break;
 			} break;
 		case 'i': id = (char*)value; break;

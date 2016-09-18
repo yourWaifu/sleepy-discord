@@ -12,6 +12,7 @@ TO-DO when parsing a string, make '/' use less memory
 */
 
 #ifdef __cplusplus
+#include <string>
 extern "C" {
 #endif
 
@@ -108,7 +109,35 @@ void* JSON_access(JSON * json, int count, ...);
 void* JSON_accessArray(JSON_array * _array, unsigned int index);
 void JSON_skipString(const char * JSONstring, unsigned int *position);
 unsigned int JSON_measureAndSkipString(const char* JSONstring, unsigned int *position);
+unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_position);
+unsigned int JSON_find(const char * name, const char * source);
 
 #ifdef __cplusplus
+}
+
+template<class Type>
+Type JSON_find(const char * name, const char * source) {
+	const unsigned int startPosition = JSON_find(name, source);
+	//if (startPosition == NULL) return NULL;	//what do you return in a template?
+	switch (source[startPosition]) {
+	case '"': {
+		//const unsigned int stringLength = JSON_measureString(source, &startPosition);
+		//std::string result = source + startPosition + 1;    //the + 1 will remove the " at the beginning
+		//result.resize(stringLength - 1);                    //we are - 1 because we removed the "
+		//if (std::is_same<Type, std::string>::value) return result;
+		//else return result.c_str();
+	} break;
+	default:
+		break;
+	}
+	return 0;
+}
+template<>
+std::string JSON_find<std::string>(const char * name, const char * source);
+
+template<class Type>
+Type JSON_find(const char * name, const std::string source) {
+	const char * cString = source.c_str();
+	return JSON_find<Type>(name, cString);
 }
 #endif

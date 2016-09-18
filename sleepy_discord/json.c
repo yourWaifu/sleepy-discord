@@ -172,15 +172,8 @@ void JSON_parseValue(const char * JSONString, const unsigned int JSONStringSize,
 
 char * JSON_parseString(const char * JSONString, const unsigned int JSONStringSize, unsigned int * position, JSON* _JSON)
 {
-	unsigned int oldPosition = ++(*position);//store the old position so that we can allocate the right amount of memory
-	unsigned int stringSize = 0;				//a string needs a size
-	for (int i = 0; *position < JSONStringSize; i++) {	//check for 
-		if (JSONString[*position] == '\"' && JSONString[*position - 1] != '\\') {
-			stringSize = i + 1;
-			break;
-		}
-		++(*position);
-	}
+	unsigned int oldPosition = *position + 1;//store the old position so that we can allocate the right amount of memory
+	unsigned int stringSize = JSON_measureAndSkipString(JSONString, position);;				//a string needs a size
 	if (JSONStringSize < *position) {
 		perror("Error string doesn't end");
 		abort();
@@ -489,4 +482,40 @@ unsigned int JSON_measureAndSkipString(const char * JSONstring, unsigned int *po
 	const unsigned int startPosition = *position;
 	JSON_skipString(JSONstring, position);
 	return *position - startPosition;
+}
+
+unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_position) {
+	const unsigned int startPosition = *_position;
+	unsigned int position = startPosition;
+	JSON_skipString(JSONstring, &position);
+	return position - startPosition;
+}
+
+unsigned int JSON_find(const char * name, const char * source) {	//bug if a value that isn't a name will break this I think
+	if (*source != '{') return 0;
+
+	unsigned int sourceLength = strlen(source);
+	unsigned int nameLength = strlen(name);
+
+	if (sourceLength < nameLength) return 0;
+	for (unsigned int position = 0; position < sourceLength; ++position) {
+		if (source[position] == '"') {
+			if (strncmp(source + position + 1, name, nameLength) == 0) {
+				JSON_skipString(source, &position);
+				for (int loop = true; loop; ++position) {
+					switch (source[position]) {
+					case ':':
+						while (source[++position] == ' ');
+						return position;
+						break;
+					case ',': case '}': loop = false; break;
+					default: break;
+					}
+				}
+			} else {
+				JSON_skipString(source, &position);
+			}
+		}
+	}
+	return 0;
 }

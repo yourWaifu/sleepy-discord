@@ -66,14 +66,12 @@ namespace SleepyDiscord {
 		return request(method, url, "", httpParameters);
 	}
 
-	Message& DiscordClient::sendMessage(std::string channel_id, std::string message) {	//proof of concept
-		//if (MAX_MESSAGES_SENT_PER_MINUTE <= numOfMessagesSent) return 429;	//Error Code for too many request
+#ifndef EXPERIMENTAL
+	int DiscordClient::sendMessage(std::string channel_id, std::string message) {
 		auto r = request(Post, "channels/" + channel_id + "/messages", "{\"content\": \"" + message + "\"}");
-		JSON* json = JSON_parseJSON(r.text.c_str(), r.text.length());
-		Message _message(json);
-		JSON_deallocate(json);
-		return _message;
+		return r.status_code;
 	}
+#endif
 
 	int DiscordClient::uploadFile(std::string channel_id, std::string fileLocation, std::string message) {
 		auto r = request(Post, "channels/" + channel_id + "/messages", 

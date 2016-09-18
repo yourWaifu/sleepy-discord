@@ -13,23 +13,25 @@ namespace SleepyDiscord {
 	public:
 		Message();
 		~Message();
-		Message(JSON * jsonMessage);
 		Message(JSON_object * messageJSONObject);
-		void fillOut(JSON_object * _JSON_object);
+		Message(JSON * jsonMessage);
+		Message(std::string rawJson);
+		using DiscordObject::DiscordObject;
+		//void fillOut(JSON_object * _JSON_object);
 		void fillOut(const char* name, void * value);
 		bool startsWith(char* test);
 		int length();
 		bool isMentioned(const std::string id);
 		bool isMentioned(User& _user);
-		void reply(std::string message);
+		//void reply(std::string message);
 		std::string id;
 		std::string channel_id;
 		User author;
 		std::string content;
 		std::string timestamp;
 		std::string edited_timestamp;
-		bool* tts;
-		bool* mention_everyone;
+		bool tts;
+		bool mention_everyone;
 		User* mentions;
 		unsigned int numOfMentions;
 		Attachment* attachments;
@@ -39,8 +41,8 @@ namespace SleepyDiscord {
 		std::string* mention_roles;
 		unsigned int numOfMention_roles;
 		int64_t nonce;	//nullable
-		bool* pinned;
+		bool pinned;
 
-		double* type;
+		double type;
 	};
 }

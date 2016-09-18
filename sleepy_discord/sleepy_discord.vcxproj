@@ -140,6 +140,8 @@
     <ClCompile Include="deps\cpr\cpr\util.cpp" />
     <ClCompile Include="discord_object_interface.cpp" />
     <ClCompile Include="embed.cpp" />
+    <ClCompile Include="experimental.cpp" />
+    <ClCompile Include="json_wrapper.cpp" />
     <ClCompile Include="sd_error.cpp" />
     <ClCompile Include="examples\syswin_main.cpp" />
     <ClCompile Include="json.c" />
@@ -177,6 +179,7 @@
     <ClInclude Include="embed.h" />
     <ClInclude Include="channel.h" />
     <ClInclude Include="error.h" />
+    <ClInclude Include="experimental.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="message.h" />

@@ -4,10 +4,8 @@
 namespace SleepyDiscord {
 	class DiscordObject {
 	public:
-		DiscordObject() {};
-		DiscordObject(JSON * _JSON);
 		void fillOut(JSON* _JSON);
-		virtual void fillOut(JSON_object * _JSON_object);
+		void fillOut(JSON_object * _JSON_object);
 		virtual void fillOut(const char* name, void * value) = 0;
 	};
 
