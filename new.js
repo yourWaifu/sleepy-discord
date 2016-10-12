@@ -41,6 +41,10 @@ function onPlayerStateChange(event) {
 	}
 }
 
+function resize() {
+	resizeVideo();
+}
+
 function resizeVideo() {
 	width = window.innerWidth;
 	height = window.innerHeight;
