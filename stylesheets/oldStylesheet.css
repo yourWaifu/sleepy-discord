@@ -7,10 +7,12 @@ body {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #606c71; }
+  color: rgb(255, 255, 255);
+  background-color: #212121;
+   }
 
 a {
-  color: #1e6bb8;
+  color: #64b8fc;
   text-decoration: none; }
   a:hover {
     text-decoration: underline; }
@@ -56,8 +58,39 @@ a {
 .page-header {
   color: #fff;
   text-align: center;
-  background-color: #159957;
-  background-image: linear-gradient(120deg, #155799, #159957); }
+   }
+
+.back-header {
+  position: fixed;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+  z-index: -100;
+  background-image: url('../images/360-degree_Panorama_of_the_Southern_Sky_edit1high.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  width: 200%;
+  height: 200%;
+    -webkit-animation-name: rotate;
+  -webkit-animation-duration:180s;
+  -webkit-animation-iteration-count:infinite;
+  -webkit-animation-timing-function:linear;
+  -moz-animation-name: rotate;
+  -moz-animation-duration:180s;
+  -moz-animation-iteration-count:infinite;
+  -moz-animation-timing-function:linear;
+}
+
+@-webkit-keyframes rotate {
+  from {-webkit-transform:rotate(0deg);}
+  to {  -webkit-transform:rotate(360deg);}
+}
+
+@-moz-keyframes rotate {
+  from {-moz-transform:rotate(0deg);}
+  to {  -moz-transform:rotate(360deg);}
+}
 
 @media screen and (min-width: 64em) {
   .page-header {
@@ -104,6 +137,18 @@ a {
   .project-tagline {
     font-size: 1rem; } }
 
+.main-content {
+  background-color: #212121;
+  z-index: 1;
+}
+
+.aplha-below {
+  z-index: 1;
+  top: 0;
+  height: 6px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.20),rgba(0,0,0,0) );
+}
+
 .main-content :first-child {
   margin-top: 0; }
 .main-content img {
@@ -112,7 +157,7 @@ a {
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-weight: normal;
-  color: #159957; }
+  color: #ffffff; }
 .main-content p {
   margin-bottom: 1em; }
 .main-content code {
@@ -127,16 +172,16 @@ a {
   margin-top: 0;
   margin-bottom: 1rem;
   font: 1rem Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  color: #567482;
+  color: #d4d4d4;
   word-wrap: normal;
-  background-color: #f3f6fa;
-  border: solid 1px #dce6f0;
+  background-color: #1e1e1e;
+  border: solid 1px #5b5f63;
   border-radius: 0.3rem; }
   .main-content pre > code {
     padding: 0;
     margin: 0;
     font-size: 0.9rem;
-    color: #567482;
+    color: #d4d4d4;
     word-break: normal;
     white-space: pre;
     background: transparent;
@@ -170,7 +215,7 @@ a {
   padding: 0 1rem;
   margin-left: 0;
   color: #819198;
-  border-left: 0.3rem solid #dce6f0; }
+  border-left: 0.3rem solid #819198; }
   .main-content blockquote > :first-child {
     margin-top: 0; }
   .main-content blockquote > :last-child {
@@ -204,7 +249,7 @@ a {
   border: 0; }
 
 @media screen and (min-width: 64em) {
-  .main-content {
+  .min {
     max-width: 64rem;
     padding: 2rem 6rem;
     margin: 0 auto;
@@ -212,12 +257,12 @@ a {
 
 @media screen and (min-width: 42em) and (max-width: 64em) {
   .main-content {
-    padding: 2rem 4rem;
+    padding: 0rem 4rem;
     font-size: 1.1rem; } }
 
 @media screen and (max-width: 42em) {
   .main-content {
-    padding: 2rem 1rem;
+    padding: 0rem 1rem;
     font-size: 1rem; } }
 
 .site-footer {
