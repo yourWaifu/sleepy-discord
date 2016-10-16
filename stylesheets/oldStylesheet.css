@@ -62,10 +62,8 @@ a {
 
 .back-header {
   position: fixed;
-    top: -50%;
-    left: -50%;
-    right: -50%;
-    bottom: -50%;
+	top: -50%;
+	left: -50%;
   z-index: -100;
   background-image: url('../images/360-degree_Panorama_of_the_Southern_Sky_edit1high.jpg');
   background-attachment: fixed;
