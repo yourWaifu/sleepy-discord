@@ -7,6 +7,12 @@ namespace SleepyDiscord {
 		void fillOut(JSON* _JSON);
 		void fillOut(JSON_object * _JSON_object);
 		virtual void fillOut(const char* name, void * value) = 0;
+	protected:
+//#ifdef EXPERIMENTAL
+//		DiscordObject()	//from an idea I did about storing the json for some reason
+//		const std::string* rawOriginJSON;
+//		const unsigned int startPosition;
+//#endif // EXPERIMENTAL
 	};
 
 	template <class _DiscordObject> void defaultFillfunction(_DiscordObject* arrayValue, JSON_array* _array, unsigned int index) {

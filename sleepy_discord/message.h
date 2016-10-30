@@ -15,7 +15,7 @@ namespace SleepyDiscord {
 		~Message();
 		Message(JSON_object * messageJSONObject);
 		Message(JSON * jsonMessage);
-		Message(std::string rawJson);
+		Message(const std::string * rawJson, const unsigned int startPosition = 0);
 		using DiscordObject::DiscordObject;
 		//void fillOut(JSON_object * _JSON_object);
 		void fillOut(const char* name, void * value);

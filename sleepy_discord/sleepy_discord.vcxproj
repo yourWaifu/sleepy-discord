@@ -69,8 +69,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\lib;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,10 +107,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libcurl_a.lib;libeay32MTd.lib;libeay32MT.lib;libeay32MDd.lib;libeay32MD.lib;ssleay32MTd.lib;ssleay32MT.lib;ssleay32MDd.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

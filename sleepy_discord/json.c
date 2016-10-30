@@ -491,6 +491,24 @@ unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_po
 	return position - startPosition;
 }
 
+void JSON_skipObject(const char * JSONstring, unsigned int *position) {
+	const char lastChar = JSONstring[*position] == '{' ? '}' : ']';
+	while (JSONstring[++*position] != lastChar) {
+		switch (JSONstring[*position]) {
+		case '"': JSON_skipString(JSONstring, position); break;
+		case '{': JSON_skipObject(JSONstring, position); break;
+		case '[': JSON_skipObject(JSONstring, position); break;
+		default: break;
+		}
+	}
+}
+
+unsigned int JSON_measureAndSkipObject(const char * JSONstring, unsigned int *position) {
+	const unsigned int startPosition = *position;
+	JSON_skipObject(JSONstring, position);
+	return *position - startPosition;
+}
+
 unsigned int JSON_find(const char * name, const char * source) {	//bug if a value that isn't a name will break this I think
 	if (*source != '{') return 0;
 
@@ -518,4 +536,73 @@ unsigned int JSON_find(const char * name, const char * source) {	//bug if a valu
 		}
 	}
 	return 0;
+}
+
+void JSON_findMuitiple(/*const char ** names,*/ const unsigned int numberOfNames, const char* source, JSON_findMuitipleStruct* values/*unsigned int * namePositions, const unsigned int * numeLengths*/) {
+	if (*source != '{') return;
+
+	unsigned int sourceLength = strlen(source);
+	unsigned int smallestNameLength = -1;	//-1 is the largest unsigned int
+	for (unsigned int i = 0; i < numberOfNames; i++) {
+		if (values[i].nameLength < smallestNameLength)
+			smallestNameLength = values[i].nameLength;
+	}
+	//memset(namePositions, 0, numberOfNames * sizeof(*namePositions));	//this is to prevent it from crashing, why? I don't know
+	unsigned int numOffoundNames = 0;
+
+	if (sourceLength < smallestNameLength) {
+		return; //we don't need this but it could save us some time
+	}
+	for (unsigned int position = 0; position < sourceLength; ++position) {
+		switch (source[position]) {
+		case '"': {
+			bool found = false;				//if one of the names is the same as the string then this is true
+			unsigned int index = 0;	//index to the variable name in names that was found
+			for (; index < numberOfNames; index++) {
+				if (values[index].namePosition == 0 && strncmp(source + position + 1, values[index].name, values[index].nameLength) == 0) {	//remove values[index].namePosition == 0 once there's a better solution
+					found = true;
+					//you could save time by removing the name from the array, so that we don't have to check for names that are already found
+					break;
+				}
+			}
+			if (found) {
+				JSON_skipString(source, &position);
+				for (int loop = true; loop; ++position) {
+					switch (source[position]) {
+					case ':':
+						while (source[++position] == ' ');
+						values[index].namePosition = position;	//fill in the namePosition value
+						switch (source[position]) {		//fill in the valueLength value
+						case '"': 
+							values[index].valueLength = JSON_measureAndSkipString(source, &position) - 1;	//the -1 removes the " at the end
+							++values[index].namePosition;													//the ++ removes the " at the beginning
+							break;	
+						case '{': values[index].valueLength = JSON_measureAndSkipObject(source, &position) + 1; break;	//the + 1 adds the } at the end
+						case '[': values[index].valueLength = JSON_measureAndSkipObject(source, &position) + 1; break;	//the + 1 adds the ] at the end
+						case 'n': case 't': values[index].valueLength = 4; break;
+						case 'f': values[index].valueLength = 5; break;
+						default: values[index].valueLength = 1; break;													//unexpected
+						}
+						if (numberOfNames <= ++numOffoundNames) return;
+						loop = false;
+						break;
+					case ',': case '}': case ']': loop = false; break;
+					default: break;
+					}
+				}
+			} else {
+				JSON_skipString(source, &position);
+			}
+		} break;
+		case '{': if (0 < position) JSON_skipObject(source, &position); break;
+		}
+	}
+}
+
+unsigned int JSON_find1(const char * name, const char * source) {
+	JSON_findMuitipleStruct value = { name, 0, strlen(name), 0 };
+	//unsigned int namePosition = 0;
+	//unsigned int size = strlen(name);
+	JSON_findMuitiple(1, source, &value);
+	return value.namePosition;
 }

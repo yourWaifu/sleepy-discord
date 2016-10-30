@@ -1,4 +1,5 @@
 #include "client.h"
+#include "experimental.h"
 
 namespace SleepyDiscord {
 	DiscordClient::DiscordClient(const std::string _token) 
@@ -221,6 +222,12 @@ namespace SleepyDiscord {
 				discord->ready = true;
 			} else if (t == "MESSAGE_CREATE") {
 				discord->onMessage(jsonMessage);
+#ifdef EXPERIMENTAL
+				std::string alskjfghi("");		//please change name
+				JSON_getValue(messagePayload.c_str(), "d", &alskjfghi);
+				discord->onMessage(&alskjfghi);
+#endif // EXPERIMENTAL
+
 			} else if (t == "MESSAGE_UPDATE") {
 				discord->onEditedMessage(jsonMessage);
 			} else if (t == "GUILD_CREATE") {

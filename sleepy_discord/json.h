@@ -13,6 +13,7 @@ TO-DO when parsing a string, make '/' use less memory
 
 #ifdef __cplusplus
 #include <string>
+#include <vector>
 extern "C" {
 #endif
 
@@ -65,6 +66,13 @@ typedef struct {
 	unsigned int ID;
 } ItemOnList;
 
+typedef struct {	//values need for JSON_findMuitiple to function
+	const char * name;
+	unsigned int namePosition;
+	unsigned int nameLength;
+	unsigned int valueLength;
+} JSON_findMuitipleStruct;
+
 JSON* JSON_parseJSON(const char* JSONString, const unsigned int JSONStringSize);
 JSON_object* JSON_parseObject(const char * JSONString, const unsigned int JSONStringSize, unsigned int *position, JSON* _JSON);
 JSON_array* JSON_parseArray(const char * JSONString, const unsigned int JSONStringSize, unsigned int *position, JSON* _JSON);
@@ -111,6 +119,8 @@ void JSON_skipString(const char * JSONstring, unsigned int *position);
 unsigned int JSON_measureAndSkipString(const char* JSONstring, unsigned int *position);
 unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_position);
 unsigned int JSON_find(const char * name, const char * source);
+void JSON_findMuitiple(/*const char ** names,*/ const unsigned int numberOfNames, const char* source, JSON_findMuitipleStruct* values/*unsigned int * namePositions, const unsigned int * numeLengths*/);
+unsigned int JSON_find1(const char * name, const char * source);
 
 #ifdef __cplusplus
 }
@@ -140,4 +150,8 @@ Type JSON_find(const char * name, const std::string source) {
 	const char * cString = source.c_str();
 	return JSON_find<Type>(name, cString);
 }
+
+//void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);
+void JSON_getValues(const char* source, const char ** names, std::string * targets, /*unsigned int * namePositions, unsigned int * sizes,*/ const unsigned int numOfValues);
+void JSON_getValue(const char* source, const char * name, std::string * target);
 #endif

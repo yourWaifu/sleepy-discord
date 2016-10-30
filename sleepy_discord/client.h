@@ -74,6 +74,7 @@ namespace SleepyDiscord {
 	protected:
 		virtual void onReady(JSON* jsonMessage);
 		virtual void onMessage(JSON* jsonMessage);
+		virtual void onMessage(std::string* jsonMessage);
 		virtual void onEditedMessage(JSON* jsonMessage);
 		virtual void onHeartbeat();
 		virtual void onServer(JSON* jsonMessage);

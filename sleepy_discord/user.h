@@ -6,6 +6,7 @@ namespace SleepyDiscord {
 	struct User : public DiscordObject {
 		~User();
 		User();
+		User(const std::string * rawJSON, const unsigned int startPosition = 0);
 		void fillOut(JSON_object * _JSON_object);
 		void fillOut(const char* name, void * value);
 		std::string id;

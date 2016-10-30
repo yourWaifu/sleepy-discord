@@ -40,6 +40,36 @@ https://github.com/Rapptz/Gears/blob/docs/gears/string/predicate.hpp
 
 DigiTechs - Today at 12:17 AM
 That's a pretty bad way of passing data. I guess if it's written in C it makes sense but you should have written a thin wrapper in C++ for it
+
+I see, you are manually constructing JSON payload too
+Sleepy Flower Girl - Today at 2:28 AM
+yea
+I don't see that as problem yet
+qwename - Today at 2:29 AM
+Well, it's error-prone, and you might not know the intricacies of JSON enough
+TiltMeSenpai - Today at 2:29 AM
+there is a json lib for cpp floating around
+you want that?
+Sleepy Flower Girl - Today at 2:29 AM
+I don't need a json lib
+qwename - Today at 2:30 AM
+The least you can do is pack it into a helper function
+Sleepy Flower Girl - Today at 2:30 AM
+I understand it enugh that I don't need a lib for that
+qwename - Today at 2:31 AM
+I pass a dictionary around until I actually need to send the data, then I call a library function to return a JSON payload
+The point isn't whether you understand it or not(edited)
+TiltMeSenpai - Today at 2:31 AM
+ok that's not horrible actually
+qwename - Today at 2:31 AM
+Right now you have to specify all the curly brackets and commas and whatnot(edited)
+NEW MESSAGES
+qwename - Today at 2:32 AM
+Which takes away time and effort from what you are actually accomplishing
+So I suggest the minimum of putting that in a helper method.
+I think the map class is an associative array that can do what you need
+From <map>
+
 */
 
 namespace SleepyDiscord {

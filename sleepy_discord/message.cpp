@@ -1,4 +1,5 @@
 #include "message.h"
+#include "experimental.h"
 namespace SleepyDiscord {
 	Message::Message() {
 
@@ -19,28 +20,44 @@ namespace SleepyDiscord {
 		DiscordObject::fillOut(messageJSONObject);
 	}
 
-	Message::Message(std::string rawJson) {
+	Message::Message(const std::string * rawJson, const unsigned int startPosition) 
+//#ifdef EXPERIMENTAL
+		//: DiscordObject(), startPosition(startPosition) , rawOriginJSON(rawJson)	
+//#endif // EXPERIMENTAL
+	{
 		//set numbers to defaults
 		numOfMentions = 0;
 		numOfAttachments = 0;
 		numOfEmbeds = 0;
 		numOfMention_roles = 0;
-
-		const char * cString = rawJson.c_str();
-		id = JSON_find<std::string>("id", cString);
-		channel_id = JSON_find<std::string>("channel_id", cString);
-		//author = JSON_find<std::string>("author", cString);
-		content = JSON_find<std::string>("content", cString);
-		timestamp = JSON_find<std::string>("timestamp", cString);
-		edited_timestamp = JSON_find<std::string>("edited_timestamp", cString);
-		//tts
-		//mention_everyone
+		nonce = 0;
+		const char* names[] = { "id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
+		                        "mention_everyone", "author", "mentions", "mention_roles", "attachments",
+		                        "embeds", "nonce", "pinned" };
+		const unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		JSON_getValues(rawJson->c_str(), names, values, arraySize);
+		id = values[0];
+		channel_id = values[1];
+		content = values[2];
+		timestamp = values[3];
+		edited_timestamp = values[4];
+		tts = values[5][0] == 't' ? true : false;
+		mention_everyone = values[6][0] == 't' ? true : false;
+		author = User(values + 7);
+		//const char * cString = rawJson.c_str();
+		//id = JSON_find<std::string>("id", cString);
+		//channel_id = JSON_find<std::string>("channel_id", cString);
+		////author = JSON_find<std::string>("author", cString);
+		//content = JSON_find<std::string>("content", cString);
+		//timestamp = JSON_find<std::string>("timestamp", cString);
+		//edited_timestamp = JSON_find<std::string>("edited_timestamp", cString);
 		//mentions
 		//mention_roles
 		//attachments
 		//embeds
-		//nonce
-		//pinned
+		if (values[12][0] != 'n') nonce = std::stoll(values[12]);
+		pinned = values[13][0] == 't' ? true : false;
 	}
 
 	//void Message::fillOut(JSON_object * _JSON_object) {
