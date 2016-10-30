@@ -55,6 +55,15 @@ bld/
 # Visual Studio 2015 cache/options directory
 .vs/
 
+# All Visual Studio files
+Win32/
+*.vcxproj
+*.vcxproj.filters
+*.filters
+*.sln
+*.VC.db
+
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
