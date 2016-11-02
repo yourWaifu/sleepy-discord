@@ -1,12 +1,13 @@
-#include "sleepy_discord.h"
+#include <thread>
+#include <experimental.h>
 
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
-	myClientClass(const std::string token) : DiscordClient(token) {}
-	void onMessage(JSON* jsonMessage) {
-		SleepyDiscord::Message message(this, jsonMessage);
+	using DiscordClient::DiscordClient;
+	void onMessage(std::string* jsonMessage) {
+		SleepyDiscord::Message message(jsonMessage);
 		if (message.startsWith("whcg hello"))
-			message.reply("Hello " + message.author.username);
+			sendMessage(message.channel_id, "Hello " + message.author.username);
 	}
 };
 

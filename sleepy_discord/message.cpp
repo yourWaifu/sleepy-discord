@@ -75,8 +75,8 @@ namespace SleepyDiscord {
 			} break;
 		case 'p': pinned = *(bool*)value; break;
 		case 'n':
-			try { nonce = boost::lexical_cast<uint64_t>((char*)value); }
-			catch (const boost::bad_lexical_cast &) { nonce = 0; }
+			nonce = 0; //this function is going to be replaced so lets forget about it
+
 			break;
 		case 'm':
 			switch (name[8]) {

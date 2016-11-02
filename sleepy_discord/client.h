@@ -5,7 +5,6 @@
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 #include <string>
-#include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <cpr\cpr.h>
 #include <chrono>	//for debugging

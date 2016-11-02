@@ -6,7 +6,6 @@ namespace SleepyDiscord {
 		: client(&token, this) 
 		, clock_thread(&DiscordClient::runClock_thread, this)
 	{
-		ready = false;
 		token = _token;
 		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
 		char theGateway[64];
@@ -146,6 +145,7 @@ namespace SleepyDiscord {
 	}
 
 	void DiscordClient::runClock_thread() {
+		ready = false;
 		waitTilReady();
 		int HalfSecondTimer = 0;
 		while (ready) {
@@ -253,7 +253,7 @@ namespace SleepyDiscord {
 			if (nextHeartbeat <= 0) nextHeartbeat = epochTimeMillisecond;
 			nextHeartbeat += heartbeatInterval;
 
-			std::string str = boost::lexical_cast<std::string>(lastSReceived);
+			std::string str = std::to_string(lastSReceived);
 			this_client.send(handle, "{\"op\":1,\"d\":" + str + "}", websocketpp::frame::opcode::text);
 			discord->onHeartbeat();
 		}

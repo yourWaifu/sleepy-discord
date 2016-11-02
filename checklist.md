@@ -13,3 +13,5 @@
 - [ ] stop using #define and use static const
 - [ ] add an optional command parsing structure (asked by Imayhaveborkedit)
 - [ ] use int 64 for snowflakes (or don't because you have to send it as a stirng)
+
+time wasted on talking to people about the 3.5 gb: 36 mins since Halloween 2016

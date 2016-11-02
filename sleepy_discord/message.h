@@ -1,6 +1,4 @@
 #pragma once
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include "user.h"
 #include "attachment.h"
 #include "embed.h"
