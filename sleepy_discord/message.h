@@ -30,14 +30,12 @@ namespace SleepyDiscord {
 		std::string edited_timestamp;
 		bool tts;
 		bool mention_everyone;
-		User* mentions;
-		unsigned int numOfMentions;
+		std::vector<User> mentions;
 		Attachment* attachments;
 		unsigned int numOfAttachments;
 		Embed* embeds;
 		unsigned int numOfEmbeds;
-		std::string* mention_roles;
-		unsigned int numOfMention_roles;
+		std::vector<std::string> mention_roles;
 		int64_t nonce;	//nullable
 		bool pinned;
 

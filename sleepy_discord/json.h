@@ -121,6 +121,9 @@ unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_po
 unsigned int JSON_find(const char * name, const char * source);
 void JSON_findMuitiple(/*const char ** names,*/ const unsigned int numberOfNames, const char* source, JSON_findMuitipleStruct* values/*unsigned int * namePositions, const unsigned int * numeLengths*/);
 unsigned int JSON_find1(const char * name, const char * source);
+void JSON_skipObject(const char * JSONstring, unsigned int *position);
+unsigned int JSON_measureAndSkipObject(const char * JSONstring, unsigned int *position);
+unsigned int JSON_measureObject(const char * JSONstring, const unsigned int *position);
 
 #ifdef __cplusplus
 }
@@ -149,6 +152,55 @@ template<class Type>
 Type JSON_find(const char * name, const std::string source) {
 	const char * cString = source.c_str();
 	return JSON_find<Type>(name, cString);
+}
+
+template<class Type>
+void JSON_getArray(const std::string* _source, std::vector<Type>* target, void (*function)(Type*, std::string)) {
+	const char* source = _source->c_str();
+	if (*source != '[') return;
+
+	//get size of array and change size of target array
+	const unsigned int sourceLength = _source->size();
+	unsigned int arraySize = 0;
+	unsigned int position = 1;
+	for (; position < sourceLength; position++) {
+		switch (source[position]) {
+		case '"': JSON_skipString(source, &position); break;
+		case '{': JSON_skipObject(source, &position); break;
+		case '[': JSON_skipObject(source, &position); break;
+		case ',': ++arraySize; break;
+		default: break;
+		}
+	}
+	for (bool loop = true; loop;) {	//count last variable
+		switch (source[--position]) {
+		case '[': return; break;	//empty array
+		case ' ': break;
+		case ']': break;
+		default: 
+			loop = false; 
+			++arraySize;
+			break;
+		}
+	}
+	target->resize(arraySize);
+
+	//fill the vector with variables
+	position = 1;
+	for (unsigned int index = 0; index < arraySize && position < sourceLength; position++) {	//variables should be the same type, right?
+		switch (source[position]) {
+		case '"': {
+			const unsigned int size = JSON_measureString(source, &position) - 1;	//the -1 removes the "
+			function(&(*target)[index++], std::string(source + position + 1, size));
+			position += size + 1;	//the +1 should skip the "
+		} break;	//This should make a string, and the +1 and -1 removes the two "
+		case '{': {
+			const unsigned int size = JSON_measureObject(source, &position) + 1;	//the +1 adds a }
+			function(&(*target)[index++], std::string(source + position, size));
+			position += size;
+		} break;
+		}
+	}
 }
 
 //void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);

@@ -14,4 +14,4 @@
 - [ ] add an optional command parsing structure (asked by Imayhaveborkedit)
 - [ ] use int 64 for snowflakes (or don't because you have to send it as a stirng)
 
-time wasted on talking to people about the 3.5 gb: 36 mins since Halloween 2016
+time wasted on talking to people about the 3.5 gb: 44 mins since Halloween 2016

@@ -6,10 +6,8 @@ namespace SleepyDiscord {
 	}
 
 	Message::~Message() {
-		if (0 < numOfMentions) delete[] mentions;
 		if (0 < numOfEmbeds) delete[] embeds;
 		if (0 < numOfAttachments) delete[] attachments;
-		if (0 < numOfMention_roles) delete[] mention_roles;
 	}
 
 	Message::Message(JSON * jsonMessage) {
@@ -26,10 +24,8 @@ namespace SleepyDiscord {
 //#endif // EXPERIMENTAL
 	{
 		//set numbers to defaults
-		numOfMentions = 0;
 		numOfAttachments = 0;
 		numOfEmbeds = 0;
-		numOfMention_roles = 0;
 		nonce = 0;
 		const char* names[] = { "id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
 		                        "mention_everyone", "author", "mentions", "mention_roles", "attachments",
@@ -45,15 +41,8 @@ namespace SleepyDiscord {
 		tts = values[5][0] == 't' ? true : false;
 		mention_everyone = values[6][0] == 't' ? true : false;
 		author = User(values + 7);
-		//const char * cString = rawJson.c_str();
-		//id = JSON_find<std::string>("id", cString);
-		//channel_id = JSON_find<std::string>("channel_id", cString);
-		////author = JSON_find<std::string>("author", cString);
-		//content = JSON_find<std::string>("content", cString);
-		//timestamp = JSON_find<std::string>("timestamp", cString);
-		//edited_timestamp = JSON_find<std::string>("edited_timestamp", cString);
-		//mentions
-		//mention_roles
+		JSON_getArray<User>(values + 8, &mentions, [](User* value, std::string string) {*value = User(&string);});
+		JSON_getArray<std::string>(values + 9, &mention_roles, [](std::string* value, std::string string) {*value = string;});
 		//attachments
 		//embeds
 		if (values[12][0] != 'n') nonce = std::stoll(values[12]);
@@ -81,12 +70,12 @@ namespace SleepyDiscord {
 		case 'm':
 			switch (name[8]) {
 			case 0: //mentions
-				mentions = fillOutArray<User>(value, numOfMentions); break;
+				//mentions = fillOutArray<User>(value, numOfMentions); break;
 			case 'r':
-				mention_roles = fillOutArray<std::string>(value, numOfMention_roles,
-					[] (std::string* arrayValue, JSON_array* _array, unsigned int index) {
-						*arrayValue = (char*)JSON_accessArray(_array, index);
-					});
+				//mention_roles = fillOutArray<std::string>(value, numOfMention_roles,
+				//	[] (std::string* arrayValue, JSON_array* _array, unsigned int index) {
+				//		*arrayValue = (char*)JSON_accessArray(_array, index);
+				//	});
 				break;
 			case 'e': mention_everyone = *(bool*)value; break;
 			default: break;
@@ -122,7 +111,8 @@ namespace SleepyDiscord {
 	}
 
 	bool Message::isMentioned(const std::string id) {
-		for (unsigned int i = 0; i < numOfMentions; i++)
+		unsigned int size = mentions.size();
+		for (unsigned int i = 0; i < size; i++)
 			if (mentions[i].id  == id) return true;
 		return false;
 	}

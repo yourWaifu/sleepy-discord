@@ -509,6 +509,11 @@ unsigned int JSON_measureAndSkipObject(const char * JSONstring, unsigned int *po
 	return *position - startPosition;
 }
 
+unsigned int JSON_measureObject(const char * JSONstring, const unsigned int *position) {
+	unsigned int startPosition = *position;
+	return JSON_measureAndSkipObject(JSONstring, &startPosition);
+}
+
 unsigned int JSON_find(const char * name, const char * source) {	//bug if a value that isn't a name will break this I think
 	if (*source != '{') return 0;
 
