@@ -2,7 +2,7 @@
 C++ library for Discord
 
 # Why?
-Just for the novelty of using a C++ library for Discord.
+Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
 
 # Example
 ```cpp
@@ -11,10 +11,10 @@ Just for the novelty of using a C++ library for Discord.
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
     using DiscordClient::DiscordClient;
-    void onMessage(JSON* jsonMessage) {
-   	    SleepyDiscord::Message message(this, jsonMessage);
+    void onMessage(std::string * jsonMessage) {
+   	    SleepyDiscord::Message message(jsonMessage);
 	    if (message.content.find("whcg hello") == 0)
-	        message.reply("Hello " + message.author.username);
+	        sendMessage(message.channel_id, "Hello " + message.author.username);
     }
 };
 
