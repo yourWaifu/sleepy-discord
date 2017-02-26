@@ -1,48 +1,45 @@
 #include "embed.h"
 
 namespace SleepyDiscord {
-	void Embed::fillOut(JSON_object* _JSON_object) {
-		DiscordObject::fillOut(_JSON_object);
+	Embed::Embed() {
 	}
 
-	void Embed::fillOut(const char* name, void* value) {
-		switch (name[0]) {
-		case 't': switch (name[1]) {
-			case 'i': title = (char*)value; break;
-			case 'y': type = (char*)value; break;
-			case 'h': thumbnail.fillOut((JSON_object*)value); break;
-			default: break;
-		} break;
-		case 'd': description = (char*)value; break;
-		case 'u': url = (char*)value; break;
-        case 'p': provider.fillOut((JSON_object*)value); break;
-		default: break;
-		}
-    }
-
-    void EmbedThumbnail::fillOut(JSON_object* _JSON_object) {
-		DiscordObject::fillOut(_JSON_object);
+	Embed::Embed(const std::string * rawJSON) {
+		const char* names[] = { "title", "type", "description", "url", "thumbnail", "provider" };
+		const unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		json::getValues(rawJSON->c_str(), names, values, arraySize);
+		title = values[0];
+		type = values[1];
+		description = values[2];
+		url = values[3];
+		if (values[4] != "") thumbnail = EmbedThumbnail(values + 4);	//if it doesn't have a thumbnail, it doesn't need to make one
+		provider = EmbedProvider(values + 5);
 	}
 
-    void EmbedThumbnail::fillOut(const char* name, void* value) {
-		switch (name[0]) {
-			case 'u': url = (char*)value; break;
-			case 'p': proxy_url = (char*)value; break;
-			case 'h': height = (double*)value; break;
-			case 'w': width = (double*)value; break;
-			default: break;
-		}
-    }
-
-    void EmbedProvider::fillOut(JSON_object* _JSON_object) {
-		DiscordObject::fillOut(_JSON_object);
+	EmbedThumbnail::EmbedThumbnail() {
 	}
 
-    void EmbedProvider::fillOut(const char* name, void* value) {
-		switch (name[0]) {
-			case 'n': this->name = (char*)value; break;
-			case 'u': url = (char*)value; break;
-			default: break;
-		}
-    }
+	EmbedThumbnail::EmbedThumbnail(const std::string * rawJSON) {
+		const char* names[] = { "url", "proxy_url", "height", "width" };
+		const unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		json::getValues(rawJSON->c_str(), names, values, arraySize);
+		url = values[0];
+		proxy_url = values[1];
+		height = std::stoul(values[2]);
+		width = std::stoul(values[3]);
+	}
+
+	EmbedProvider::EmbedProvider() {
+	}
+
+	EmbedProvider::EmbedProvider(const std::string * rawJSON) {
+		const char* names[] = { "name", "url" };
+		const unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		json::getValues(rawJSON->c_str(), names, values, arraySize);
+		name = values[0];
+		url = values[1];
+	}
 }

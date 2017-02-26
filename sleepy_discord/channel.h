@@ -6,25 +6,24 @@ namespace SleepyDiscord {
 	class Channel : public DiscordObject {
 	public:
 		using DiscordObject::DiscordObject;
+		Channel(const std::string * rawJson);
 		~Channel();
-		void fillOut(const char* name, void * value);
 		std::string id;
 		std::string guild_id;
 		std::string name;
 		std::string type;
-		double* position;
-		bool* is_private;
+		int position;
+		bool isPrivate;
 		//Overwrite* permissionOverwrites;
 		std::string topic;
 		std::string lastMessage_id;
-		double* bitrate;
-		double* userLimit;
+		int bitrate;
+		int userLimit;
 	};
 
 	class DirectMessageChannel : public DiscordObject {
 		using DiscordObject::DiscordObject;
 		~DirectMessageChannel();
-		void fillOut(const char* name, void * value);
 		std::string id;
 		bool* is_private;
 		User recipient;

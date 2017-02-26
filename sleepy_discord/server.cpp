@@ -1,50 +1,24 @@
 #include "server.h"
 
 namespace SleepyDiscord {
-	Server::Server(JSON* jsonMessage) {
-		DiscordObject::fillOut(jsonMessage);
-	}
-
 	Server::~Server() {
 
 	}
 
-	void Server::fillOut(JSON_object * _JSON_object) {
-		DiscordObject::fillOut(_JSON_object);
-	}
+	Server::Server(const std::string * rawJson) {
+		//parse json and convert from string to type
+		const char * names[] = { "id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
+								 "afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
+								 "unavailable", "mfa_level", "large", "joined_at", "default_message_notifications" };
+		constexpr unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		json::getValues(rawJson->c_str(), names, values, arraySize);
 
-	void Server::fillOut(const char * name, void * value) {
-		switch (name[0]) {
-		case 'a':
-			switch (name[4]) {
-			case 'c': afk_channel_id = (char*)value; break;
-			case 't': afk_timeout = (double*)value; break;
-			default: break;
-			} break;
-		case 'd': default_message_notifications = (double*)value; break;
-		case 'e':
-			switch (name[6]) {
-				case 'e': embed_enable = (bool*)value; break;
-				case 'c': embed_channel_id = (char*)value; break;
-				default: break;
-			} break;
-		case 'i':
-			switch (name[1]) {
-			case 'd': id = (char*)value;
-			case 'c': icon = (char*)value;
-			default: break;
-			} break;
-		case 'j': joined_at = (char*)value; break;
-		case 'l': large = (bool*)value; break;
-		case 'm': mfa_level = (double*)value; break;
-		case 'n': this->name = (char*)value; break;
-		case 'o': owner_id = (char*)value; break;
-		case 'r': region = (char*)value; break;
-		case 's': splash = (char*)value; break;
-		case 'u': unavailable = (bool*)value; break;
-		case 'v': verfication_level = (double*)value; break;
-		default: break;
-		}
+		id = values[0];
+		name = values[1];
+		icon = values[2];
+		splash = values[3];
+		owner_id = values[4];
+		region = values[5];
 	}
-
 }

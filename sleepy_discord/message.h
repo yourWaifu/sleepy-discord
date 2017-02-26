@@ -11,12 +11,8 @@ namespace SleepyDiscord {
 	public:
 		Message();
 		~Message();
-		Message(JSON_object * messageJSONObject);
-		Message(JSON * jsonMessage);
-		Message(const std::string * rawJson, const unsigned int startPosition = 0);
+		Message(const std::string * rawJson);
 		using DiscordObject::DiscordObject;
-		//void fillOut(JSON_object * _JSON_object);
-		void fillOut(const char* name, void * value);
 		bool startsWith(char* test);
 		int length();
 		bool isMentioned(const std::string id);
@@ -31,10 +27,8 @@ namespace SleepyDiscord {
 		bool tts;
 		bool mention_everyone;
 		std::vector<User> mentions;
-		Attachment* attachments;
-		unsigned int numOfAttachments;
-		Embed* embeds;
-		unsigned int numOfEmbeds;
+		std::vector<Attachment> attachments;
+		std::vector<Embed> embeds;
 		std::vector<std::string> mention_roles;
 		int64_t nonce;	//nullable
 		bool pinned;

@@ -270,3 +270,4 @@ ModelManifest.xml
 deps/
 sleepy_discord/examples/syswin_main.cpp
 sleepy_discord/examples/test.png
+/discord token.txt

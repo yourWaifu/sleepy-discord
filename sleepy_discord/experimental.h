@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <conio.h>
 #define EXPERIMENTAL 5
 #include "sleepy_discord.h"
 

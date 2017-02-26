@@ -1,43 +1,33 @@
 #include "channel.h"
 
 namespace SleepyDiscord {
+	Channel::Channel(const std::string * rawJson) {
+		//default values
+		bitrate = 0;
+		userLimit = 0;   //this only matters on voice channels
+		topic = "";
+		lastMessage_id = "";
+
+		const char* names[] = { "id", "guild_id", "name", "type", "position", "is_private",
+			"permission_overwrites", "topic", "last_message_id", "bitrate", "user_limit" };
+		constexpr unsigned int arraySize = sizeof(names) / sizeof(*names);
+		std::string values[arraySize];
+		json::getValues(rawJson->c_str(), names, values, arraySize);
+		id = values[0];
+		guild_id = values[1];
+		name = values[2];
+		type = values[3];
+		position = std::stoi(values[4]);
+		isPrivate = values[5][0] == 't' ? true : false;
+		//this is incomplete
+		//I'll finnish later
+	}
+
 	Channel::~Channel() {
 
 	}
 
-	void Channel::fillOut(const char * _name, void * value) {
-		switch (_name[0]) {
-		case 'i': switch (_name[1]) {
-			case 'd': id = (char*)value; break;
-			case 's': is_private = (bool*)value; break;
-		} break;
-		case 'g': guild_id = (char*)value; break;
-		case 'n': name = (char*)value; break;
-		case 't': switch (_name[1]) {
-			case 'y': type = (char*)value; break;
-			case 'o': topic = (char*)value; break;
-		} break;
-		case 'p': position = (double*)value; break;
-		case 'l': lastMessage_id = (char*)value; break;
-		case 'b': bitrate = (double*)value; break;
-		case 'u': userLimit = (double*)value; break;
-		default: break;
-		}
-	}
-
 	DirectMessageChannel::~DirectMessageChannel() {
 
-	}
-
-	void DirectMessageChannel::fillOut(const char* name, void * value) {
-		switch (name[0]) {
-		case 'i': switch (name[1]) {
-			case 'd': id = (char*)value; break;
-			case 's': is_private = (bool*)value; break;
-		} break;
-		case 'r': recipient.fillOut((JSON_object*)value); break;
-		case 'l': lastMessage_id = (char*)value; break;
-		default: break;
-		}
 	}
 }

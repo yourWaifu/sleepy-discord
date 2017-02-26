@@ -1,19 +1,26 @@
 #pragma once
+#define ASIO_STANDALONE
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
 #include <websocketpp/config/asio_client.hpp>
 //#include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 #include <string>
-#include <boost/thread.hpp>
-#include <cpr\cpr.h>
+//#include <boost/thread.hpp>
+#include <thread>
+#include <cpr/cpr.h>
 #include <chrono>	//for debugging
 #include "json.h"
 
 //objects
 #include "message.h"
+#include "channel.h"
+#include "server.h"
 
 #include "error.h"
+#include "common.h"
 
 /*
 
@@ -23,6 +30,7 @@ remove the boost library
 rewrite discordObject
 fix random crashing because of failing to send heartbeat
 stop using #define and use static const
+make function perimeters const
 
 */
 
@@ -41,44 +49,92 @@ namespace SleepyDiscord {
 		~DiscordClient();
 		
 		//http variables and functions
+		//request functions
 		enum RequestMethod {
 			Post,
 			Patch,
-			Delete
+			Delete,
+			Get,
+			Put
 		};
 		cpr::Response request(RequestMethod method, std::string url, std::string jsonParameters = "",
 			cpr::Parameters httpParameters = cpr::Parameters{}, cpr::Multipart multipartParameters = cpr::Multipart{});
 		cpr::Response request(RequestMethod method, std::string url, cpr::Multipart multipartParameters);
 		cpr::Response request(RequestMethod method, std::string url, cpr::Parameters httpParameters);
-#ifdef EXPERIMENTAL
-		Message sendMessage(std::string channel_id, std::string message);
-#else
-		int sendMessage(std::string channel_id, std::string message);
-#endif
-		int uploadFile(std::string channel_id, std::string fileLocation, std::string message);
-		int editMessage(std::string channel_id, std::string message_id, std::string newMessage);
-		int deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);
-		int createTextChannel(std::string server_id, std::string name);
-		int editChannel(std::string channel_id, std::string name = "", std::string topic = "");
-		int editChannelName(std::string channel_id, std::string name);
-		int editChannelTopic(std::string channel_id, std::string topic);
-		int deleteChannel(std::string channel_id);
-		int createRole(std::string server_id);
-		//int editRole(std::string role_id, std::string name = "", int permissions = NULL, int position = -1, int color = , bool hoist =);
-		int deleteRole(std::string server_id, std::string role_id);
 
+		void testFunction(std::string teststring);
+
+		//channel functions
+		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
+		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);
+		Message editMessage(std::string channel_id, std::string message_id, std::string newMessage);
+		bool deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);
+		Channel deleteChannel(std::string channel_id);
+		Channel getChannel(std::string channel_id);                                                                           //to do test this
+		//to do: Get Channel Messages
+		Message getMessage(std::string channel_id, std::string message_id);                                                   //to do test this
+		bool addReaction(std::string channel_id, std::string message_id, std::string emoji);
+		bool removeReaction(std::string channel_id, std::string message_id, std::string emoji, std::string user_id = "@me");  //to do test this
+		//reaction array getReactions(std::string channel_id, std::string message_id, std::string emoji);
+		//to do add bulk delete messages
+		//add Edit Channel Permissions
+		//add Get Channel Invites
+		//Create Channel Invite
+		bool sendTyping(std::string channel_id);                                                                              //to do test this
+		//message array getPinnedMessages(std::string channel_id);
+		bool pinMessage(std::string channel_id, std::string message_id);
+		bool unpinMessage(std::string channel_id, std::string message_id);
+		//Group DM Add Recipient
+		//Group DM Remove Recipient
+
+		//server functions
+		int createRole(std::string server_id);                                                                                //to do test this
+		//int editRole(std::string role_id, std::string nam.e = "", int permissions = NULL, int position = -1, int color = , bool hoist =);
+		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
+		bool muteServerMember(std::string server_id, std::string user_id, bool mute = true);                                  //to do test this
+		//Create Server
+		Server getServer(std::string server_id);                                                                              //to do test this
+		//edit Server
+		Server deleteServer(std::string server_id);                                                                           //to do test this
+		Channel createTextChannel(std::string server_id, std::string name);	                                                  //to do test this
+		Channel editChannel(std::string channel_id, std::string name = "", std::string topic = "");	                          //to do test this
+		Channel editChannelName(std::string channel_id, std::string name);                                                    //to do test this
+		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
+		//get member  make a member class
+		//listMembers
+		//add member
+		//edit member
+		bool editNickname(std::string server_id, std::string newNickname);
+		bool addRole(std::string server_id, std::string member_id, std::string role_id);
+		bool removeRole(std::string server_id, std::string member_id, std::string role_id);   //removes role from member
+		bool kickMember(std::string server_id, std::string member_id);
+		//get bans  needs member class
+		bool banMember(std::string server_id, std::string member_id);                                                         //to do test this later
+		bool unbanMember(std::string server_id, std::string member_id);                                                       //to do test this later
+		//getRoles  make role array
+		//edit role position
+		//editing roles
+		void pruneMembers(std::string server_id, const unsigned int numOfDays);                                               //to do test
+		//get prune count
+		//Get Voice Regions  needs voice region class
+		//Get Invites  needs invite class
+		//Get Integrations  needs whatever a integration class is
+		//bool createIntegration(std::string server_id, std::string integration_id, );                                        //finish this later
+		bool deleteIntegration(std::string server_id, std::string integration_id);                                            //to do test this
+		bool syncIntegration(std::string server_id, std::string integration_id);                                              //to do test this
+		//get server embed  needs server embed class
+		//edit server embed
 
 		void waitTilReady();
 		bool isReady() { return ready; }
 	protected:
-		virtual void onReady(JSON* jsonMessage);
-		virtual void onMessage(JSON* jsonMessage);
+		virtual void onReady(std::string* jsonMessage);
 		virtual void onMessage(std::string* jsonMessage);
-		virtual void onEditedMessage(JSON* jsonMessage);
+		virtual void onEditedMessage(std::string* jsonMessage);
 		virtual void onHeartbeat();
-		virtual void onServer(JSON* jsonMessage);
-		virtual void onChannel(JSON* jsonMessage);
-		virtual void onEditedRole(JSON* jsonMessage);
+		virtual void onServer(std::string* jsonMessage);
+		virtual void onChannel(std::string* jsonMessage);
+		virtual void onEditedRole(std::string* jsonMessage);
 		virtual void onDisconnet();
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, std::string errorMessage);
@@ -102,10 +158,10 @@ namespace SleepyDiscord {
 			int heartbeatInterval = 0;
 			int lastSReceived;
 			websocketpp::connection_hdl handle;
-			void on_message(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
-			void on_open(websocketpp::connection_hdl hdl);
+			void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
+			void onOpen(websocketpp::connection_hdl hdl);
 		};
-		boost::thread clock_thread;
+		std::thread clock_thread;
 		void runClock_thread();
 
 		void updateRateLimiter(const uint8_t numOfMessages = 1);
@@ -124,6 +180,10 @@ namespace SleepyDiscord {
 		uint8_t rateLimiter[MAX_MESSAGES_SENT_PER_MINUTE];
 		uint8_t rateLimiterClock;
 		uint8_t numOfMessagesSent;
+
+		//checks to make sure this is valid client
+		char magic[6];
+		inline bool isMagicReal();
 
 		//error handling
 		void setError(int errorCode);

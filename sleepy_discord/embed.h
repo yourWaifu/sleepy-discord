@@ -5,26 +5,26 @@
 namespace SleepyDiscord {
 	struct EmbedThumbnail : public DiscordObject {
 	public:
-		void fillOut(JSON_object* _JSON_object);
-		void fillOut(const char* name, void* value);
+		EmbedThumbnail();
+		EmbedThumbnail(const std::string * rawJSON);
 		std::string url;
 		std::string proxy_url;
-		double* height;
-		double* width;
+		unsigned long height;
+		unsigned long width;
 	};
 
 	struct EmbedProvider : public DiscordObject {
 	public:
-		void fillOut(JSON_object* _JSON_object);
-		void fillOut(const char* name, void* value);
+		EmbedProvider();
+		EmbedProvider(const std::string * rawJSON);
 		std::string name;
 		std::string url;
 	};
 
 	struct Embed : public DiscordObject {
 	public:
-		void fillOut(JSON_object* _JSON_object);
-		void fillOut(const char* name, void* value);
+		Embed();
+		Embed(const std::string * rawJSON);
 		std::string title;
 		std::string type;
 		std::string description;

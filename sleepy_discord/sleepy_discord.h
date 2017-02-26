@@ -1,6 +1,5 @@
 #pragma once
 #include "client.h"
-#include "message.h"
 
 /*
 FEEDBACK
@@ -69,6 +68,13 @@ Which takes away time and effort from what you are actually accomplishing
 So I suggest the minimum of putting that in a helper method.
 I think the map class is an associative array that can do what you need
 From <map>
+
+zey - Today at 12:24 AM
+i mention someone if
+- they'll otherwise miss it
+- they're afk
+- it's really important
+- it's Laura(edited)
 
 */
 
