@@ -1,14 +1,12 @@
 #pragma once
 #include <string>
-#include "client.h"
 #include "discord_object_interface.h"
 
 namespace SleepyDiscord {
 	struct Server : public DiscordObject {
 		Server(JSON* jsonMessage);
 		~Server();
-		void fillOut(JSON_object* _JSON_object);
-		void fillOut(const char* name, void * value);
+		Server(const std::string * rawJson);
 		std::string id;
 		std::string name;
 		std::string icon;
@@ -27,10 +25,8 @@ namespace SleepyDiscord {
 		bool* unavailable;
 
 		//presences
-		unsigned int numOfPressences;
 		double* mfa_level;
 		//members
-		unsigned int numOfMembers;
 		bool* large;
 		std::string joined_at;
 		double* default_message_notifications;

@@ -1,3 +1,12 @@
+# Ignore all CMAKE files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+
 # Compiled Object files
 *.slo
 *.lo
@@ -54,6 +63,15 @@ bld/
 
 # Visual Studio 2015 cache/options directory
 .vs/
+
+# All Visual Studio files
+Win32/
+*.vcxproj
+*.vcxproj.filters
+*.filters
+*.sln
+*.VC.db
+
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -252,3 +270,4 @@ ModelManifest.xml
 deps/
 sleepy_discord/examples/syswin_main.cpp
 sleepy_discord/examples/test.png
+/discord token.txt
