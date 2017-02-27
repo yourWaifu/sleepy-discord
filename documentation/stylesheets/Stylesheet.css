@@ -53,27 +53,10 @@ a {
 .page-header {
   color: #fff;
   text-align: center;
-   }
-
-.back-header {
-  position: fixed;
-	top: -50%;
-	left: -50%;
-  z-index: -100;
   background-image: url('../../images/360-degree_Panorama_of_the_Southern_Sky_edit1high.jpg');
   background-attachment: fixed;
   background-position: center;
-  width: 200%;
-  height: 200%;
-    -webkit-animation-name: none;
-  -webkit-animation-duration:180s;
-  -webkit-animation-iteration-count:infinite;
-  -webkit-animation-timing-function:linear;
-  -moz-animation-name: none;
-  -moz-animation-duration:180s;
-  -moz-animation-iteration-count:infinite;
-  -moz-animation-timing-function:linear;
-}
+   }
 
 @-webkit-keyframes rotate {
   from {-webkit-transform:rotate(0deg);}
@@ -140,8 +123,6 @@ a {
 
 .aplha-below {
   z-index: 1;
-  position:relative;
-  top: 6px;
   height: 6px;
   width: 100%;
   background: linear-gradient(to bottom, rgba(0,0,0,0.20),rgba(0,0,0,0) );
@@ -294,5 +275,5 @@ a {
 }
 
 .scopeOperator {
-  display: inline-block;;
+  display: inline-block;
 }
