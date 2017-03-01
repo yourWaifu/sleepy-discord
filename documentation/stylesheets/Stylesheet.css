@@ -20,6 +20,7 @@ a {
 .btn {
   display: inline-block;
   color: rgba(255, 255, 255, 0.9);
+  background-color: transparent;
   border-radius: 0.3rem;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s; }
   .btn + .btn {
@@ -30,6 +31,17 @@ a {
   text-decoration: none;
   background-color: rgba(255, 255, 255, 0.4);
   border-color: rgba(255, 255, 255, 0.3); }
+
+::-webkit-input-placeholder { /* Chrome */
+text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}::-ms-input-placeholder { /* IE 10+ */
+text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}::-moz-placeholder { /* Firefox 19+ */
+text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}
 
 @media screen and (min-width: 64em) {
   .btn {
@@ -57,16 +69,6 @@ a {
   background-attachment: fixed;
   background-position: center;
    }
-
-@-webkit-keyframes rotate {
-  from {-webkit-transform:rotate(0deg);}
-  to {  -webkit-transform:rotate(360deg);}
-}
-
-@-moz-keyframes rotate {
-  from {-moz-transform:rotate(0deg);}
-  to {  -moz-transform:rotate(360deg);}
-}
 
 @media screen and (min-width: 64em) {
   .page-header {
@@ -115,6 +117,10 @@ a {
 @media screen and (max-width: 42em) {
   .project-tagline {
     font-size: 1rem; } }
+
+    @media screen and (max-width: 43.5em) {
+  .show-big-only {
+    display: none; } }
 
 .main-content {
   background-color: #212121;

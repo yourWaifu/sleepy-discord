@@ -14,14 +14,14 @@
 	<link href="../stylesheets/prism.css" rel="stylesheet" />
 </head>
 
-<body onresize="resize()">
+<body>
 	<script src="../prism.js"></script>
 	<section class="page-header">
 		<a href="../.." class="btn">
 			<h1 class="project-name">Sleepy Discord</h1>
 		</a>
-		<a href="https://github.com/NoNamer64/sleepy-discord/wiki/DiscordClient" class="btn">Documentation</a>
-		<a href="https://github.com/NoNamer64/sleepy-discord" class="btn">View on GitHub</a>
+		<input type="text" name="search" placeholder="Search Documentation" style = "border: none;" class="btn">
+		<a href="https://github.com/NoNamer64/sleepy-discord/wiki/DiscordClient" class="btn show-big-only">&rarr;</a>
 	</section>
 
 	<div class="aplha-below"></div>
@@ -30,8 +30,9 @@
 			<h1><a href="../">SleepyDiscord</a><span class="scopeOperator">::</span><a href=".">DiscordClient</a><span class="scopeOperator">::</span>addReaction</h1>
 			<p><sup>
 			<a href=".">DiscordClient</a> > addReaction
-			<br>Version as of Writing: <code>Prerelease</code></sup></p>
-			<p>Defined in the <code>client.h</code>
+			<br>Version as of Writing: <code>Prerelease</code> Date: <code>2/28/2017</code></sup></p>
+			<p><a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h">Declared in <code>client.h</code></a> and 
+			<a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.cpp">defined in <code>client.cpp</code></a>
 				<pre><code class="language-cpp">bool addReaction(std::string channel_id, std::string message_id, std::string emoji);</code></pre>
 				Adds reaction to a message. Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-reaction">Create Reaction</a></p>
 			<h2>Parameters</h2>
@@ -60,11 +61,6 @@
 			<p>true on success, otherwise false</p>
 			<h2>Example</h2>
 			<pre><code class="language-cpp">#include &ltsleepy_discord&gt
-
-class myClientClass : public SleepyDiscord::DiscordClient {
-public:
-    using DiscordClient::DiscordClient;
-};
 
 int main() {
     myClientClass client("token");
