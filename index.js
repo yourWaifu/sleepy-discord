@@ -1,15 +1,11 @@
 function reply_click(clicked_id) {
 	var backgorund = document.getElementById("backgorund");
 	var style = window.getComputedStyle(backgorund);
-	var transformMatrix = style.transform;
-	backgorund.style.animationDuration = style.animationDuration === "0s" ? style.transitionDuration : "0s";
-	backgorund.style.transform = transformMatrix;
+	backgorund.style.animationPlayState = style.animationPlayState === "running" ? "paused" : "running";
 }
 
 window.onload = function() {
 	resize();
-	var backgorund = document.getElementById("backgorund");
-	backgorund.style.transitionDuration = window.getComputedStyle(backgorund).animationDuration;	//this is where we store the animationDuration for later
 }
 
 function resize() {
