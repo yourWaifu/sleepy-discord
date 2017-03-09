@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		var nameElements = document.querySelector(".nameele");
 		var currentPageName = nameElements.textContent;
 		//search for name in data
-		pathArray.push(searchForPath(currentPageName, ReferenceMap));
+		pathArray = pathArray.concat(searchForPath(currentPageName, ReferenceMap));
 		console.log(pathArray);
 		var newContent = "";
 		for (let j = pathArray.length - 1; 1 <= j; --j) {
