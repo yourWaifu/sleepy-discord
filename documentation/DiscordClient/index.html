@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>SleepyDiscord::DiscordClient::sendMessage - Sleepy Discord Docs</title>
+	<title>SleepyDiscord::DiscordClient - Sleepy Discord Docs</title>
 	<meta property="og:title" content="Sleepy Discord">
 	<meta name="description" content="C++ library for Discord">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,43 +28,56 @@
 	<div class="aplha-below"></div>
 	<section class="main-content">	
 		<div class="min">
-			<h1><a href="../">SleepyDiscord</a><span class="scopeOperator">::</span><a href=".">DiscordClient</a><span class="scopeOperator">::</span><span class = "nameele">sendMessage</span></h1>
+			<h1><a href="../">SleepyDiscord</a><span class="scopeOperator">::</span><span class = "nameele">DiscordClient</span></h1>
 			<p><sup>
-			<div class="navbar"><a href=".">DiscordClient</a> > sendMessage</div>
-			<br>Version as of Writing: <code>Prerelease</code> Date: <code>3/1/2017</code></sup></p>
-			<p><a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h">Declared in <code>client.h</code></a> and 
-			<a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.cpp">defined in <code>client.cpp</code></a>
-				<pre><code class="language-cpp">Message sendMessage(std::string channel_id, std::string message, bool tts = false);</code></pre>
-				Post a message to a channel. Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-message">Create Message</a></p>
-			<h2>Parameters</h2>
+			<div class="navbar"><a>DiscordClient</a> > </div>
+			<br>Version as of Writing: <code>Prerelease</code> Date: <code>3/8/2017</code></sup></p>
+			<p><a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h">Declared in <code>client.h</code></a>
+				<pre><code class="language-cpp">class DiscordClient {</code></pre>
+				The DiscordClient class is the base class for a client that can be used to send and read messages.</p>
+			<h2>Functions</h2>
 			<table>
 				<tbody class="parameters">
 					<tr>
-						<td><strong>channel_id</strong></td>
-						<td>The id of the channel you want to post the message to</td><br>
+						<td><a href="./sendMessage"><strong>sendMessage</strong></a></td>
+						<td>Post a messages to a channel</td>
 					</tr>
 					<tr>
-						<td><strong>message</strong></td>
-						<td>The message you want to post</td>
+						<td><a href="./editMessage"><strong>editMessage</strong></a></td>
+						<td>The id of the message you want to add a reaction to</td>
 					</tr>
 					<tr>
-						<td><strong>tts</strong></td>
-						<td>Short for Text to Speech. When this is true, anyone with text to speech messages on will have their computer read the message out load to the them</td>
+						<td><a href="./deleteMessage"><strong>deleteMessage</strong></a></td>
+						<td>Delete a message.</td>
+					</tr>
+					<tr>
+						<td><a href="./addReaction"><strong>addReaction</strong></a></td>
+						<td>Adds an reaction to a message</td>
 					</tr>
 				</tbody>
 			</table>
-			<h2>Return value</h2>
-			<p>The Message you just sent as a Message object</p>
 			<h2>Example</h2>
 			<pre><code class="language-cpp">#include &ltsleepy_discord&gt
 
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+    using DiscordClient::DiscordClient;	//this should call the DiscordClient constructor
+	void onMessage(std::string* jsonMessage) {
+		SleepyDiscord::Message message(jsonMessage);
+		if (message.startsWith("whcg hello"))
+			sendMessage(message.channel_id, "Hello " + message.author.username);
+	}
+};
+
 int main() {
     myClientClass client("token");
-    client.waitTilReady();
-    client.sendMessage("channel id", "Hello");
+    while(true)
+         std::this_thread::sleep_for(std::chrono::seconds(1));
 }</code></pre>
-			<p>Output: Message sent</p>
-			<pre>Hello</pre>
+			<p>Input: Message received</p>
+			<pre>whcg hello</pre>
+			<p>Possible Output: Message sent</p>
+			<pre>Hello Sleepy Flower Girl</pre>
 
 			<footer class="site-footer">
 				<span class="site-footer-owner"><a href="https://github.com/NoNamer64/sleepy-discord">Sleepy Discord</a> is maintained by <a href="https://github.com/NoNamer64">NoNamer64</a>.</span>

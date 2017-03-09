@@ -71,11 +71,11 @@ a {
   width: 200%;
   height: 200%;
     -webkit-animation-name: rotate;
-  -webkit-animation-duration:720s;
+  -webkit-animation-duration:360s;
   -webkit-animation-iteration-count:infinite;
   -webkit-animation-timing-function:linear;
   -moz-animation-name: rotate;
-  -moz-animation-duration: 720s;
+  -moz-animation-duration: 360s;
   -moz-animation-iteration-count:infinite;
   -moz-animation-timing-function:linear;
 }

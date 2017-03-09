@@ -283,3 +283,25 @@ text-align: center;
 .scopeOperator {
   display: inline-block;
 }
+
+.dropdownmenu {
+  display: none;
+  position: absolute;
+  background-color: #212121;
+  box-shadow: 0px 0em 1.5em 0px rgba(0, 0, 0, .8);
+  padding-left: .5em;
+  padding-right: .5em;
+  padding-top: .1em;
+  padding-bottom: .1em;
+}
+.dropdownmenu a {
+    display: block;
+}
+
+.showmenu {
+  display: block;
+}
+
+.navbar {
+  display: inline;
+}
