@@ -1,11 +1,8 @@
 #include "client.h"
-#include "experimental.h"
 
 namespace SleepyDiscord {
-	DiscordClient::DiscordClient(const std::string _token) 
-		: client(&token, this) 
-		, clock_thread(&DiscordClient::runClock_thread, this)
-	{
+	void DiscordClient::start(const std::string _token) {
+		clock_thread = std::thread(&DiscordClient::runClock_thread, this);
 		token = _token;
 		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
 		char theGateway[64];
@@ -21,7 +18,7 @@ namespace SleepyDiscord {
 				break;
 			} 
 		}
-		client.connect(theGateway/* + "/?v=6"*/);	//TO-DO add v=6 support
+		connect(theGateway/* + "/?v=6"*/);	//TO-DO add v=6 support
 	}
 
 	DiscordClient::~DiscordClient() {
@@ -62,10 +59,8 @@ namespace SleepyDiscord {
 		case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
 		default: {		//error
 			setError(response.status_code);		//https error
-			const char* names[] = { "code", "message" };	//parse json to get code and message
-			constexpr unsigned int arraySize = sizeof(names) / sizeof(*names);
-			std::string values[arraySize];
-			json::getValues(response.text.c_str(), names, values, arraySize);	//parse
+			std::vector<std::string> values = json::getValues(response.text.c_str(),
+				{ "code", "message" });	//parse json to get code and message
 			if (values[0] != "")
 				onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
 			} break;
@@ -81,12 +76,29 @@ namespace SleepyDiscord {
 		return request(method, url, "", httpParameters);
 	}
 
+	const std::string DiscordClient::path(const char * source, ...) {
+		va_list arguments;
+		va_start(arguments, source);
+		
+		std::string path(source);
+		unsigned int start = 0;
+		for (const char* c = source; ; ++c) {
+			switch (*c) {
+			case '{': start = c - source; break;
+			case '}': path.replace(start, c - source - start + 1, va_arg(arguments, const char *)); break;
+			case 0: 
+				va_end(arguments);
+				return path;
+			}
+		}
+	}
+
 	inline bool SleepyDiscord::DiscordClient::isMagicReal() {
 		return (magic[0] == 'm' && magic[1] == 'A' && magic[2] == 'g' && magic[3] == 'i' && magic[4] == 'c' && magic[5] == 0);
 	}
 
 	Message DiscordClient::sendMessage(std::string channel_id, std::string message, bool tts) {
-		auto r = request(Post, "channels/" + channel_id + "/messages", "{\"content\":\"" + message + (tts?"\",\"tts\":\"true\"":"\"") +"}");
+		auto r = request(Post, path("channels/{channel.id}/messages", channel_id), "{\"content\":\"" + message + (tts?"\",\"tts\":\"true\"":"\"") +"}");
 		return Message(&r.text);
 	}
 
@@ -104,8 +116,16 @@ namespace SleepyDiscord {
 		return Message(&r.text);
 	}
 
-	bool DiscordClient::deleteMessage(const std::string channel_id, const std::string * message_id, const int numOfMessages) {
-		return request(Delete, "channels/" + channel_id + "/messages/" + *message_id).status_code == NO_CONTENT;
+	bool DiscordClient::deleteMessage(const std::string channel_id, const std::string * message_id, const unsigned int numOfMessages) {
+		if (numOfMessages == 1) return request(Delete, "channels/" + channel_id + "/messages/" + *message_id).status_code == NO_CONTENT;
+		else {
+			std::string JSON = "{\"messages\":[";
+			for (unsigned int i = 0; i < numOfMessages; ++i) {
+				JSON += message_id[i];
+			}
+			JSON += "]}";
+			return request(Delete, "channels/" + channel_id + "/messages/" + *message_id).status_code == NO_CONTENT;
+		}
 	}
 
 	Channel DiscordClient::createTextChannel(std::string server_id, std::string name) {
@@ -138,6 +158,7 @@ namespace SleepyDiscord {
 	}
 
 	void DiscordClient::testFunction(std::string teststring) {
+		
 	}
 
 	Channel DiscordClient::getChannel(std::string channel_id) {
@@ -230,14 +251,39 @@ namespace SleepyDiscord {
 		return request(Post, "guilds/" + server_id + "/integrations/" + integration_id + "/sync").status_code == NO_CONTENT;
 	}
 
-	void DiscordClient::waitTilReady() {
-		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
+	Invite DiscordClient::inviteEndpoint(RequestMethod method, std::string inviteCode) {
+		auto r = request(method, "invites/" + inviteCode);
+		return Invite(&r.text);
 	}
 
-	DiscordClient::WebsocketClient::WebsocketClient(std::string* _token, DiscordClient* _discordClient) {
-		token = _token;
-		discord = _discordClient;
-		init();
+	Invite DiscordClient::getInvite(std::string inviteCode) {
+		return inviteEndpoint(Get, inviteCode);
+	}
+
+	Invite DiscordClient::deleteInvite(std::string inviteCode) {
+		return inviteEndpoint(Delete, inviteCode);
+	}
+
+	Invite DiscordClient::acceptInvite(std::string inviteCode) {
+		return inviteEndpoint(Post, inviteCode);
+	}
+
+	User DiscordClient::getCurrentUser() {
+		auto r = request(Get, "users/@me");
+		return User(&r.text);
+	}
+
+	User DiscordClient::getUser(std::string user_id) {
+		auto r = request(Get, "users/" + user_id);
+		return User(&r.text);
+	}
+
+	bool DiscordClient::leaveServer(std::string server_id) {
+		return request(Delete, "users/@me/guilds/" + server_id).status_code == NO_CONTENT;
+	}
+
+	void DiscordClient::waitTilReady() {
+		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
 	void DiscordClient::runClock_thread() {
@@ -245,7 +291,7 @@ namespace SleepyDiscord {
 		waitTilReady();
 		int HalfSecondTimer = 0;
 		while (ready) {
-			client.heartbeat();
+			heartbeat();
 			if (HalfSecondTimer == 0) {
 				//boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 				if (MAX_MESSAGES_SENT_PER_MINUTE <= ++rateLimiterClock)
@@ -264,76 +310,33 @@ namespace SleepyDiscord {
 		numOfMessagesSent += numOfMessages;
 	}
 
-	DiscordClient::WebsocketClient::~WebsocketClient() {
-	}
-
-	void DiscordClient::WebsocketClient::init() {
-		// set up access channels to only log interesting things
-		this_client.clear_access_channels(websocketpp::log::alevel::all);
-		this_client.set_access_channels(websocketpp::log::alevel::connect);
-		this_client.set_access_channels(websocketpp::log::alevel::disconnect);
-		this_client.set_access_channels(websocketpp::log::alevel::app);
-
-		this_client.set_tls_init_handler([this](websocketpp::connection_hdl) {
-			return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
-		});
-
-		// Initialize the Asio transport policy
-		this_client.init_asio();
-
-		this_client.set_message_handler(std::bind(&WebsocketClient::onMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
-		this_client.set_open_handler(std::bind(&WebsocketClient::onOpen, this, websocketpp::lib::placeholders::_1));
-
-	}
-
-	int DiscordClient::WebsocketClient::connect(const std::string & uri) {
-		// Create a new connection to the given URI
-		websocketpp::lib::error_code ec;
-		_client::connection_ptr con = this_client.get_connection(uri, ec);
-
-		if (ec) {
-			std::cout << "> Connect initialization error: " << ec.message() << std::endl;
-			return -1;
-		}
-		// Grab a handle for this connection so we can talk to it in a thread 
-		// safe manor after the event loop starts.
-		handle = con->get_handle();
-		// Queue the connection. No DNS queries or network connections will be
-		// made until the io_service event loop is run.
-		this_client.connect(con);
-		_thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
-		return 0;
-	}
-
-	void DiscordClient::WebsocketClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
-		const char* names[] = { "op", "d", "s", "t" };
-		const unsigned int arraySize = sizeof(names) / sizeof(*names);
-		std::string values[arraySize];
-		json::getValues(msg->get_payload().c_str(), names, values, arraySize);
+	void DiscordClient::processMessage(std::string message) {
+		std::vector<std::string> values = json::getValues(message.c_str(),
+			{ "op", "d", "s", "t" });
 		int op = std::stoi(values[0]);
 		if (op == 0) {
 			lastSReceived = std::stoi(values[2]);
 			const std::string &t = values[3];
-			std::string *d = values + 1;
+			const std::string *d = &values[1];
 			if (t == "READY") {
 				heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-				discord->onReady(d);
-				discord->ready = true;
+				onReady(d);
+				ready = true;
 			} else if (t == "MESSAGE_CREATE") {
-				discord->onMessage(d);
+				onMessage(d);
 			} else if (t == "MESSAGE_UPDATE") {
-				discord->onEditedMessage(d);
+				onEditedMessage(d);
 			} else if (t == "GUILD_CREATE") {
-				discord->onServer(d);
+				onServer(d);
 			} else if (t == "CHANNEL_CREATE") {
-				discord->onChannel(d);
+				onChannel(d);
 			} else if (t == "GUILD_ROLE_CREATE") {
-				discord->onEditedRole(d);
+				onEditedRole(d);
 			}
 		}
 	}
 
-	void DiscordClient::WebsocketClient::heartbeat(int op_code) {
+	void DiscordClient::heartbeat(int op_code) {
 		if (!heartbeatInterval) return;
 
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
@@ -345,29 +348,8 @@ namespace SleepyDiscord {
 			nextHeartbeat += heartbeatInterval;
 
 			std::string str = std::to_string(lastSReceived);
-			this_client.send(handle, "{\"op\":1,\"d\":" + str + "}", websocketpp::frame::opcode::text);
-			discord->onHeartbeat();
+			send("{\"op\":1,\"d\":" + str + "}");
+			onHeartbeat();
 		}
 	}
-
-	void DiscordClient::WebsocketClient::onOpen(websocketpp::connection_hdl hdl) {
-		//Handshaking
-		//{
-		//	"op":2,
-		//	 "d":{
-		//		"token":my_token,
-		//		"properties":{
-		//			$os":"windows 10",
-		//			"$browser":"Sleepy_Discord",
-		//			"$device":"Sleepy_Discord",
-		//			"$referrer":"",			//I don't know what this does
-		//			"$referring_domain":""		//I don't know what this does
-		//		},
-		//		"compress":false,
-		//		"large_threshold":250			/I don't know what this does
-		//	}
-		//}
-		this_client.send(handle, "{\"op\":2,\"d\":{\"token\":\"" + *token + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}", websocketpp::frame::opcode::text);
-	}
-
 }

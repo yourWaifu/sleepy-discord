@@ -11,13 +11,15 @@
 //#include <boost/thread.hpp>
 #include <thread>
 #include <cpr/cpr.h>
-#include <chrono>	//for debugging
+#include <chrono>
 #include "json.h"
 
 //objects
 #include "message.h"
 #include "channel.h"
 #include "server.h"
+#include "invite.h"
+#include "webhook.h"
 
 #include "error.h"
 #include "common.h"
@@ -45,7 +47,8 @@ namespace SleepyDiscord {
 #define MILLISECONDS_PER_MESSAGES_SENT 60000/MAX_MESSAGES_SENT_PER_MINUTE
 	class DiscordClient {
 	public:
-		DiscordClient(const std::string _token);
+		DiscordClient() {}
+		DiscordClient(const std::string _token) { start(_token); }
 		~DiscordClient();
 		
 		//http variables and functions
@@ -62,13 +65,15 @@ namespace SleepyDiscord {
 		cpr::Response request(RequestMethod method, std::string url, cpr::Multipart multipartParameters);
 		cpr::Response request(RequestMethod method, std::string url, cpr::Parameters httpParameters);
 
+		const std::string path(const char* source, ...);
+
 		void testFunction(std::string teststring);
 
 		//channel functions
 		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
 		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);
 		Message editMessage(std::string channel_id, std::string message_id, std::string newMessage);
-		bool deleteMessage(const std::string channel_id, const std::string* message_id, const int numOfMessages = 1);
+		bool deleteMessage(const std::string channel_id, const std::string* message_id, const unsigned int numOfMessages = 1);
 		Channel deleteChannel(std::string channel_id);
 		Channel getChannel(std::string channel_id);                                                                           //to do test this
 		//to do: Get Channel Messages
@@ -125,6 +130,35 @@ namespace SleepyDiscord {
 		//get server embed  needs server embed class
 		//edit server embed
 
+		//Invite functions
+		Invite inviteEndpoint(RequestMethod method, std::string inviteCode);
+		Invite getInvite(std::string inviteCode);                                                                             //to do test this
+		Invite deleteInvite(std::string inviteCode);                                                                          //to do test this
+		Invite acceptInvite(std::string inviteCode);	//not available to bot accounts                                       //to do test this
+
+		//User functions
+		User getCurrentUser();                                                                                                //to do test this
+		User getUser(std::string user_id);                                                                                    //to do test this
+		//User editCurrentUser();
+		//getCurrentUserServers			//I think you could rename this getCurrentServers
+		bool leaveServer(std::string server_id);                                                                              //to do test this
+		//getDirectMessageChannels
+		//createDirectMessageChannel
+		//createGroupDirectMessageChannel
+		//getUserConnections
+
+		//Voice Functions
+		//getVoiceRegions
+
+		//Webhook functions
+		Webhook createWebhook(std::string channel_id, std::string name, std::string avatar = "");
+		//Webhook getChannelWebhooks();
+		//Webhook getServerWebhooks();
+		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");
+		Webhook editWebhook(std::string webhook_id, std::string webhookToken, std::string name, std::string avatar);    //you can leave token or avatar as null
+		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
+		//Webhook excuteWebhook(std::string webhook_id, std::string webhookToken, bool wait = false)
+
 		void waitTilReady();
 		bool isReady() { return ready; }
 	protected:
@@ -138,35 +172,49 @@ namespace SleepyDiscord {
 		virtual void onDisconnet();
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, std::string errorMessage);
+
+		/*do not use or overwrite the protected values below,
+		unless you know what you are doing*/
+		void processMessage(std::string message);
+		/*0 is for the timer thread
+		1 is for the op 10 packet
+		2 is for the ready packet or everything else*/
+		void heartbeat(int op_code = 0);
+		inline std::string getToken() { return token; }
+		void start(const std::string _token);
+		virtual int connect(const std::string & uri) { return false; }
+		virtual void send(std::string message) {}
 	private:
-		class WebsocketClient {
-		public:
-			WebsocketClient(std::string* _token, DiscordClient* _discordEvent);
-			~WebsocketClient();
-			void init();
-			int connect(const std::string & uri);
-			/*0 is for the timer thread
-			1 is for the op 10 packet
-			2 is for the ready packet or everything else*/
-			void heartbeat(int op_code = 0);	//interval is the amount of ms that the heartbeat needs to be sent to discord
-		private:
-			std::string* token;
-			DiscordClient* discord;
-			bool connected;
-			_client this_client;
-			websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
-			int heartbeatInterval = 0;
-			int lastSReceived;
-			websocketpp::connection_hdl handle;
-			void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
-			void onOpen(websocketpp::connection_hdl hdl);
-		};
+		bool connected;
+		int heartbeatInterval = 0;
+		int lastSReceived;
+		//class WebsocketClient {
+		//public:
+		//	WebsocketClient(std::string* _token, DiscordClient* _discordEvent);
+		//	~WebsocketClient();
+		//	void init();
+		//	int connect(const std::string & uri);
+		//	/*0 is for the timer thread
+		//	1 is for the op 10 packet
+		//	2 is for the ready packet or everything else*/
+		//	void heartbeat(int op_code = 0);	//interval is the amount of ms that the heartbeat needs to be sent to discord
+		//private:
+		//	std::string* token;
+		//	DiscordClient* discord;
+		//	bool connected;
+		//	_client this_client;
+		//	websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
+		//	int heartbeatInterval = 0;
+		//	int lastSReceived;
+		//	websocketpp::connection_hdl handle;
+		//	void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
+		//	void onOpen(websocketpp::connection_hdl hdl);
+		//};
 		std::thread clock_thread;
 		void runClock_thread();
 
 		void updateRateLimiter(const uint8_t numOfMessages = 1);
 
-		WebsocketClient client;
 		std::string token;
 		bool ready;
 

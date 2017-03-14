@@ -5,5 +5,4 @@ std::chrono::high_resolution_clock::time_point startTimer = std::chrono::high_re
 
 namespace SleepyDiscord {
 
-	
 }

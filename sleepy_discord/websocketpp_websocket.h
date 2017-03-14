@@ -1,0 +1,28 @@
+#pragma once
+#define ASIO_STANDALONE
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#include <websocketpp/config/asio_client.hpp>
+//#include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/client.hpp>
+#include <websocketpp/common/thread.hpp>
+#include <websocketpp/common/memory.hpp>
+#include "client.h"
+
+namespace SleepyDiscord {
+	class WebsocketppDiscordClient : public DiscordClient {
+	public:
+		WebsocketppDiscordClient() {}
+		WebsocketppDiscordClient(const std::string token);
+		~WebsocketppDiscordClient();
+	private:
+		void init();
+		int connect(const std::string & uri);
+		void send(std::string message);
+		_client this_client;
+		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
+		websocketpp::connection_hdl handle;
+		void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
+		void onOpen(websocketpp::connection_hdl hdl);
+	};
+}

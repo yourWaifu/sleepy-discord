@@ -12,10 +12,8 @@ namespace SleepyDiscord {
 		height = 0;
 		width = 0;
 		//parse json and convert from string to type
-		const char* names[] = { "id", "filename", "size", "url", "proxy_url", "height", "width" };
-		const unsigned int arraySize = sizeof(names) / sizeof(*names);
-		std::string values[arraySize];
-		json::getValues(rawJSON->c_str(), names, values, arraySize);
+		std::vector<std::string> values = json::getValues(rawJSON->c_str(),
+			{ "id", "filename", "size", "url", "proxy_url", "height", "width" });
 		id = values[0];
 		filename = values[1];
 		size = std::stoull(values[2]);
