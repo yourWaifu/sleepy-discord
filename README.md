@@ -1,5 +1,5 @@
 # Sleepy Discord
-C++ library for Discord
+Discord Library written in C++
 
 # Why?
 Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
