@@ -42,4 +42,4 @@ Yes, and for now I don't plan on making 0.0 versions backwards compatable with 1
 * [cpr](https://github.com/whoshuu/cpr)
 
 # Develop Breach
-For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop with caution because it may not even be able to complie or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
+For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to complie or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
