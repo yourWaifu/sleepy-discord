@@ -3,22 +3,9 @@
 namespace SleepyDiscord {
 	void DiscordClient::start(const std::string _token) {
 		clock_thread = std::thread(&DiscordClient::runClock_thread, this);
-		token = _token;
-		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
-		char theGateway[64];
-		for (unsigned int position = 0, j = 0; ; ++position) {
-			if (a.text[position] == '"')
-				++j;
-			else if (j == 3) {
-				const unsigned int start = position;
-				while (a.text[++position] != '"');
-				const unsigned int size = position - start;
-				a.text.copy(theGateway, size, start);
-				theGateway[size] = 0;
-				break;
-			} 
-		}
-		connect(theGateway/* + "/?v=6"*/);	//TO-DO add v=6 support
+		token = std::make_unique<std::string>(_token);
+		getTheGateway();
+ 		connect(theGateway);	//TO-DO add v=6 support
 	}
 
 	DiscordClient::~DiscordClient() {
@@ -40,7 +27,7 @@ namespace SleepyDiscord {
 			contentType = { "Content-Type", "multipart/form-data" };
 		}
 		session.SetHeader(cpr::Header{
-			{ "Authorization", "Bot " + token },
+			{ "Authorization", "Bot " + getToken() },
 			{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
 			contentType,
 			{ "Content-Length", std::to_string(jsonParameters.length()) }
@@ -158,7 +145,8 @@ namespace SleepyDiscord {
 	}
 
 	void DiscordClient::testFunction(std::string teststring) {
-		
+		disconnect(1001, "");
+		connect(theGateway);
 	}
 
 	Channel DiscordClient::getChannel(std::string channel_id) {
@@ -310,29 +298,99 @@ namespace SleepyDiscord {
 		numOfMessagesSent += numOfMessages;
 	}
 
+	void DiscordClient::getTheGateway() {
+		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
+		//getting the gateway
+		for (unsigned int position = 0, j = 0; ; ++position) {
+			if (a.text[position] == '"')
+				++j;
+			else if (j == 3) {
+				const unsigned int start = position;
+				while (a.text[++position] != '"');
+				unsigned int size = position - start;
+				a.text.copy(theGateway, size, start);
+				theGateway[size] = '/';
+				theGateway[++size] = '?';
+				theGateway[++size] = 'v';
+				theGateway[++size] = '=';
+				theGateway[++size] = '6';
+				theGateway[++size] = 0;
+				break;
+			}
+		}
+	}
+
+	void DiscordClient::sendIdentity() {
+		//{
+		//	"op":2,
+		//	 "d":{
+		//		"token":my_token,
+		//		"properties":{
+		//			$os":"windows 10",
+		//			"$browser":"Sleepy_Discord",
+		//			"$device":"Sleepy_Discord",
+		//			"$referrer":"",			//I don't know what this does
+		//			"$referring_domain":""		//I don't know what this does
+		//		},
+		//		"compress":false,
+		//		"large_threshold":250			/I don't know what this does
+		//	}
+		//}
+		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
+	}
+
 	void DiscordClient::processMessage(std::string message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
 		int op = std::stoi(values[0]);
-		if (op == 0) {
-			lastSReceived = std::stoi(values[2]);
-			const std::string &t = values[3];
-			const std::string *d = &values[1];
-			if (t == "READY") {
-				heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-				onReady(d);
-				ready = true;
-			} else if (t == "MESSAGE_CREATE") {
-				onMessage(d);
-			} else if (t == "MESSAGE_UPDATE") {
-				onEditedMessage(d);
-			} else if (t == "GUILD_CREATE") {
-				onServer(d);
-			} else if (t == "CHANNEL_CREATE") {
-				onChannel(d);
-			} else if (t == "GUILD_ROLE_CREATE") {
-				onEditedRole(d);
+		const std::string &t = values[3];
+		std::string *d = &values[1];
+		switch (op) {
+		case DISPATCH:
+				lastSReceived = std::stoi(values[2]);
+				if (t == "READY") {
+					session_id = json::getValue(d->c_str(), "session_id");
+					onReady(d);
+					ready = true;
+				} else if (t == "MESSAGE_CREATE") {
+					onMessage(d);
+				} else if (t == "MESSAGE_UPDATE") {
+					onEditedMessage(d);
+				} else if (t == "GUILD_CREATE") {
+					onServer(d);
+				} else if (t == "CHANNEL_CREATE") {
+					onChannel(d);
+				} else if (t == "GUILD_ROLE_CREATE") {
+					onEditedRole(d);
+				}
+		break;
+		case HELLO:
+			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+			sendIdentity();
+			break;
+		case RECONNECT:
+			ready = false;
+			disconnect(1000, "");
+			if (connect(theGateway)) break;
+			if (connect(theGateway)) break;
+			if (connect(theGateway)) break;
+			getTheGateway();
+			if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
+			break;
+		case INVALID_SESSION:
+			if (d[0][0] == 't') {
+				std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+				//send RESUME
+				send("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
+				ready = true;	//it is ready, right? I am not even sure
+			} else {
+				session_id = "";
+				sendIdentity();
 			}
+			break;
+		case HEARTBEAT_ACK:
+			onHeartbeatAck();
+			break;
 		}
 	}
 

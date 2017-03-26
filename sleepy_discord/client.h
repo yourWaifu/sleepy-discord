@@ -39,8 +39,6 @@ make function perimeters const
 
 class WebsocketClient;
 
-typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
-
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 #define MAX_MESSAGES_SENT_PER_MINUTE 120	//you should replace remove those
@@ -159,6 +157,9 @@ namespace SleepyDiscord {
 		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
 		//Webhook excuteWebhook(std::string webhook_id, std::string webhookToken, bool wait = false)
 
+		//websocket functions
+		void updateStatus(time_t idleSince, std::string gameName);
+
 		void waitTilReady();
 		bool isReady() { return ready; }
 	protected:
@@ -166,12 +167,14 @@ namespace SleepyDiscord {
 		virtual void onMessage(std::string* jsonMessage);
 		virtual void onEditedMessage(std::string* jsonMessage);
 		virtual void onHeartbeat();
+		virtual void onHeartbeatAck();
 		virtual void onServer(std::string* jsonMessage);
 		virtual void onChannel(std::string* jsonMessage);
 		virtual void onEditedRole(std::string* jsonMessage);
+		virtual void onInvaldSession();
 		virtual void onDisconnet();
 		virtual void tick(float deltaTime);
-		virtual void onError(ErrorCode errorCode, std::string errorMessage);
+		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
@@ -180,43 +183,42 @@ namespace SleepyDiscord {
 		1 is for the op 10 packet
 		2 is for the ready packet or everything else*/
 		void heartbeat(int op_code = 0);
-		inline std::string getToken() { return token; }
+		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token);
-		virtual int connect(const std::string & uri) { return false; }
+		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
+		virtual void disconnect(unsigned int code, const std::string reason) {}
 	private:
 		bool connected;
 		int heartbeatInterval = 0;
 		int lastSReceived;
-		//class WebsocketClient {
-		//public:
-		//	WebsocketClient(std::string* _token, DiscordClient* _discordEvent);
-		//	~WebsocketClient();
-		//	void init();
-		//	int connect(const std::string & uri);
-		//	/*0 is for the timer thread
-		//	1 is for the op 10 packet
-		//	2 is for the ready packet or everything else*/
-		//	void heartbeat(int op_code = 0);	//interval is the amount of ms that the heartbeat needs to be sent to discord
-		//private:
-		//	std::string* token;
-		//	DiscordClient* discord;
-		//	bool connected;
-		//	_client this_client;
-		//	websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
-		//	int heartbeatInterval = 0;
-		//	int lastSReceived;
-		//	websocketpp::connection_hdl handle;
-		//	void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
-		//	void onOpen(websocketpp::connection_hdl hdl);
-		//};
+
+		enum OPCode {
+			DISPATCH              = 0,		//dispatches an event
+			HEARTHBEAT            = 1,		//used for ping checking
+			IDENTIFY              = 2,		//used for client handshake
+			STATUS_UPDATE         = 3,		//used to update the client status
+			VOICE_STATE_UPDATE    = 4,	 	//used to join / move / leave voice channels
+			VOICE_SERVER_PING     = 5,	 	//used for voice ping checking
+			RESUME                = 6,		//used to resume a closed connection
+			RECONNECT             = 7,		//used to tell clients to reconnect to the gateway
+			REQUEST_GUILD_MEMBERS = 8,		//used to request guild members
+			INVALID_SESSION       = 9,		//used to notify client they have an invalid session id
+			HELLO                 = 10,		//sent immediately after connecting, contains heartbeat and server debug information
+			HEARTBEAT_ACK         = 11,		//sent immediately following a client heartbeat that was received
+		};
+
 		std::thread clock_thread;
 		void runClock_thread();
 
 		void updateRateLimiter(const uint8_t numOfMessages = 1);
 
-		std::string token;
+		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
+		std::string session_id;
+		void getTheGateway();
+		char theGateway[32];
 		bool ready;
+		void sendIdentity();
 
 		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
 		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0

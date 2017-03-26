@@ -1,18 +1,20 @@
 #pragma once
+#include <uWS/uWS.h>
 #include "client.h"
-//#include <uWS/uWS.h>
+#ifndef NONEXISTENT_UWEBSOCKETS
 
 namespace SleepyDiscord {
 
 	class UWebSocketsDiscordClient : public DiscordClient {
 	public:
 		UWebSocketsDiscordClient() {}
-		//UWebSocketsDiscordClient(const std::string token);
+		UWebSocketsDiscordClient(const std::string token);
 		~UWebSocketsDiscordClient();
 	private:
-		//uWS::Hub hub;
+		uWS::Hub hub;
 		int connect(const std::string & uri);
 		void send(std::string message);
 	};
 
 }
+#endif

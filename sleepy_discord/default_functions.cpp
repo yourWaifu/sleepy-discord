@@ -20,6 +20,10 @@ namespace SleepyDiscord {
 
 	}
 
+	void DiscordClient::onHeartbeatAck() {
+
+	}
+
 	void DiscordClient::onServer(std::string* jsonMessage) {
 	
 	}
@@ -32,6 +36,10 @@ namespace SleepyDiscord {
 
 	}
 
+	void DiscordClient::onInvaldSession() {
+
+	}
+
 	void DiscordClient::onDisconnet() {
 
 	}
@@ -41,6 +49,9 @@ namespace SleepyDiscord {
 	}
 	
 	void DiscordClient::onError(ErrorCode errorCode, std::string errorMessage) {
-		std::cout << "Error " << errorCode << ": " + errorMessage + '\n';
+		if (errorCode != 0)
+			std::cout << "Error " << errorCode << ": " + errorMessage + '\n';
+		else
+			std::cout << "Error " << ": " + errorMessage + '\n';
 	}
 }
