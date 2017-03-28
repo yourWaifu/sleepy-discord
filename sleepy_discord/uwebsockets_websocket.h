@@ -12,7 +12,7 @@ namespace SleepyDiscord {
 		~UWebSocketsDiscordClient();
 	private:
 		uWS::Hub hub;
-		int connect(const std::string & uri);
+		bool connect(const std::string & uri);
 		void send(std::string message);
 	};
 

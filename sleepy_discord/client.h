@@ -189,9 +189,10 @@ namespace SleepyDiscord {
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
 	private:
-		bool connected;
+		bool isHeartbeatRunning;
 		int heartbeatInterval = 0;
 		int lastSReceived;
+		bool wasHeartbeatAcked;
 
 		enum OPCode {
 			DISPATCH              = 0,		//dispatches an event
@@ -219,6 +220,7 @@ namespace SleepyDiscord {
 		char theGateway[32];
 		bool ready;
 		void sendIdentity();
+		bool restart();
 
 		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
 		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0

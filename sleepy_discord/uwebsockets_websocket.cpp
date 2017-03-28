@@ -9,12 +9,12 @@ namespace SleepyDiscord {
 		start(token);
 	}
 
-	int UWebSocketsDiscordClient::connect(const std::string & uri) {
+	bool UWebSocketsDiscordClient::connect(const std::string & uri) {
 		hub.onMessage([](uWS::WebSocket<uWS::SERVER> ws, char *message, size_t length, uWS::OpCode opCode) {
 			processMessage(message);
 		});
 
-		hub.connect("wss://localhost:3000", nullptr);
+		hub.connect(uri, nullptr);
 		hub.run()
 		return 0;
 	}
