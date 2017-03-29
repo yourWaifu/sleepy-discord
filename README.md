@@ -41,6 +41,7 @@ Yes, and for now I don't plan on making 0.0 versions backwards compatable with 1
 * [Websocket++](https://github.com/zaphoyd/websocketpp)
 * [uWebSockets](https://github.com/uWebSockets/uWebSockets) support coming soon, check out the develop breach if you are interested
   * Soon you can use uWebSockets or Websocket++
+  * No guarantee that I'll ever finnish this feature but it is planned
 * [cpr](https://github.com/whoshuu/cpr)
 
 # Develop Breach
