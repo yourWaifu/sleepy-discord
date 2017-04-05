@@ -9,7 +9,8 @@ namespace SleepyDiscord {
 	}
 
 	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
-
+		//use quit() here
+		_thread->join();
 	}
 
 	void WebsocketppDiscordClient::init() {
@@ -58,6 +59,10 @@ namespace SleepyDiscord {
 	
 	void WebsocketppDiscordClient::disconnect(unsigned int code, const std::string reason) {
 		this_client.close(handle, code, reason);
+	}
+
+	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {
+
 	}
 }
 #endif

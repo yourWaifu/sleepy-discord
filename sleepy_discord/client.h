@@ -162,6 +162,7 @@ namespace SleepyDiscord {
 
 		void waitTilReady();
 		bool isReady() { return ready; }
+		void quit();	//public function for diconnecting
 	protected:
 		virtual void onReady(std::string* jsonMessage);
 		virtual void onMessage(std::string* jsonMessage);
@@ -187,12 +188,12 @@ namespace SleepyDiscord {
 		void start(const std::string _token);
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
-		virtual void disconnect(unsigned int code, const std::string reason) {}
+		virtual void disconnect(unsigned int code, const std::string reason = "") {}
 	private:
 		bool isHeartbeatRunning;
 		int heartbeatInterval = 0;
 		int lastSReceived;
-		bool wasHeartbeatAcked;
+		bool wasHeartbeatAcked = true;
 
 		enum OPCode {
 			DISPATCH              = 0,		//dispatches an event
@@ -220,7 +221,8 @@ namespace SleepyDiscord {
 		char theGateway[32];
 		bool ready;
 		void sendIdentity();
-		bool restart();
+		bool restart();		//it's like start but when it already started
+		void reconnect(const unsigned int status = 1000);
 
 		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
 		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0

@@ -10,6 +10,7 @@ namespace SleepyDiscord {
 
 	DiscordClient::~DiscordClient() {
 		ready = false;
+		clock_thread.join();
 	}
 
 	cpr::Response DiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
@@ -88,6 +89,10 @@ namespace SleepyDiscord {
 		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
+	void DiscordClient::quit() {
+		disconnect(1000);
+	}
+
 	void DiscordClient::runClock_thread() {
 		isHeartbeatRunning = true;
 		ready = false;
@@ -160,6 +165,16 @@ namespace SleepyDiscord {
 		return connect(theGateway);
 	}
 
+	void DiscordClient::reconnect(const unsigned int status) {
+		//ready = false;
+		disconnect(status);
+		if (connect(theGateway)) return;
+		if (connect(theGateway)) return;
+		if (connect(theGateway)) return;
+		getTheGateway();
+		if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
+	}
+
 	void DiscordClient::processMessage(std::string message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
@@ -190,13 +205,7 @@ namespace SleepyDiscord {
 			sendIdentity();
 			break;
 		case RECONNECT:
-			//ready = false;
-			disconnect(1000, "");
-			if (connect(theGateway)) break;
-			if (connect(theGateway)) break;
-			if (connect(theGateway)) break;
-			getTheGateway();
-			if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
+			reconnect();
 			break;
 		case INVALID_SESSION:
 			if (d[0][0] == 't') {
@@ -226,6 +235,11 @@ namespace SleepyDiscord {
 		if (nextHeartbeat <= epochTimeMillisecond) {	//note:this sends the heartbeat early
 			if (nextHeartbeat <= 0) nextHeartbeat = epochTimeMillisecond;
 			nextHeartbeat += heartbeatInterval;
+
+			if (!wasHeartbeatAcked) {
+				disconnect(1006);
+				return;
+			}
 
 			std::string str = std::to_string(lastSReceived);
 			send("{\"op\":1,\"d\":" + str + "}");

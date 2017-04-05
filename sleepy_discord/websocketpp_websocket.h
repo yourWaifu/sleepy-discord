@@ -21,7 +21,8 @@ namespace SleepyDiscord {
 	private:
 		void init();
 		bool connect(const std::string & uri);
-		void disconnect(unsigned int code, const std::string reason);
+		void disconnect(unsigned int code, const std::string reason = "");
+		void onClose(_client * client, websocketpp::connection_hdl handle);
 		void send(std::string message);
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
