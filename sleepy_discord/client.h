@@ -161,7 +161,7 @@ namespace SleepyDiscord {
 		void updateStatus(time_t idleSince, std::string gameName);
 
 		void waitTilReady();
-		bool isReady() { return ready; }
+		const bool isReady() { return ready; }
 		void quit();	//public function for diconnecting
 	protected:
 		virtual void onReady(std::string* jsonMessage);
@@ -174,6 +174,7 @@ namespace SleepyDiscord {
 		virtual void onEditedRole(std::string* jsonMessage);
 		virtual void onInvaldSession();
 		virtual void onDisconnet();
+		virtual void onQuit();
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
@@ -188,7 +189,7 @@ namespace SleepyDiscord {
 		void start(const std::string _token);
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
-		virtual void disconnect(unsigned int code, const std::string reason = "") {}
+		virtual void disconnect(unsigned int code, const std::string reason) {}
 	private:
 		bool isHeartbeatRunning;
 		int heartbeatInterval = 0;
@@ -223,6 +224,7 @@ namespace SleepyDiscord {
 		void sendIdentity();
 		bool restart();		//it's like start but when it already started
 		void reconnect(const unsigned int status = 1000);
+		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 
 		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
 		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0

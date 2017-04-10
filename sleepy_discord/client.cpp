@@ -96,7 +96,8 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::quit() {
-		disconnect(1000);
+		disconnectWebsocket(1000);
+		onQuit();
 	}
 
 	void BaseDiscordClient::runClock_thread() {
@@ -163,7 +164,20 @@ namespace SleepyDiscord {
 		//		"large_threshold":250			/I don't know what this does
 		//	}
 		//}
-		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
+#if defined(_WIN32) || defined(_WIN64)
+		const char * os = "Windows";
+#elif defined(__APPLE__) || defined(__MACH__)
+		const char * os = "Mac OS X";
+#elif defined(__linux__) || defined(linux) || defined(__linux)
+		const char * os = "Linux";
+#elif defined __FreeBSD__
+		const char * os = "FreeBSD";
+#elif defined(unix) || defined(__unix__) || defined(__unix)
+		const char * os = "Unix";
+#else
+		const char* os = "\\u00AF\\\\_(\\u30C4)_\\/\\u00AF";  //shrug I dunno
+#endif
+		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"" + os + "\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
 	}
 
 	bool BaseDiscordClient::restart() {
@@ -173,12 +187,17 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
 		//ready = false;
-		disconnect(status);
+		disconnectWebsocket(status);
 		if (connect(theGateway)) return;
 		if (connect(theGateway)) return;
 		if (connect(theGateway)) return;
 		getTheGateway();
 		if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
+	}
+
+	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
+		disconnect(code, reason);
+		onDisconnet();
 	}
 
 	void BaseDiscordClient::processMessage(std::string message) {
@@ -243,7 +262,7 @@ namespace SleepyDiscord {
 			nextHeartbeat += heartbeatInterval;
 
 			if (!wasHeartbeatAcked) {
-				disconnect(1006);
+				disconnectWebsocket(1006);
 				return;
 			}
 

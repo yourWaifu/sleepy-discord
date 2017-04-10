@@ -43,6 +43,10 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::onDisconnet() {
 
 	}
+
+	void BaseDiscordClient::onQuit() {
+
+	}
 	
 	void BaseDiscordClient::tick(float deltaTime) {
 	

@@ -3,6 +3,7 @@
 
 namespace SleepyDiscord {
 	UWebSocketsDiscordClient::~UWebSocketsDiscordClient() {
+		thread.join();
 	}
 
 	UWebSocketsDiscordClient::UWebSocketsDiscordClient(const std::string token) {
