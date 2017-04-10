@@ -35,7 +35,7 @@ namespace SleepyDiscord {
 		pinned = values[13][0] == 't';
 	}
 
-	Message::Message(DiscordClient* client, std::string channel_id, std::string message, bool tts)
+	Message::Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts)
 	{
 		*this = client->sendMessage(channel_id, message, tts);
 	}
@@ -59,11 +59,11 @@ namespace SleepyDiscord {
 		return isMentioned(_user.id);
 	}
 
-	Message Message::send(DiscordClient* client) {
+	Message Message::send(BaseDiscordClient* client) {
 		return client->sendMessage(channel_id, content, tts);
 	}
 
-	Message Message::reply(DiscordClient * client, std::string message, bool tts)
+	Message Message::reply(BaseDiscordClient * client, std::string message, bool tts)
 	{
 		return client->sendMessage(channel_id, message, tts);
 	}

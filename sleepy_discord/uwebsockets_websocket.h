@@ -1,11 +1,12 @@
 #pragma once
 #include <uWS/uWS.h>
+#include <thread>
 #include "client.h"
 #ifndef NONEXISTENT_UWEBSOCKETS
 
 namespace SleepyDiscord {
 
-	class UWebSocketsDiscordClient : public DiscordClient {
+	class UWebSocketsDiscordClient : public BaseDiscordClient {
 	public:
 		UWebSocketsDiscordClient() {}
 		UWebSocketsDiscordClient(const std::string token);
@@ -18,5 +19,6 @@ namespace SleepyDiscord {
 		uWS::WebSocket<uWS::CLIENT> theClient;
 	};
 
+	typedef UWebSocketsDiscordClient DiscordClient;
 }
 #endif

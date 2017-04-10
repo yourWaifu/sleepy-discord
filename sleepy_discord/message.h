@@ -7,21 +7,21 @@
 // <--- means to add later
 
 namespace SleepyDiscord {
-	class DiscordClient;
+	class BaseDiscordClient;
 
 	struct Message : public DiscordObject {
 	public:
 		Message();
 		~Message();
 		Message(const std::string * rawJson);
-		Message(DiscordClient* client, std::string channel_id, std::string message, bool tts = false);
+		Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
 		using DiscordObject::DiscordObject;
 		bool startsWith(char* test);
 		int length();
 		bool isMentioned(const std::string id);
 		bool isMentioned(User& _user);
-		Message send(DiscordClient * client);
-		Message reply(DiscordClient * client, std::string message, bool tts = false);
+		Message send(BaseDiscordClient * client);
+		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
 		std::string id;
 		std::string channel_id;
 		User author;

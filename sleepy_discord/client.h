@@ -43,11 +43,11 @@ namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 #define MAX_MESSAGES_SENT_PER_MINUTE 120	//you should replace remove those
 #define MILLISECONDS_PER_MESSAGES_SENT 60000/MAX_MESSAGES_SENT_PER_MINUTE
-	class DiscordClient {
+	class BaseDiscordClient {
 	public:
-		DiscordClient() {}
-		DiscordClient(const std::string _token) { start(_token); }
-		~DiscordClient();
+		BaseDiscordClient() {}
+		BaseDiscordClient(const std::string _token) { start(_token); }
+		~BaseDiscordClient();
 		
 		//http variables and functions
 		//request functions

@@ -1,7 +1,7 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	void DiscordClient::setError(int errorCode) {
+	void BaseDiscordClient::setError(int errorCode) {
 		ErrorCode code = static_cast<ErrorCode>(errorCode);
 		switch (code) {
 		//HTTP Response/Error Codes

@@ -13,7 +13,7 @@
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
-	class WebsocketppDiscordClient : public DiscordClient {
+	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
 		WebsocketppDiscordClient() {}
 		WebsocketppDiscordClient(const std::string token);
@@ -29,6 +29,7 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl handle;
 		void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
 	};
+	typedef WebsocketppDiscordClient DiscordClient;
 }
 #else
 #undef ASIO_STANDALONE

@@ -1,19 +1,19 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	void DiscordClient::start(const std::string _token) {
-		clock_thread = std::thread(&DiscordClient::runClock_thread, this);
+	void BaseDiscordClient::start(const std::string _token) {
+		clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
 		token = std::make_unique<std::string>(_token);
 		getTheGateway();
  		connect(theGateway);	//TO-DO add v=6 support
 	}
 
-	DiscordClient::~DiscordClient() {
+	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
 		clock_thread.join();
 	}
 
-	cpr::Response DiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
+	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
 		cpr::Parameters httpParameters, cpr::Multipart multipartParameters) {
 		cpr::Session session;
 		std::pair<std::string, std::string> contentType;
@@ -56,15 +56,15 @@ namespace SleepyDiscord {
 		return response;
 	}
 
-	cpr::Response DiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
+	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
 		return request(method, url, "", cpr::Parameters{}, multipartParameters);
 	}
 
-	cpr::Response DiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
+	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
 		return request(method, url, "", httpParameters);
 	}
 
-	const std::string DiscordClient::path(const char * source, ...) {
+	const std::string BaseDiscordClient::path(const char * source, ...) {
 		va_list arguments;
 		va_start(arguments, source);
 
@@ -87,19 +87,19 @@ namespace SleepyDiscord {
 		}
 	}
 
-	inline bool SleepyDiscord::DiscordClient::isMagicReal() {
+	inline bool SleepyDiscord::BaseDiscordClient::isMagicReal() {
 		return (magic[0] == 'm' && magic[1] == 'A' && magic[2] == 'g' && magic[3] == 'i' && magic[4] == 'c' && magic[5] == 0);
 	}
 
-	void DiscordClient::waitTilReady() {
+	void BaseDiscordClient::waitTilReady() {
 		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
-	void DiscordClient::quit() {
+	void BaseDiscordClient::quit() {
 		disconnect(1000);
 	}
 
-	void DiscordClient::runClock_thread() {
+	void BaseDiscordClient::runClock_thread() {
 		isHeartbeatRunning = true;
 		ready = false;
 		waitTilReady();
@@ -120,12 +120,12 @@ namespace SleepyDiscord {
 		isHeartbeatRunning = false;
 	}
 
-	void DiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
+	void BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
 		rateLimiter[rateLimiterClock] += numOfMessages;
 		numOfMessagesSent += numOfMessages;
 	}
 
-	void DiscordClient::getTheGateway() {
+	void BaseDiscordClient::getTheGateway() {
 		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
@@ -147,7 +147,7 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void DiscordClient::sendIdentity() {
+	void BaseDiscordClient::sendIdentity() {
 		//{
 		//	"op":2,
 		//	 "d":{
@@ -166,12 +166,12 @@ namespace SleepyDiscord {
 		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"windows 10\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
 	}
 
-	bool DiscordClient::restart() {
-		if (!isHeartbeatRunning) clock_thread = std::thread(&DiscordClient::runClock_thread, this);
+	bool BaseDiscordClient::restart() {
+		if (!isHeartbeatRunning) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
 		return connect(theGateway);
 	}
 
-	void DiscordClient::reconnect(const unsigned int status) {
+	void BaseDiscordClient::reconnect(const unsigned int status) {
 		//ready = false;
 		disconnect(status);
 		if (connect(theGateway)) return;
@@ -181,7 +181,7 @@ namespace SleepyDiscord {
 		if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
 	}
 
-	void DiscordClient::processMessage(std::string message) {
+	void BaseDiscordClient::processMessage(std::string message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
 		int op = std::stoi(values[0]);
@@ -231,7 +231,7 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void DiscordClient::heartbeat(int op_code) {
+	void BaseDiscordClient::heartbeat(int op_code) {
 		if (!heartbeatInterval) return;
 
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
