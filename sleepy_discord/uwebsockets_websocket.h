@@ -17,6 +17,7 @@ namespace SleepyDiscord {
 		void disconnect(unsigned int code, const std::string reason = "");
 		void send(std::string message);
 		uWS::WebSocket<uWS::CLIENT> theClient;
+		std::thread thread;
 	};
 
 	typedef UWebSocketsDiscordClient DiscordClient;
