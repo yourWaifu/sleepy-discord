@@ -67,14 +67,20 @@ namespace SleepyDiscord {
 	const std::string DiscordClient::path(const char * source, ...) {
 		va_list arguments;
 		va_start(arguments, source);
-		
+
 		std::string path(source);
-		unsigned int start = 0;
-		for (const char* c = source; ; ++c) {
+		const char* start = 0;
+		for (const char* c = path.c_str(); ; ++c) {
 			switch (*c) {
-			case '{': start = c - source; break;
-			case '}': path.replace(start, c - source - start + 1, va_arg(arguments, const char *)); break;
-			case 0: 
+			case '{': start = c; break;
+			case '}':
+			{
+				const unsigned int startIndex = start - path.c_str();
+				path.replace(startIndex, c - path.c_str() - startIndex + 1, va_arg(arguments, std::string));
+				c = start = path.c_str() + startIndex;
+			}
+			break;
+			case 0:
 				va_end(arguments);
 				return path;
 			}

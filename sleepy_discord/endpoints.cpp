@@ -23,7 +23,7 @@ namespace SleepyDiscord {
 	}
 
 	Message DiscordClient::editMessage(std::string channel_id, std::string message_id, std::string newMessage) {
-		auto r = request(Patch, path("channels/{channel.id}/messages/{message.id}", message_id, newMessage), "{\"content\": \"" + newMessage + "\"}");
+		auto r = request(Patch, path("channels/{channel.id}/messages/{message.id}", channel_id, message_id), "{\"content\": \"" + newMessage + "\"}");
 		return Message(&r.text);
 	}
 
