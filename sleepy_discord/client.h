@@ -1,12 +1,4 @@
 #pragma once
-#define ASIO_STANDALONE
-#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
-#include <websocketpp/config/asio_client.hpp>
-//#include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
-#include <websocketpp/common/thread.hpp>
-#include <websocketpp/common/memory.hpp>
 #include <string>
 //#include <boost/thread.hpp>
 #include <thread>
