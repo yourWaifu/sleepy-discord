@@ -38,11 +38,10 @@ Yes, and for now I don't plan on making 0.0 versions backwards compatable with 1
 
 # Requirements
 * [OpenSSL](https://www.openssl.org/)
-* [Websocket++](https://github.com/zaphoyd/websocketpp)
-* [uWebSockets](https://github.com/uWebSockets/uWebSockets) support coming soon, check out the develop breach if you are interested
-  * Soon you can use uWebSockets or Websocket++
-  * No guarantee that I'll ever finish this feature but it is planned
 * [cpr](https://github.com/whoshuu/cpr)
+* [Websocket++](https://github.com/zaphoyd/websocketpp)
+or
+[uWebSockets](https://github.com/uWebSockets/uWebSockets)
 
 # Develop Breach
 For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to complie or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
