@@ -2,11 +2,9 @@
 #include "json.h"
 
 SleepyDiscord::Role::Role(const std::string * rawJson) {
-	const char* names[] = { "id", "name", "color", "hoist", "position", "permissions",
-		"managed", "mentionable"};
-	constexpr unsigned int arraySize = sizeof(names) / sizeof(*names);
-	std::string values[arraySize];
-	json::getValues(rawJson->c_str(), names, values, arraySize);
+	std::vector<std::string> values = json::getValues(rawJson->c_str(),
+		{ "id", "name", "color", "hoist", "position", "permissions",
+		"managed", "mentionable"});
 	id = values[0];
 	name = values[1];
 	color = std::stol(values[2]);

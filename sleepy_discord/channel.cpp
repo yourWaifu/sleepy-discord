@@ -8,11 +8,9 @@ namespace SleepyDiscord {
 		topic = "";
 		lastMessage_id = "";
 
-		const char* names[] = { "id", "guild_id", "name", "type", "position", "is_private",
-			"permission_overwrites", "topic", "last_message_id", "bitrate", "user_limit" };
-		constexpr unsigned int arraySize = sizeof(names) / sizeof(*names);
-		std::string values[arraySize];
-		json::getValues(rawJson->c_str(), names, values, arraySize);
+		std::vector<std::string> values = json::getValues(rawJson->c_str(),
+			{ "id", "guild_id", "name", "type", "position", "is_private",
+			"permission_overwrites", "topic", "last_message_id", "bitrate", "user_limit" });
 		id = values[0];
 		guild_id = values[1];
 		name = values[2];

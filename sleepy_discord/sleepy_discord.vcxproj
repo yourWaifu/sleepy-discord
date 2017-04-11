@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,23 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGUID>{D06DC70A-5A4F-3C21-8687-61CAFDFEC3DE}</ProjectGUID>
+    <ProjectGUID>{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}</ProjectGUID>
     <Keyword>Win32Proj</Keyword>
     <Platform>Win32</Platform>
     <ProjectName>sleepy_discord</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -56,25 +55,26 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-    <PropertyGroup>
-      <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-      <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\Debug\</OutDir>
-      <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sleepy_discord.dir\Debug\</IntDir>
-      <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sleepy_discord</TargetName>
-      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
-      <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\Release\</OutDir>
-      <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sleepy_discord.dir\Release\</IntDir>
-      <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sleepy_discord</TargetName>
-      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
-      <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\MinSizeRel\</OutDir>
-      <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sleepy_discord.dir\MinSizeRel\</IntDir>
-      <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sleepy_discord</TargetName>
-      <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
-      <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\RelWithDebInfo\</OutDir>
-      <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sleepy_discord.dir\RelWithDebInfo\</IntDir>
-      <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sleepy_discord</TargetName>
-      <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
-    </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sleepy_discord.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sleepy_discord</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sleepy_discord.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sleepy_discord</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\include;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\include;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\cpr\opt\curl\include;C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\steve\Documents\Visual Studio 2015\Projects\sleepy_discord\sleepy_discord\deps\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -89,7 +89,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -110,7 +110,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <CompileAs>CompileAsCpp</CompileAs>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -120,9 +119,9 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <DebugInformationFormat></DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -139,6 +138,8 @@
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
+    <ProjectReference />
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
     <ClCompile>
@@ -154,7 +155,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <DebugInformationFormat></DebugInformationFormat>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -205,99 +207,61 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -HP:/Bots/Sleepy-Discord -BP:/Bots/Sleepy-Discord --check-stamp-file P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -HP:/Bots/Sleepy-Discord -BP:/Bots/Sleepy-Discord --check-stamp-file P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -HP:/Bots/Sleepy-Discord -BP:/Bots/Sleepy-Discord --check-stamp-file P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -HP:/Bots/Sleepy-Discord -BP:/Bots/Sleepy-Discord --check-stamp-file P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">P:/Bots/Sleepy-Discord/sleepy_discord/CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;P:\Bots\Sleepy-Discord\sleepy_discord\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">P:\Bots\Sleepy-Discord\sleepy_discord\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
-    </CustomBuild>
+    <ClCompile Include="attachment.cpp" />
+    <ClCompile Include="channel.cpp" />
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="common.cpp" />
+    <ClCompile Include="default_functions.cpp" />
+    <ClCompile Include="deps\cpr\cpr\auth.cpp" />
+    <ClCompile Include="deps\cpr\cpr\cookies.cpp" />
+    <ClCompile Include="deps\cpr\cpr\cprtypes.cpp" />
+    <ClCompile Include="deps\cpr\cpr\digest.cpp" />
+    <ClCompile Include="deps\cpr\cpr\error.cpp" />
+    <ClCompile Include="deps\cpr\cpr\multipart.cpp" />
+    <ClCompile Include="deps\cpr\cpr\parameters.cpp" />
+    <ClCompile Include="deps\cpr\cpr\payload.cpp" />
+    <ClCompile Include="deps\cpr\cpr\proxies.cpp" />
+    <ClCompile Include="deps\cpr\cpr\session.cpp" />
+    <ClCompile Include="deps\cpr\cpr\util.cpp" />
+    <ClCompile Include="discord_object_interface.cpp" />
+    <ClCompile Include="embed.cpp" />
+    <ClCompile Include="endpoints.cpp" />
+    <ClCompile Include="experimental.cpp" />
+    <ClCompile Include="invite.cpp" />
+    <ClCompile Include="json.c" />
+    <ClCompile Include="json_wrapper.cpp" />
+    <ClCompile Include="message.cpp" />
+    <ClCompile Include="permissions.cpp" />
+    <ClCompile Include="sd_error.cpp" />
+    <ClCompile Include="server.cpp" />
+    <ClCompile Include="user.cpp" />
+    <ClCompile Include="uwebsockets_websocket.cpp" />
+    <ClCompile Include="websocketpp_websocket.cpp" />
+    <ClInclude Include="attachment.h" />
+    <ClInclude Include="channel.h" />
+    <ClInclude Include="client.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="discord_object_interface.h" />
+    <ClInclude Include="embed.h" />
+    <ClInclude Include="error.h" />
+    <ClInclude Include="experimental.h" />
+    <ClInclude Include="IncludeNonexistent\uWS\uWS.h" />
+    <ClInclude Include="IncludeNonexistent\websocketpp\config\asio_client.hpp" />
+    <ClInclude Include="invite.h" />
+    <ClInclude Include="json.h" />
+    <ClInclude Include="message.h" />
+    <ClInclude Include="permissions.h" />
+    <ClInclude Include="server.h" />
+    <ClInclude Include="user.h" />
+    <ClInclude Include="uwebsockets_websocket.h" />
+    <ClInclude Include="webhook.h" />
+    <ClInclude Include="websocketpp_websocket.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\attachment.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\channel.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\client.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\common.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\discord_object_interface.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\embed.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\error.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\experimental.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\json.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\message.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\server.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\sleepy_discord.h" />
-    <ClInclude Include="P:\Bots\Sleepy-Discord\sleepy_discord\user.h" />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\attachment.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\channel.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\client.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\common.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\default_functions.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\discord_object_interface.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\embed.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\experimental.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\json.c" >
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\json_wrapper.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\message.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\sd_error.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\server.cpp"  />
-    <ClCompile Include="P:\Bots\Sleepy-Discord\sleepy_discord\user.cpp"  />
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="P:/Bots/Sleepy-Discord/ZERO_CHECK.vcxproj">
-      <Project>CAE629C4-D543-3134-AC90-B1E452C2CA22</Project>
-    </ProjectReference>
+    <None Include="sleepy_discord" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,18 +2,21 @@
 
 namespace json {
 
-	void getValues(const char* source, const char *const*const names, std::string * targets, const unsigned int numOfValues) {
-		if (*source == 0) return;
+	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names) {
+		if (*source == 0) return std::vector<std::string>{0};
+		const unsigned int numOfValues = names.size();
 		std::vector<JSON_findMuitipleStruct>values(numOfValues);
-		for (unsigned int i = 0; i < numOfValues; i++) {
-			values[i] = { names[i], 0, strlen(names[i]), 0 };
-		}
+		unsigned int ii = -1;
+		for (const char *const name : names)
+			values[++ii] = { name, 0, strlen(name), 0 };
 		JSON_findMuitiple(numOfValues, source, &values[0]);
+		std::vector<std::string> targets(numOfValues);
 		for (unsigned int i = 0; i < numOfValues; i++) {
 			if (0 < values[i].namePosition) {
-				targets[i].assign(source + values[i].namePosition, values[i].valueLength);	//I think this is why we need a c string for the source
+				targets[i].assign(source + values[i].namePosition, values[i].valueLength);
 			}
 		}
+		return targets;
 	}
 
 	std::string getValue(const char* source, const char * name) {

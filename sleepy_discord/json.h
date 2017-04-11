@@ -207,7 +207,7 @@ namespace json {
 	void getArray(const std::string* _source, std::vector<std::string>* target);
 
 	//void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);
-	void getValues(const char* source, const char *const*const names, std::string * targets, /*unsigned int * namePositions, unsigned int * sizes,*/ const unsigned int numOfValues);
+	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names);
 	std::string getValue(const char* source, const char * name);
 
 }
