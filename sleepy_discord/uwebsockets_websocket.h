@@ -8,8 +8,8 @@ namespace SleepyDiscord {
 
 	class UWebSocketsDiscordClient : public BaseDiscordClient {
 	public:
-		UWebSocketsDiscordClient() {}
-		UWebSocketsDiscordClient(const std::string token);
+		UWebSocketsDiscordClient() : maxNumOfThreads(0) {}
+		UWebSocketsDiscordClient(const std::string token, const char numOfThreads = 3);
 		~UWebSocketsDiscordClient();
 	private:
 		uWS::Hub hub;
@@ -18,6 +18,8 @@ namespace SleepyDiscord {
 		void send(std::string message);
 		uWS::WebSocket<uWS::CLIENT> theClient;
 		std::thread thread;
+		const char maxNumOfThreads;
+		bool isConnectionBad;
 	};
 
 	typedef UWebSocketsDiscordClient DiscordClient;

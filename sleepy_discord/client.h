@@ -186,7 +186,7 @@ namespace SleepyDiscord {
 		2 is for the ready packet or everything else*/
 		void heartbeat(int op_code = 0);
 		inline std::string getToken() { return *token.get(); }
-		void start(const std::string _token);
+		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}

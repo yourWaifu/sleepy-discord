@@ -1,8 +1,8 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	void BaseDiscordClient::start(const std::string _token) {
-		clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
+		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
 		token = std::make_unique<std::string>(_token);
 		getTheGateway();
  		connect(theGateway);	//TO-DO add v=6 support
@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
-		clock_thread.join();
+		if (clock_thread.joinable()) clock_thread.join();
 	}
 
 	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
@@ -167,7 +167,7 @@ namespace SleepyDiscord {
 #if defined(_WIN32) || defined(_WIN64)
 		const char * os = "Windows";
 #elif defined(__APPLE__) || defined(__MACH__)
-		const char * os = "Mac OS X";
+		const char * os = "macOS";
 #elif defined(__linux__) || defined(linux) || defined(__linux)
 		const char * os = "Linux";
 #elif defined __FreeBSD__
