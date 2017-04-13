@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-//#include <boost/thread.hpp>
 #include <thread>
 #include <cpr/cpr.h>
 #include <chrono>
@@ -167,6 +166,7 @@ namespace SleepyDiscord {
 		virtual void onInvaldSession();
 		virtual void onDisconnet();
 		virtual void onQuit();
+		virtual void sleep(const unsigned int milliseconds);
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
@@ -203,8 +203,10 @@ namespace SleepyDiscord {
 			HEARTBEAT_ACK         = 11,		//sent immediately following a client heartbeat that was received
 		};
 
+#ifndef SLEEPY_ONE_THREAD
 		std::thread clock_thread;
 		void runClock_thread();
+#endif
 
 		void updateRateLimiter(const uint8_t numOfMessages = 1);
 

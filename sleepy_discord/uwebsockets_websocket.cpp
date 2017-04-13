@@ -39,6 +39,7 @@ namespace SleepyDiscord {
 		theClient.send(message.c_str());
 	}
 
+#include "standard_config.h"
 
 
 /* list of needed librarys to compile this

@@ -198,7 +198,7 @@ char * JSON_parseString(const char * JSONString, const unsigned int JSONStringSi
 			case 'r': string[newStringPosition] = '\r'; break;
 			case 't': string[newStringPosition] = '\t'; break;
 			case 'u': ++(*position); JSON_parseUTF16(JSONString, string + newStringPosition, position, &newStringPosition); --(*position); break;//unicode
-			default: {int a = 0; a;}//Unexpected symbol
+			default: break;//Unexpected symbol
 			}
 			++(*position);	//you should 
 			break;
@@ -340,7 +340,8 @@ JSON * JSON_allocateJSON(const char * source, const unsigned int sourceSize, con
 		long int arrayNumber = -1;	//the number of arrays counted
 		long int objectIndex = 0;	//the current object that we are finding the size of
 		long int arrayIndex;		//the current array that we are finding the size of
-		OrderedList[0] = { JSON_OBJECT, 0 };
+		OrderedList[0].type = JSON_OBJECT;
+		OrderedList[0].ID = 0;
 		while (position < sourceSize) {
 			switch (source[++position]) {
 			case '"': JSON_skipString(source, &position); break;

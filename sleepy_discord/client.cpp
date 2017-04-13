@@ -2,15 +2,19 @@
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
+#ifndef SLEEPY_ONE_THREAD
 		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-		token = std::make_unique<std::string>(_token);
+#endif
+		token = std::unique_ptr<std::string>(new std::string(_token));
 		getTheGateway();
- 		connect(theGateway);	//TO-DO add v=6 support
+ 		connect(theGateway);
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
+#ifndef SLEEPY_ONE_THREAD
 		if (clock_thread.joinable()) clock_thread.join();
+#endif
 	}
 
 	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
@@ -92,7 +96,7 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::waitTilReady() {
-		while (!ready) std::this_thread::sleep_for(std::chrono::seconds(1));
+		while (!ready) sleep(1000);
 	}
 
 	void BaseDiscordClient::quit() {
@@ -100,6 +104,7 @@ namespace SleepyDiscord {
 		onQuit();
 	}
 
+#ifndef SLEEPY_ONE_THREAD
 	void BaseDiscordClient::runClock_thread() {
 		isHeartbeatRunning = true;
 		ready = false;
@@ -120,6 +125,7 @@ namespace SleepyDiscord {
 		}
 		isHeartbeatRunning = false;
 	}
+#endif
 
 	void BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
 		rateLimiter[rateLimiterClock] += numOfMessages;
@@ -181,7 +187,9 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::restart() {
+#ifndef SLEEPY_ONE_THREAD
 		if (!isHeartbeatRunning) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+#endif
 		return connect(theGateway);
 	}
 
@@ -234,7 +242,7 @@ namespace SleepyDiscord {
 			break;
 		case INVALID_SESSION:
 			if (d[0][0] == 't') {
-				std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+				sleep(2500);
 				//send RESUME
 				send("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
 				ready = true;	//it is ready, right? I am not even sure
