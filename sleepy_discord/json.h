@@ -205,10 +205,16 @@ namespace json {
 	}
 
 	void getArray(const std::string* _source, std::vector<std::string>* target);
-
 	//void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);
 	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names);
 	std::string getValue(const char* source, const char * name);
+	
+	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json);
+	const std::string string(std::string s);
+	const std::string UInteger(const uint64_t num);
+	const std::string optionalUInteger(const uint64_t num);
+	const std::string integer(const int64_t num);
+	const std::string optionalInteger(const int64_t num);
 
 }
 

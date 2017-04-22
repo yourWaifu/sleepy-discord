@@ -47,6 +47,9 @@ namespace SleepyDiscord {
 
 	}
 
+	void SleepyDiscord::BaseDiscordClient::onResponse(Response response) {
+	}
+
 	void BaseDiscordClient::sleep(const unsigned int milliseconds) {
 	}
 	

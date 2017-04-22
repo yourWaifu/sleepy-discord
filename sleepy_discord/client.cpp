@@ -1,4 +1,7 @@
+#include <chrono>
 #include "client.h"
+#include "session.h"
+#include "json.h"
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
@@ -17,56 +20,73 @@ namespace SleepyDiscord {
 #endif
 	}
 
-	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string _url, std::string jsonParameters,
-		cpr::Parameters httpParameters, cpr::Multipart multipartParameters) {
-		cpr::Session session;
+	Response BaseDiscordClient::request(const RequestMethod method, std::string _url, std::string jsonParameters/*,
+		cpr::Parameters httpParameters, cpr::Multipart multipartParameters*/) {
+		//check if rate limited
+		static bool isRateLimited = false;
+		static int64_t nextRetry = 0;
+		if (isRateLimited) {
+			if (nextRetry <= getEpochTimeMillisecond())
+				isRateLimited = false;
+			else {
+				Response response;
+				response.statusCode = TOO_MANY_REQUESTS;
+				return response;
+			}
+		}
+		//request starts here
+		Session session;
 		std::pair<std::string, std::string> contentType;
-		session.SetUrl(cpr::Url{ "https://discordapp.com/api/" + _url });
+		session.setUrl("https://discordapp.com/api/" + _url);
 		if (jsonParameters != "") {
-			session.SetBody(cpr::Body{ jsonParameters });
+			session.setBody(jsonParameters);
 			contentType = { "Content-Type", "application/json" };
-		} else if (httpParameters.content != "") {
+		/*} else if (httpParameters.content != "") {	//this is broken for now
 			session.SetParameters(httpParameters);
 		} else if (!multipartParameters.parts.empty()) {
 			session.SetMultipart(multipartParameters);
-			contentType = { "Content-Type", "multipart/form-data" };
+			contentType = { "Content-Type", "multipart/form-data" };*/
 		}
-		session.SetHeader(cpr::Header{
+		session.setHeader({
 			{ "Authorization", "Bot " + getToken() },
 			{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
 			contentType,
 			{ "Content-Length", std::to_string(jsonParameters.length()) }
 			});
-		updateRateLimiter();	//tells the rateLimiter clock that you've send a request
-		cpr::Response response;
+		Response response;
 		switch (method) {
-		case Post: response = session.Post(); break;
-		case Patch: response = session.Patch(); break;
+		case Post:   response = session.Post(); break;
+		case Patch:  response = session.Patch(); break;
 		case Delete: response = session.Delete(); break;
-		case Get: response = session.Get(); break;
-		case Put: response = session.Put(); break;
-		default: response.status_code = BAD_REQUEST; break;		//unexpected method
+		case Get:    response = session.Get(); break;
+		case Put:    response = session.Put(); break;
+		default: response.statusCode = BAD_REQUEST; break;		//unexpected method
 		}
-		switch (response.status_code) {
+		//status checking
+		switch (response.statusCode) {
 		case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
+		case TOO_MANY_REQUESTS:   //this should fall down to default
+			nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
+			isRateLimited = true;
 		default: {		//error
-			setError(response.status_code);		//https error
+			setError(response.statusCode);		//https error
 			std::vector<std::string> values = json::getValues(response.text.c_str(),
 				{ "code", "message" });	//parse json to get code and message
 			if (values[0] != "")
 				onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
 			} break;
 		}
+		onResponse(response);
 		return response;
 	}
 
-	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
+	/*Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
 		return request(method, url, "", cpr::Parameters{}, multipartParameters);
 	}
 
-	cpr::Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
+	Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
 		return request(method, url, "", httpParameters);
-	}
+	}*/
 
 	const std::string BaseDiscordClient::path(const char * source, ...) {
 		va_list arguments;
@@ -109,27 +129,22 @@ namespace SleepyDiscord {
 		isHeartbeatRunning = true;
 		ready = false;
 		waitTilReady();
-		int HalfSecondTimer = 0;
+		int timer = 0;
 		while (ready) {
 			heartbeat();
-			if (HalfSecondTimer == 0) {
-				//boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-				if (MAX_MESSAGES_SENT_PER_MINUTE <= ++rateLimiterClock)
-					rateLimiterClock = 0;
-				numOfMessagesSent -= rateLimiter[rateLimiterClock];
-				rateLimiter[rateLimiterClock] = 0;
-			}
+			if (timer == HALF_MINUTE_MILLISECONDS) messagesRemaining = MAX_MESSAGES_SENT_PER_HALF_MINUTE;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			++HalfSecondTimer;
-			if (HalfSecondTimer == 500) HalfSecondTimer = 0;
+			--timer;
+			if (timer <= 0) timer = HALF_MINUTE_MILLISECONDS;
 		}
 		isHeartbeatRunning = false;
 	}
 #endif
 
-	void BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
-		rateLimiter[rateLimiterClock] += numOfMessages;
-		numOfMessagesSent += numOfMessages;
+	bool BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
+		if (messagesRemaining - numOfMessages < 0) return true;
+		messagesRemaining -= numOfMessages;
+		return false;
 	}
 
 	void BaseDiscordClient::getTheGateway() {
@@ -186,6 +201,10 @@ namespace SleepyDiscord {
 		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"" + os + "\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
 	}
 
+	void BaseDiscordClient::sendResume() {
+		send("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
+	}
+
 	bool BaseDiscordClient::restart() {
 #ifndef SLEEPY_ONE_THREAD
 		if (!isHeartbeatRunning) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
@@ -196,9 +215,9 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::reconnect(const unsigned int status) {
 		//ready = false;
 		disconnectWebsocket(status);
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
+		if (connect(theGateway)) return sendResume();
+		if (connect(theGateway)) return sendResume();
+		if (connect(theGateway)) return sendResume();
 		getTheGateway();
 		if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
 	}
@@ -221,17 +240,61 @@ namespace SleepyDiscord {
 					session_id = json::getValue(d->c_str(), "session_id");
 					onReady(d);
 					ready = true;
+				} else if (t == "GUILD_CREATE") {
+					onServer(d);
 				} else if (t == "MESSAGE_CREATE") {
 					onMessage(d);
 				} else if (t == "MESSAGE_UPDATE") {
 					onEditedMessage(d);
-				} else if (t == "GUILD_CREATE") {
-					onServer(d);
 				} else if (t == "CHANNEL_CREATE") {
 					onChannel(d);
 				} else if (t == "GUILD_ROLE_CREATE") {
 					onEditedRole(d);
 				}
+				for (Event e : events) {
+					if (t == e.t)
+						e.function(d);
+				}
+
+				/* list of events
+		READY
+		RESUMED
+		GUILD_CREATE
+		GUILD_DELETE
+		GUILD_UPDATE
+		GUILD_BAN_ADD
+		GUILD_BAN_REMOVE
+		GUILD_MEMBER_ADD
+		GUILD_MEMBER_REMOVE
+		GUILD_MEMBER_UPDATE
+		GUILD_ROLE_CREATE
+		GUILD_ROLE_DELETE
+		GUILD_ROLE_UPDATE
+		GUILD_EMOJIS_UPDATE
+		GUILD_MEMBERS_CHUNK
+		CHANNEL_CREATE
+		CHANNEL_DELETE
+		CHANNEL_UPDATE
+		CHANNEL_PINS_UPDATE
+		PRESENCE_UPDATE
+		USER_UPDATE
+		USER_NOTE_UPDATE
+		USER_SETTINGS_UPDATE
+		VOICE_STATE_UPDATE
+		TYPING_START
+		MESSAGE_CREATE
+		MESSAGE_DELETE
+		MESSAGE_UPDATE
+		MESSAGE_DELETE_BULK
+		VOICE_SERVER_UPDATE
+		GUILD_SYNC
+		RELATIONSHIP_ADD
+		RELATIONSHIP_REMOVE
+		MESSAGE_REACTION_ADD
+		MESSAGE_REACTION_REMOVE
+		MESSAGE_REACTION_REMOVE_ALL
+				*/
+
 		break;
 		case HELLO:
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
@@ -241,11 +304,9 @@ namespace SleepyDiscord {
 			reconnect();
 			break;
 		case INVALID_SESSION:
+			sleep(2500);
 			if (d[0][0] == 't') {
-				sleep(2500);
-				//send RESUME
-				send("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
-				ready = true;	//it is ready, right? I am not even sure
+				sendResume();
 			} else {
 				session_id = "";
 				sendIdentity();
@@ -261,8 +322,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::heartbeat(int op_code) {
 		if (!heartbeatInterval) return;
 
-		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
-		int64_t epochTimeMillisecond = ms.time_since_epoch().count();
+		int64_t epochTimeMillisecond = getEpochTimeMillisecond();
 
 		static int64_t nextHeartbeat = 0;
 		if (nextHeartbeat <= epochTimeMillisecond) {	//note:this sends the heartbeat early
@@ -279,5 +339,10 @@ namespace SleepyDiscord {
 			wasHeartbeatAcked = false;
 			onHeartbeat();
 		}
+	}
+
+	const int64_t BaseDiscordClient::getEpochTimeMillisecond() {
+		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
+		return ms.time_since_epoch().count();
 	}
 }

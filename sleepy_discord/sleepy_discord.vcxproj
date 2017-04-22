@@ -211,6 +211,7 @@
     <ClCompile Include="channel.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="cpr_session.cpp" />
     <ClCompile Include="default_functions.cpp" />
     <ClCompile Include="deps\cpr\cpr\auth.cpp" />
     <ClCompile Include="deps\cpr\cpr\cookies.cpp" />
@@ -241,6 +242,9 @@
     <ClInclude Include="channel.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="cpr_session.h" />
+    <ClInclude Include="http.h" />
+    <ClInclude Include="session.h" />
     <ClInclude Include="standard_config.h" />
     <ClInclude Include="discord_object_interface.h" />
     <ClInclude Include="embed.h" />
@@ -263,7 +267,7 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sleepy_discord" />
+    <None Include="sleepy_discord.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

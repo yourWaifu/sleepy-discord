@@ -1,8 +1,8 @@
 #pragma once
 #include <uWS/uWS.h>
+#ifndef NONEXISTENT_UWEBSOCKETS
 #include <thread>
 #include "client.h"
-#ifndef NONEXISTENT_UWEBSOCKETS
 
 namespace SleepyDiscord {
 

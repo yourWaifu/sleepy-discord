@@ -67,4 +67,25 @@ namespace SleepyDiscord {
 	{
 		return client->sendMessage(channel_id, message, tts);
 	}
+
+	SleepyDiscord::Emoji::Emoji() {
+	}
+
+	SleepyDiscord::Emoji::Emoji(const std::string * rawJson) {
+
+	}
+
+	SleepyDiscord::Reaction::Reaction() {
+	}
+
+	SleepyDiscord::Reaction::~Reaction() {
+	}
+
+	Reaction::Reaction(const std::string * rawJson) {
+		std::vector<std::string> values = json::getValues(rawJson->c_str(),
+			{"count", "me", "emoji"});
+		count = std::stoul(values[0]);
+		me = values[1][0] == 't';
+		//emoji = Emoji(&values[3]);
+	}
 }
