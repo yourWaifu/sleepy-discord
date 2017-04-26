@@ -1,18 +1,6 @@
 #pragma once
-#define ASIO_STANDALONE
-#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
-#include <websocketpp/config/asio_client.hpp>
-//#include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
-#include <websocketpp/common/thread.hpp>
-#include <websocketpp/common/memory.hpp>
 #include <string>
-//#include <boost/thread.hpp>
 #include <thread>
-#include <cpr/cpr.h>
-#include <chrono>
-#include "json.h"
 
 //objects
 #include "message.h"
@@ -20,9 +8,11 @@
 #include "server.h"
 #include "invite.h"
 #include "webhook.h"
+#include "permissions.h"
 
 #include "error.h"
 #include "common.h"
+#include "http.h"
 
 /*
 
@@ -41,65 +31,66 @@ class WebsocketClient;
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
-#define MAX_MESSAGES_SENT_PER_MINUTE 120	//you should replace remove those
-#define MILLISECONDS_PER_MESSAGES_SENT 60000/MAX_MESSAGES_SENT_PER_MINUTE
+#define MAX_MESSAGES_SENT_PER_MINUTE 116
+#define HALF_MINUTE_MILLISECONDS 30000
+#define MAX_MESSAGES_SENT_PER_HALF_MINUTE MAX_MESSAGES_SENT_PER_MINUTE/2
 	class BaseDiscordClient {
 	public:
 		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
-		
-		//http variables and functions
-		//request functions
-		enum RequestMethod {
-			Post,
-			Patch,
-			Delete,
-			Get,
-			Put
-		};
-		cpr::Response request(RequestMethod method, std::string url, std::string jsonParameters = "",
+
+		Response request(const RequestMethod method, std::string url, std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}, cpr::Multipart multipartParameters = cpr::Multipart{});
-		cpr::Response request(RequestMethod method, std::string url, cpr::Multipart multipartParameters);
-		cpr::Response request(RequestMethod method, std::string url, cpr::Parameters httpParameters);
+		Response request(const RequestMethod method, std::string url, cpr::Multipart multipartParameters);
+		Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters*/);
 
 		const std::string path(const char* source, ...);	//only works with std::strings
 
 		void testFunction(std::string teststring);
 
 		//channel functions
+		Channel getChannel(std::string channel_id);                                                                           //to do test this
+		Channel deleteChannel(std::string channel_id);
+		enum GetMessagesKey { around, before, after };
+		std::vector<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit);  //to do test this
+		Message getMessage(std::string channel_id, std::string message_id);                                                   //to do test this, and add more then one message return
 		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
 		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);
-		Message editMessage(std::string channel_id, std::string message_id, std::string newMessage);
-		bool deleteMessage(const std::string channel_id, const std::string* message_id, const unsigned int numOfMessages = 1);
-		Channel deleteChannel(std::string channel_id);
-		Channel getChannel(std::string channel_id);                                                                           //to do test this
-		//to do: Get Channel Messages
-		Message getMessage(std::string channel_id, std::string message_id);                                                   //to do test this
 		bool addReaction(std::string channel_id, std::string message_id, std::string emoji);
 		bool removeReaction(std::string channel_id, std::string message_id, std::string emoji, std::string user_id = "@me");  //to do test this
-		//reaction array getReactions(std::string channel_id, std::string message_id, std::string emoji);
-		//to do add bulk delete messages
-		//add Edit Channel Permissions
-		//add Get Channel Invites
-		//Create Channel Invite
+		std::vector<Reaction> getReactions(std::string channel_id, std::string message_id, std::string emoji);                //to do test this
+		void removeAllReactions(std::string channel_id, std::string message_id);                                              //to do test this
+		Message editMessage(std::string channel_id, std::string message_id, std::string newMessage);
+		bool deleteMessage(const std::string channel_id, const std::string* message_id, const unsigned int numOfMessages = 1);
+		/*allow is a bitwise value of all allowed permissions
+		deny is a bitwise value of all deisallowed permissions
+		type is "member" for a user or "role" for a role*/
+		bool editChannelPermissions(std::string channel_id, std::string id, int allow, int deny, std::string type);           //to do test this
+		std::vector<Invite> getChannelInvites(std::string channel_id);                                                        //to do test this
+		Invite createChannelInvite(std::string channel_id, const uint64_t maxAge = 0, const uint64_t maxUses = 0, const bool temporary = false, const bool unique = false);  //to do test this
+		bool removeChannelPermission(std::string channel_id, std::string id);
 		bool sendTyping(std::string channel_id);                                                                              //to do test this
-		//message array getPinnedMessages(std::string channel_id);
+		std::vector<Message> getPinnedMessages(std::string channel_id);                                                       //to do test this
 		bool pinMessage(std::string channel_id, std::string message_id);
 		bool unpinMessage(std::string channel_id, std::string message_id);
-		//Group DM Add Recipient
-		//Group DM Remove Recipient
+		void addRecipient(std::string channel_id, std::string user_id);
+		void removeRecipient(std::string channel_id, std::string user_id);
+		/*functions with more then one name to make life easy for users that use IntelliSense*/
+		inline bool deleteReaction(std::string channel_id, std::string message_id, std::string emoji) { removeReaction(channel_id, message_id, emoji); }
+		inline void deleteAllReactions(std::string channel_id, std::string message_id) { removeAllReactions(channel_id, message_id); }
+		inline bool deleteChannelPermission(std::string channel_id, std::string id) { removeChannelPermission(channel_id, id); }
+		inline void deleteRecipient(std::string channel_id, std::string user_id) { removeRecipient(channel_id, user_id); }
 
 		//server functions
-		int createRole(std::string server_id);                                                                                //to do test this
-		//int editRole(std::string role_id, std::string nam.e = "", int permissions = NULL, int position = -1, int color = , bool hoist =);
-		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
-		bool muteServerMember(std::string server_id, std::string user_id, bool mute = true);                                  //to do test this
-		//Create Server
+		//Server createServer(std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, std::vector<Role> roles, )
+		Server deleteServer(std::string server_id);                                                                           //to do test this
+		std::vector<Channel> GetServerChannels(std::string server_id);                                                        //to do test this
+		Channel createTextChannel(std::string server_id, std::string name);	                                                  //to do test this
+		void getServerMember(std::string server_id, std::string user_id);                                                     //to do test this
+		void listServerMembers(std::string server_id, uint16_t limit = 0, std::string after = "");
 		Server getServer(std::string server_id);                                                                              //to do test this
 		//edit Server
-		Server deleteServer(std::string server_id);                                                                           //to do test this
-		Channel createTextChannel(std::string server_id, std::string name);	                                                  //to do test this
 		Channel editChannel(std::string channel_id, std::string name = "", std::string topic = "");	                          //to do test this
 		Channel editChannelName(std::string channel_id, std::string name);                                                    //to do test this
 		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
@@ -107,6 +98,7 @@ namespace SleepyDiscord {
 		//listMembers
 		//add member
 		//edit member
+		bool muteServerMember(std::string server_id, std::string user_id, bool mute = true);                                  //to do test this
 		bool editNickname(std::string server_id, std::string newNickname);
 		bool addRole(std::string server_id, std::string member_id, std::string role_id);
 		bool removeRole(std::string server_id, std::string member_id, std::string role_id);   //removes role from member
@@ -115,8 +107,11 @@ namespace SleepyDiscord {
 		bool banMember(std::string server_id, std::string member_id);                                                         //to do test this later
 		bool unbanMember(std::string server_id, std::string member_id);                                                       //to do test this later
 		//getRoles  make role array
+		Role createRole(std::string server_id);                                                                                //to do test this
+		//int editRole(std::string role_id, std::string nam.e = "", int permissions = NULL, int position = -1, int color = , bool hoist =);
 		//edit role position
 		//editing roles
+		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
 		void pruneMembers(std::string server_id, const unsigned int numOfDays);                                               //to do test
 		//get prune count
 		//Get Voice Regions  needs voice region class
@@ -175,6 +170,8 @@ namespace SleepyDiscord {
 		virtual void onInvaldSession();
 		virtual void onDisconnet();
 		virtual void onQuit();
+		virtual void onResponse(Response response);
+		virtual void sleep(const unsigned int milliseconds);
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
@@ -211,10 +208,12 @@ namespace SleepyDiscord {
 			HEARTBEAT_ACK         = 11,		//sent immediately following a client heartbeat that was received
 		};
 
+#ifndef SLEEPY_ONE_THREAD
 		std::thread clock_thread;
 		void runClock_thread();
+#endif
 
-		void updateRateLimiter(const uint8_t numOfMessages = 1);
+		bool updateRateLimiter(const uint8_t numOfMessages = 1);   //returns true when you hit the limit
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
 		std::string session_id;
@@ -222,20 +221,12 @@ namespace SleepyDiscord {
 		char theGateway[32];
 		bool ready;
 		void sendIdentity();
+		void sendResume();
 		bool restart();		//it's like start but when it already started
 		void reconnect(const unsigned int status = 1000);
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 
-		//every 500 milliseconds we'll add 1 to the rateLimiterClock and it's not less then 120 then we go back to 0
-		//after that, we'll do numOfMessagesSent - rateLimiter[rateLimiterClock] and set rateLimiter[rateLimiterClock] to 0
-		//every time you send a message, we'll add one to rateLimiter[rateLimiterClock] and numOfMessagesSent
-		//when rateLimiterClock % 2 == 0, then we'll check if numOfMessagesSent == sum of rateLimiter. this is for debugging purposes
-		//and every time rateLimiterClock is 0 set numOfGameUpdates to 0;
-		//also max game updates is 2
-		//this way the client will never send more then 120 messages per minute;
-		uint8_t rateLimiter[MAX_MESSAGES_SENT_PER_MINUTE];
-		uint8_t rateLimiterClock;
-		uint8_t numOfMessagesSent;
+		uint8_t messagesRemaining;
 
 		//checks to make sure this is valid client
 		char magic[6];
@@ -243,5 +234,31 @@ namespace SleepyDiscord {
 
 		//error handling
 		void setError(int errorCode);
+
+		//templates for discord objects
+		template <class _DiscordObject>
+		_DiscordObject request(const RequestMethod method, std::string _url, std::string jsonParameters = "") {
+			std::string source = request(method, _url, jsonParameters).text;
+			return _DiscordObject(&source);
+		}
+
+		template <class _DiscordObject>
+		std::vector<_DiscordObject> requestVector(const RequestMethod method, std::string _url, std::string jsonParameters = "") {
+			std::vector<_DiscordObject> target;
+			const std::string source = request(method, _url, jsonParameters).text;
+			JSON_getArray<_DiscordObject>(&source, &target);
+			return target;
+		}
+
+		//class for events
+		struct Event {
+			const std::string t;
+			typedef const void(*EventFunction)(std::string * jsonMessage);
+			EventFunction function;
+		};
+		std::vector<Event> events;
+
+		//time
+		const int64_t getEpochTimeMillisecond();
 	};
 }

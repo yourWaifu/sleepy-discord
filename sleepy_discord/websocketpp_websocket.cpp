@@ -68,5 +68,7 @@ namespace SleepyDiscord {
 	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {
 
 	}
+
+#include "standard_config.h"
 }
 #endif

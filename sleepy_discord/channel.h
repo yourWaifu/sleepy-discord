@@ -5,7 +5,7 @@
 namespace SleepyDiscord {
 	class Channel : public DiscordObject {
 	public:
-		using DiscordObject::DiscordObject;
+		Channel() {}
 		Channel(const std::string * rawJson);
 		~Channel();
 		std::string id;

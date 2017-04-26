@@ -18,6 +18,8 @@ namespace SleepyDiscord {
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
 		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
 		~WebsocketppDiscordClient();
+	protected:
+#include "standard_config_header.h"
 	private:
 		void init();
 		bool connect(const std::string & uri);

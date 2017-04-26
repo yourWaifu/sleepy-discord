@@ -1,8 +1,8 @@
 #pragma once
 #include <uWS/uWS.h>
+#ifndef NONEXISTENT_UWEBSOCKETS
 #include <thread>
 #include "client.h"
-#ifndef NONEXISTENT_UWEBSOCKETS
 
 namespace SleepyDiscord {
 
@@ -11,6 +11,8 @@ namespace SleepyDiscord {
 		UWebSocketsDiscordClient() : maxNumOfThreads(0) {}
 		UWebSocketsDiscordClient(const std::string token, const char numOfThreads = 3);
 		~UWebSocketsDiscordClient();
+	protected:
+#include "standard_config_header.h"
 	private:
 		uWS::Hub hub;
 		bool connect(const std::string & uri);

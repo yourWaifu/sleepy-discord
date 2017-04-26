@@ -2,12 +2,10 @@
 #include "json.h"
 
 namespace SleepyDiscord {
+
 	class DiscordObject {
 	public:
-		template <class _DiscordObject>
-		void JSON_getArray(const std::string* _source, std::vector<_DiscordObject>* target) {
-			json::getArray<_DiscordObject>(_source, target, [](_DiscordObject* value, std::string string) {*value = _DiscordObject(&string);});
-		}
+		DiscordObject() {}
 
 	protected:
 //#ifdef EXPERIMENTAL
@@ -39,4 +37,9 @@ namespace SleepyDiscord {
 		numberOfobjects = _array->count;
 		return object;
 	};
+
+	template <class _DiscordObject>
+	void JSON_getArray(const std::string* _source, std::vector<_DiscordObject>* target) {
+		json::getArray<_DiscordObject>(_source, target, [](_DiscordObject* value, std::string string) {*value = _DiscordObject(&string); });
+	}
 }

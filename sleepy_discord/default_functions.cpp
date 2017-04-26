@@ -1,4 +1,3 @@
-#pragma once
 #include "client.h"
 
 namespace SleepyDiscord {
@@ -47,15 +46,18 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::onQuit() {
 
 	}
+
+	void SleepyDiscord::BaseDiscordClient::onResponse(Response response) {
+	}
+
+	void BaseDiscordClient::sleep(const unsigned int milliseconds) {
+	}
 	
 	void BaseDiscordClient::tick(float deltaTime) {
 	
 	}
 	
 	void BaseDiscordClient::onError(ErrorCode errorCode, std::string errorMessage) {
-		if (errorCode != 0)
-			std::cout << "Error " << errorCode << ": " + errorMessage + '\n';
-		else
-			std::cout << "Error " << ": " + errorMessage + '\n';
+		
 	}
 }
