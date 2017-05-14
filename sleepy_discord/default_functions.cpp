@@ -5,6 +5,142 @@ namespace SleepyDiscord {
 
 	}
 
+	void BaseDiscordClient::onResumed(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteServer(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditServer(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onBan(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onUnban(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onMember(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditMember(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onRole(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteRole(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditRole(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditEmojis(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onMemberChunk(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteChannel(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditChannel(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onPinMessages(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onPresenceUpdate(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditUser(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditUserNote(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditUserSettings(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditVoiceState(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onTyping(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteMessage(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditMessage(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onBulkDelete(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onEditVoiceServer(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onServerSync(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onRelationship(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onRemoveRelationship(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteRelationship(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onReaction(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onRemoveReaction(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteReaction(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onRemoveAllReaction(std::string * jsonMessage) {
+
+	}
+
+	void BaseDiscordClient::onDeleteAllReaction(std::string * jsonMessage) {
+
+	}
+
 	void BaseDiscordClient::onMessage(std::string* jsonMessage) {
 		
 	}
@@ -35,6 +171,10 @@ namespace SleepyDiscord {
 
 	}
 
+	void BaseDiscordClient::onDispatch(std::string * jsonMessage) {
+
+	}
+
 	void BaseDiscordClient::onInvaldSession() {
 
 	}
@@ -51,8 +191,13 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::sleep(const unsigned int milliseconds) {
+	
 	}
 	
+	void BaseDiscordClient::fileRead(const char* path, std::string*const file) {
+
+	}
+
 	void BaseDiscordClient::tick(float deltaTime) {
 	
 	}

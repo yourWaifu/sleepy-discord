@@ -19,4 +19,27 @@ namespace SleepyDiscord {
 		verified = values[6][0] == 't' ? true : false;
 		email = values[7];
 	}
+
+	UserServer::UserServer(const std::string * rawJson) {
+		std::vector<std::string> values = json::getValues(rawJson->c_str(),
+		{ "id", "name", "icon", "owner", "permissions" });
+
+		unsigned int i = -1;
+		id = values[++i];
+		name = values[++i];
+		icon = values[++i];
+		owner = getBool(values[++i]);
+		permissions = static_cast<Permission>(std::stoi(values[++i]));
+	}
+
+	Connection::Connection(const std::string * rawJson) {
+		std::vector<std::string> values = json::getValues(rawJson->c_str(),
+		{ "id", "name", "type", "revoked"});
+
+		unsigned int i = -1;
+		id = values[++i];
+		name = values[++i];
+		type = values[++i];
+		revoked = getBool(values[++i]);
+	}
 }

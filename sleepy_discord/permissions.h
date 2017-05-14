@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "discord_object_interface.h"
 
 //source: discord api docs | /topics/Permissions.md | Nov 16
 
@@ -33,6 +34,8 @@ namespace SleepyDiscord {
 		MANAGE_WEBHOOKS /**/  = 0x20000000, //Allows management and editing of webhooks
 		MANAGE_EMOJIS   /**/  = 0x40000000, //Allows management and editing of emojis
 		//              /**/ These permissions require the owner account to use two-factor authentication when used on a guild that has server-wide 2FA enabled.
+
+		NONE                  = 0x000000000, //this permission doens't exist, I made it up
 	};
 	
 	inline Permission operator|(Permission a, Permission b) {
@@ -52,9 +55,9 @@ namespace SleepyDiscord {
 	managed     bool      whether this role is managed by an integration
 	mentionable bool      whether this role is mentionable
 	*/
-	struct Role {
-		Role();
-		~Role();
+	struct Role : public DiscordObject {
+		Role() {}
+		~Role() {}
 		Role(const std::string * rawJson);
 		std::string id;
 		std::string name;

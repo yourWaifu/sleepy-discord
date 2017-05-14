@@ -28,4 +28,14 @@ namespace SleepyDiscord {
 	DirectMessageChannel::~DirectMessageChannel() {
 
 	}
+
+	DirectMessageChannel::DirectMessageChannel(const std::string * rawJson) {
+		std::vector<std::string> values = json::getValues(rawJson->c_str(),
+		{ "id", "is_private", "recipient", "last_message_id" });
+		unsigned int i = -1;
+		id             = values[++i];
+		is_private     = getBool(values[++i]);
+		recipient      = User(&values[++i]);
+		lastMessage_id = values[++i];
+	}
 }
