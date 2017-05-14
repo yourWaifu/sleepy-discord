@@ -140,8 +140,7 @@ text-align: center;
   max-width: 100%; }
 .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
   display: inline-block;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
   font-weight: normal;
   color: #ffffff; }
 .main-content p {
@@ -304,4 +303,16 @@ text-align: center;
 
 .navbar {
   display: inline;
+}
+
+.pageName {
+  margin-top: -.1rem;
+}
+
+.parentNamespaces {
+  opacity: 0.666666666666;
+}
+
+.parentNamespaces:hover {
+  opacity: 1;
 }

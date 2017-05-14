@@ -8,7 +8,14 @@ const ReferenceMap = [new ReferenceMapObjeect("DiscordClient", "DiscordClient", 
 	new ReferenceMapObjeect("sendMessage", "DiscordClient/sendMessage", null),
 	new ReferenceMapObjeect("editMessage", "DiscordClient/editMessage", null), 
 	new ReferenceMapObjeect("deleteMessage", "DiscordClient/deleteMessage", null), 
+	new ReferenceMapObjeect("deleteChannel", "DiscordClient/deleteChannel", null), 
 	new ReferenceMapObjeect("addReaction", "DiscordClient/addReaction", null), 
+	new ReferenceMapObjeect("pinMessage", "DiscordClient/pinMessage", null), 
+	new ReferenceMapObjeect("unpinMessage", "DiscordClient/unpinMessage", null), 
+	new ReferenceMapObjeect("editNickname", "DiscordClient/editNickname", null),
+	//addRole
+	//removeRole
+	//kickMember
 ])];
 
 var searchForPath = function(name, map) {
@@ -48,12 +55,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		}
 		elements[i].innerHTML = newContent + pathArray[0].pageName;
 	}
-	console.log(pathArray);
 });
 
 var openedMenu;
 
-//to do add click-able dropdown menu
 function openDropMenu(clicked, j, link) {
 	var links = pathArray[j].otherPages;
 	var numOfLinks = links.length;
