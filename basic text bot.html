@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>How to make a Basic Text Bot</title>
+    <meta property="og:title" content="Sleepy Discord">
+    <meta name="description" content="C++ library for Discord">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .gh {
+  color: #999999;
+}
+.highlight .sr {
+  color: #f6aa11;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .nb {
+  color: #f6aa11;
+}
+.highlight .cm {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #75715e;
+}
+.highlight .c1 {
+  color: #75715e;
+}
+.highlight .cs {
+  color: #75715e;
+}
+.highlight .c, .highlight .cd {
+  color: #75715e;
+}
+.highlight .err {
+  color: #960050;
+}
+.highlight .gr {
+  color: #960050;
+}
+.highlight .gt {
+  color: #960050;
+}
+.highlight .gd {
+  color: #49483e;
+}
+.highlight .gi {
+  color: #49483e;
+}
+.highlight .ge {
+  color: #49483e;
+}
+.highlight .kc {
+  color: #66d9ef;
+}
+.highlight .kd {
+  color: #66d9ef;
+}
+.highlight .kr {
+  color: #66d9ef;
+}
+.highlight .no {
+  color: #66d9ef;
+}
+.highlight .kt {
+  color: #66d9ef;
+}
+.highlight .mf {
+  color: #ae81ff;
+}
+.highlight .mh {
+  color: #ae81ff;
+}
+.highlight .il {
+  color: #ae81ff;
+}
+.highlight .mi {
+  color: #ae81ff;
+}
+.highlight .mo {
+  color: #ae81ff;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #ae81ff;
+}
+.highlight .sc {
+  color: #ae81ff;
+}
+.highlight .se {
+  color: #ae81ff;
+}
+.highlight .ss {
+  color: #ae81ff;
+}
+.highlight .sd {
+  color: #e6db74;
+}
+.highlight .s2 {
+  color: #e6db74;
+}
+.highlight .sb {
+  color: #e6db74;
+}
+.highlight .sh {
+  color: #e6db74;
+}
+.highlight .si {
+  color: #e6db74;
+}
+.highlight .sx {
+  color: #e6db74;
+}
+.highlight .s1 {
+  color: #e6db74;
+}
+.highlight .s {
+  color: #e6db74;
+}
+.highlight .na {
+  color: #a6e22e;
+}
+.highlight .nc {
+  color: #a6e22e;
+}
+.highlight .nd {
+  color: #a6e22e;
+}
+.highlight .ne {
+  color: #a6e22e;
+}
+.highlight .nf {
+  color: #a6e22e;
+}
+.highlight .vc {
+  color: #ffffff;
+}
+.highlight .nn {
+  color: #ffffff;
+}
+.highlight .nl {
+  color: #ffffff;
+}
+.highlight .ni {
+  color: #ffffff;
+}
+.highlight .bp {
+  color: #ffffff;
+}
+.highlight .vg {
+  color: #ffffff;
+}
+.highlight .vi {
+  color: #ffffff;
+}
+.highlight .nv {
+  color: #ffffff;
+}
+.highlight .w {
+  color: #ffffff;
+}
+.highlight {
+  color: #ffffff;
+}
+.highlight .n, .highlight .py, .highlight .nx {
+  color: #ffffff;
+}
+.highlight .ow {
+  color: #f92672;
+}
+.highlight .nt {
+  color: #f92672;
+}
+.highlight .k, .highlight .kv {
+  color: #f92672;
+}
+.highlight .kn {
+  color: #f92672;
+}
+.highlight .kp {
+  color: #f92672;
+}
+.highlight .o {
+  color: #f92672;
+}
+    </style>
+
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/oldnormalize.css" media="screen">
+	  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	  <link rel="stylesheet" type="text/css" href="stylesheets/Stylesheet.css" media="screen">
+	  <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+
+  <body class="basic-text-bot" data-languages="[]">
+
+  <section class="main">
+    <a href="#" id="nav-button">
+      <span>
+        <img src="images/navbar.png" alt="Navbar" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+        <div class="search">
+          <input type="text" name="search" id="input-search" placeholder="Search Documentation" style = "border: none;" class="btn">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+        <li><a href="https://github.com/NoNamer64/sleepy-discord">Sleepy Discord</a> is maintained by</li>
+        <li><a href="https://github.com/NoNamer64">NoNamer64</a>.</li>
+            <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    </section>
+    <div class="page-wrapper">
+    
+     <section class="page-header">
+		  <a href="." class="btn">
+		  	<h1 class="project-name">Sleepy Discord</h1>
+		  </a>
+      <a href="https://github.com/NoNamer64/sleepy-discord" class="btn">View on GitHub</a>
+		  <!-- <input type="text" name="search" id="input-search" placeholder="Search Documentation" style = "border: none;" class="btn"> -->
+	  	<!-- <a href="https://github.com/NoNamer64/sleepy-discord/wiki/DiscordClient" class="btn show-big-only">&rarr;</a> -->
+	  </section>
+
+<section class="main">
+	<div class="aplha-below"></div>
+      <div class="dark-box"></div>
+      <div class="content">
+        <p><a href="documentation.html">&lt; Go back to documentation</a></p>
+
+<h1 id="how-to-make-a-basic-text-bot">How to make a Basic Text Bot</h1>
+
+<aside class="notice">
+For this tutorial, I&rsquo;m going to assume that you everything set up. If not, please read the quick start guild if it exist (it doesn&rsquo;t as of writing).
+</aside>
+
+<h2 id="including-sleepy-discord">Including Sleepy Discord</h2>
+
+<blockquote>
+<p>Use this for you want use your own input, output, and websocket</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/sleepy_discord.h"
+</span></code></pre>
+<p>As of this writing, to include Sleepy Discord you use the first one.
+However this gives you very basic functionally with no websocket, input, or output. Sleepy Discord will call for these and it will expect that they will be done without failure. If you need more info about this, check out (future topic that I haven&rsquo;t written as of this writing)</p>
+
+<blockquote>
+<p>Use this for input and output from the c++ standard library and your websocket library of choice</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/websocketpp_websocket.h"
+</span></code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/uwebsockets_websocket.h"
+</span></code></pre>
+<p>I&rsquo;m going to assume that most people will not need to do this, and having all of this done for you is going to work fine for your proposes.
+if so, the last two are what you are looking for, they include basic functionally for input, and output from the standard c++ library, and your websocket library of choice.</p>
+
+<h2 id="declaring-the-client">Declaring the Client</h2>
+
+<p>Included in both <code class="prettyprint">websocketpp_websocket.h</code> and <code class="prettyprint">uwebsockets_websocket.h</code> is DiscordClient. This where almost everything that has to do with Discord is done.
+By default, DiscordClient from <code class="prettyprint">websocketpp_websocket.h</code> or <code class="prettyprint">uwebsockets_websocket.h</code> will not do anything when it receives a message. This is where Events come into play.
+When DiscordClient receives a message, it&rsquo;ll call a function that is an empty function by default. You must overwrite it with your own code to make it do something when DiscordClient receives a message.</p>
+
+<blockquote>
+<p>Use Inheritance to make a derived class with DiscordClient as the base class</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+    <span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>  <span class="c1">//this should call the DiscordClient constructor
+</span><span class="p">};</span>
+</code></pre>
+<p>To do so you will need to create a new class from the existing DiscordClient class, inheriting all the properties and behavior of DiscordClient.</p>
+
+<blockquote>
+<p>redefine <a href="documentation.html#onmessage">onMessage</a></p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+    <span class="c1">//redefining onMessage
+</span>    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre>
+<p>Now we need to redefine onMessage, this is what DiscordClient calls when it receives a message from Discord. This is where your own code will execute when DiscordClient receives a message.</p>
+
+<h2 id="initializing-the-client">Initializing the Client</h2>
+
+<blockquote>
+<p>Create a client</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<p>The client can&rsquo;t do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you&rsquo;ll need your <a href="https://discordapp.com/developers/applications/me">bot&rsquo;s token from here</a>.</p>
+
+<aside class="success">
+ Also, don&rsquo;t forget that you&rsquo;ll need to prevent your bot from closing itself after the main function, unless you are only using one thread (which you probably aren&rsquo;t).
+</aside>
+
+<h2 id="make-the-bot-respond-to-messages">Make the bot respond to messages</h2>
+
+<blockquote>
+<p>Create a message from the message</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<p>With that out of the way, onMessage takes in a pointer to a string as a parameter, this is the raw JSON object that the Discord API gives us. So, you create a Message from the JSON.
+<aside class="notice">
+Some of you maybe asking, &ldquo;why doesn&rsquo;t it just do that for me&rdquo;? It&rsquo;s because it&rsquo;s a planned feature that I never got around to adding in.
+I&rsquo;m sorry Danny.
+</aside></p>
+
+<blockquote>
+<p>Say Hello when someone says <code class="prettyprint">whcg hello</code></p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+    <span class="c1">//say hello back when someone says hello to you
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
+        <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<p>Lets make our bot say hello and the person&rsquo;s name when someone says hello to the bot. This done by using the <code class="prettyprint">sendMessage</code> function, and to get the person&rsquo;s name is stored in <code class="prettyprint">author.username</code>.
+<aside class="warning">
+Do not use <code class="prettyprint">if (message.startsWith(&quot;hello&quot;))</code> as it is not good practice. Your bot should not activate on normal chat.
+</aside>
+<aside class="success">
+You may also use <code class="prettyprint">if (message.isMentioned(bot id))</code>
+</aside></p>
+
+<h2 id="the-code">The code</h2>
+
+<blockquote>
+<p>The finished code</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;thread&gt;
+#include &lt;cstdio&gt;
+#include "websocketpp_websocket.h"
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
+            <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">getchar</span><span class="p">();</span> <span class="c1">//wait for input to prevent the app from closing
+</span><span class="p">}</span>
+</code></pre>
+<p>By now this is what you should have.</p>
+
+<h2 id="testing-time">Testing Time</h2>
+
+<p>Now just compile it and just say <code class="prettyprint">whcg hello</code> in any channel that your bot can access.</p>
+
+<blockquote>
+<p>Possible Output</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>Hello Sleepy Flower Girl
+</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Now that you understand the basics of using the Sleepy Discord Library, I&rsquo;m sure that you can be able to read the rest of <a href="documentation.html">the documentation</a> whenever you need any help. If you have any more questions, you can always ask Sleepy Flower Girl on Discord.</p>
+
+      </div>
+      <div class="dark-box">
+      </div>
+    </div>
+    </section>
+  </body>
+</html>
