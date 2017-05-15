@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "discord_object_interface.h"
+#include "permissions.h"
 
 namespace SleepyDiscord {
 	/*
@@ -40,6 +41,15 @@ namespace SleepyDiscord {
 	owner	bool	true if the user is an owner of the guild
 	permissions	integer	bitwise of the user's enabled/disabled permissions
 	*/
+	struct UserServer : public DiscordObject{
+		UserServer() {}
+		UserServer(const std::string * rawJSON);
+		std::string id;
+		std::string name;
+		std::string icon;
+		bool owner;
+		Permission permissions;
+	};
 
 	/*Connection Structure  The connection object that the user has attached.
 
@@ -49,5 +59,14 @@ namespace SleepyDiscord {
 	type            string  the service of the connection (twitch, youtube)
 	revoked         bool    whether the connection is revoked
 	integrations	array   an array of partial server integrations
-*/
+	*/
+	struct Connection : public DiscordObject {
+		Connection() {}
+		Connection(const std::string * rawJSON);
+		std::string id;
+		std::string name;
+		std::string type;
+		bool revoked;
+
+	};
 }

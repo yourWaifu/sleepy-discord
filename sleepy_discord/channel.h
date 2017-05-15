@@ -21,11 +21,12 @@ namespace SleepyDiscord {
 		int userLimit;
 	};
 
-	class DirectMessageChannel : public DiscordObject {
-		using DiscordObject::DiscordObject;
+	struct DirectMessageChannel : public DiscordObject {
+		DirectMessageChannel() {}
+		DirectMessageChannel(const std::string * rawJson);
 		~DirectMessageChannel();
 		std::string id;
-		bool* is_private;
+		bool is_private;
 		User recipient;
 		std::string lastMessage_id;
 	};

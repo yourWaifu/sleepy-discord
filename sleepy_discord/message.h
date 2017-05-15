@@ -40,10 +40,10 @@ namespace SleepyDiscord {
 		double type;
 	};
 
-	struct Emoji : public DiscordObject {
+	struct ReactionEmoji : public DiscordObject {
 	public:
-		Emoji();
-		Emoji(const std::string* rawJson);
+		ReactionEmoji();
+		ReactionEmoji(const std::string* rawJson);
 		std::string id;
 		std::string name;
 	};
@@ -56,6 +56,6 @@ namespace SleepyDiscord {
 		Reaction(BaseDiscordClient* client, std::string channel_id, std::string message_id, std::string emoji);
 		int count;
 		bool me;
-		//Emoji emoji;
+		ReactionEmoji emoji;
 	};
 }

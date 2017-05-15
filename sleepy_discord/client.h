@@ -9,20 +9,16 @@
 #include "invite.h"
 #include "webhook.h"
 #include "permissions.h"
+#include "gateway.h"
+#include "voice.h"
 
 #include "error.h"
 #include "common.h"
-#include "http.h"
+#include "session.h"
 
 /*
 
-add better support for rate limits for delete message and others
-make http functions return things other then status codes
-remove the boost library
-rewrite discordObject
-fix random crashing because of failing to send heartbeat
-stop using #define and use static const
-make function perimeters const
+remember to make function perimeters const
 
 */
 
@@ -31,19 +27,16 @@ class WebsocketClient;
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
-#define MAX_MESSAGES_SENT_PER_MINUTE 116
-#define HALF_MINUTE_MILLISECONDS 30000
-#define MAX_MESSAGES_SENT_PER_HALF_MINUTE MAX_MESSAGES_SENT_PER_MINUTE/2
 	class BaseDiscordClient {
 	public:
 		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
-		Response request(const RequestMethod method, std::string url, std::string jsonParameters = ""/*,
-			cpr::Parameters httpParameters = cpr::Parameters{}, cpr::Multipart multipartParameters = cpr::Multipart{});
-		Response request(const RequestMethod method, std::string url, cpr::Multipart multipartParameters);
-		Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters*/);
+		Response request(const RequestMethod method, const std::string url, const std::string jsonParameters = ""/*,
+			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
+		Response request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters);
+		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
 		const std::string path(const char* source, ...);	//only works with std::strings
 
@@ -51,12 +44,15 @@ namespace SleepyDiscord {
 
 		//channel functions
 		Channel getChannel(std::string channel_id);                                                                           //to do test this
+		Channel editChannel(std::string channel_id, std::string name = "", std::string topic = "");	                          //to do test this
+		Channel editChannelName(std::string channel_id, std::string name);                                                    //to do test this
+		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
 		Channel deleteChannel(std::string channel_id);
 		enum GetMessagesKey { around, before, after };
 		std::vector<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit);  //to do test this
-		Message getMessage(std::string channel_id, std::string message_id);                                                   //to do test this, and add more then one message return
+		Message getMessage(std::string channel_id, std::string message_id);                                                    //to do test this, and add more then one message return
 		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
-		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);
+		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);                             //to do test this
 		bool addReaction(std::string channel_id, std::string message_id, std::string emoji);
 		bool removeReaction(std::string channel_id, std::string message_id, std::string emoji, std::string user_id = "@me");  //to do test this
 		std::vector<Reaction> getReactions(std::string channel_id, std::string message_id, std::string emoji);                //to do test this
@@ -83,45 +79,41 @@ namespace SleepyDiscord {
 		inline void deleteRecipient(std::string channel_id, std::string user_id) { removeRecipient(channel_id, user_id); }
 
 		//server functions
-		//Server createServer(std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, std::vector<Role> roles, )
+		//Server createServer(std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, std::vector<Role> roles, std::vector<>) what's a create guild channel body?
+		Server getServer(std::string server_id);                                                                              //to do test this
+		//edit Server		//ask discord api server about what the default values should be
 		Server deleteServer(std::string server_id);                                                                           //to do test this
 		std::vector<Channel> GetServerChannels(std::string server_id);                                                        //to do test this
 		Channel createTextChannel(std::string server_id, std::string name);	                                                  //to do test this
-		void getServerMember(std::string server_id, std::string user_id);                                                     //to do test this
-		void listServerMembers(std::string server_id, uint16_t limit = 0, std::string after = "");
-		Server getServer(std::string server_id);                                                                              //to do test this
-		//edit Server
-		Channel editChannel(std::string channel_id, std::string name = "", std::string topic = "");	                          //to do test this
-		Channel editChannelName(std::string channel_id, std::string name);                                                    //to do test this
-		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
-		//get member  make a member class
-		//listMembers
-		//add member
-		//edit member
+		std::vector<Channel> editChannelPositions(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions);         //to do test this
+		ServerMember getMember(std::string server_id, std::string user_id);                                                   //to do test this
+		std::vector<ServerMember> listMembers(std::string server_id, uint16_t limit = 0, std::string after = "");             //to do test this
+		ServerMember addMember(std::string server_id, std::string user_id, std::string accesToken, std::string nick = "", std::vector<Role> roles = {}, bool mute = false, bool deaf = false); //to do test this
+		//edit member needs array maker
 		bool muteServerMember(std::string server_id, std::string user_id, bool mute = true);                                  //to do test this
 		bool editNickname(std::string server_id, std::string newNickname);
 		bool addRole(std::string server_id, std::string member_id, std::string role_id);
 		bool removeRole(std::string server_id, std::string member_id, std::string role_id);   //removes role from member
 		bool kickMember(std::string server_id, std::string member_id);
-		//get bans  needs member class
+		std::vector<User> getBans(std::string server_id);                                                                     //to do test this
 		bool banMember(std::string server_id, std::string member_id);                                                         //to do test this later
 		bool unbanMember(std::string server_id, std::string member_id);                                                       //to do test this later
-		//getRoles  make role array
-		Role createRole(std::string server_id);                                                                                //to do test this
-		//int editRole(std::string role_id, std::string nam.e = "", int permissions = NULL, int position = -1, int color = , bool hoist =);
-		//edit role position
-		//editing roles
+		std::vector<Role> getRoles(std::string server_id);                                                                    //to do test this
+		Role createRole(std::string server_id, std::string name = "", Permission permissions = NONE, unsigned int color = 0, bool hoist = false, bool mentionable = false);//to do test this
+		std::vector<Role> editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions);                //to do test this
+		//std::string editRole(std::string role_id, std::string name = "", int permissions = NULL, int position = -1, unsigned int color = 0, bool hoist = );  needs default int for color
 		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
+		//get prune count	needs testing to know what object they are talking about
 		void pruneMembers(std::string server_id, const unsigned int numOfDays);                                               //to do test
-		//get prune count
-		//Get Voice Regions  needs voice region class
-		//Get Invites  needs invite class
-		//Get Integrations  needs whatever a integration class is
-		//bool createIntegration(std::string server_id, std::string integration_id, );                                        //finish this later
+		std::vector<VoiceRegion> getVoiceRegions();  //needs voice region class
+		std::vector<Invite> getServerInvites(std::string server_id);
+		std::string getIntegrations(std::string server_id);    //needs whatever a integration class is                        //to do test
+		bool createIntegration(std::string server_id, std::string type, std::string integration_id);                          //to do test
+		bool editIntergration(std::string server_id, std::string integration_id, int expireBegavior, int expireGracePeriod, bool enbleEmoticons); //to do test
 		bool deleteIntegration(std::string server_id, std::string integration_id);                                            //to do test this
 		bool syncIntegration(std::string server_id, std::string integration_id);                                              //to do test this
-		//get server embed  needs server embed class
-		//edit server embed
+		ServerEmbed getServerEmbed(std::string server_id);
+		//edit server embed   I don't know what the perms are
 
 		//Invite functions
 		Invite inviteEndpoint(RequestMethod method, std::string inviteCode);
@@ -132,46 +124,123 @@ namespace SleepyDiscord {
 		//User functions
 		User getCurrentUser();                                                                                                //to do test this
 		User getUser(std::string user_id);                                                                                    //to do test this
-		//User editCurrentUser();
-		//getCurrentUserServers			//I think you could rename this getCurrentServers
+		//User editCurrentUser();		//needs Avatar data thing?
+		UserServer getServers();
 		bool leaveServer(std::string server_id);                                                                              //to do test this
-		//getDirectMessageChannels
-		//createDirectMessageChannel
-		//createGroupDirectMessageChannel
-		//getUserConnections
+		std::vector<DMChannel> getDirectMessageChannels();
+		DMChannel createDirectMessageChannel(std::string recipient_id);
+		//DMChannel createGroupDirectMessageChannel(std:vector<std::string> accessTokens, )   what is a dict???
+		std::vector<Connection> getUserConnections();
 
 		//Voice Functions
 		//getVoiceRegions
 
 		//Webhook functions
-		Webhook createWebhook(std::string channel_id, std::string name, std::string avatar = "");
-		//Webhook getChannelWebhooks();
-		//Webhook getServerWebhooks();
-		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");
-		Webhook editWebhook(std::string webhook_id, std::string webhookToken, std::string name, std::string avatar);    //you can leave token or avatar as null
+		Webhook createWebhook(std::string channel_id, std::string name, std::string avatar = "");                             //to do test this
+		std::vector<Webhook> getChannelWebhooks(std::string channel_id);													  //to do test this
+		std::vector<Webhook> getServerWebhooks(std::string server_id);														  //to do test this
+		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");											  //to do test this
+		Webhook editWebhook(std::string webhook_id, std::string webhookToken = "", std::string name = "", std::string avatar = "");    //you can leave token or name as null //to do test this
 		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
-		//Webhook excuteWebhook(std::string webhook_id, std::string webhookToken, bool wait = false)
+		//Webhook excuteWebhook(std::string webhook_id, std::string webhookToken, bool wait = false)   //needs muitiplatform file support
 
 		//websocket functions
-		void updateStatus(time_t idleSince, std::string gameName);
+		void updateStatus(std::string gameName = "", uint64_t idleSince = NULL);
 
 		void waitTilReady();
 		const bool isReady() { return ready; }
 		void quit();	//public function for diconnecting
 	protected:
+		/* list of events
+		READY
+		RESUMED
+		GUILD_CREATE
+		GUILD_DELETE
+		GUILD_UPDATE
+		GUILD_BAN_ADD
+		GUILD_BAN_REMOVE
+		GUILD_MEMBER_ADD
+		GUILD_MEMBER_REMOVE
+		GUILD_MEMBER_UPDATE
+		GUILD_ROLE_CREATE
+		GUILD_ROLE_DELETE
+		GUILD_ROLE_UPDATE
+		GUILD_EMOJIS_UPDATE
+		GUILD_MEMBERS_CHUNK
+		CHANNEL_CREATE
+		CHANNEL_DELETE
+		CHANNEL_UPDATE
+		CHANNEL_PINS_UPDATE
+		PRESENCE_UPDATE
+		USER_UPDATE
+		USER_NOTE_UPDATE
+		USER_SETTINGS_UPDATE
+		VOICE_STATE_UPDATE
+		TYPING_START
+		MESSAGE_CREATE
+		MESSAGE_DELETE
+		MESSAGE_UPDATE
+		MESSAGE_DELETE_BULK
+		VOICE_SERVER_UPDATE
+		GUILD_SYNC
+		RELATIONSHIP_ADD
+		RELATIONSHIP_REMOVE
+		MESSAGE_REACTION_ADD
+		MESSAGE_REACTION_REMOVE
+		MESSAGE_REACTION_REMOVE_ALL
+		*/
 		virtual void onReady(std::string* jsonMessage);
+		virtual void onResumed(std::string* jsonMessage);
+		virtual void onDeleteServer(std::string* jsonMessage);
+		virtual void onEditServer(std::string* jsonMessage);
+		virtual void onBan(std::string* jsonMessage);
+		virtual void onUnban(std::string* jsonMessage);
+		virtual void onMember(std::string* jsonMessage);
+		virtual void onEditMember(std::string* jsonMessage);
+		virtual void onRole(std::string* jsonMessage);
+		virtual void onDeleteRole(std::string* jsonMessage);
+		virtual void onEditRole(std::string* jsonMessage);
+		virtual void onEditEmojis(std::string* jsonMessage);
+		virtual void onMemberChunk(std::string* jsonMessage);
+		virtual void onDeleteChannel(std::string* jsonMessage);
+		virtual void onEditChannel(std::string* jsonMessage);
+		virtual void onPinMessages(std::string* jsonMessage);
+		virtual void onPresenceUpdate(std::string* jsonMessage);
+		virtual void onEditUser(std::string* jsonMessage);
+		virtual void onEditUserNote(std::string* jsonMessage);
+		virtual void onEditUserSettings(std::string* jsonMessage);
+		virtual void onEditVoiceState(std::string* jsonMessage);
+		virtual void onTyping(std::string* jsonMessage);
+		virtual void onDeleteMessage(std::string* jsonMessage);
+		virtual void onEditMessage(std::string* jsonMessage);
+		virtual void onBulkDelete(std::string* jsonMessage);
+		virtual void onEditVoiceServer(std::string* jsonMessage);
+		virtual void onServerSync(std::string* jsonMessage);
+		virtual void onRelationship(std::string* jsonMessage);
+		virtual void onRemoveRelationship(std::string* jsonMessage);
+		virtual void onDeleteRelationship(std::string* jsonMessage);
+		virtual void onReaction(std::string* jsonMessage);
+		virtual void onRemoveReaction(std::string* jsonMessage);
+		virtual void onDeleteReaction(std::string* jsonMessage);
+		virtual void onRemoveAllReaction(std::string* jsonMessage);
+		virtual void onDeleteAllReaction(std::string* jsonMessage);
 		virtual void onMessage(std::string* jsonMessage);
 		virtual void onEditedMessage(std::string* jsonMessage);
-		virtual void onHeartbeat();
-		virtual void onHeartbeatAck();
 		virtual void onServer(std::string* jsonMessage);
 		virtual void onChannel(std::string* jsonMessage);
 		virtual void onEditedRole(std::string* jsonMessage);
+		virtual void onDispatch(std::string* jsonMessage);
+
+		//websocket stuff
+		virtual void onHeartbeat();
+		virtual void onHeartbeatAck();
 		virtual void onInvaldSession();
 		virtual void onDisconnet();
+
 		virtual void onQuit();
 		virtual void onResponse(Response response);
 		virtual void sleep(const unsigned int milliseconds);
+		virtual void fileRead(const char* path, std::string*const file);
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
@@ -225,8 +294,9 @@ namespace SleepyDiscord {
 		bool restart();		//it's like start but when it already started
 		void reconnect(const unsigned int status = 1000);
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
+		bool sendL(std::string message);    //the L stands for Limited
 
-		uint8_t messagesRemaining;
+		int8_t messagesRemaining;
 
 		//checks to make sure this is valid client
 		char magic[6];
@@ -244,21 +314,22 @@ namespace SleepyDiscord {
 
 		template <class _DiscordObject>
 		std::vector<_DiscordObject> requestVector(const RequestMethod method, std::string _url, std::string jsonParameters = "") {
-			std::vector<_DiscordObject> target;
 			const std::string source = request(method, _url, jsonParameters).text;
-			JSON_getArray<_DiscordObject>(&source, &target);
-			return target;
+			return JSON_getArray<_DiscordObject>(&source);
 		}
 
 		//class for events
 		struct Event {
 			const std::string t;
-			typedef const void(*EventFunction)(std::string * jsonMessage);
+			typedef const void(*EventFunction)(BaseDiscordClient*, std::string*);
 			EventFunction function;
 		};
-		std::vector<Event> events;
+		std::vector<Event> events; //I think you should remove this
 
 		//time
 		const int64_t getEpochTimeMillisecond();
+
+		//for endpoint functions
+		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions);
 	};
 }

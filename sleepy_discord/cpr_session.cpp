@@ -2,56 +2,31 @@
 #ifndef NONEXISTENT_CPR
 
 namespace SleepyDiscord {
-	void CPRSession::setUrl(const std::string url) {
-		session.SetUrl(cpr::Url{ url });
-	}
-
-	void CPRSession::setBody(const std::string jsonParameters) {
-		session.SetBody(cpr::Body{ jsonParameters });
-	}
-
-	void CPRSession::setHeader(std::initializer_list<std::pair<std::string, std::string>> header) {
+	void CPRSession::setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) {
 		cpr::Header head;
 		for (auto h : header) head.insert(h);
 		session.SetHeader(head);
 	}
 
-	Response CPRSession::Post() {
-		return request(RequestMethod::Post);
-	}
-
-	Response CPRSession::Patch() {
-		return request(RequestMethod::Patch);
-	}
-
-	Response CPRSession::Delete() {
-		return request(RequestMethod::Delete);
-	}
-
-	Response CPRSession::Get() {
-		return request(RequestMethod::Get);
-	}
-
-	Response CPRSession::Put() {
-		return request(RequestMethod::Put);
-	}
-
-	Response CPRSession::request(const RequestMethod method) {
-		cpr::Response response;
-		switch (method) {
-		case RequestMethod::Post:   response = session.Post(); break;
-		case RequestMethod::Patch:  response = session.Patch(); break;
-		case RequestMethod::Delete: response = session.Delete(); break;
-		case RequestMethod::Get:    response = session.Get(); break;
-		case RequestMethod::Put:    response = session.Put(); break;
+	void CPRSession::setMultipart(const std::initializer_list<Part>& parts) {
+		std::vector<cpr::Part> cprParts;
+		for (auto m : parts) {
+			if (m.isFile) cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
+			else          cprParts.push_back(cpr::Part(m.name, m.value));
 		}
-		Response r;
-		r.statusCode = response.status_code;
-		r.text = response.text;
+		cpr::Multipart muiltpart({});
+		muiltpart.parts = cprParts;
+		session.SetMultipart(muiltpart);
+	}
+
+	Response CPRSession::convertResponse(cpr::Response response) {
+		Response target;
+		target.statusCode = response.status_code;
+		target.text = response.text;
 		for (auto i : response.header) {
-			r.header.insert(i);
+			target.header.insert(i);
 		}
-		return r;
+		return target;
 	}
 }
 #endif

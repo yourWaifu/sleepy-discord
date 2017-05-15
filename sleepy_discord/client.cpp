@@ -1,14 +1,19 @@
 #include <chrono>
+#include <functional>
 #include "client.h"
-#include "session.h"
 #include "json.h"
 
 namespace SleepyDiscord {
+#define MAX_MESSAGES_SENT_PER_MINUTE 116
+#define HALF_MINUTE_MILLISECONDS 30000
+#define MAX_MESSAGES_SENT_PER_HALF_MINUTE MAX_MESSAGES_SENT_PER_MINUTE/2
+
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
 #ifndef SLEEPY_ONE_THREAD
 		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
 #endif
 		token = std::unique_ptr<std::string>(new std::string(_token));
+		messagesRemaining = 2;
 		getTheGateway();
  		connect(theGateway);
 	}
@@ -20,8 +25,8 @@ namespace SleepyDiscord {
 #endif
 	}
 
-	Response BaseDiscordClient::request(const RequestMethod method, std::string _url, std::string jsonParameters/*,
-		cpr::Parameters httpParameters, cpr::Multipart multipartParameters*/) {
+	Response BaseDiscordClient::request(const RequestMethod method, const std::string _url, const std::string jsonParameters/*,
+		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters) {
 		//check if rate limited
 		static bool isRateLimited = false;
 		static int64_t nextRetry = 0;
@@ -31,6 +36,7 @@ namespace SleepyDiscord {
 			else {
 				Response response;
 				response.statusCode = TOO_MANY_REQUESTS;
+				setError(response.statusCode);
 				return response;
 			}
 		}
@@ -39,13 +45,13 @@ namespace SleepyDiscord {
 		std::pair<std::string, std::string> contentType;
 		session.setUrl("https://discordapp.com/api/" + _url);
 		if (jsonParameters != "") {
-			session.setBody(jsonParameters);
+			session.setBody(&jsonParameters);
 			contentType = { "Content-Type", "application/json" };
 		/*} else if (httpParameters.content != "") {	//this is broken for now
-			session.SetParameters(httpParameters);
-		} else if (!multipartParameters.parts.empty()) {
-			session.SetMultipart(multipartParameters);
-			contentType = { "Content-Type", "multipart/form-data" };*/
+			session.SetParameters(httpParameters);*/
+		} else if (0 < multipartParameters.size()) {
+			session.setMultipart(multipartParameters);
+			contentType = { "Content-Type", "multipart/form-data" };
 		}
 		session.setHeader({
 			{ "Authorization", "Bot " + getToken() },
@@ -54,7 +60,7 @@ namespace SleepyDiscord {
 			{ "Content-Length", std::to_string(jsonParameters.length()) }
 			});
 		Response response;
-		switch (method) {
+		switch (method) { //this switch statement can be removed
 		case Post:   response = session.Post(); break;
 		case Patch:  response = session.Patch(); break;
 		case Delete: response = session.Delete(); break;
@@ -80,9 +86,9 @@ namespace SleepyDiscord {
 		return response;
 	}
 
-	/*Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Multipart multipartParameters) {
-		return request(method, url, "", cpr::Parameters{}, multipartParameters);
-	}
+	Response BaseDiscordClient::request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters) {
+		return request(method, url, "", /*cpr::Parameters{},*/ multipartParameters);
+	}/*
 
 	Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
 		return request(method, url, "", httpParameters);
@@ -113,6 +119,18 @@ namespace SleepyDiscord {
 
 	inline bool SleepyDiscord::BaseDiscordClient::isMagicReal() {
 		return (magic[0] == 'm' && magic[1] == 'A' && magic[2] == 'g' && magic[3] == 'i' && magic[4] == 'c' && magic[5] == 0);
+	}
+
+	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince) {
+		sendL(json::createJSON({
+			{ "op", json::integer(STATUS_UPDATE) },
+			{ "d", json::createJSON({
+				{"idle_since", idleSince != NULL? json::UInteger(idleSince) : "null"},
+				{"game", gameName != "" ? json::createJSON({
+					{"name", json::string(gameName)}
+				}) : "null"}
+			})}
+		}));
 	}
 
 	void BaseDiscordClient::waitTilReady() {
@@ -198,11 +216,11 @@ namespace SleepyDiscord {
 #else
 		const char* os = "\\u00AF\\\\_(\\u30C4)_\\/\\u00AF";  //shrug I dunno
 #endif
-		send("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"" + os + "\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
+		sendL("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"" + os + "\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
 	}
 
 	void BaseDiscordClient::sendResume() {
-		send("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
+		sendL("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
 	}
 
 	bool BaseDiscordClient::restart() {
@@ -227,6 +245,16 @@ namespace SleepyDiscord {
 		onDisconnet();
 	}
 
+	bool BaseDiscordClient::sendL(std::string message) {
+		if (--messagesRemaining < 0) {
+			messagesRemaining = 0;
+			setError(RATE_LIMITED);
+			return false;
+		}
+		send(message);
+		return true;
+	}
+
 	void BaseDiscordClient::processMessage(std::string message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
@@ -240,61 +268,79 @@ namespace SleepyDiscord {
 					session_id = json::getValue(d->c_str(), "session_id");
 					onReady(d);
 					ready = true;
+				} else if (t == "RESUMED") {
+					onResumed(d);
 				} else if (t == "GUILD_CREATE") {
 					onServer(d);
-				} else if (t == "MESSAGE_CREATE") {
-					onMessage(d);
-				} else if (t == "MESSAGE_UPDATE") {
-					onEditedMessage(d);
+				} else if (t == "GUILD_DELETE") {
+					onDeleteServer(d);
+				} else if (t == "GUILD_UPDATE") {
+					onEditServer(d);
+				} else if (t == "GUILD_BAN_ADD") {
+					onBan(d);
+				} else if (t == "GUILD_BAN_REMOVE") {
+					onUnban(d);
+				} else if (t == "GUILD_MEMBER_ADD") {
+					onMember(d);
+				} else if (t == "GUILD_MEMBER_UPDATE") {
+					onEditMember(d);
+				} else if (t == "GUILD_ROLE_CREATE") {
+					onRole(d);
+				} else if (t == "GUILD_ROLE_DELETE") {
+					onDeleteRole(d);
+				} else if (t == "GUILD_ROLE_UPDATE") {
+					onEditRole(d);
+				} else if (t == "GUILD_EMOJIS_UPDATE") {
+					onEditEmojis(d);
+				} else if (t == "GUILD_MEMBERS_CHUNK") {
+					onMemberChunk(d);
 				} else if (t == "CHANNEL_CREATE") {
 					onChannel(d);
-				} else if (t == "GUILD_ROLE_CREATE") {
-					onEditedRole(d);
+				} else if (t == "CHANNEL_DELETE") {
+					onDeleteChannel(d);
+				} else if (t == "CHANNEL_UPDATE") {
+					onEditChannel(d);
+				} else if (t == "CHANNEL_PINS_UPDATE") {
+					onPinMessages(d);
+				} else if (t == "PRESENCE_UPDATE") {
+					onPresenceUpdate(d);
+				} else if (t == "USER_UPDATE") {
+					onEditUser(d);
+				} else if (t == "USER_NOTE_UPDATE") {
+					onEditUserNote(d);
+				} else if (t == "USER_SETTINGS_UPDATE") {
+					onEditUserSettings(d);
+				} else if (t == "VOICE_STATE_UPDATE") {
+					onEditVoiceState(d);
+				} else if (t == "TYPING_START") {
+					onTyping(d);
+				} else if (t == "MESSAGE_CREATE") {
+					onMessage(d);
+				} else if (t == "MESSAGE_DELETE") {
+					onDeleteMessage(d);
+				} else if (t == "MESSAGE_UPDATE") {
+					onEditMessage(d);
+				} else if (t == "MESSAGE_DELETE_BULK") {
+					onBulkDelete(d);
+				} else if (t == "VOICE_SERVER_UPDATE") {
+					onEditVoiceServer(d);
+				} else if (t == "GUILD_SYNC") {
+					onServerSync(d);
+				} else if (t == "RELATIONSHIP_ADD") {
+					onRelationship(d);
+				} else if (t == "RELATIONSHIP_REMOVE") {
+					onRemoveRelationship(d);
+					onDeleteRelationship(d);
+				} else if (t == "MESSAGE_REACTION_ADD") {
+					onReaction(d);
+				} else if (t == "MESSAGE_REACTION_REMOVE") {
+					onRemoveReaction(d);
+					onDeleteReaction(d);
+				} else if (t == "MESSAGE_REACTION_REMOVE_ALL") {
+					onRemoveAllReaction(d);
+					onDeleteAllReaction(d);
 				}
-				for (Event e : events) {
-					if (t == e.t)
-						e.function(d);
-				}
-
-				/* list of events
-		READY
-		RESUMED
-		GUILD_CREATE
-		GUILD_DELETE
-		GUILD_UPDATE
-		GUILD_BAN_ADD
-		GUILD_BAN_REMOVE
-		GUILD_MEMBER_ADD
-		GUILD_MEMBER_REMOVE
-		GUILD_MEMBER_UPDATE
-		GUILD_ROLE_CREATE
-		GUILD_ROLE_DELETE
-		GUILD_ROLE_UPDATE
-		GUILD_EMOJIS_UPDATE
-		GUILD_MEMBERS_CHUNK
-		CHANNEL_CREATE
-		CHANNEL_DELETE
-		CHANNEL_UPDATE
-		CHANNEL_PINS_UPDATE
-		PRESENCE_UPDATE
-		USER_UPDATE
-		USER_NOTE_UPDATE
-		USER_SETTINGS_UPDATE
-		VOICE_STATE_UPDATE
-		TYPING_START
-		MESSAGE_CREATE
-		MESSAGE_DELETE
-		MESSAGE_UPDATE
-		MESSAGE_DELETE_BULK
-		VOICE_SERVER_UPDATE
-		GUILD_SYNC
-		RELATIONSHIP_ADD
-		RELATIONSHIP_REMOVE
-		MESSAGE_REACTION_ADD
-		MESSAGE_REACTION_REMOVE
-		MESSAGE_REACTION_REMOVE_ALL
-				*/
-
+				onDispatch(d);
 		break;
 		case HELLO:
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
@@ -304,8 +350,8 @@ namespace SleepyDiscord {
 			reconnect();
 			break;
 		case INVALID_SESSION:
-			sleep(2500);
 			if (d[0][0] == 't') {
+				sleep(2500);
 				sendResume();
 			} else {
 				session_id = "";
@@ -335,7 +381,7 @@ namespace SleepyDiscord {
 			}
 
 			std::string str = std::to_string(lastSReceived);
-			send("{\"op\":1,\"d\":" + str + "}");
+			sendL("{\"op\":1,\"d\":" + str + "}");
 			wasHeartbeatAcked = false;
 			onHeartbeat();
 		}
@@ -344,5 +390,16 @@ namespace SleepyDiscord {
 	const int64_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
+	}
+
+	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions) {
+		std::vector<std::string> params(positions.size());
+		for (auto value : positions) {
+			params.push_back(json::createJSON({
+				{ "id", json::string(value.first) },
+				{ "position", json::UInteger(value.second) }
+			}));
+		}
+		return json::createJSONArray(params);
 	}
 }

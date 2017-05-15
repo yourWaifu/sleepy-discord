@@ -26,12 +26,11 @@ namespace SleepyDiscord {
 		tts = values[5][0] == 't';
 		mention_everyone = values[6][0] == 't';
 		author = User(&values[7]);
-		//these if statements are here because they make the library faster
-		JSON_getArray<User>(&values[8], &mentions);
-		json::getArray(&values[9], &mention_roles);
-		JSON_getArray<Attachment>(&values[10], &attachments);
-		JSON_getArray<Embed>(&values[11], &embeds);
-		if (values[12][0] && values[12][0] != 'n') nonce = std::stoll(values[12]);
+		mentions = JSON_getArray<User>(&values[8]);
+		mention_roles = json::getArray(&values[9]);
+		attachments = JSON_getArray<Attachment>(&values[10]);
+		embeds = JSON_getArray<Embed>(&values[11]);
+		nonce = isDefined(values[12]) ? std::stoll(values[12]) : 0;
 		pinned = values[13][0] == 't';
 	}
 
@@ -68,10 +67,10 @@ namespace SleepyDiscord {
 		return client->sendMessage(channel_id, message, tts);
 	}
 
-	SleepyDiscord::Emoji::Emoji() {
+	SleepyDiscord::ReactionEmoji::ReactionEmoji() {
 	}
 
-	SleepyDiscord::Emoji::Emoji(const std::string * rawJson) {
+	SleepyDiscord::ReactionEmoji::ReactionEmoji(const std::string * rawJson) {
 
 	}
 

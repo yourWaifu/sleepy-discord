@@ -4,8 +4,9 @@
 #include "user.h"
 
 namespace SleepyDiscord {
+	class BaseDiscordClient;
+
 	struct Server : public DiscordObject {
-		Server(JSON* jsonMessage);
 		~Server();
 		Server(const std::string * rawJson);
 		std::string id;
@@ -15,22 +16,22 @@ namespace SleepyDiscord {
 		std::string owner_id;
 		std::string region;
 		std::string afk_channel_id;
-		double* afk_timeout;
-		bool* embed_enable;
+		double afk_timeout;
+		bool embed_enable;
 		std::string embed_channel_id;
-		double* verfication_level;
+		double verfication_level;
 		//voice_states
 		//roles
 		//emojis
 		//features
-		bool* unavailable;
+		bool unavailable;
 
 		//presences
-		double* mfa_level;
+		double mfa_level;
 		//members
-		bool* large;
+		bool large;
 		std::string joined_at;
-		double* default_message_notifications;
+		double default_message_notifications;
 	};
 
 	struct UnavailableServer : public DiscordObject {
@@ -55,7 +56,7 @@ namespace SleepyDiscord {
 	mute      bool     if the user is muted
 	*/
 	struct ServerMember : public DiscordObject {
-		ServerMember();
+		ServerMember() {}
 		ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id);
 		ServerMember(const std::string * rawJson);
 		User user;

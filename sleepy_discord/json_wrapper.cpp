@@ -9,7 +9,7 @@ namespace json {
 		unsigned int ii = -1;
 		for (const char *const name : names)
 			values[++ii] = { name, 0, strlen(name), 0 };
-		JSON_findMuitiple(numOfValues, source, &values[0]);
+		JSON_find(numOfValues, source, &values[0]);
 		std::vector<std::string> targets(numOfValues);
 		for (unsigned int i = 0; i < numOfValues; i++) {
 			if (0 < values[i].namePosition) {
@@ -21,12 +21,12 @@ namespace json {
 
 	std::string getValue(const char* source, const char * name) {
 		JSON_findMuitipleStruct value = { name, 0, strlen(name), 0 };
-		JSON_findMuitiple(1, source, &value);
+		JSON_find(1, source, &value);
 		return std::string(source + value.namePosition, value.valueLength);
 	}
 
-	void getArray(const std::string* _source, std::vector<std::string>* target) {
-		getArray<std::string>(_source, target, [](std::string* value, std::string string) {*value = string;});
+	std::vector<std::string> getArray(const std::string* _source) {
+		return getArray<std::string>(_source, [](std::string* value, std::string string) {*value = string;});
 	}
 
 	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json) {
@@ -41,6 +41,21 @@ namespace json {
 			target.push_back('}');
 		} catch (std::out_of_range) {
 			target = "{}";
+		}
+		return target;
+	}
+
+	const std::string createJSONArray(std::vector<std::string> source) {
+		std::string target;
+		for (auto value : source) {
+			if (value != "")
+				target += ',' + value;
+		}
+		try {
+			target.at(0) = '[';
+			target.push_back(']');
+		} catch (std::out_of_range) {
+			target = "[]";
 		}
 		return target;
 	}
@@ -65,4 +80,7 @@ namespace json {
 		return num ? integer(num) : "";
 	}
 
+	const std::string boolean(const bool boolean) {
+		return boolean ? "true" : "false";
+	}
 }
