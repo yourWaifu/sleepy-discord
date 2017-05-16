@@ -142,7 +142,10 @@ namespace SleepyDiscord {
 		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");											  //to do test this
 		Webhook editWebhook(std::string webhook_id, std::string webhookToken = "", std::string name = "", std::string avatar = "");    //you can leave token or name as null //to do test this
 		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
-		//Webhook excuteWebhook(std::string webhook_id, std::string webhookToken, bool wait = false)   //needs muitiplatform file support
+		Webhook requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts);
+		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, std::string content, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);       //to do test this
+		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, std::vector<Embed> embeds, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false); //to do test this
+		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = NULL);

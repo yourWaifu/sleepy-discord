@@ -263,84 +263,84 @@ namespace SleepyDiscord {
 		std::string *d = &values[1];
 		switch (op) {
 		case DISPATCH:
-				lastSReceived = std::stoi(values[2]);
-				if (t == "READY") {
-					session_id = json::getValue(d->c_str(), "session_id");
-					onReady(d);
-					ready = true;
-				} else if (t == "RESUMED") {
-					onResumed(d);
-				} else if (t == "GUILD_CREATE") {
-					onServer(d);
-				} else if (t == "GUILD_DELETE") {
-					onDeleteServer(d);
-				} else if (t == "GUILD_UPDATE") {
-					onEditServer(d);
-				} else if (t == "GUILD_BAN_ADD") {
-					onBan(d);
-				} else if (t == "GUILD_BAN_REMOVE") {
-					onUnban(d);
-				} else if (t == "GUILD_MEMBER_ADD") {
-					onMember(d);
-				} else if (t == "GUILD_MEMBER_UPDATE") {
-					onEditMember(d);
-				} else if (t == "GUILD_ROLE_CREATE") {
-					onRole(d);
-				} else if (t == "GUILD_ROLE_DELETE") {
-					onDeleteRole(d);
-				} else if (t == "GUILD_ROLE_UPDATE") {
-					onEditRole(d);
-				} else if (t == "GUILD_EMOJIS_UPDATE") {
-					onEditEmojis(d);
-				} else if (t == "GUILD_MEMBERS_CHUNK") {
-					onMemberChunk(d);
-				} else if (t == "CHANNEL_CREATE") {
-					onChannel(d);
-				} else if (t == "CHANNEL_DELETE") {
-					onDeleteChannel(d);
-				} else if (t == "CHANNEL_UPDATE") {
-					onEditChannel(d);
-				} else if (t == "CHANNEL_PINS_UPDATE") {
-					onPinMessages(d);
-				} else if (t == "PRESENCE_UPDATE") {
-					onPresenceUpdate(d);
-				} else if (t == "USER_UPDATE") {
-					onEditUser(d);
-				} else if (t == "USER_NOTE_UPDATE") {
-					onEditUserNote(d);
-				} else if (t == "USER_SETTINGS_UPDATE") {
-					onEditUserSettings(d);
-				} else if (t == "VOICE_STATE_UPDATE") {
-					onEditVoiceState(d);
-				} else if (t == "TYPING_START") {
-					onTyping(d);
-				} else if (t == "MESSAGE_CREATE") {
-					onMessage(d);
-				} else if (t == "MESSAGE_DELETE") {
-					onDeleteMessage(d);
-				} else if (t == "MESSAGE_UPDATE") {
-					onEditMessage(d);
-				} else if (t == "MESSAGE_DELETE_BULK") {
-					onBulkDelete(d);
-				} else if (t == "VOICE_SERVER_UPDATE") {
-					onEditVoiceServer(d);
-				} else if (t == "GUILD_SYNC") {
-					onServerSync(d);
-				} else if (t == "RELATIONSHIP_ADD") {
-					onRelationship(d);
-				} else if (t == "RELATIONSHIP_REMOVE") {
-					onRemoveRelationship(d);
-					onDeleteRelationship(d);
-				} else if (t == "MESSAGE_REACTION_ADD") {
-					onReaction(d);
-				} else if (t == "MESSAGE_REACTION_REMOVE") {
-					onRemoveReaction(d);
-					onDeleteReaction(d);
-				} else if (t == "MESSAGE_REACTION_REMOVE_ALL") {
-					onRemoveAllReaction(d);
-					onDeleteAllReaction(d);
-				}
-				onDispatch(d);
+			lastSReceived = std::stoi(values[2]);
+			if (t == "READY") {
+				session_id = json::getValue(d->c_str(), "session_id");
+				onReady(d);
+				ready = true;
+			} else if (t == "RESUMED") {
+				onResumed(d);
+			} else if (t == "GUILD_CREATE") {
+				onServer(d);
+			} else if (t == "GUILD_DELETE") {
+				onDeleteServer(d);
+			} else if (t == "GUILD_UPDATE") {
+				onEditServer(d);
+			} else if (t == "GUILD_BAN_ADD") {
+				onBan(d);
+			} else if (t == "GUILD_BAN_REMOVE") {
+				onUnban(d);
+			} else if (t == "GUILD_MEMBER_ADD") {
+				onMember(d);
+			} else if (t == "GUILD_MEMBER_UPDATE") {
+				onEditMember(d);
+			} else if (t == "GUILD_ROLE_CREATE") {
+				onRole(d);
+			} else if (t == "GUILD_ROLE_DELETE") {
+				onDeleteRole(d);
+			} else if (t == "GUILD_ROLE_UPDATE") {
+				onEditRole(d);
+			} else if (t == "GUILD_EMOJIS_UPDATE") {
+				onEditEmojis(d);
+			} else if (t == "GUILD_MEMBERS_CHUNK") {
+				onMemberChunk(d);
+			} else if (t == "CHANNEL_CREATE") {
+				onChannel(d);
+			} else if (t == "CHANNEL_DELETE") {
+				onDeleteChannel(d);
+			} else if (t == "CHANNEL_UPDATE") {
+				onEditChannel(d);
+			} else if (t == "CHANNEL_PINS_UPDATE") {
+				onPinMessages(d);
+			} else if (t == "PRESENCE_UPDATE") {
+				onPresenceUpdate(d);
+			} else if (t == "USER_UPDATE") {
+				onEditUser(d);
+			} else if (t == "USER_NOTE_UPDATE") {
+				onEditUserNote(d);
+			} else if (t == "USER_SETTINGS_UPDATE") {
+				onEditUserSettings(d);
+			} else if (t == "VOICE_STATE_UPDATE") {
+				onEditVoiceState(d);
+			} else if (t == "TYPING_START") {
+				onTyping(d);
+			} else if (t == "MESSAGE_CREATE") {
+				onMessage(d);
+			} else if (t == "MESSAGE_DELETE") {
+				onDeleteMessage(d);
+			} else if (t == "MESSAGE_UPDATE") {
+				onEditMessage(d);
+			} else if (t == "MESSAGE_DELETE_BULK") {
+				onBulkDelete(d);
+			} else if (t == "VOICE_SERVER_UPDATE") {
+				onEditVoiceServer(d);
+			} else if (t == "GUILD_SYNC") {
+				onServerSync(d);
+			} else if (t == "RELATIONSHIP_ADD") {
+				onRelationship(d);
+			} else if (t == "RELATIONSHIP_REMOVE") {
+				onRemoveRelationship(d);
+				onDeleteRelationship(d);
+			} else if (t == "MESSAGE_REACTION_ADD") {
+				onReaction(d);
+			} else if (t == "MESSAGE_REACTION_REMOVE") {
+				onRemoveReaction(d);
+				onDeleteReaction(d);
+			} else if (t == "MESSAGE_REACTION_REMOVE_ALL") {
+				onRemoveAllReaction(d);
+				onDeleteAllReaction(d);
+			}
+			onDispatch(d);
 		break;
 		case HELLO:
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));

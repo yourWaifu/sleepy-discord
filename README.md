@@ -1,8 +1,11 @@
 # Sleepy Discord
 C++ library for Discord
 
+# [Documenation](https://nonamer64.github.io/sleepy-discord/documentation.html)
+The docs are here https://nonamer64.github.io/sleepy-discord/documentation.html . If you like to edit them, please check out the docs branch.
+
 # Why?
-Just for the novelty of using a C++ library for Discord.
+Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
 
 # Example
 ```cpp
@@ -11,10 +14,10 @@ Just for the novelty of using a C++ library for Discord.
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
     using DiscordClient::DiscordClient;
-    void onMessage(JSON* jsonMessage) {
-   	    SleepyDiscord::Message message(this, jsonMessage);
+    void onMessage(std::string * jsonMessage) {
+   	    SleepyDiscord::Message message(jsonMessage);
 	    if (message.content.find("whcg hello") == 0)
-	        message.reply("Hello " + message.author.username);
+	        sendMessage(message.channel_id, "Hello " + message.author.username);
     }
 };
 
@@ -32,13 +35,16 @@ Possible Output: Message sent
 ```
 Hello Sleepy Flower Girl
 ```
-#Will Updating the library break my bot?
+# Will Updating the library break my bot?
 
 Yes, and for now I don't plan on making 0.0 versions backwards compatable with 1.0 versions or later.
 
 # Requirements
-* 3.5 gb of available storage space
-* [Boost](http://www.boost.org/)
 * [OpenSSL](https://www.openssl.org/)
-* [Websocket++](https://github.com/zaphoyd/websocketpp)
 * [cpr](https://github.com/whoshuu/cpr)
+* [Websocket++](https://github.com/zaphoyd/websocketpp)
+or
+[uWebSockets](https://github.com/uWebSockets/uWebSockets)
+
+# Develop Breach
+For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to complie or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
