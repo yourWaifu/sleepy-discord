@@ -171,6 +171,36 @@ namespace SleepyDiscord {
 		}));
 	}
 
+	ServerMember BaseDiscordClient::addMember(std::string server_id, std::string user_id, std::string accesToken, std::string nick, std::vector<Role> roles, bool mute, bool deaf) {
+		std::string rolesString = "";
+		if (roles.empty()){
+			rolesString = "";
+		} else {
+			unsigned int i = -1;
+			std::vector<std::string> values(roles.size());
+			for (Role role : roles) {
+				values[++i] = json::createJSON({
+					{ "id"         , json::string (role.id         ) },
+					{ "name"       , json::string (role.name       ) },
+					{ "color"      , json::integer(role.color      ) },
+					{ "hoist"      , json::boolean(role.hoist      ) },
+					{ "position"   , json::integer(role.position   ) },
+					{ "managed"    , json::boolean(role.managed    ) },
+					{ "mentionable", json::boolean(role.mantionable) }
+				});
+			}
+			rolesString = json::createJSONArray(values);
+		}
+
+		return request<ServerMember>(Put, path("guilds/{guild.id}/members/{user.id}"), json::createJSON({
+			{ "access_token", json::string (accesToken) },
+			{ "nick"        , json::string (nick)       },
+			{ "roles"       , rolesString               },
+			{ "mute"        , json::boolean(mute)       },
+			{ "deaf"        , json::boolean(deaf)       }
+		}));
+	}
+
 	std::vector<Role> BaseDiscordClient::editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions) {
 		return requestVector<Role>(Patch, path("guilds/{guild.id}/roles", server_id), getEditPositionString(positions));
 	}
@@ -225,6 +255,16 @@ namespace SleepyDiscord {
 
 	std::vector<Role> BaseDiscordClient::getRoles(std::string server_id) {
 		return requestVector<Role>(Get, path("guilds/{guild.id}/roles", server_id));
+	}
+
+	Role BaseDiscordClient::createRole(std::string server_id, std::string name, Permission permissions, unsigned int color, bool hoist, bool mentiionable) {
+		return request<Role>(Post, path("guilds/{guild.id}/roles", server_id), json::createJSON({
+			{ "name"       , json::string (name        ) },
+			{ "permissions", json::integer(permissions ) },
+			{ "color"      , json::integer(color       ) },
+			{ "hoist"      , json::boolean(hoist       ) },
+			{ "mentionable", json::boolean(mentiionable) }
+		}));
 	}
 
 	void BaseDiscordClient::pruneMembers(std::string server_id, const unsigned int numOfDays) {
