@@ -1,5 +1,5 @@
 ---
-title: How to make a Basic Text Bot
+title: How To Make a Basic Text Bot with Sleepy Discord
 
 language_tabs:
 
@@ -15,7 +15,7 @@ search: true
 #How to make a Basic Text Bot
 
 <aside class="notice">
-For this tutorial, I'm going to assume that you everything set up. If not, please read the quick start guild if it exist (it doesn't as of writing).
+For this tutorial, I'm going to assume that you everything set up. If not, please read [How To Compile Sleepy Discord](compile.html).
 </aside>
 
 ## Including Sleepy Discord
