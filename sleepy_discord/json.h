@@ -37,32 +37,6 @@ extern "C" {
 
 namespace json {
 	template<class Type>
-	Type find(const char * name, const char * source) {
-		const unsigned int startPosition = JSON_find(name, source);
-		//if (startPosition == NULL) return NULL;	//what do you return in a template?
-		switch (source[startPosition]) {
-		case '"': {
-			//const unsigned int stringLength = JSON_measureString(source, &startPosition);
-			//std::string result = source + startPosition + 1;    //the + 1 will remove the " at the beginning
-			//result.resize(stringLength - 1);                    //we are - 1 because we removed the "
-			//if (std::is_same<Type, std::string>::value) return result;
-			//else return result.c_str();
-		} break;
-		default:
-			break;
-		}
-		return 0;
-	}
-	template<>
-	std::string find<std::string>(const char * name, const char * source);
-
-	template<class Type>   //I can't remember why this template is here
-	Type find(const char * name, const std::string source) {
-		const char * cString = source.c_str();
-		return JSON_find(name, cString);
-	}
-
-	template<class Type>
 	std::vector<Type> getArray(const std::string* _source, void(*function)(Type*, std::string)) {
 		const char* source = _source->c_str();
 		if (source[0] != '[') return std::vector<Type>();

@@ -142,7 +142,7 @@ namespace SleepyDiscord {
 		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");											  //to do test this
 		Webhook editWebhook(std::string webhook_id, std::string webhookToken = "", std::string name = "", std::string avatar = "");    //you can leave token or name as null //to do test this
 		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
-		Webhook requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts);
+		Webhook requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts);     //note: it's possiable to have both a file and embeds
 		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, std::string content, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);       //to do test this
 		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, std::vector<Embed> embeds, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false); //to do test this
 		Webhook executeWebhook(std::string webhook_id, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
