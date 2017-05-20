@@ -15,7 +15,7 @@ namespace SleepyDiscord {
 	*/
 	struct Webhook : public DiscordObject {
 	public:
-		Webhook();
+		Webhook() {}
 		Webhook(const std::string * rawJSON);
 		std::string id;
 		std::string server_id;

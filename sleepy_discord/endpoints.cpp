@@ -65,7 +65,7 @@ namespace SleepyDiscord {
 	}
 
 	std::vector<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit) {
-		uint8_t trueLimit = 100 < limit ? 100 : limit;
+		const uint8_t trueLimit = 100 < limit ? 100 : limit;
 		std::string key;
 		switch (when) {
 		case around: key = "?around=" + message_id; break;
@@ -73,7 +73,7 @@ namespace SleepyDiscord {
 		case after: key = "?after=" + message_id; break;
 		}
 		return requestVector<Message>(Get, 
-			path("/channels/{channel.id}/messages", channel_id) + key + (limit != 0 ? "&limit=" + std::to_string(limit) : ""));
+			path("/channels/{channel.id}/messages{key}{limit}", channel_id, key, (trueLimit != 0 ? "&limit=" + std::to_string(trueLimit) : "")));
 	}
 
 	Message BaseDiscordClient::getMessage(std::string channel_id, std::string message_id) {
@@ -171,6 +171,36 @@ namespace SleepyDiscord {
 		}));
 	}
 
+	ServerMember BaseDiscordClient::addMember(std::string server_id, std::string user_id, std::string accesToken, std::string nick, std::vector<Role> roles, bool mute, bool deaf) {
+		std::string rolesString = "";
+		if (roles.empty()){
+			rolesString = "";
+		} else {
+			unsigned int i = -1;
+			std::vector<std::string> values(roles.size());
+			for (Role role : roles) {
+				values[++i] = json::createJSON({
+					{ "id"         , json::string (role.id         ) },
+					{ "name"       , json::string (role.name       ) },
+					{ "color"      , json::integer(role.color      ) },
+					{ "hoist"      , json::boolean(role.hoist      ) },
+					{ "position"   , json::integer(role.position   ) },
+					{ "managed"    , json::boolean(role.managed    ) },
+					{ "mentionable", json::boolean(role.mantionable) }
+				});
+			}
+			rolesString = json::createJSONArray(values);
+		}
+
+		return request<ServerMember>(Put, path("guilds/{guild.id}/members/{user.id}"), json::createJSON({
+			{ "access_token", json::string (accesToken) },
+			{ "nick"        , json::string (nick)       },
+			{ "roles"       , rolesString               },
+			{ "mute"        , json::boolean(mute)       },
+			{ "deaf"        , json::boolean(deaf)       }
+		}));
+	}
+
 	std::vector<Role> BaseDiscordClient::editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions) {
 		return requestVector<Role>(Patch, path("guilds/{guild.id}/roles", server_id), getEditPositionString(positions));
 	}
@@ -227,9 +257,23 @@ namespace SleepyDiscord {
 		return requestVector<Role>(Get, path("guilds/{guild.id}/roles", server_id));
 	}
 
+	Role BaseDiscordClient::createRole(std::string server_id, std::string name, Permission permissions, unsigned int color, bool hoist, bool mentiionable) {
+		return request<Role>(Post, path("guilds/{guild.id}/roles", server_id), json::createJSON({
+			{ "name"       , json::string (name        ) },
+			{ "permissions", json::integer(permissions ) },
+			{ "color"      , json::integer(color       ) },
+			{ "hoist"      , json::boolean(hoist       ) },
+			{ "mentionable", json::boolean(mentiionable) }
+		}));
+	}
+
 	void BaseDiscordClient::pruneMembers(std::string server_id, const unsigned int numOfDays) {
 		if (numOfDays == 0) return;
 		request(Post, path("guilds/{guild.id}/prune", server_id), "{\"days\":" + numOfDays + '}');
+	}
+
+	std::vector<VoiceRegion> BaseDiscordClient::getVoiceRegions() {
+		return requestVector<VoiceRegion>(Get, path("guilds/{guild.id}/regions"));
 	}
 
 	std::vector<Invite> BaseDiscordClient::getServerInvites(std::string server_id) {
@@ -336,18 +380,48 @@ namespace SleepyDiscord {
 		return webhookToken != "" ? "webhooks/{webhook.id}/{webhook.token}" : "webhooks/{webhook.id}";
 	}
 
-	Webhook SleepyDiscord::BaseDiscordClient::getWebhook(std::string webhook_id, std::string webhookToken) {
+	Webhook BaseDiscordClient::getWebhook(std::string webhook_id, std::string webhookToken) {
 		return request<Webhook>(Get, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken));
 	}
 
-	Webhook SleepyDiscord::BaseDiscordClient::editWebhook(std::string webhook_id, std::string webhookToken, std::string name, std::string avatar) {
+	Webhook BaseDiscordClient::editWebhook(std::string webhook_id, std::string webhookToken, std::string name, std::string avatar) {
 		return request<Webhook>(Patch, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken), json::createJSON({
 			{ "name", json::string(name) },
 			{ "avatar", json::string(avatar) }
 		}));
 	}
 
-	bool SleepyDiscord::BaseDiscordClient::deleteWebhook(std::string webhook_id, std::string webhookToken) {
+	bool BaseDiscordClient::deleteWebhook(std::string webhook_id, std::string webhookToken) {
 		return request(Delete, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken)).statusCode == NO_CONTENT;
+	}
+
+	//excute webhook
+
+	Webhook BaseDiscordClient::requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts) {
+		return request<Webhook>(Post, path("webhooks/{webhook.id}/{webhook.token}{wait}", webhook_id, webhookToken, (wait ? "?around=true" : "")), json::createJSON({
+			pair,
+			{ "username"  , json::string(username  ) },
+			{ "avatar_url", json::string(avatar_url) },
+			{ "tts"       , (tts ? "true" : "")      }
+		}));
+	}
+
+	Webhook BaseDiscordClient::executeWebhook(std::string webhook_id, std::string webhookToken, std::string content, bool wait, std::string username, std::string avatar_url, bool tts) {
+		return requestExecuteWebhook(webhook_id, webhookToken, { "content", json::string(content) }, wait, username, avatar_url, tts);
+	}
+
+	//Webhook SleepyDiscord::BaseDiscordClient::executeWebhook(std::string webhook_id, std::string webhookToken, std::vector<Embed> embeds, bool wait, std::string username, std::string avatar_url bool tts) {
+	//	
+	//	return requestExecuteWebhook(webhook_id, webhookToken, { "embeds", crazy stuff happens here }, wait, username, avatar_url, tts);
+	//}
+	
+	Webhook BaseDiscordClient::executeWebhook(std::string webhook_id, std::string webhookToken, filePathPart file, bool wait, std::string username, std::string avatar_url, bool tts) {
+		std::string response = request(Post, path("webhooks/{webhook.id}/{webhook.token}", webhook_id, webhookToken), {
+			{ "file"      , filePathPart(file)  },
+			{ "username"  , username            },
+			{ "avatar_url", avatar_url          },
+			{ "tts"       , (tts ? "true" : "") }
+		}).text;
+		return Webhook(&response);
 	}
 }

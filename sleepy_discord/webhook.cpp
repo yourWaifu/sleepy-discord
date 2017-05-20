@@ -1,8 +1,5 @@
 #include "webhook.h"
 
-SleepyDiscord::Webhook::Webhook() {
-}
-
 SleepyDiscord::Webhook::Webhook(const std::string * rawJSON) {
 	std::vector<std::string> values = json::getValues(rawJSON->c_str(),
 	{ "id", "guild_id", "channel_id", "user", "name", "avatar", "token" });
