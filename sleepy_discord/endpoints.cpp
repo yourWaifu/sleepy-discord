@@ -65,7 +65,7 @@ namespace SleepyDiscord {
 	}
 
 	std::vector<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit) {
-		uint8_t trueLimit = 100 < limit ? 100 : limit;
+		const uint8_t trueLimit = 100 < limit ? 100 : limit;
 		std::string key;
 		switch (when) {
 		case around: key = "?around=" + message_id; break;
@@ -73,7 +73,7 @@ namespace SleepyDiscord {
 		case after: key = "?after=" + message_id; break;
 		}
 		return requestVector<Message>(Get, 
-			path("/channels/{channel.id}/messages{key}{limit}", channel_id, key, (limit != 0 ? "&limit=" + std::to_string(limit) : "")));
+			path("/channels/{channel.id}/messages{key}{limit}", channel_id, key, (trueLimit != 0 ? "&limit=" + std::to_string(trueLimit) : "")));
 	}
 
 	Message BaseDiscordClient::getMessage(std::string channel_id, std::string message_id) {

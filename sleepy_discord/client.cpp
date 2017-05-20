@@ -125,7 +125,7 @@ namespace SleepyDiscord {
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
 			{ "d", json::createJSON({
-				{"idle_since", idleSince != NULL? json::UInteger(idleSince) : "null"},
+				{"idle_since", idleSince != 0? json::UInteger(idleSince) : "null"},
 				{"game", gameName != "" ? json::createJSON({
 					{"name", json::string(gameName)}
 				}) : "null"}
@@ -166,7 +166,9 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::getTheGateway() {
-		auto a = cpr::Post(cpr::Url{ "https://discordapp.com/api/gateway" });
+		Session session;
+		session.setUrl("https://discordapp.com/api/gateway");
+		Response a = session.Post();
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
 			if (a.text[position] == '"')
