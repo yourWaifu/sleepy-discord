@@ -29,6 +29,14 @@ namespace SleepyDiscord {
 
 	}
 
+	void BaseDiscordClient::onRemoveMember(std::string * jsonMessage) {
+
+	}
+	
+	void BaseDiscordClient::onDeleteMember(std::string * jsonMessage) {
+
+	}
+
 	void BaseDiscordClient::onEditMember(std::string * jsonMessage) {
 
 	}

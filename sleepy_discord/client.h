@@ -194,47 +194,49 @@ namespace SleepyDiscord {
 		MESSAGE_REACTION_REMOVE
 		MESSAGE_REACTION_REMOVE_ALL
 		*/
-		virtual void onReady(std::string* jsonMessage);
-		virtual void onResumed(std::string* jsonMessage);
-		virtual void onDeleteServer(std::string* jsonMessage);
-		virtual void onEditServer(std::string* jsonMessage);
-		virtual void onBan(std::string* jsonMessage);
-		virtual void onUnban(std::string* jsonMessage);
-		virtual void onMember(std::string* jsonMessage);
-		virtual void onEditMember(std::string* jsonMessage);
-		virtual void onRole(std::string* jsonMessage);
-		virtual void onDeleteRole(std::string* jsonMessage);
-		virtual void onEditRole(std::string* jsonMessage);
-		virtual void onEditEmojis(std::string* jsonMessage);
-		virtual void onMemberChunk(std::string* jsonMessage);
-		virtual void onDeleteChannel(std::string* jsonMessage);
-		virtual void onEditChannel(std::string* jsonMessage);
-		virtual void onPinMessages(std::string* jsonMessage);
-		virtual void onPresenceUpdate(std::string* jsonMessage);
-		virtual void onEditUser(std::string* jsonMessage);
-		virtual void onEditUserNote(std::string* jsonMessage);
-		virtual void onEditUserSettings(std::string* jsonMessage);
-		virtual void onEditVoiceState(std::string* jsonMessage);
-		virtual void onTyping(std::string* jsonMessage);
-		virtual void onDeleteMessage(std::string* jsonMessage);
-		virtual void onEditMessage(std::string* jsonMessage);
-		virtual void onBulkDelete(std::string* jsonMessage);
-		virtual void onEditVoiceServer(std::string* jsonMessage);
-		virtual void onServerSync(std::string* jsonMessage);
-		virtual void onRelationship(std::string* jsonMessage);
+		virtual void onReady             (std::string* jsonMessage);
+		virtual void onResumed           (std::string* jsonMessage);
+		virtual void onDeleteServer      (std::string* jsonMessage);
+		virtual void onEditServer        (std::string* jsonMessage);
+		virtual void onBan               (std::string* jsonMessage);
+		virtual void onUnban             (std::string* jsonMessage);
+		virtual void onMember            (std::string* jsonMessage);
+		virtual void onRemoveMember      (std::string* jsonMessage);
+		virtual void onDeleteMember      (std::string* jsonMessage);
+		virtual void onEditMember        (std::string* jsonMessage);
+		virtual void onRole              (std::string* jsonMessage);
+		virtual void onDeleteRole        (std::string* jsonMessage);
+		virtual void onEditRole          (std::string* jsonMessage);
+		virtual void onEditEmojis        (std::string* jsonMessage);
+		virtual void onMemberChunk       (std::string* jsonMessage);
+		virtual void onDeleteChannel     (std::string* jsonMessage);
+		virtual void onEditChannel       (std::string* jsonMessage);
+		virtual void onPinMessages       (std::string* jsonMessage);
+		virtual void onPresenceUpdate    (std::string* jsonMessage);
+		virtual void onEditUser          (std::string* jsonMessage);
+		virtual void onEditUserNote      (std::string* jsonMessage);
+		virtual void onEditUserSettings  (std::string* jsonMessage);
+		virtual void onEditVoiceState    (std::string* jsonMessage);
+		virtual void onTyping            (std::string* jsonMessage);
+		virtual void onDeleteMessage     (std::string* jsonMessage);
+		virtual void onEditMessage       (std::string* jsonMessage);
+		virtual void onBulkDelete        (std::string* jsonMessage);
+		virtual void onEditVoiceServer   (std::string* jsonMessage);
+		virtual void onServerSync        (std::string* jsonMessage);
+		virtual void onRelationship      (std::string* jsonMessage);
 		virtual void onRemoveRelationship(std::string* jsonMessage);
 		virtual void onDeleteRelationship(std::string* jsonMessage);
-		virtual void onReaction(std::string* jsonMessage);
-		virtual void onRemoveReaction(std::string* jsonMessage);
-		virtual void onDeleteReaction(std::string* jsonMessage);
-		virtual void onRemoveAllReaction(std::string* jsonMessage);
-		virtual void onDeleteAllReaction(std::string* jsonMessage);
-		virtual void onMessage(std::string* jsonMessage);
-		virtual void onEditedMessage(std::string* jsonMessage);
-		virtual void onServer(std::string* jsonMessage);
-		virtual void onChannel(std::string* jsonMessage);
-		virtual void onEditedRole(std::string* jsonMessage);
-		virtual void onDispatch(std::string* jsonMessage);
+		virtual void onReaction          (std::string* jsonMessage);
+		virtual void onRemoveReaction    (std::string* jsonMessage);
+		virtual void onDeleteReaction    (std::string* jsonMessage);
+		virtual void onRemoveAllReaction (std::string* jsonMessage);
+		virtual void onDeleteAllReaction (std::string* jsonMessage);
+		virtual void onMessage           (std::string* jsonMessage);
+		virtual void onEditedMessage     (std::string* jsonMessage);
+		virtual void onServer            (std::string* jsonMessage);
+		virtual void onChannel           (std::string* jsonMessage);
+		virtual void onEditedRole        (std::string* jsonMessage);
+		virtual void onDispatch          (std::string* jsonMessage);
 
 		//websocket stuff
 		virtual void onHeartbeat();
@@ -322,7 +324,6 @@ namespace SleepyDiscord {
 		}
 
 		//events
-
 
 		//time
 		const int64_t getEpochTimeMillisecond();
