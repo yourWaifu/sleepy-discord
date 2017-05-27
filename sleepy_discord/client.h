@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <thread>
+#include <unordered_map>
+#include <functional>
 
 //objects
 #include "message.h"
@@ -13,7 +15,6 @@
 #include "voice.h"
 
 #include "error.h"
-#include "common.h"
 #include "session.h"
 
 /*
@@ -153,6 +154,7 @@ namespace SleepyDiscord {
 		void waitTilReady();
 		const bool isReady() { return ready; }
 		void quit();	//public function for diconnecting
+		virtual void run();
 	protected:
 		/* list of events
 		READY
@@ -259,6 +261,7 @@ namespace SleepyDiscord {
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
+		virtual void runAsync();
 	private:
 		bool isHeartbeatRunning;
 		int heartbeatInterval = 0;
@@ -299,11 +302,8 @@ namespace SleepyDiscord {
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited
 
+		//rate limiting
 		int8_t messagesRemaining;
-
-		//checks to make sure this is valid client
-		char magic[6];
-		inline bool isMagicReal();
 
 		//error handling
 		void setError(int errorCode);
@@ -321,13 +321,8 @@ namespace SleepyDiscord {
 			return JSON_getArray<_DiscordObject>(&source);
 		}
 
-		//class for events
-		struct Event {
-			const std::string t;
-			typedef const void(*EventFunction)(BaseDiscordClient*, std::string*);
-			EventFunction function;
-		};
-		std::vector<Event> events; //I think you should remove this
+		//events
+
 
 		//time
 		const int64_t getEpochTimeMillisecond();

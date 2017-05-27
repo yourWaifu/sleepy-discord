@@ -11,6 +11,7 @@ namespace SleepyDiscord {
 		UWebSocketsDiscordClient() : maxNumOfThreads(0) {}
 		UWebSocketsDiscordClient(const std::string token, const char numOfThreads = 3);
 		~UWebSocketsDiscordClient();
+		void run();
 	protected:
 #include "standard_config_header.h"
 	private:
@@ -18,6 +19,7 @@ namespace SleepyDiscord {
 		bool connect(const std::string & uri);
 		void disconnect(unsigned int code, const std::string reason);
 		void send(std::string message);
+		void runAsync();
 		uWS::WebSocket<uWS::CLIENT> theClient;
 		std::thread thread;
 		const char maxNumOfThreads;

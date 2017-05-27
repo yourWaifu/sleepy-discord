@@ -183,6 +183,14 @@ namespace SleepyDiscord {
 
 	}
 
+	void BaseDiscordClient::runAsync() {
+
+	}
+
+	void BaseDiscordClient::run() {
+
+	}
+
 	void BaseDiscordClient::onQuit() {
 
 	}

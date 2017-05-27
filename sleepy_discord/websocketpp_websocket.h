@@ -18,6 +18,7 @@ namespace SleepyDiscord {
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
 		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
 		~WebsocketppDiscordClient();
+		void run();
 	protected:
 #include "standard_config_header.h"
 	private:
@@ -26,6 +27,7 @@ namespace SleepyDiscord {
 		void disconnect(unsigned int code, const std::string reason);
 		void onClose(_client * client, websocketpp::connection_hdl handle);
 		void send(std::string message);
+		void runAsync();
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;

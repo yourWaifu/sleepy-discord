@@ -4,18 +4,16 @@
 #include "json.h"
 
 namespace SleepyDiscord {
-#define MAX_MESSAGES_SENT_PER_MINUTE 116
-#define HALF_MINUTE_MILLISECONDS 30000
-#define MAX_MESSAGES_SENT_PER_HALF_MINUTE MAX_MESSAGES_SENT_PER_MINUTE/2
-
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
-#ifndef SLEEPY_ONE_THREAD
-		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-#endif
+		ready = false;
 		token = std::unique_ptr<std::string>(new std::string(_token));
 		messagesRemaining = 2;
 		getTheGateway();
  		connect(theGateway);
+#ifndef SLEEPY_ONE_THREAD
+		if (2 < maxNumOfThreads) runAsync();
+		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+#endif
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {
@@ -117,10 +115,6 @@ namespace SleepyDiscord {
 		}
 	}
 
-	inline bool SleepyDiscord::BaseDiscordClient::isMagicReal() {
-		return (magic[0] == 'm' && magic[1] == 'A' && magic[2] == 'g' && magic[3] == 'i' && magic[4] == 'c' && magic[5] == 0);
-	}
-
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince) {
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
@@ -144,16 +138,18 @@ namespace SleepyDiscord {
 
 #ifndef SLEEPY_ONE_THREAD
 	void BaseDiscordClient::runClock_thread() {
+		const unsigned int maxMessagesPerMin = 116;
+		const unsigned int halfMinMilliseconds = 30000;
+		const unsigned int maxMessagesPerHalfMin = maxMessagesPerMin / 2;
 		isHeartbeatRunning = true;
-		ready = false;
 		waitTilReady();
 		int timer = 0;
 		while (ready) {
 			heartbeat();
-			if (timer == HALF_MINUTE_MILLISECONDS) messagesRemaining = MAX_MESSAGES_SENT_PER_HALF_MINUTE;
+			if (timer == halfMinMilliseconds) messagesRemaining = maxMessagesPerHalfMin;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			--timer;
-			if (timer <= 0) timer = HALF_MINUTE_MILLISECONDS;
+			if (timer <= 0) timer = halfMinMilliseconds;
 		}
 		isHeartbeatRunning = false;
 	}
@@ -257,6 +253,7 @@ namespace SleepyDiscord {
 		return true;
 	}
 
+
 	void BaseDiscordClient::processMessage(std::string message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
@@ -270,7 +267,7 @@ namespace SleepyDiscord {
 				session_id = json::getValue(d->c_str(), "session_id");
 				onReady(d);
 				ready = true;
-			} else if (t == "RESUMED") {
+			} else if (t == "RESUMED") {	//change this to an unordered_map
 				onResumed(d);
 			} else if (t == "GUILD_CREATE") {
 				onServer(d);
