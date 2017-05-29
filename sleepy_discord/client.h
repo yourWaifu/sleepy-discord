@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
+#ifndef SLEEPY_ONE_THREAD
 #include <thread>
+#endif
 #include <unordered_map>
 #include <functional>
 
@@ -153,6 +155,7 @@ namespace SleepyDiscord {
 
 		void waitTilReady();
 		const bool isReady() { return ready; }
+		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		void quit();	//public function for diconnecting
 		virtual void run();
 	protected:
@@ -254,10 +257,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
-		/*0 is for the timer thread
-		1 is for the op 10 packet
-		2 is for the ready packet or everything else*/
-		void heartbeat(int op_code = 0);
+		void heartbeat();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(const std::string & uri) { return false; }
@@ -265,8 +265,8 @@ namespace SleepyDiscord {
 		virtual void disconnect(unsigned int code, const std::string reason) {}
 		virtual void runAsync();
 	private:
-		bool isHeartbeatRunning;
 		int heartbeatInterval = 0;
+		int64_t nextHeartbeat = 0;
 		int lastSReceived;
 		bool wasHeartbeatAcked = true;
 
@@ -287,10 +287,10 @@ namespace SleepyDiscord {
 
 #ifndef SLEEPY_ONE_THREAD
 		std::thread clock_thread;
+		std::condition_variable* condition = nullptr;
 		void runClock_thread();
 #endif
-
-		bool updateRateLimiter(const uint8_t numOfMessages = 1);   //returns true when you hit the limit
+		void stopWaiting();
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
 		std::string session_id;
@@ -299,10 +299,11 @@ namespace SleepyDiscord {
 		bool ready;
 		void sendIdentity();
 		void sendResume();
-		bool restart();		//it's like start but when it already started
+		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form
 		void reconnect(const unsigned int status = 1000);
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited
+		int64_t nextHalfMin = 0;
 
 		//rate limiting
 		int8_t messagesRemaining;

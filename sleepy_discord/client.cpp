@@ -39,6 +39,8 @@ namespace SleepyDiscord {
 				setError(response.statusCode);
 				return response;
 			}
+		} else if (_url == "gateway") {  //getting the gateway should happen in getTheGateway
+			return { NO_CONTENT, "", {} };
 		}
 		//request starts here
 		Session session;
@@ -60,13 +62,13 @@ namespace SleepyDiscord {
 			{ "Content-Length", std::to_string(jsonParameters.length()) }
 			});
 		Response response;
-		switch (method) { //this switch statement can be removed
-		case Post:   response = session.Post(); break;
-		case Patch:  response = session.Patch(); break;
-		case Delete: response = session.Delete(); break;
-		case Get:    response = session.Get(); break;
-		case Put:    response = session.Put(); break;
-		default: response.statusCode = BAD_REQUEST; break;		//unexpected method
+		switch (method) {
+		case Post:   response = session.Post  ();       break;
+		case Patch:  response = session.Patch ();       break;
+		case Delete: response = session.Delete();       break;
+		case Get:    response = session.Get   ();       break;
+		case Put:    response = session.Put   ();       break;
+		default:     response.statusCode = BAD_REQUEST; break; //unexpected method
 		}
 		//status checking
 		switch (response.statusCode) {
@@ -140,27 +142,28 @@ namespace SleepyDiscord {
 
 #ifndef SLEEPY_ONE_THREAD
 	void BaseDiscordClient::runClock_thread() {
-		const unsigned int maxMessagesPerMin = 116;
-		const unsigned int halfMinMilliseconds = 30000;
-		const unsigned int maxMessagesPerHalfMin = maxMessagesPerMin / 2;
-		isHeartbeatRunning = true;
-		waitTilReady();
-		int timer = 0;
+		{
+			std::mutex mut;
+			std::unique_lock<std::mutex> lock(mut);
+			std::condition_variable variable;
+			condition = &variable;
+			condition->wait(lock, [=] { return heartbeatInterval != 0; });
+			heartbeat();   //send the first heartbeat
+			condition->wait(lock, [=] { return ready; });
+		}  //I don't think we need those anymore
+		condition = nullptr;
 		while (ready) {
 			heartbeat();
-			if (timer == halfMinMilliseconds) messagesRemaining = maxMessagesPerHalfMin;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			--timer;
-			if (timer <= 0) timer = halfMinMilliseconds;
+			sleep(heartbeatInterval);
 		}
-		isHeartbeatRunning = false;
 	}
 #endif
 
-	bool BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
-		if (messagesRemaining - numOfMessages < 0) return true;
-		messagesRemaining -= numOfMessages;
-		return false;
+	void BaseDiscordClient::stopWaiting() {
+#ifndef SLEEPY_ONE_THREAD
+		if (condition != nullptr) condition->notify_all();
+		else onError(OTHER, "stopWaiting was called after condition was deallocated");
+#endif
 	}
 
 	void BaseDiscordClient::getTheGateway() {
@@ -223,12 +226,12 @@ namespace SleepyDiscord {
 		sendL("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
 	}
 
-	bool BaseDiscordClient::restart() {
-#ifndef SLEEPY_ONE_THREAD
-		if (!isHeartbeatRunning) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-#endif
-		return connect(theGateway);
-	}
+//	bool BaseDiscordClient::restart() {
+//#ifndef SLEEPY_ONE_THREAD
+//		if (!ready) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+//#endif
+//		return connect(theGateway);
+//	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
 		//ready = false;
@@ -246,6 +249,15 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::sendL(std::string message) {
+		if (nextHalfMin <= getEpochTimeMillisecond()) {
+			const unsigned int maxMessagesPerMin = 116;
+			const unsigned int halfMinMilliseconds = 30000;
+			const unsigned int maxMessagesPerHalfMin = maxMessagesPerMin / 2;
+
+			nextHalfMin += halfMinMilliseconds;
+			messagesRemaining = maxMessagesPerHalfMin;
+		}
+
 		if (--messagesRemaining < 0) {
 			messagesRemaining = 0;
 			setError(RATE_LIMITED);
@@ -273,6 +285,7 @@ namespace SleepyDiscord {
 				session_id = json::getValue(d->c_str(), "session_id");
 				onReady(d);
 				ready = true;
+				stopWaiting();
 				break;
 			case hash("RESUMED"                    ): onResumed           (d); break;
 			case hash("GUILD_CREATE"               ): onServer            (d); break;
@@ -309,16 +322,18 @@ namespace SleepyDiscord {
 			case hash("RELATIONSHIP_REMOVE"        ): onRemoveRelationship(d);
 			                                          onDeleteRelationship(d); break;
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d); break;
-			case hash("MESSAGE_REACTION_REMOVE"    ): onRemoveReaction    (d); 
+			case hash("MESSAGE_REACTION_REMOVE"    ): onRemoveReaction    (d);
 			                                          onDeleteReaction    (d); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onRemoveAllReaction (d);
 			                                          onDeleteAllReaction (d); break;
-			default: setError(EVENT_UNKNOWN); break;
+			default: setError(EVENT_UNKNOWN);                                  break;
 			}
 			onDispatch(d);
 		break;
 		case HELLO:
+			nextHeartbeat = getEpochTimeMillisecond();
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+			stopWaiting();
 			sendIdentity();
 			break;
 		case RECONNECT:
@@ -340,14 +355,10 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void BaseDiscordClient::heartbeat(int op_code) {
+	void BaseDiscordClient::heartbeat() {
 		if (!heartbeatInterval) return;
 
-		int64_t epochTimeMillisecond = getEpochTimeMillisecond();
-
-		static int64_t nextHeartbeat = 0;
-		if (nextHeartbeat <= epochTimeMillisecond) {	//note:this sends the heartbeat early
-			if (nextHeartbeat <= 0) nextHeartbeat = epochTimeMillisecond;
+		if (nextHeartbeat <= getEpochTimeMillisecond()) {	//note:this sends the heartbeat early
 			nextHeartbeat += heartbeatInterval;
 
 			if (!wasHeartbeatAcked) {
