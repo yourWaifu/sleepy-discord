@@ -16,7 +16,7 @@ namespace SleepyDiscord {
 		name = values[2];
 		type = values[3];
 		position = std::stoi(values[4]);
-		isPrivate = values[5][0] == 't' ? true : false;
+		isPrivate = getBool(values[5]);
 		//this is incomplete
 		//I'll finnish later
 	}

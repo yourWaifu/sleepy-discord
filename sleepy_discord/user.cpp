@@ -14,9 +14,9 @@ namespace SleepyDiscord {
 		username = values[1];
 		discriminator = values[2];
 		avatar = values[3];
-		bot = values[4][0] == 't' ? true : false;
-		mfa_enabled = values[5][0] == 't' ? true : false;
-		verified = values[6][0] == 't' ? true : false;
+		bot = std::stol(values[4]);
+		mfa_enabled = std::stol(values[5]);
+		verified = std::stol(values[6]);
 		email = values[7];
 	}
 
