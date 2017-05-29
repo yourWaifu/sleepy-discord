@@ -290,7 +290,6 @@ namespace SleepyDiscord {
 		std::condition_variable* condition = nullptr;
 		void runClock_thread();
 #endif
-		void stopWaiting();
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
 		std::string session_id;

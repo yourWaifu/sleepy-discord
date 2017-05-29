@@ -148,23 +148,14 @@ namespace SleepyDiscord {
 			std::condition_variable variable;
 			condition = &variable;
 			condition->wait(lock, [=] { return heartbeatInterval != 0; });
-			heartbeat();   //send the first heartbeat
-			condition->wait(lock, [=] { return ready; });
 		}  //I don't think we need those anymore
 		condition = nullptr;
-		while (ready) {
+		do {
 			heartbeat();
 			sleep(heartbeatInterval);
-		}
+		} while (ready);
 	}
 #endif
-
-	void BaseDiscordClient::stopWaiting() {
-#ifndef SLEEPY_ONE_THREAD
-		if (condition != nullptr) condition->notify_all();
-		else onError(OTHER, "stopWaiting was called after condition was deallocated");
-#endif
-	}
 
 	void BaseDiscordClient::getTheGateway() {
 		Session session;
@@ -285,7 +276,6 @@ namespace SleepyDiscord {
 				session_id = json::getValue(d->c_str(), "session_id");
 				onReady(d);
 				ready = true;
-				stopWaiting();
 				break;
 			case hash("RESUMED"                    ): onResumed           (d); break;
 			case hash("GUILD_CREATE"               ): onServer            (d); break;
@@ -333,7 +323,10 @@ namespace SleepyDiscord {
 		case HELLO:
 			nextHeartbeat = getEpochTimeMillisecond();
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-			stopWaiting();
+#ifndef SLEEPY_ONE_THREAD
+			if (condition != nullptr) condition->notify_all();
+			else onError(OTHER, "Received a HELLO packet after condition was deallocated");
+#endif
 			sendIdentity();
 			break;
 		case RECONNECT:
