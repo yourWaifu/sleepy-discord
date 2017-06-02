@@ -75,7 +75,7 @@ int main() {
 	myClientClass client("token", 2);
 }
 ```
-The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads needed, this stops the bot from closing itself by creating it's own thread.
+The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads you want Sleepy Discord to use, this stops the bot from closing itself by creating it's own thread.
 
 <aside class="success">
  If you change the number of threads to 1, you'll need to call ``run`` once in your code.<br>
