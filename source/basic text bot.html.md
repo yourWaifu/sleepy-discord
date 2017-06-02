@@ -73,13 +73,14 @@ Now we need to redefine onMessage, this is what DiscordClient calls when it rece
 ```cpp
 int main() {
 	myClientClass client("token", 2);
+	client.run();
 }
 ```
-The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads you want Sleepy Discord to use, this stops the bot from closing itself by creating it's own thread.
+The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads  Sleepy Discord will want to use. Also just in case you couldn't tell, Calling ``run`` will run Sleepy Discord.
 
-<aside class="success">
- If you change the number of threads to 1, you'll need to call ``run`` once in your code.<br>
- Else if you changed it to 3, you'll need something to prevent you bot from closing itself.
+<aside class="notice">
+ If you changed threads to 3, you'll need something to prevent your bot from closing itself. Also, do not call ``run`` with 3 or more threads, because Sleepy Discord will call run on another thread.<br>
+ 1 thread is a planned feature coming Soon™.
 </aside>
 
 ## Make the bot respond to messages
@@ -130,6 +131,7 @@ public:
 
 int main() {
 	myClientClass client("token", 2);
+	client.run();
 }
 ```
 
