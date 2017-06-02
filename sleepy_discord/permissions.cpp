@@ -9,10 +9,10 @@ namespace SleepyDiscord {
 		id = values[0];
 		name = values[1];
 		color = std::stol(values[2]);
-		hoist = values[3][0] == 't';
+		hoist = getBool(values[3]);
 		position = std::stol(values[4]);
 		permissions = static_cast<Permission>(std::stoll(values[5]));
-		managed = values[6][0] == 't';
-		mantionable = values[7][0] == 't';
+		managed = std::stol(values[6]);
+		mantionable = std::stol(values[7]);
 	}
 }

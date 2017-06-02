@@ -1,9 +1,8 @@
-#include <thread>
-#include <experimental.h>
+#include "sleepy_discord/websocketpp_websocket.h"
 
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
-	using DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 	void onMessage(std::string* jsonMessage) {
 		SleepyDiscord::Message message(jsonMessage);
 		if (message.startsWith("whcg hello"))
@@ -12,8 +11,6 @@ public:
 };
 
 int main() {
-	myClientClass client("token");
-	while (true) {
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
+	myClientClass client("token", 2);
+	client.run();
 }

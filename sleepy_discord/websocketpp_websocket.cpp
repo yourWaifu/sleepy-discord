@@ -47,10 +47,15 @@ namespace SleepyDiscord {
 		// Queue the connection. No DNS queries or network connections will be
 		// made until the io_service event loop is run.
 		this_client.connect(con);
-		if (!_thread)
-		if (2 < maxNumOfThreads) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
-		else _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 		return true;
+	}
+
+	void WebsocketppDiscordClient::run() {
+		this_client.run();
+	}
+
+	void WebsocketppDiscordClient::runAsync() {
+		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 	}
 
 	void WebsocketppDiscordClient::send(std::string message) {

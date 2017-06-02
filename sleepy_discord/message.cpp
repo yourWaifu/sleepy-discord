@@ -23,15 +23,15 @@ namespace SleepyDiscord {
 		content = values[2];
 		timestamp = values[3];
 		edited_timestamp = values[4];
-		tts = values[5][0] == 't';
-		mention_everyone = values[6][0] == 't';
+		tts = getBool(values[5]);
+		mention_everyone = getBool(values[6]);
 		author = User(&values[7]);
 		mentions = JSON_getArray<User>(&values[8]);
 		mention_roles = json::getArray(&values[9]);
 		attachments = JSON_getArray<Attachment>(&values[10]);
 		embeds = JSON_getArray<Embed>(&values[11]);
 		nonce = isDefined(values[12]) ? std::stoll(values[12]) : 0;
-		pinned = values[13][0] == 't';
+		pinned = getBool(values[13]);
 	}
 
 	Message::Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts)
@@ -84,7 +84,7 @@ namespace SleepyDiscord {
 		std::vector<std::string> values = json::getValues(rawJson->c_str(),
 			{"count", "me", "emoji"});
 		count = std::stoul(values[0]);
-		me = values[1][0] == 't';
+		me = getBool(values[1]);
 		//emoji = Emoji(&values[3]);
 	}
 }

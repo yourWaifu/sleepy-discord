@@ -20,6 +20,7 @@ namespace SleepyDiscord {
 
 		//JSON Error Response
 		//I'll add them later
+		REACTION_BLOCKED = 90001, //fixes all those warnings or not
 
 		//Disconnections
 		UNKNOWN_ERROR           = 4000, //We're not sure what went wrong. Try reconnecting?
@@ -33,5 +34,9 @@ namespace SleepyDiscord {
 		SESSION_TIMEOUT         = 4009, //Your session timed out.Reconnect and start a new one.
 		INVALID_SHARD           = 4010, //You sent us an invalid shard when identifying.
 		SHARDING_REQUIRED       = 4011, //The session would have handled too many guilds - you are required to shard your connection in order to connect.
+
+		//Sleepy Errors
+		CONNECT_FAILED = 5000, //Failed to connect to the Discord api after 4 trys
+		EVENT_UNKNOWN  = 5001, //Unexpected or unknown event occurred
 	};
 }

@@ -1,21 +1,21 @@
+#pragma warning( disable: 4307 )
+
 #include <chrono>
 #include <functional>
 #include "client.h"
 #include "json.h"
 
 namespace SleepyDiscord {
-#define MAX_MESSAGES_SENT_PER_MINUTE 116
-#define HALF_MINUTE_MILLISECONDS 30000
-#define MAX_MESSAGES_SENT_PER_HALF_MINUTE MAX_MESSAGES_SENT_PER_MINUTE/2
-
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
-#ifndef SLEEPY_ONE_THREAD
-		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-#endif
+		ready = false;
 		token = std::unique_ptr<std::string>(new std::string(_token));
 		messagesRemaining = 2;
 		getTheGateway();
  		connect(theGateway);
+#ifndef SLEEPY_ONE_THREAD
+		if (2 < maxNumOfThreads) runAsync();
+		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+#endif
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {
@@ -39,6 +39,8 @@ namespace SleepyDiscord {
 				setError(response.statusCode);
 				return response;
 			}
+		} else if (_url == "gateway") {  //getting the gateway should happen in getTheGateway
+			return { NO_CONTENT, "", {} };
 		}
 		//request starts here
 		Session session;
@@ -60,13 +62,13 @@ namespace SleepyDiscord {
 			{ "Content-Length", std::to_string(jsonParameters.length()) }
 			});
 		Response response;
-		switch (method) { //this switch statement can be removed
-		case Post:   response = session.Post(); break;
-		case Patch:  response = session.Patch(); break;
-		case Delete: response = session.Delete(); break;
-		case Get:    response = session.Get(); break;
-		case Put:    response = session.Put(); break;
-		default: response.statusCode = BAD_REQUEST; break;		//unexpected method
+		switch (method) {
+		case Post:   response = session.Post  ();       break;
+		case Patch:  response = session.Patch ();       break;
+		case Delete: response = session.Delete();       break;
+		case Get:    response = session.Get   ();       break;
+		case Put:    response = session.Put   ();       break;
+		default:     response.statusCode = BAD_REQUEST; break; //unexpected method
 		}
 		//status checking
 		switch (response.statusCode) {
@@ -117,10 +119,6 @@ namespace SleepyDiscord {
 		}
 	}
 
-	inline bool SleepyDiscord::BaseDiscordClient::isMagicReal() {
-		return (magic[0] == 'm' && magic[1] == 'A' && magic[2] == 'g' && magic[3] == 'i' && magic[4] == 'c' && magic[5] == 0);
-	}
-
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince) {
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
@@ -144,26 +142,20 @@ namespace SleepyDiscord {
 
 #ifndef SLEEPY_ONE_THREAD
 	void BaseDiscordClient::runClock_thread() {
-		isHeartbeatRunning = true;
-		ready = false;
-		waitTilReady();
-		int timer = 0;
-		while (ready) {
+		{
+			std::mutex mut;
+			std::unique_lock<std::mutex> lock(mut);
+			std::condition_variable variable;
+			condition = &variable;
+			condition->wait(lock, [=] { return heartbeatInterval != 0; });
+		}  //I don't think we need those anymore
+		condition = nullptr;
+		do {
 			heartbeat();
-			if (timer == HALF_MINUTE_MILLISECONDS) messagesRemaining = MAX_MESSAGES_SENT_PER_HALF_MINUTE;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			--timer;
-			if (timer <= 0) timer = HALF_MINUTE_MILLISECONDS;
-		}
-		isHeartbeatRunning = false;
+			sleep(heartbeatInterval);
+		} while (ready);
 	}
 #endif
-
-	bool BaseDiscordClient::updateRateLimiter(const uint8_t numOfMessages) {
-		if (messagesRemaining - numOfMessages < 0) return true;
-		messagesRemaining -= numOfMessages;
-		return false;
-	}
 
 	void BaseDiscordClient::getTheGateway() {
 		Session session;
@@ -225,12 +217,12 @@ namespace SleepyDiscord {
 		sendL("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
 	}
 
-	bool BaseDiscordClient::restart() {
-#ifndef SLEEPY_ONE_THREAD
-		if (!isHeartbeatRunning) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-#endif
-		return connect(theGateway);
-	}
+//	bool BaseDiscordClient::restart() {
+//#ifndef SLEEPY_ONE_THREAD
+//		if (!ready) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+//#endif
+//		return connect(theGateway);
+//	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
 		//ready = false;
@@ -239,7 +231,7 @@ namespace SleepyDiscord {
 		if (connect(theGateway)) return sendResume();
 		if (connect(theGateway)) return sendResume();
 		getTheGateway();
-		if (!connect(theGateway)) onError(OTHER, "Failed to connect to the Discord api after 4 trys");
+		if (!connect(theGateway)) setError(CONNECT_FAILED);
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -248,6 +240,15 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::sendL(std::string message) {
+		if (nextHalfMin <= getEpochTimeMillisecond()) {
+			const unsigned int maxMessagesPerMin = 116;
+			const unsigned int halfMinMilliseconds = 30000;
+			const unsigned int maxMessagesPerHalfMin = maxMessagesPerMin / 2;
+
+			nextHalfMin += halfMinMilliseconds;
+			messagesRemaining = maxMessagesPerHalfMin;
+		}
+
 		if (--messagesRemaining < 0) {
 			messagesRemaining = 0;
 			setError(RATE_LIMITED);
@@ -255,6 +256,10 @@ namespace SleepyDiscord {
 		}
 		send(message);
 		return true;
+	}
+
+	constexpr unsigned int hash(const char* key, unsigned int i = 0) {
+		return !key[i] ? 0 : (hash(key, i + 1) * 31) + key[i] - 'A';
 	}
 
 	void BaseDiscordClient::processMessage(std::string message) {
@@ -266,86 +271,62 @@ namespace SleepyDiscord {
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = std::stoi(values[2]);
-			if (t == "READY") {
+			switch (hash(t.c_str())) {
+			case hash("READY"):
 				session_id = json::getValue(d->c_str(), "session_id");
 				onReady(d);
 				ready = true;
-			} else if (t == "RESUMED") {
-				onResumed(d);
-			} else if (t == "GUILD_CREATE") {
-				onServer(d);
-			} else if (t == "GUILD_DELETE") {
-				onDeleteServer(d);
-			} else if (t == "GUILD_UPDATE") {
-				onEditServer(d);
-			} else if (t == "GUILD_BAN_ADD") {
-				onBan(d);
-			} else if (t == "GUILD_BAN_REMOVE") {
-				onUnban(d);
-			} else if (t == "GUILD_MEMBER_ADD") {
-				onMember(d);
-			} else if (t == "GUILD_MEMBER_UPDATE") {
-				onEditMember(d);
-			} else if (t == "GUILD_ROLE_CREATE") {
-				onRole(d);
-			} else if (t == "GUILD_ROLE_DELETE") {
-				onDeleteRole(d);
-			} else if (t == "GUILD_ROLE_UPDATE") {
-				onEditRole(d);
-			} else if (t == "GUILD_EMOJIS_UPDATE") {
-				onEditEmojis(d);
-			} else if (t == "GUILD_MEMBERS_CHUNK") {
-				onMemberChunk(d);
-			} else if (t == "CHANNEL_CREATE") {
-				onChannel(d);
-			} else if (t == "CHANNEL_DELETE") {
-				onDeleteChannel(d);
-			} else if (t == "CHANNEL_UPDATE") {
-				onEditChannel(d);
-			} else if (t == "CHANNEL_PINS_UPDATE") {
-				onPinMessages(d);
-			} else if (t == "PRESENCE_UPDATE") {
-				onPresenceUpdate(d);
-			} else if (t == "USER_UPDATE") {
-				onEditUser(d);
-			} else if (t == "USER_NOTE_UPDATE") {
-				onEditUserNote(d);
-			} else if (t == "USER_SETTINGS_UPDATE") {
-				onEditUserSettings(d);
-			} else if (t == "VOICE_STATE_UPDATE") {
-				onEditVoiceState(d);
-			} else if (t == "TYPING_START") {
-				onTyping(d);
-			} else if (t == "MESSAGE_CREATE") {
-				onMessage(d);
-			} else if (t == "MESSAGE_DELETE") {
-				onDeleteMessage(d);
-			} else if (t == "MESSAGE_UPDATE") {
-				onEditMessage(d);
-			} else if (t == "MESSAGE_DELETE_BULK") {
-				onBulkDelete(d);
-			} else if (t == "VOICE_SERVER_UPDATE") {
-				onEditVoiceServer(d);
-			} else if (t == "GUILD_SYNC") {
-				onServerSync(d);
-			} else if (t == "RELATIONSHIP_ADD") {
-				onRelationship(d);
-			} else if (t == "RELATIONSHIP_REMOVE") {
-				onRemoveRelationship(d);
-				onDeleteRelationship(d);
-			} else if (t == "MESSAGE_REACTION_ADD") {
-				onReaction(d);
-			} else if (t == "MESSAGE_REACTION_REMOVE") {
-				onRemoveReaction(d);
-				onDeleteReaction(d);
-			} else if (t == "MESSAGE_REACTION_REMOVE_ALL") {
-				onRemoveAllReaction(d);
-				onDeleteAllReaction(d);
+				break;
+			case hash("RESUMED"                    ): onResumed           (d); break;
+			case hash("GUILD_CREATE"               ): onServer            (d); break;
+			case hash("GUILD_DELETE"               ): onDeleteServer      (d); break;
+			case hash("GUILD_UPDATE"               ): onEditServer        (d); break;
+			case hash("GUILD_BAN_ADD"              ): onBan               (d); break;
+			case hash("GUILD_BAN_REMOVE"           ): onUnban             (d); break;
+			case hash("GUILD_MEMBER_ADD"           ): onMember            (d); break;
+			case hash("GUILD_MEMBER_REMOVE"        ): onRemoveMember      (d);
+			                                          onDeleteMember      (d); break;
+			case hash("GUILD_MEMBER_UPDATE"        ): onEditMember        (d); break;
+			case hash("GUILD_ROLE_CREATE"          ): onRole              (d); break;
+			case hash("GUILD_ROLE_DELETE"          ): onDeleteRole        (d); break;
+			case hash("GUILD_ROLE_UPDATE"          ): onEditRole          (d); break;
+			case hash("GUILD_EMOJIS_UPDATE"        ): onEditEmojis        (d); break;
+			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
+			case hash("CHANNEL_CREATE"             ): onChannel           (d); break;
+			case hash("CHANNEL_DELETE"             ): onDeleteChannel     (d); break;
+			case hash("CHANNEL_UPDATE"             ): onEditChannel       (d); break;
+			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessages       (d); break;
+			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
+			case hash("USER_UPDATE"                ): onEditUser          (d); break;
+			case hash("USER_NOTE_UPDATE"           ): onEditUserNote      (d); break;
+			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
+			case hash("VOICE_STATE_UPDATE"         ): onEditVoiceState    (d); break;
+			case hash("TYPING_START"               ): onTyping            (d); break;
+			case hash("MESSAGE_CREATE"             ): onMessage           (d); break;
+			case hash("MESSAGE_DELETE"             ): onDeleteMessage     (d); break;
+			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
+			case hash("MESSAGE_DELETE_BULK"        ): onBulkDelete        (d); break;
+			case hash("VOICE_SERVER_UPDATE"        ): onEditVoiceServer   (d); break;
+			case hash("GUILD_SYNC"                 ): onServerSync        (d); break;
+			case hash("RELATIONSHIP_ADD"           ): onRelationship      (d); break;
+			case hash("RELATIONSHIP_REMOVE"        ): onRemoveRelationship(d);
+			                                          onDeleteRelationship(d); break;
+			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d); break;
+			case hash("MESSAGE_REACTION_REMOVE"    ): onRemoveReaction    (d);
+			                                          onDeleteReaction    (d); break;
+			case hash("MESSAGE_REACTION_REMOVE_ALL"): onRemoveAllReaction (d);
+			                                          onDeleteAllReaction (d); break;
+			default: setError(EVENT_UNKNOWN);                                  break;
 			}
 			onDispatch(d);
 		break;
 		case HELLO:
+			nextHeartbeat = getEpochTimeMillisecond();
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+#ifndef SLEEPY_ONE_THREAD
+			if (condition != nullptr) condition->notify_all();
+			else onError(OTHER, "Received a HELLO packet after condition was deallocated");
+#endif
 			sendIdentity();
 			break;
 		case RECONNECT:
@@ -367,14 +348,10 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void BaseDiscordClient::heartbeat(int op_code) {
+	void BaseDiscordClient::heartbeat() {
 		if (!heartbeatInterval) return;
 
-		int64_t epochTimeMillisecond = getEpochTimeMillisecond();
-
-		static int64_t nextHeartbeat = 0;
-		if (nextHeartbeat <= epochTimeMillisecond) {	//note:this sends the heartbeat early
-			if (nextHeartbeat <= 0) nextHeartbeat = epochTimeMillisecond;
+		if (nextHeartbeat <= getEpochTimeMillisecond()) {	//note:this sends the heartbeat early
 			nextHeartbeat += heartbeatInterval;
 
 			if (!wasHeartbeatAcked) {

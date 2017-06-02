@@ -76,6 +76,10 @@ namespace SleepyDiscord {
 		case SESSION_TIMEOUT:       onError(code, "session timeout - Your session timed out.Reconnect and start a new one."                                                            ); break;
 		case INVALID_SHARD:         onError(code, "invalid shard - You sent us an invalid shard when identifying."                                                                     ); break;
 		case SHARDING_REQUIRED:     onError(code, "sharding required - The session would have handled too many guilds - you are required to shard your connection in order to connect."); break;
+		
+		//Sleepy Errors
+		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"); break;
+		case EVENT_UNKNOWN:  onError(code, "Unexpected or unknown event occurred"             ); break;
 		}
 	}
 }

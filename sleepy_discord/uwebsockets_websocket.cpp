@@ -7,15 +7,14 @@ namespace SleepyDiscord {
 	}
 
 	UWebSocketsDiscordClient::UWebSocketsDiscordClient(const std::string token, const char numOfThreads) :
-		maxNumOfThreads(numOfThreads)
-	{
-		hub.onConnection([this](uWS::WebSocket<uWS::CLIENT> ws, uWS::HttpRequest req) {
+		maxNumOfThreads(numOfThreads) {
+		hub.onConnection([=](uWS::WebSocket<uWS::CLIENT> ws, uWS::HttpRequest req) {
 			theClient = ws;
 		});
-		hub.onMessage([this](uWS::WebSocket<uWS::CLIENT> ws, char * message, size_t length, uWS::OpCode opCode) {
+		hub.onMessage([=](uWS::WebSocket<uWS::CLIENT> ws, char * message, size_t length, uWS::OpCode opCode) {
 			processMessage(message);
 		});
-		hub.onError([this](void *user) {
+		hub.onError([=](void *user) {
 			isConnectionBad = true;
 		});
 
@@ -26,9 +25,14 @@ namespace SleepyDiscord {
 		isConnectionBad = false;
 		hub.connect(uri, nullptr);
 		if (isConnectionBad) return false;
-		if (2 < maxNumOfThreads) thread = std::thread([this]() { hub.run(); });
-		else hub.run();
 		return true;
+	}
+
+	void UWebSocketsDiscordClient::run() {
+		hub.run();
+	}
+	void UWebSocketsDiscordClient::runAsync() {
+		thread = std::thread([this]() { hub.run(); });
 	}
 
 	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason) {
