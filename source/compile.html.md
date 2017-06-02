@@ -61,3 +61,6 @@ Go to Configuration Properties -> General -> Output Directory<br>
 click on Output Directory, and then click on the drop down arrow and click edit. In the 2nd textbox it'll tell you were it compile it to.
 Then do the same thing for the Target Name to get the name of the file.
 </aside>
+<aside class="success">
+Don't forget to change the configuration to ``Release`` if you don't want the debug version.
+</aside>

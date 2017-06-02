@@ -60,7 +60,7 @@ class myClientClass : public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 	//redefining onMessage
-	void onMessage(std::string* jsonMessage) {
+	void onMessage(SleepyDiscord::Message message) {
 
 	}
 };
@@ -72,34 +72,33 @@ Now we need to redefine onMessage, this is what DiscordClient calls when it rece
 
 ```cpp
 int main() {
-	myClientClass client("token");
+	myClientClass client("token", 2);
 }
 ```
-The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me).
+The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads needed, this stops the bot from closing itself by creating it's own thread.
 
 <aside class="success">
- Also, don't forget that you'll need to prevent your bot from closing itself after the main function, unless you are only using one thread (which you probably aren't).
+ If you change it to 1, you'll need to call ``run`` once in your code.<br>
+ Else if you changed it to 3, you'll need something to prevent you bot from closing itself.
 </aside>
 
 ## Make the bot respond to messages
 >Create a message from the message
 
 ```cpp
-void onMessage(std::string* jsonMessage) {
-	SleepyDiscord::Message message(jsonMessage);
+void onMessage(SleepyDiscord::Message message) {
+	
 }
 ```
-With that out of the way, onMessage takes in a pointer to a string as a parameter, this is the raw JSON object that the Discord API gives us. So, you create a Message from the JSON.
+With that out of the way, onMessage takes in a Message object that you can use to read messages that others have posted.
 <aside class="notice">
-Some of you maybe asking, "why doesn't it just do that for me"? It's because it's a planned feature that I never got around to adding in.
-I'm sorry Danny.
+For now all other events take in the raw JSON from Discord using ``std::string``, ``onMessage`` is currently the only event that doesn't give you the raw JSON.
 </aside>
 
 >Say Hello when someone says ``whcg hello``
 
 ```cpp
-void onMessage(std::string* jsonMessage) {
-	SleepyDiscord::Message message(jsonMessage);
+void onMessage(SleepyDiscord::Message message) {
 	//say hello back when someone says hello to you
 	if (message.startsWith("whcg hello"))
 		sendMessage(message.channel_id, "Hello " + message.author.username);
@@ -118,23 +117,19 @@ You may also use ``if (message.isMentioned(bot id))``
 >The finished code
 
 ```cpp
-#include <thread>
-#include <cstdio>
 #include "websocketpp_websocket.h"
 
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
-	void onMessage(std::string* jsonMessage) {
-		SleepyDiscord::Message message(jsonMessage);
+	void onMessage(SleepyDiscord::Message message) {
 		if (message.startsWith("whcg hello"))
 			sendMessage(message.channel_id, "Hello " + message.author.username);
 	}
 };
 
 int main() {
-	myClientClass client("token");
-	std::getchar();	//wait for input to prevent the app from closing
+	myClientClass client("token", 2);
 }
 ```
 
