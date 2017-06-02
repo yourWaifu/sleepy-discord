@@ -78,7 +78,7 @@ int main() {
 The client can't do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you'll need your [bot's token from here](https://discordapp.com/developers/applications/me). Also take note of the number 2, that's the number of threads needed, this stops the bot from closing itself by creating it's own thread.
 
 <aside class="success">
- If you change it to 1, you'll need to call ``run`` once in your code.<br>
+ If you change the number of threads to 1, you'll need to call ``run`` once in your code.<br>
  Else if you changed it to 3, you'll need something to prevent you bot from closing itself.
 </aside>
 
