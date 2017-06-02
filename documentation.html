@@ -362,15 +362,14 @@
 <p>Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.</p>
 
 <h2 id="onmessage">onMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord&gt;
 </span>
 <span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="k">using</span> <span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
-    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span> <span class="p">{</span>
             <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
             <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">content</span><span class="p">;</span>
         <span class="p">}</span>
@@ -378,9 +377,7 @@
 <span class="p">};</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
-    <span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
 <blockquote>
@@ -399,8 +396,8 @@
 
 <table>
   <tbody>
-      <tr><td><strong>jsonMessage</strong></td>
-        <td>Parsed JSON with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#message-create">MESSAGE_CREATE event</a></td></tr>
+      <tr><td><strong>message</strong></td>
+        <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#message-create">MESSAGE_CREATE event</a></td></tr>
   </tbody>
 </table>
 
