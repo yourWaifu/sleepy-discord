@@ -83,7 +83,7 @@ The client can't do anything before it is initialized, all you have to do to ini
 </aside>
 
 ## Make the bot respond to messages
->Create a message from the message
+>Take another look at onMessage
 
 ```cpp
 void onMessage(SleepyDiscord::Message message) {
