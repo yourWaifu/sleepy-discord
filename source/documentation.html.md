@@ -131,7 +131,7 @@ Events are functions that can be overridden that are called when an event such a
 ## onMessage
 
 ```cpp
-virtual void onMessage(std::string* jsonMessage);
+virtual void onMessage(SleepyDiscord::Message message);
 ```
 ```cpp
 #include <sleepy_discord>
@@ -139,9 +139,8 @@ virtual void onMessage(std::string* jsonMessage);
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
 	using DiscordClient::DiscordClient;
-	void onMessage(std::string* jsonMessage) {
-		SleepyDiscord::Message message(jsonMessage);
-		if (message.startsWith("whcg hello")) {
+	void onMessage(SleepyDiscord::Message m) {
+		if (m.startsWith("whcg hello")) {
 			SleepyDiscord::Message message = sendMessage(message.channel_id, "Hello " + message.author.username);
 			std::cout << message.content;
 		}
@@ -149,9 +148,7 @@ public:
 };
 
 int main() {
-	myClientClass client("token");
-	while(true)
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+	myClientClass client("token", 2);
 }
 ```
 >Input: Message received
@@ -170,8 +167,8 @@ Called when the Client receives a new message.
 ###Parameters
 <table>
   <tbody>
-      <tr><td><strong>jsonMessage</strong></td>
-        <td>Parsed JSON with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#message-create">MESSAGE_CREATE event</a></td></tr>
+      <tr><td><strong>message</strong></td>
+        <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#message-create">MESSAGE_CREATE event</a></td></tr>
   </tbody>
 </table>
 
