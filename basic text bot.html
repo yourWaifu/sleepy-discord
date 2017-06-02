@@ -296,7 +296,7 @@ When DiscordClient receives a message, it&rsquo;ll call a function that is an em
 <span class="k">public</span><span class="o">:</span>
     <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
     <span class="c1">//redefining onMessage
-</span>    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+</span>    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
 
     <span class="p">}</span>
 <span class="p">};</span>
@@ -309,13 +309,14 @@ When DiscordClient receives a message, it&rsquo;ll call a function that is an em
 <p>Create a client</p>
 </blockquote>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
-<p>The client can&rsquo;t do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you&rsquo;ll need your <a href="https://discordapp.com/developers/applications/me">bot&rsquo;s token from here</a>.</p>
+<p>The client can&rsquo;t do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you&rsquo;ll need your <a href="https://discordapp.com/developers/applications/me">bot&rsquo;s token from here</a>. Also take note of the number 2, that&rsquo;s the number of threads needed, this stops the bot from closing itself by creating it&rsquo;s own thread.</p>
 
 <aside class="success">
- Also, don&rsquo;t forget that you&rsquo;ll need to prevent your bot from closing itself after the main function, unless you are only using one thread (which you probably aren&rsquo;t).
+ If you change it to 1, you&rsquo;ll need to call &ldquo;run&rdquo; once in your code.<br>
+ Else if you changed it to 3, you&rsquo;ll need something to prevent you bot from closing itself.
 </aside>
 
 <h2 id="make-the-bot-respond-to-messages">Make the bot respond to messages</h2>
@@ -323,21 +324,19 @@ When DiscordClient receives a message, it&rsquo;ll call a function that is an em
 <blockquote>
 <p>Create a message from the message</p>
 </blockquote>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
+
 <span class="p">}</span>
 </code></pre>
-<p>With that out of the way, onMessage takes in a pointer to a string as a parameter, this is the raw JSON object that the Discord API gives us. So, you create a Message from the JSON.
+<p>With that out of the way, onMessage takes in a Message object that you can use to read messages that others have posted.
 <aside class="notice">
-Some of you maybe asking, &ldquo;why doesn&rsquo;t it just do that for me&rdquo;? It&rsquo;s because it&rsquo;s a planned feature that I never got around to adding in.
-I&rsquo;m sorry Danny.
+For now all other events take in the raw JSON from Discord using <code class="prettyprint">std::string</code>, <code class="prettyprint">onMessage</code> is currently the only event that doesn&rsquo;t give you the raw JSON.
 </aside></p>
 
 <blockquote>
 <p>Say Hello when someone says <code class="prettyprint">whcg hello</code></p>
 </blockquote>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//say hello back when someone says hello to you
 </span>    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
         <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
@@ -356,24 +355,20 @@ You may also use <code class="prettyprint">if (message.isMentioned(bot id))</cod
 <blockquote>
 <p>The finished code</p>
 </blockquote>
-<pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;thread&gt;
-#include &lt;cstdio&gt;
-#include "websocketpp_websocket.h"
+<pre class="highlight cpp tab-cpp"><code><span class="cp">#include "websocketpp_websocket.h"
 </span>
 <span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
-    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">(</span><span class="n">jsonMessage</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
             <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">};</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">getchar</span><span class="p">();</span> <span class="c1">//wait for input to prevent the app from closing
-</span><span class="p">}</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
 </code></pre>
 <p>By now this is what you should have.</p>
 
