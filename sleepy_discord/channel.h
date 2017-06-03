@@ -3,6 +3,16 @@
 #include "user.h"
 
 namespace SleepyDiscord {
+	struct Overwrite : DiscordObject {
+		Overwrite() {}
+		Overwrite(const std::string * rawJson);
+		~Overwrite() {}
+		std::string id;
+		std::string type;
+		int allow;
+		int deny;
+	};
+
 	class Channel : public DiscordObject {
 	public:
 		Channel() {}
@@ -14,7 +24,7 @@ namespace SleepyDiscord {
 		std::string type;
 		int position;
 		bool isPrivate;
-		//Overwrite* permissionOverwrites;
+		Overwrite permissionOverwrites;
 		std::string topic;
 		std::string lastMessage_id;
 		int bitrate;

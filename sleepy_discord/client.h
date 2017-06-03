@@ -234,7 +234,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteReaction    (std::string* jsonMessage);
 		virtual void onRemoveAllReaction (std::string* jsonMessage);
 		virtual void onDeleteAllReaction (std::string* jsonMessage);
-		virtual void onMessage           (std::string* jsonMessage);
+		virtual void onMessage           (Message message         );
 		virtual void onEditedMessage     (std::string* jsonMessage);
 		virtual void onServer            (std::string* jsonMessage);
 		virtual void onChannel           (std::string* jsonMessage);
