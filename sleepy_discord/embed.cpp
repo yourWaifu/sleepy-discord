@@ -11,8 +11,8 @@ namespace SleepyDiscord {
 		type = values[1];
 		description = values[2];
 		url = values[3];
-		if (values[4] != "") thumbnail = EmbedThumbnail(&values[4]);	//if it doesn't have a thumbnail, it doesn't need to make one
-		provider = EmbedProvider(&values[5]);
+		if (isSpecified(values[5])) thumbnail = EmbedThumbnail(&values[4]);	//if it doesn't have a thumbnail, it doesn't need to make one
+		if (isSpecified(values[5])) provider = EmbedProvider(&values[5]);
 	}
 
 	EmbedThumbnail::EmbedThumbnail() {
@@ -23,8 +23,8 @@ namespace SleepyDiscord {
 			{ "url", "proxy_url", "height", "width" });
 		url = values[0];
 		proxy_url = values[1];
-		height = std::stoul(values[2]);
-		width = std::stoul(values[3]);
+		height = std::stoi(values[2]);
+		width = std::stoi(values[3]);
 	}
 
 	EmbedProvider::EmbedProvider() {

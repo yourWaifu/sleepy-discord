@@ -11,6 +11,10 @@ namespace SleepyDiscord {
 		inline bool getBool(const std::string& string) {
 			return string[0] == 't';
 		}
+		
+		inline bool isSpecified(const std::string& string) {
+			return string[0] != 0;
+		}
 
 		inline bool isDefined(const std::string& string) {
 			return string[0] && string[0] != 'n';

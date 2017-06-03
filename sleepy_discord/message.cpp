@@ -44,7 +44,7 @@ namespace SleepyDiscord {
 	}
 
 	int Message::length() {
-		return content.length();	//if this doesn't work there's a stringLength function in common.h
+		return content.length();
 	}
 
 	bool Message::isMentioned(const std::string id) {

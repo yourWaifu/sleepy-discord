@@ -3,7 +3,7 @@
 
 namespace json {
 	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names) {
-		if (*source == 0) return std::vector<std::string>{0};
+		if (*source == 0) return std::vector<std::string>{};
 		const unsigned int numOfValues = names.size();
 		std::vector<JSON_findMuitipleStruct>values(numOfValues);
 		unsigned int ii = -1;
