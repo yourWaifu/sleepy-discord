@@ -20,6 +20,10 @@ namespace SleepyDiscord {
 		email = values[7];
 	}
 
+	bool User::operator==(const User& rightUser) {
+		return id == rightUser.id;
+	}
+
 	UserServer::UserServer(const std::string * rawJson) {
 		std::vector<std::string> values = json::getValues(rawJson->c_str(),
 		{ "id", "name", "icon", "owner", "permissions" });

@@ -11,8 +11,8 @@ namespace SleepyDiscord {
 	}
 
 	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
-		//use quit() here
-		_thread->join();
+		if (_thread) _thread->join();
+		else _thread.reset();
 	}
 
 	void WebsocketppDiscordClient::init() {

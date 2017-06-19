@@ -9,7 +9,7 @@ namespace SleepyDiscord {
 	Message::~Message() {
 	}
 
-	Message::Message(const std::string * rawJson) 
+	Message::Message(const std::string * rawJson)
 	{
 		//set default values
 		nonce = 0;
@@ -65,6 +65,10 @@ namespace SleepyDiscord {
 	Message Message::reply(BaseDiscordClient * client, std::string message, bool tts)
 	{
 		return client->sendMessage(channel_id, message, tts);
+	}
+
+	bool Message::operator==(const std::string& message) {
+		return content == message;
 	}
 
 	SleepyDiscord::ReactionEmoji::ReactionEmoji() {

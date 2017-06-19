@@ -2,12 +2,17 @@
 #include "json.h"
 
 namespace SleepyDiscord {
+	class BaseDiscordClient;
 
 	class DiscordObject {
 	public:
 		DiscordObject() {}
+		//DiscordObject(BaseDiscordClient* client);	//I'm deciding weather I should add this or not
+		//void changeDiscordClient(BaseDiscordClient& client);
 
 	protected:
+		//BaseDiscordClient* client;   is this a good idea?
+
 		inline bool getBool(const std::string& string) {
 			return string[0] == 't';
 		}

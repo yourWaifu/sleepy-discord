@@ -75,11 +75,16 @@ namespace SleepyDiscord {
 		bool unpinMessage(std::string channel_id, std::string message_id);
 		void addRecipient(std::string channel_id, std::string user_id);
 		void removeRecipient(std::string channel_id, std::string user_id);
+		//IntelliSense Help
 		/*functions with more then one name to make life easy for users that use IntelliSense*/
 		inline bool deleteReaction(std::string channel_id, std::string message_id, std::string emoji) { return removeReaction(channel_id, message_id, emoji); }
 		inline void deleteAllReactions(std::string channel_id, std::string message_id) { removeAllReactions(channel_id, message_id); }
 		inline bool deleteChannelPermission(std::string channel_id, std::string id) { return removeChannelPermission(channel_id, id); }
 		inline void deleteRecipient(std::string channel_id, std::string user_id) { removeRecipient(channel_id, user_id); }
+		//Same Name Convenience
+		/*functions that dose the same thing as the function with the same name, but
+		  uses different variable types for the sake of convenience*/
+		inline Message editMessage(Message message, std::string newMessage) { return editMessage(message.channel_id, message.id, newMessage); }
 
 		//server functions
 		//Server createServer(std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, std::vector<Role> roles, std::vector<>) what's a create guild channel body?
@@ -313,14 +318,14 @@ namespace SleepyDiscord {
 		//templates for discord objects
 		template <class _DiscordObject>
 		_DiscordObject request(const RequestMethod method, std::string _url, std::string jsonParameters = "") {
-			std::string source = request(method, _url, jsonParameters).text;
-			return _DiscordObject(&source);
+			std::string response = request(method, _url, jsonParameters).text;
+			return _DiscordObject(&response);
 		}
 
 		template <class _DiscordObject>
 		std::vector<_DiscordObject> requestVector(const RequestMethod method, std::string _url, std::string jsonParameters = "") {
-			const std::string source = request(method, _url, jsonParameters).text;
-			return JSON_getArray<_DiscordObject>(&source);
+			const std::string response = request(method, _url, jsonParameters).text;
+			return JSON_getArray<_DiscordObject>(&response);
 		}
 
 		//events

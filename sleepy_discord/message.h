@@ -14,6 +14,7 @@ namespace SleepyDiscord {
 		Message();
 		~Message();
 		Message(const std::string * rawJson);
+		Message(BaseDiscordClient* client, const std::string * rawJson);
 		Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
 		using DiscordObject::DiscordObject;
 		bool startsWith(char* test);
@@ -22,6 +23,7 @@ namespace SleepyDiscord {
 		bool isMentioned(User& _user);
 		Message send(BaseDiscordClient * client);
 		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
+		bool operator==(const std::string& message);
 		std::string id;
 		std::string channel_id;
 		User author;

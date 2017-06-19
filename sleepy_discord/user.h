@@ -21,6 +21,7 @@ namespace SleepyDiscord {
 		~User();
 		User();
 		User(const std::string * rawJSON);
+		bool operator==(const User& rightUser);
 		std::string id;
 		std::string username;
 		std::string discriminator;

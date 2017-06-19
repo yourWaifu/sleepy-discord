@@ -223,6 +223,7 @@
     <ClCompile Include="deps\cpr\cpr\proxies.cpp" />
     <ClCompile Include="deps\cpr\cpr\session.cpp" />
     <ClCompile Include="deps\cpr\cpr\util.cpp" />
+    <ClCompile Include="discord_object_interface.cpp" />
     <ClCompile Include="embed.cpp" />
     <ClCompile Include="endpoints.cpp" />
     <ClCompile Include="experimental.cpp" />
