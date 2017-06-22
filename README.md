@@ -2,7 +2,7 @@
 C++ library for Discord
 
 # [Documenation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
-The docs are here https://yourWaifu.github.io/sleepy-discord/documentation.html . If you like to edit them, please check out the docs branch.
+[The docs are here.](https://yourWaifu.github.io/sleepy-discord/documentation.html) If you like to edit them, please check out the docs branch.
 
 # Why?
 Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
