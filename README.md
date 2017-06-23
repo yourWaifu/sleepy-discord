@@ -2,7 +2,7 @@
 C++ library for Discord
 
 # [Documenation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
-[The docs are here:](https://yourWaifu.github.io/sleepy-discord/documentation.html)
+[Here is the link to the docs:](https://yourWaifu.github.io/sleepy-discord/documentation.html)
 https://yourWaifu.github.io/sleepy-discord/documentation.html
 
 If you like to edit them, please check out the docs branch.
