@@ -250,9 +250,14 @@
 
 <h1 id="topics">Topics</h1>
 
-<p><a href="compile.html">How To Compile Sleepy Discord</a></p>
-
-<p><a href="basic%20text%20bot.html">How To Make a Basic Text Bot</a></p>
+<table>
+  <tbody>
+    <tr>
+      <td><a href="compile.html">How To Compile Sleepy Discord</a></td>
+      <td><a href="basic text bot.html">How To Make a Basic Text Bot</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <h1 id="discordclient">DiscordClient</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">DiscordClient</span> <span class="p">{</span>
@@ -299,7 +304,7 @@
 <p>Post a message to a channel.</p>
 
 <aside class="note">
-If you want to send a new line, use &ldquo;\n&rdquo;`
+If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do not work, use &ldquo;\\&rdquo; for escapes.
 </aside>
 
 <h3 id="parameters">Parameters</h3>
@@ -672,15 +677,43 @@ If you want to send a new line, use &ldquo;\n&rdquo;`
 
 <h1 id="discord-objects">Discord Objects</h1>
 
+<h2 id="snowflake">Snowflake</h2>
+
+<p>Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.</p>
+
+<h3 id="structure">Structure</h3>
+
+<pre>
+<img src="images/UxWvdYD.png">
+</pre>
+
+<table>
+  <tbody>
+      <tr><td><strong>Timestamp</strong></td>
+        <td>42 bits - milliseconds since the first second of 2015</td></tr>
+      <tr><td><strong>Internal worker ID</strong></td>
+        <td>5 bits - Internally Discord has servers that create snowflakes, this id unique to each generating sever</td></tr>
+      <tr><td><strong>Internal process ID</strong></td>
+        <td>5 bits - Same thing as the worker ID but unique to each generating process</td></tr>
+      <tr><td><strong>Increment</strong></td>
+        <td>10 bits - a number that is incremented for every generated ID on the process</td></tr>
+  </tbody>
+</table>
+
+<h3 id="but-if-c-has-support-for-unsigned-64-bit-integer-then-why-does-sleepy-discord-store-them-as-strings">But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?</h3>
+
+<p>That&rsquo;s a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you can not sent Snowflakes as integers to Discord, as that will give you an error.</p>
+
 <h1 id="message">Message</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Message</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DiscordObject</span> <span class="p">{</span>
-    <span class="k">public</span><span class="o">:</span>
-        <span class="n">Message</span><span class="p">();</span>
-        <span class="o">~</span><span class="n">Message</span><span class="p">();</span>
-        <span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
-        <span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
 </code></pre>
 <p>An object that represents a message from Discord. Also very similar to <a href="https://discordapp.com/developers/docs/resources/channel#message-object">the message object from the api</a></p>
+
+<h2 id="constructor">(constructor)</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
+<span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
+</code></pre>
+<p>Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor&rsquo;s implementation, it uses the first constructor to initializes the message object.</p>
 
 <h2 id="startswith">startsWith</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">startsWith</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">test</span><span class="p">);</span>
