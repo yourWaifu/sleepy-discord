@@ -1,7 +1,7 @@
 # Sleepy Discord
 C++ library for Discord
 
-Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke.
+Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would noramaly prononce sleepy.
 
 # [Documenation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
 [Here is the link to the docs:](https://yourWaifu.github.io/sleepy-discord/documentation.html)
