@@ -16,9 +16,14 @@ search: true
 Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on discord; right now there is no official server for this library, but you can alway find me on the Discord api server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
 
 # Topics
-[How To Compile Sleepy Discord](compile.html)
-
-[How To Make a Basic Text Bot](basic text bot.html)
+<table>
+  <tbody>
+    <tr>
+      <td><a href="compile.html">How To Compile Sleepy Discord</a></td>
+      <td><a href="basic text bot.html">How To Make a Basic Text Bot</a></td>
+    </tr>
+  </tbody>
+</table>
 
 # DiscordClient
 
@@ -73,7 +78,7 @@ Hello
 Post a message to a channel.
 
 <aside class="note">
-If you want to send a new line, use ``\\n```
+If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, use ``\\\\`` for escapes.
 </aside>
 
 ### Parameters
@@ -473,21 +478,46 @@ Happens when an error is detected
 
 # Discord Objects
 
+## Snowflake
+Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.
+
+### Structure
+<pre>
+<img src="images/UxWvdYD.png">
+</pre>
+<table>
+  <tbody>
+      <tr><td><strong>Timestamp</strong></td>
+        <td>42 bits - milliseconds since the first second of 2015</td></tr>
+      <tr><td><strong>Internal worker ID</strong></td>
+        <td>5 bits - Internally Discord has servers that create snowflakes, this id unique to each generating sever</td></tr>
+      <tr><td><strong>Internal process ID</strong></td>
+        <td>5 bits - Same thing as the worker ID but unique to each generating process</td></tr>
+      <tr><td><strong>Increment</strong></td>
+        <td>10 bits - a number that is incremented for every generated ID on the process</td></tr>
+  </tbody>
+</table>
+
+### But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?
+That's a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you can not sent Snowflakes as integers to Discord, as that will give you an error.
+
 # Message
 
 ```cpp
 struct Message : public DiscordObject {
-  	public:
-		Message();
-		~Message();
-		Message(const std::string * rawJson);
-		Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
 ```
 
 An object that represents a message from Discord. Also very similar to [the message object from the api](https://discordapp.com/developers/docs/resources/channel#message-object)
 
-## startsWith
+## (constructor)
+```cpp
+Message(const std::string * rawJson);
+Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
+```
 
+Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
+
+## startsWith
 ```cpp
 bool startsWith(char* test);
 ```
