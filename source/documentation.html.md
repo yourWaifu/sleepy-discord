@@ -484,7 +484,7 @@ struct Message : public DiscordObject {
 		Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
 ```
 
-An object that represents a message from Discord. Has a simalar 
+An object that represents a message from Discord. Also very similar to [the message object from the api](https://discordapp.com/developers/docs/resources/channel#message-object)
 
 ## startsWith
 
@@ -597,6 +597,8 @@ struct User : public DiscordObject {
 		User();
 		User(const std::string * rawJSON);
 ```
+
+Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
 
 ## operator==
 
