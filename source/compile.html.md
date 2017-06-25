@@ -64,3 +64,6 @@ Then do the same thing for the Target Name to get the name of the file.
 <aside class="success">
 Don't forget to change the configuration to ``Release`` if you don't want the debug version.
 </aside>
+
+##The Next Step
+Now that you have a compiled Sleepy Discord, head over to [How to Link](link.html) to link it to a new or existing project.
