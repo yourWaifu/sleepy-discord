@@ -680,7 +680,7 @@ If you want to send a new line, use &ldquo;\n&rdquo;`
         <span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
         <span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
 </code></pre>
-<p>An object that represents a message from Discord. Has a simalar </p>
+<p>An object that represents a message from Discord. Also very similar to <a href="https://discordapp.com/developers/docs/resources/channel#message-object">the message object from the api</a></p>
 
 <h2 id="startswith">startsWith</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">startsWith</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">test</span><span class="p">);</span>
@@ -786,6 +786,8 @@ If you want to send a new line, use &ldquo;\n&rdquo;`
         <span class="n">User</span><span class="p">();</span>
         <span class="n">User</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJSON</span><span class="p">);</span>
 </code></pre>
+<p>Based on <a href="https://discordapp.com/developers/docs/resources/user#user-object">the object with the same name from the api</a></p>
+
 <h2 id="operator">operator==</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">User</span><span class="o">&amp;</span> <span class="n">rightUser</span><span class="p">);</span>
 </code></pre>
