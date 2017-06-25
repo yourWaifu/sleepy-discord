@@ -225,8 +225,8 @@
       <div id="toc">
       </div>
         <ul class="toc-footer">
-        <li><a href="https://github.com/NoNamer64/sleepy-discord">Sleepy Discord</a> is maintained by</li>
-        <li><a href="https://github.com/NoNamer64">NoNamer64</a>.</li>
+        <li><a href="https://github.com/yourWaifu/sleepy-discord">Sleepy Discord</a> is maintained by</li>
+        <li><a href="https://github.com/yourWaifu">yourWaifu</a>.</li>
             <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
         </ul>
     </div>
@@ -237,9 +237,7 @@
 		  <a href="." class="btn">
 		  	<h1 class="project-name">Sleepy Discord</h1>
 		  </a>
-      <a href="https://github.com/NoNamer64/sleepy-discord" class="btn">View on GitHub</a>
-		  <!-- <input type="text" name="search" id="input-search" placeholder="Search Documentation" style = "border: none;" class="btn"> -->
-	  	<!-- <a href="https://github.com/NoNamer64/sleepy-discord/wiki/DiscordClient" class="btn show-big-only">&rarr;</a> -->
+      <a href="https://github.com/yourWaifu/sleepy-discord" class="btn">View on GitHub</a>
 	  </section>
 
 <section class="main">
@@ -248,7 +246,7 @@
       <div class="content">
         <h1 id="a-warm-welcome">A Warm Welcome</h1>
 
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on discord; right now there is no official server for this library, but you can alway find me on the Discord api server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!</p>
+<p>Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on discord; right now there is no official server for this library, but you can alway find me on the Discord api server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!</p>
 
 <h1 id="topics">Topics</h1>
 
@@ -264,6 +262,22 @@
 <p><a href="https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h">Declared in <code class="prettyprint">client.h</code></a></p>
 
 <h1 id="discordclient-functions">DiscordClient Functions</h1>
+
+<h2 id="deletechannel">deleteChannel</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Channel</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>channel_id</strong></td>
+        <td>The id of the channel that you delete</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>The channel was just deleted</p>
 
 <h2 id="sendmessage">sendMessage</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
@@ -283,6 +297,10 @@
 <pre class="highlight shell tab-shell"><code>Hello
 </code></pre>
 <p>Post a message to a channel.</p>
+
+<aside class="note">
+If you want to send a new line, use &ldquo;\n&rdquo;`
+</aside>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -357,9 +375,225 @@
 
 <p>Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-reaction">Create Reaction</a></p>
 
+<h2 id="editmessage">editMessage</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
+<span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
+</code></pre>
+<p>Edits an existing Message</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>channel_id</strong></td>
+        <td>The id of the channel with the message that you want to edit</td></tr>
+      <tr><td><strong>message_id</strong></td>
+        <td>The id of the message you want to edit</td></tr>
+      <tr><td><strong>message</strong></td>
+        <td>The message with the id of the message that you want to edit</td></tr>
+      <tr><td><strong>newMessage</strong></td>
+        <td>The new message that you want the message to be</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns the message you just edited</p>
+
+<h2 id="pinmessage">pinMessage</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">pinMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">);</span>
+</code></pre>
+<p>Puts a message into the Pinned Messages of a channel</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>channel_id</strong></td>
+        <td>The id of the channel with the message that you want to pin</td></tr>
+      <tr><td><strong>message_id</strong></td>
+        <td>The id of the message you want to pin</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="unpinmessage">unpinMessage</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">unpinMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">);</span>
+</code></pre>
+<p>Removes a message from Pinned Messages of a channel</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>channel_id</strong></td>
+        <td>The id of the channel with the message that you want to unpin</td></tr>
+      <tr><td><strong>message_id</strong></td>
+        <td>The id of the message you want to unpin</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="deletemessage">deleteMessage</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">deleteMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">message_id</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">numOfMessages</span> <span class="o">=</span> <span class="mi">1</span><span class="p">);</span>
+</code></pre>
+<p>Deletes a message</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>channel_id</strong></td>
+        <td>The id of the channel with the messages that you want to delete</td></tr>
+      <tr><td><strong>message_id</strong></td>
+        <td>An array of ids of the messages you want to delete</td></tr>
+      <tr><td><strong>numOfMessages</strong></td>
+        <td>the number of messages to delete</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="editnickname">editNickname</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">editNickname</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newNickname</span><span class="p">);</span>
+</code></pre>
+<p>Changes the name that is displayed on a server</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>server_id</strong></td>
+        <td>The id of the server where you want to this nickname</td></tr>
+      <tr><td><strong>newNickname</strong></td>
+        <td>The Nickname that you want your bot to have</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="addrole">addRole</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">addRole</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">role_id</span><span class="p">);</span>
+</code></pre>
+<p>Gives a member a role on a server </p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>server_id</strong></td>
+        <td>The id of the server with the user you want to give the role to</td></tr>
+      <tr><td><strong>member_id</strong></td>
+        <td>The id of the user that you want to give the role to</td></tr>
+      <tr><td><strong>role_id</strong></td>
+        <td>The id of role that you want to give</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="removerole">removeRole</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">removeRole</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">role_id</span><span class="p">);</span>
+</code></pre>
+<p>Takes away a role from a member on a server</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>server_id</strong></td>
+        <td>The id of the server with the user you want to remove the role from</td></tr>
+      <tr><td><strong>member_id</strong></td>
+        <td>The id of the user that you want to remove the role from</td></tr>
+      <tr><td><strong>role_id</strong></td>
+        <td>The id of role that you want to remove from the user</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="kickmember">kickMember</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">kickMember</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">);</span>
+</code></pre>
+<p>Removes a member from a server</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>server_id</strong></td>
+        <td>The id of the server with the user you want to remove</td></tr>
+      <tr><td><strong>member_id</strong></td>
+        <td>The id of the user that you want to remove</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h2 id="updatestatus">updateStatus</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">updateStatus</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">gameName</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">idleSince</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+</code></pre>
+<p>Updates the bot&rsquo;s status</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>gameName</strong></td>
+        <td>The text right under the username, without the &ldquo;Playing&rdquo;</td></tr>
+      <tr><td><strong>idleSince</strong></td>
+        <td>unix time in milliseconds when the client when idle, or null if the client is not idle</td></tr>
+  </tbody>
+</table>
+
+<h2 id="isready">isReady</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">const</span> <span class="kt">bool</span> <span class="n">isReady</span><span class="p">();</span>
+</code></pre>
+<p>Tell you if the Ready event has ocurred or not</p>
+
+<h3 id="return-value">Return value</h3>
+
+<p><code class="prettyprint">true</code> if the ready event ocurred</p>
+
+<h2 id="quit">quit</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">quit</span><span class="p">();</span>
+</code></pre>
+<p>lets you disconnect from discord and stops the client</p>
+
+<h2 id="run">run</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
+</code></pre>
 <h1 id="discordclient-events">DiscordClient Events</h1>
 
 <p>Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.</p>
+
+<h2 id="onready">onReady</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>milliseconds</strong></td>
+        <td>The amount of time to sleep for in milliseconds</td></tr>
+  </tbody>
+</table>
 
 <h2 id="onmessage">onMessage</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">);</span>
@@ -397,13 +631,48 @@
 <table>
   <tbody>
       <tr><td><strong>message</strong></td>
-        <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#message-create">MESSAGE_CREATE event</a></td></tr>
+        <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/resources/channel#message-object">MESSAGE_CREATE event</a></td></tr>
+  </tbody>
+</table>
+
+<h2 id="onquit">onQuit</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onQuit</span><span class="p">();</span>
+</code></pre>
+<p>Happens when the client is quitting and after disconnecting from Discord</p>
+
+<h2 id="sleep">sleep</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">sleep</span><span class="p">(</span><span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">milliseconds</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>milliseconds</strong></td>
+        <td>The amount of time to sleep for in milliseconds</td></tr>
+  </tbody>
+</table>
+
+<p>Called when the client needs to wait a bit</p>
+
+<h2 id="onerror">onError</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onError</span><span class="p">(</span><span class="n">ErrorCode</span> <span class="n">errorCode</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">errorMessage</span><span class="p">);</span>
+</code></pre>
+<p>Happens when an error is detected</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>errorCode</strong></td>
+        <td>The number associated with the error</td></tr>
+      <tr><td><strong>errorMessage</strong></td>
+        <td>The reason or message for the given error code</td></tr>
   </tbody>
 </table>
 
 <h1 id="discord-objects">Discord Objects</h1>
 
-<h2 id="message">Message</h2>
+<h1 id="message">Message</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Message</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DiscordObject</span> <span class="p">{</span>
     <span class="k">public</span><span class="o">:</span>
         <span class="n">Message</span><span class="p">();</span>
@@ -411,6 +680,130 @@
         <span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
         <span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
 </code></pre>
+<p>An object that represents a message from Discord. Has a simalar </p>
+
+<h2 id="startswith">startsWith</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">startsWith</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">test</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>test</strong></td>
+        <td>the string that to compare the beginning of the message to</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p><code class="prettyprint">ture</code> when the message starts with the given string</p>
+
+<h2 id="length">length</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">int</span> <span class="n">length</span><span class="p">();</span>
+</code></pre>
+<h3 id="return-value">Return value</h3>
+
+<p>The length of the content in the message</p>
+
+<h2 id="ismentioned">isMentioned</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">isMentioned</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">id</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="n">isMentioned</span><span class="p">(</span><span class="n">User</span><span class="o">&amp;</span> <span class="n">_user</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>id</strong></td>
+        <td>the id of the user that you want to check that they were mentioned or not</td></tr>
+      <tr><td><strong>_user</strong></td>
+        <td>The user object of the user you want to check that they were mentioned or not </td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p><code class="prettyprint">ture</code> if the user was mentioned</p>
+
+<h2 id="send">send</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">send</span><span class="p">(</span><span class="n">BaseDiscordClient</span> <span class="o">*</span> <span class="n">client</span><span class="p">);</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>client</strong></td>
+        <td>The client that will be used to send the message</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>The Message you just sent as a Message object</p>
+
+<h2 id="reply">reply</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">reply</span><span class="p">(</span><span class="n">BaseDiscordClient</span> <span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
+</code></pre>
+<p>sends a message to same channel that the parent message is on</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>client</strong></td>
+        <td>The client that will be used to send the reply</td></tr>
+      <tr><td><strong>message</strong></td>
+        <td>The message to use to reply</td></tr>
+      <tr><td><strong>tts</strong></td>
+        <td>Short for Text to Speech. When this is true, anyone with text to speech messages on will have their computer read the message out load to the them</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p>The Message you just sent as a Message object</p>
+
+<h2 id="operator">operator==</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">);</span>
+</code></pre>
+<p>Compares the content of two messages (does not compare ids)</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>message</strong></td>
+        <td>The message that is being compared</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p><code class="prettyprint">true</code> when the content of the two messages are the same</p>
+
+<h1 id="user">User</h1>
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">User</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DiscordObject</span> <span class="p">{</span>
+        <span class="o">~</span><span class="n">User</span><span class="p">();</span>
+        <span class="n">User</span><span class="p">();</span>
+        <span class="n">User</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJSON</span><span class="p">);</span>
+</code></pre>
+<h2 id="operator">operator==</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">User</span><span class="o">&amp;</span> <span class="n">rightUser</span><span class="p">);</span>
+</code></pre>
+<p>Compares the id of two Users</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>rightUser</strong></td>
+        <td>The User that is being compared</td></tr>
+  </tbody>
+</table>
+
+<h3 id="return-value">Return value</h3>
+
+<p><code class="prettyprint">ture</code> when the two Users have the same id</p>
+
       </div>
       <div class="dark-box">
       </div>
