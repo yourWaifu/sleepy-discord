@@ -3,6 +3,8 @@
 
 namespace SleepyDiscord {
 
+	using namespace boost;
+
 	WebsocketppDiscordClient::WebsocketppDiscordClient(const std::string token, const char numOfThreads) :
 		maxNumOfThreads(numOfThreads)
 	{
