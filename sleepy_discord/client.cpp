@@ -76,6 +76,7 @@ namespace SleepyDiscord {
 		case TOO_MANY_REQUESTS:   //this should fall down to default
 			nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
 			isRateLimited = true;
+			setError(TOO_MANY_REQUESTS);
 		default: {		//error
 			setError(response.statusCode);		//https error
 			std::vector<std::string> values = json::getValues(response.text.c_str(),

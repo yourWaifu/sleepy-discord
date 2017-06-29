@@ -3,6 +3,7 @@
 #ifndef SLEEPY_ONE_THREAD
 #include <thread>
 #endif
+#include <memory>
 #include <unordered_map>
 #include <functional>
 
@@ -109,7 +110,8 @@ namespace SleepyDiscord {
 		std::vector<Role> getRoles(std::string server_id);                                                                    //to do test this
 		Role createRole(std::string server_id, std::string name = "", Permission permissions = NONE, unsigned int color = 0, bool hoist = false, bool mentionable = false);//to do test this
 		std::vector<Role> editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions);                //to do test this
-		//std::string editRole(std::string role_id, std::string name = "", int permissions = NULL, int position = -1, unsigned int color = 0, bool hoist = );  needs default int for color
+		/*std::string editRole(std::string role_id, unsigned int color, std::string name = "", int permissions = NULL, int position = -1, bool hoist = );
+		std::string editRole(std::string role_id, std::string name = "", int permissions = NULL, int position = -1, bool hoist = );*/
 		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
 		//get prune count	needs testing to know what object they are talking about
 		void pruneMembers(std::string server_id, const unsigned int numOfDays);                                               //to do test

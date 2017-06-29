@@ -67,8 +67,8 @@ namespace SleepyDiscord {
 		return client->sendMessage(channel_id, message, tts);
 	}
 
-	bool Message::operator==(const std::string& message) {
-		return content == message;
+	bool Message::operator==(const Message& right) {
+		return id == right.id;
 	}
 
 	SleepyDiscord::ReactionEmoji::ReactionEmoji() {

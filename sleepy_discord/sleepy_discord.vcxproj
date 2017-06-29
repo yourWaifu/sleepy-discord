@@ -68,12 +68,12 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(projectdir)\deps\include;$(projectdir)\deps;$(projectdir)\deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
-    <LibraryPath>$(projectdir)\deps\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)deps\include;$(SolutionDir)deps;$(SolutionDir)deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(projectdir)\deps\include;$(projectdir)\deps;$(projectdir)\deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
-    <LibraryPath>$(projectdir)\deps\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)deps\include;$(SolutionDir)deps;$(SolutionDir)deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,7 +89,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -207,22 +207,22 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\deps\cpr\cpr\auth.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\cookies.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\cprtypes.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\digest.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\error.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\multipart.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\parameters.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\payload.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\proxies.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\session.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
     <ClCompile Include="attachment.cpp" />
     <ClCompile Include="channel.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="cpr_session.cpp" />
     <ClCompile Include="default_functions.cpp" />
-    <ClCompile Include="deps\cpr\cpr\auth.cpp" />
-    <ClCompile Include="deps\cpr\cpr\cookies.cpp" />
-    <ClCompile Include="deps\cpr\cpr\cprtypes.cpp" />
-    <ClCompile Include="deps\cpr\cpr\digest.cpp" />
-    <ClCompile Include="deps\cpr\cpr\error.cpp" />
-    <ClCompile Include="deps\cpr\cpr\multipart.cpp" />
-    <ClCompile Include="deps\cpr\cpr\parameters.cpp" />
-    <ClCompile Include="deps\cpr\cpr\payload.cpp" />
-    <ClCompile Include="deps\cpr\cpr\proxies.cpp" />
-    <ClCompile Include="deps\cpr\cpr\session.cpp" />
-    <ClCompile Include="deps\cpr\cpr\util.cpp" />
     <ClCompile Include="discord_object_interface.cpp" />
     <ClCompile Include="embed.cpp" />
     <ClCompile Include="endpoints.cpp" />
