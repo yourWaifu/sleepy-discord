@@ -68,11 +68,11 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)deps\include;$(SolutionDir)deps;$(SolutionDir)deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <IncludePath>$(projectdir)..\deps\include;$(projectdir)..\deps;$(projectdir)..\deps\cpr\opt\curl\include;$(projectdir)IncludeNonexistent;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)deps\include;$(SolutionDir)deps;$(SolutionDir)deps\cpr\opt\curl\include;$(projectdir)\IncludeNonexistent;$(IncludePath)</IncludePath>
+    <IncludePath>$(projectdir)..\deps\include;$(projectdir)..\deps;$(projectdir)..\deps\cpr\opt\curl\include;$(projectdir)IncludeNonexistent;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
