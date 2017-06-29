@@ -607,7 +607,7 @@ The Message you just sent as a Message object
 bool operator==(const std::string& message);
 ```
 
-Compares the content of two messages (does not compare ids)
+Compares the ids of two messages
 
 ###Parameters
 <table>
