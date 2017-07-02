@@ -1,3 +1,5 @@
+/*If you are using uWebSockets,
+  remember to change this to uwebsockets_websocket.h*/
 #include "sleepy_discord/websocketpp_websocket.h"
 
 class myClientClass : public SleepyDiscord::DiscordClient {
