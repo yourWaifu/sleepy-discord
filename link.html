@@ -249,10 +249,86 @@
 <h1 id="how-to-link">How To Link</h1>
 
 <aside class="notice">
-Time to get of all those link errors
+I&rsquo;m going to assume that you have compiled Sleepy Discord
 </aside>
 
-<p>this is unfinished, but I plan on fixing that</p>
+<h2 id="visual-studio">Visual Studio</h2>
+
+<aside class="notice">
+For now, Visual Studio is the only opinion.
+</aside>
+
+<p>Step 1: First you need a project, of corse. Go make a new one if you haven&rsquo;t done so already.</p>
+
+<p>Step 2: Right click on your project in the Solution Explorer and go to Properties.</p>
+
+<p><img src="images/lopenproperties.png" style='object-fit: contain'></p>
+
+<aside class="notice">
+Alt+F7 also works if you have only one project in your solution.
+</aside>
+
+<p>Step 3: On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
+
+<p><img src="images/lvcdir.png" style='object-fit: contain'></p>
+
+<p>Step 4: Click on the white empty box at the top, and then click on the 3 dots on the right.</p>
+
+<blockquote>
+<p>The box of Include Directories should look something like this, but with the full path</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="k">$(</span>SolutionDir<span class="k">)</span>
+<span class="k">$(</span>SolutionDir<span class="k">)</span>deps
+<span class="k">$(</span>SolutionDir<span class="k">)</span>deps<span class="se">\i</span>nclude
+<span class="k">$(</span>SolutionDir<span class="k">)</span>sleepy_discord<span class="se">\I</span>ncludeNonexistent
+</code></pre>
+<p>Step 5: Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same thing for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">sleepy_discord/IncludeNonexistent</code>. Once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
+
+<blockquote>
+<p>The box of Library Directories should look like this, but with full paths</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="k">$(</span>SolutionDir<span class="k">)</span>deps<span class="se">\l</span>ib
+</code></pre>
+<p>Step 6: Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
+
+<p>Step 7: To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
+
+<p><img src="images/ladddeps.png" style='object-fit: contain'></p>
+
+<p>Step 8: On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+
+<blockquote>
+<p>Here&rsquo;s a good example of the library files to list</p>
+</blockquote>
+<pre class="highlight shell"><code>sleepy_discord.lib
+libcurl_a.lib
+ssleay32MT.lib
+libeay32MT.lib
+</code></pre>
+<h2 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h2>
+
+<blockquote>
+<p>Here&rsquo;s some example code for you to compile</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="cm">/*If you are using uWebSockets,
+  remember to change this to uwebsockets_websocket.h*/</span>
+<span class="cp">#include "sleepy_discord/websocketpp_websocket.h"
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
+            <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
+<p>And now you should be able to build without any errors. If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.</p>
 
       </div>
       <div class="dark-box">
