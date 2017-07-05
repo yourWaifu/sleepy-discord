@@ -482,6 +482,8 @@ Happens when an error is detected
 
 # Discord Objects
 
+Objects used to represent things from Discord, these include things like messages, users, server, etc.
+
 ## Snowflake
 Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.
 
@@ -652,3 +654,167 @@ Compares the id of two Users
 
 ### Return value
 ``ture`` when the two Users have the same id
+
+# CustomSession
+
+```cpp
+class CustomSession : public GenericSession {
+```
+
+Sessions are used for http requests, it's basically wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. [To learn more about Sessions, click here.](#session)
+
+###Member types
+<table>
+  <tbody>
+      <tr><td><strong>CustomInit</strong></td>
+        <td>a function pointer to a function that returns a new Session</td></tr>
+  </tbody>
+</table>
+
+## (constructor)
+
+```cpp
+static CustomInit init;
+CustomSession() : session(init()) {}
+```
+
+> This how the CustomSession constructor calls your custom Session.
+
+```cpp
+class mySession : public SleepyDiscord::GenericSession{
+	...  //imagine a filled out Session class
+}
+SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };	//init the custom session
+```
+
+The constructor of the CustomSession class calls init to get a pointer to a new Session.
+
+# Session
+
+```cpp
+class GenericSession {
+```
+
+```cpp
+typedef CPRSession Session;
+```
+
+```cpp
+typedef CustomSession Session;
+```
+
+Session is a class that wraps any http library, for now the library only supports cpr. However this can easily change in the future thanks to the Session class.
+
+Declared in ``http.h``
+
+###Member types
+<table>
+  <tbody>
+      <tr><td><strong>Response</strong></td>
+        <td>When you make a request, it sends back a response. This holds the response from the request.</td></tr>
+      <tr><td><strong>Part</strong></td>
+        <td>Used for multipart requests, is stores the name and file or value</td></tr>
+  </tbody>
+</table>
+
+## setUrl
+
+```cpp
+virtual void setUrl(const std::string& url) = 0;
+```
+
+## setBody
+
+```cpp
+virtual void setBody(const std::string* jsonParameters) = 0;
+```
+
+###Parameters
+<table>
+  <tbody>
+      <tr><td><strong>jsonParameters</strong></td>
+        <td>The body of the Session, usually a json</td></tr>
+  </tbody>
+</table>
+
+## setHeader
+
+```cpp
+virtual void setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) = 0;
+```
+
+###Parameters
+<table>
+  <tbody>
+      <tr><td><strong>header</strong></td>
+        <td>A list of stuff in the header, the first string in the pair is the name, and the 2nd is the value</td></tr>
+  </tbody>
+</table>
+
+## setMultipart
+
+```cpp
+virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
+```
+
+## Request Methods
+
+Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method.
+
+## Post
+
+```cpp
+virtual Response Post() = 0;
+```
+
+## Patch
+
+```cpp
+virtual Response Patch() = 0;
+```
+
+## Delete
+
+```cpp
+virtual Response Delete() = 0;
+```
+
+## Get
+
+```cpp
+virtual Response Get() = 0;
+```
+
+## Put
+
+```cpp
+virtual Response Put() = 0;
+```
+
+# Preprocessor Directives
+
+Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifdef``. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.
+
+## SLEEPY_ONE_THREAD
+
+```make
+SLEEPY_ONE_THREAD
+-DSLEEPY_ONE_THREAD
+```
+Disables anything that has to do with threads, because threads or ``std::threads`` doesn't work on everything. Currently there's no way to add in thread support of your own device yet.
+
+## SLEEPY_CUSTOM_SESSION
+
+```make
+SLEEPY_CUSTOM_SESSION
+-DSLEEPY_CUSTOM_SESSION
+```
+Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#CustomSession)
+
+## SLEEPY_NO_SESSIONS
+
+```make
+SLEEPY_NO_SESSIONS
+-DSLEEPY_NO_SESSIONS
+```
+This does not disable sessions, but instead it stops sessions from being used, unless you make a request to do so, for example sending a message. This just means that Sleepy Discord will not use sessions unless you say so.

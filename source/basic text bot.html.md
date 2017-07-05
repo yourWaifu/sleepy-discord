@@ -138,7 +138,7 @@ int main() {
 By now this is what you should have.
 
 ##Testing Time
-Now just compile it and just say ``whcg hello`` in any channel that your bot can access.
+Now just compile it and run it. Now, just say ``whcg hello`` in any channel that your bot can access, and the bot will say hello back to you.
 >Possible Output
 
 ```shell

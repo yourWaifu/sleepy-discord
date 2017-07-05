@@ -60,8 +60,6 @@ Step 7: To tell Visual C++ to link these library, click on the arrow to the left
 
 <img src="images/ladddeps.png" style='object-fit: contain'>
 
-Step 8: On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you're done, remember to click OK.
-
 > Here's a good example of the library files to list
 
 ```bash
@@ -70,6 +68,8 @@ libcurl_a.lib
 ssleay32MT.lib
 libeay32MT.lib
 ```
+
+Step 8: On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you're done, remember to click OK.
 
 ##Now, It's Time to Compile
 
