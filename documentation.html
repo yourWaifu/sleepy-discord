@@ -681,6 +681,8 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <h1 id="discord-objects">Discord Objects</h1>
 
+<p>Objects used to represent things from Discord, these include things like messages, users, server, etc.</p>
+
 <h2 id="snowflake">Snowflake</h2>
 
 <p>Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.</p>
@@ -842,6 +844,125 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h3 id="return-value">Return value</h3>
 
 <p><code class="prettyprint">ture</code> when the two Users have the same id</p>
+
+<h1 id="customsession">CustomSession</h1>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">CustomSession</span> <span class="o">:</span> <span class="k">public</span> <span class="n">GenericSession</span> <span class="p">{</span>
+</code></pre>
+<p>Sessions are used for http requests, it&rsquo;s basically wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. <a href="#session">To learn more about Sessions, click here.</a></p>
+
+<h3 id="member-types">Member types</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>CustomInit</strong></td>
+        <td>a function pointer to a function that returns a new Session</td></tr>
+  </tbody>
+</table>
+
+<h2 id="constructor">(constructor)</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">static</span> <span class="n">CustomInit</span> <span class="n">init</span><span class="p">;</span>
+<span class="n">CustomSession</span><span class="p">()</span> <span class="o">:</span> <span class="n">session</span><span class="p">(</span><span class="n">init</span><span class="p">())</span> <span class="p">{}</span>
+</code></pre>
+<blockquote>
+<p>This how the CustomSession constructor calls your custom Session.</p>
+</blockquote>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">mySession</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericSession</span><span class="p">{</span>
+    <span class="p">...</span>  <span class="c1">//imagine a filled out Session class
+</span><span class="p">}</span>
+<span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">CustomInit</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Session</span><span class="o">::</span><span class="n">init</span> <span class="o">=</span> <span class="p">[]()</span><span class="o">-&gt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericSession</span><span class="o">*</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="n">mySession</span><span class="p">;</span> <span class="p">};</span>    <span class="c1">//init the custom session
+</span></code></pre>
+<p>The constructor of the CustomSession class calls init to get a pointer to a new Session.</p>
+
+<h1 id="session">Session</h1>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">GenericSession</span> <span class="p">{</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="k">typedef</span> <span class="n">CPRSession</span> <span class="n">Session</span><span class="p">;</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="k">typedef</span> <span class="n">CustomSession</span> <span class="n">Session</span><span class="p">;</span>
+</code></pre>
+<p>Session is a class that wraps any http library, for now the library only supports cpr. However this can easily change in the future thanks to the Session class.</p>
+
+<p>Declared in <code class="prettyprint">http.h</code></p>
+
+<h3 id="member-types">Member types</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>Response</strong></td>
+        <td>When you make a request, it sends back a response. This holds the response from the request.</td></tr>
+      <tr><td><strong>Part</strong></td>
+        <td>Used for multipart requests, is stores the name and file or value</td></tr>
+  </tbody>
+</table>
+
+<h2 id="seturl">setUrl</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setUrl</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">url</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="setbody">setBody</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setBody</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonParameters</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>jsonParameters</strong></td>
+        <td>The body of the Session, usually a json</td></tr>
+  </tbody>
+</table>
+
+<h2 id="setheader">setHeader</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setHeader</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;&amp;</span> <span class="n">header</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>header</strong></td>
+        <td>A list of stuff in the header, the first string in the pair is the name, and the 2nd is the value</td></tr>
+  </tbody>
+</table>
+
+<h2 id="setmultipart">setMultipart</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setMultipart</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">Part</span><span class="o">&gt;&amp;</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="request-methods">Request Methods</h2>
+
+<p>Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method.</p>
+
+<h2 id="post">Post</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Post</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="patch">Patch</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Patch</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="delete">Delete</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Delete</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="get">Get</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Get</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h2 id="put">Put</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Put</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre>
+<h1 id="preprocessor-directives">Preprocessor Directives</h1>
+
+<p>Sleepy Discord uses some preprocessor directives such as <code class="prettyprint">#define</code> and <code class="prettyprint">#ifdef</code>. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.</p>
+
+<h2 id="sleepy_one_thread">SLEEPY_ONE_THREAD</h2>
+<pre class="highlight make tab-make"><code><span class="err">SLEEPY_ONE_THREAD</span>
+<span class="err">-DSLEEPY_ONE_THREAD</span>
+</code></pre>
+<p>Disables anything that has to do with threads, because threads or <code class="prettyprint">std::threads</code> doesn&rsquo;t work on everything. Currently there&rsquo;s no way to add in thread support of your own device yet.</p>
+
+<h2 id="sleepy_custom_session">SLEEPY_CUSTOM_SESSION</h2>
+<pre class="highlight make tab-make"><code><span class="err">SLEEPY_CUSTOM_SESSION</span>
+<span class="err">-DSLEEPY_CUSTOM_SESSION</span>
+</code></pre>
+<p>Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. <a href="#CustomSession">Click here for info on the CustomSession Class</a></p>
+
+<h2 id="sleepy_no_sessions">SLEEPY_NO_SESSIONS</h2>
+<pre class="highlight make tab-make"><code><span class="err">SLEEPY_NO_SESSIONS</span>
+<span class="err">-DSLEEPY_NO_SESSIONS</span>
+</code></pre>
+<p>This does not disable sessions, but instead it stops sessions from being used, unless you make a request to do so, for example sending a message. This just means that Sleepy Discord will not use sessions unless you say so.</p>
 
       </div>
       <div class="dark-box">
