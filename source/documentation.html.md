@@ -624,7 +624,7 @@ Compares the ids of two messages
 </table>
 
 ### Return value
-``true`` when the content of the two messages are the same
+``true`` when the ids of the two messages are the same
 
 # User
 ```cpp

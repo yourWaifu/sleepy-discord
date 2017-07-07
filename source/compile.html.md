@@ -10,7 +10,7 @@ includes:
 
 search: true
 ---
-[< Go back to documentation](documentation.html)
+[⮌ Go back to documentation](documentation.html)
 
 #How to Compile
 <aside class="notice">
