@@ -13,6 +13,7 @@ namespace SleepyDiscord {
 	protected:
 		//BaseDiscordClient* client;   is this a good idea?
 
+		//functions for parsing JSON
 		inline bool getBool(const std::string& string) {
 			return string[0] == 't';
 		}
@@ -22,13 +23,22 @@ namespace SleepyDiscord {
 		}
 
 		inline bool isDefined(const std::string& string) {
-			return string[0] && string[0] != 'n';
+			return isSpecified(string) && string != "null";
 		}
 
-		inline bool isDefault(const std::string& string) {
-			return string == "" || string[0] == 'n';
+		inline bool isDefault(const std::string& string) {	
+			return isSpecified(string) || string == "null";
 		}
 	};
+
+	constexpr unsigned int index(std::initializer_list<const char *const> names, const char * name, unsigned int i = 0) {
+		for (const char *const n : names)
+			if (strcmp(n, name) != 0) ++i;
+			else break;
+			return i;
+	}
+
+
 
 	template <class _DiscordObject>
 	std::vector<_DiscordObject> JSON_getArray(const std::string* _source) {

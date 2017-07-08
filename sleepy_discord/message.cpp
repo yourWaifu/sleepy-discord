@@ -14,24 +14,27 @@ namespace SleepyDiscord {
 		//set default values
 		nonce = 0;
 		//parse json and convert from string to type
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-			{ "id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
-		      "mention_everyone", "author", "mentions", "mention_roles", "attachments",
-		      "embeds", "nonce", "pinned" });
-		id = values[0];
-		channel_id = values[1];
-		content = values[2];
-		timestamp = values[3];
-		edited_timestamp = values[4];
-		tts = getBool(values[5]);
-		mention_everyone = getBool(values[6]);
-		author = User(&values[7]);
-		mentions = JSON_getArray<User>(&values[8]);
-		mention_roles = json::getArray(&values[9]);
-		attachments = JSON_getArray<Attachment>(&values[10]);
-		embeds = JSON_getArray<Embed>(&values[11]);
-		nonce = isDefined(values[12]) ? std::stoll(values[12]) : 0;
-		pinned = getBool(values[13]);
+		std::initializer_list<const char*const> names = {
+			"id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
+			"mention_everyone", "author", "mentions", "mention_roles", "attachments",
+			"embeds", "nonce", "pinned"
+		};
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+		id               =                            values[index(names, "id"              )] ;
+		channel_id       =                            values[index(names, "channel_id"      )] ;
+		content          =                            values[index(names, "content"         )] ;
+		timestamp        =                            values[index(names, "timestamp"       )] ;
+		edited_timestamp =                            values[index(names, "edited_timestamp")] ;
+		tts              = getBool(                   values[index(names, "tts"             )]);
+		mention_everyone = getBool(                   values[index(names, "mention_everyone")]);
+		author           = User(                     &values[index(names, "author"          )]);
+		mentions         = JSON_getArray<User>(      &values[index(names, "mentions"        )]);
+		mention_roles    = json::getArray(           &values[index(names, "mention_roles"   )]);
+		attachments      = JSON_getArray<Attachment>(&values[index(names, "attachments"     )]);
+		embeds           = JSON_getArray<Embed>(     &values[index(names, "embeds"          )]);
+		const std::string nonceTemp =                 values[index(names, "nonce"           )] ;
+		nonce            = isDefined(nonceTemp) ? std::stoll(nonceTemp) : 0;
+		pinned           = getBool(                   values[index(names, "pinned"          )]);
 	}
 
 	Message::Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts)

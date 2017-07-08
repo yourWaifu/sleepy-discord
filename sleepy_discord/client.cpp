@@ -159,6 +159,9 @@ namespace SleepyDiscord {
 #endif
 
 	void BaseDiscordClient::getTheGateway() {
+#ifdef SLEEPY_NO_SESSIONS
+		std::strncpy(theGateway, "wss://gateway.discord.gg", 32);  //This is needed for when session is disabled
+#else
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
 		Response a = session.Post();
@@ -171,7 +174,7 @@ namespace SleepyDiscord {
 				while (a.text[++position] != '"');
 				unsigned int size = position - start;
 				a.text.copy(theGateway, size, start);
-				theGateway[size] = '/';
+				theGateway[size] = '/';	//super fast ultra loop unrolling
 				theGateway[++size] = '?';
 				theGateway[++size] = 'v';
 				theGateway[++size] = '=';
@@ -180,6 +183,7 @@ namespace SleepyDiscord {
 				break;
 			}
 		}
+#endif
 	}
 
 	void BaseDiscordClient::sendIdentity() {

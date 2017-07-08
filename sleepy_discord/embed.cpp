@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 		type = values[1];
 		description = values[2];
 		url = values[3];
-		if (isSpecified(values[5])) thumbnail = EmbedThumbnail(&values[4]);	//if it doesn't have a thumbnail, it doesn't need to make one
+		if (isSpecified(values[4])) thumbnail = EmbedThumbnail(&values[4]);	//if it doesn't have a thumbnail, it doesn't need to make one
 		if (isSpecified(values[5])) provider = EmbedProvider(&values[5]);
 	}
 

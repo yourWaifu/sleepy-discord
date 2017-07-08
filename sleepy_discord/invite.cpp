@@ -9,9 +9,9 @@ SleepyDiscord::ChannelInvite::~ChannelInvite() {
 SleepyDiscord::ChannelInvite::ChannelInvite(const std::string * rawJson) {
 	std::vector<std::string> values = json::getValues(rawJson->c_str(),
 		{ "id", "name", "type" });
-	id = values[1];
-	name = values[2];
-	type = values[3];
+	id = values[0];
+	name = values[1];
+	type = values[2];
 }
 
 SleepyDiscord::ServerInvite::ServerInvite() {
@@ -23,10 +23,10 @@ SleepyDiscord::ServerInvite::~ServerInvite() {
 SleepyDiscord::ServerInvite::ServerInvite(const std::string * rawJson) {
 	std::vector<std::string> values = json::getValues(rawJson->c_str(),
 		{ "id", "name", "splash", "icon" });
-	id = values[1];
-	name = values[2];
-	splash = values[3];
-	icon = values[4];
+	id = values[0];
+	name = values[1];
+	splash = values[2];
+	icon = values[3];
 }
 
 SleepyDiscord::Invite::Invite() {

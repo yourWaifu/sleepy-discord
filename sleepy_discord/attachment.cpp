@@ -19,7 +19,7 @@ namespace SleepyDiscord {
 		size = std::stoull(values[2]);
 		url = values[3];
 		proxy_url = values[4];
-		if (values[5][0] != 'n') height = std::stoul(values[5]);
-		if (values[6][0] != 'n') width = std::stoul(values[6]);
+		if (isDefined(values[5])) height = std::stoul(values[5]);
+		if (isDefined(values[6])) width = std::stoul(values[6]);
 	}
 }
