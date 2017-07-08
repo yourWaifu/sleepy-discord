@@ -15,7 +15,7 @@ search: true
 #How To Link
 
 <aside class="notice">
-I'm going to assume that you have compiled Sleepy Discord
+I'm going to assume that you have compiled Sleepy Discord or got one precompiled
 </aside>
 
 ##Visual Studio
