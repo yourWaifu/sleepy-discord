@@ -10,6 +10,7 @@ includes:
 
 search: true
 ---
+[⮌ Go back to documentation](documentation.html)
 
 # FAQ
 
