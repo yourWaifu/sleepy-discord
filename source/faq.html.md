@@ -12,7 +12,7 @@ search: true
 ---
 [⮌ Go back to documentation](documentation.html)
 
-# FAQ
+# Frequently Asked Questions
 
 ## Why isn't a channel for this library on the Discord API server?
 Before a library gets a channel on the Discord API server, it must go though a moderator that'll review. The library has already been submitted to a moderator, and is currently waiting for detailed feedback for the library before getting a channel.
@@ -23,7 +23,7 @@ There are a few features not support just yet. They are createServer, editServer
 ## Does it work on a normal Computer like Windows or Linux?
 Yes. I plan on having support on a large number of devices. However, Linux is untested.
 
-## What makes mine different then the other Discord C++ libraries?
+## What makes Sleepy Discord different then the other Discord C++ libraries?
 Unlike other Discord libraries, Sleepy Discord can support a large number of HTTP and Websocket libraries. This is because by default, Sleepy Discord does not use an input or output, but instead it calls for them. This is needed for support on many devices. In summery, it should be able to support a large number of devices.
 
 ## Why are parts of the json parser in c?
