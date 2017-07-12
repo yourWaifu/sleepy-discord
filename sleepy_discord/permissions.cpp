@@ -3,16 +3,18 @@
 
 namespace SleepyDiscord {
 	Role::Role(const std::string * rawJson) {
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-		{ "id", "name", "color", "hoist", "position", "permissions",
-		"managed", "mentionable" });
-		id = values[0];
-		name = values[1];
-		color = std::stol(values[2]);
-		hoist = getBool(values[3]);
-		position = std::stol(values[4]);
-		permissions = static_cast<Permission>(std::stoll(values[5]));
-		managed = std::stol(values[6]);
-		mantionable = std::stol(values[7]);
+		std::initializer_list<const char*const> names = {
+			"id", "name", "color", "hoist", "position", "permissions",
+			"managed", "mentionable"
+		};
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+		id          =                                    values[index(names, "id"         )]  ;
+		name        =                                    values[index(names, "name"       )]  ;
+		color       =                         std::stol( values[index(names, "color"      )]) ;
+		hoist       =                         getBool(   values[index(names, "hoist"      )]) ;
+		position    =                         std::stol( values[index(names, "position"   )]) ;
+		permissions = static_cast<Permission>(std::stoll(values[index(names, "permissions")]));
+		managed     =                         std::stol( values[index(names, "managed"    )]) ;
+		mantionable =                         std::stol( values[index(names, "mentionable")]) ;
 	}
 }

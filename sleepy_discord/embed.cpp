@@ -5,35 +5,46 @@ namespace SleepyDiscord {
 	}
 
 	Embed::Embed(const std::string * rawJSON) {
-		std::vector<std::string> values = json::getValues(rawJSON->c_str(),
-			{ "title", "type", "description", "url", "thumbnail", "provider" });
-		title = values[0];
-		type = values[1];
-		description = values[2];
-		url = values[3];
-		if (isSpecified(values[4])) thumbnail = EmbedThumbnail(&values[4]);	//if it doesn't have a thumbnail, it doesn't need to make one
-		if (isSpecified(values[5])) provider = EmbedProvider(&values[5]);
+		std::initializer_list<const char*const> names = {
+			"title", "type", "description", "url", "thumbnail", "provider"
+		};
+
+		std::vector<std::string> values = json::getValues(rawJSON->c_str(), names);
+		title       =                     values[index(names, "title"      )];
+		type        =                     values[index(names, "type"       )];
+		description =                     values[index(names, "description")];
+		url         =                     values[index(names, "url"        )];
+		const std::string thumbnailTemp = values[index(names, "thumbnail"  )];
+		if (isSpecified(thumbnailTemp)) thumbnail = EmbedThumbnail(&thumbnailTemp);	//if it doesn't have a thumbnail, it doesn't need to make one
+		const std::string providerTemp  = values[index(names, "provider"   )];
+		if (isSpecified(providerTemp )) provider  = EmbedProvider( &providerTemp );
 	}
 
 	EmbedThumbnail::EmbedThumbnail() {
 	}
 
 	EmbedThumbnail::EmbedThumbnail(const std::string * rawJSON) {
-		std::vector<std::string> values = json::getValues(rawJSON->c_str(),
-			{ "url", "proxy_url", "height", "width" });
-		url = values[0];
-		proxy_url = values[1];
-		height = std::stoi(values[2]);
-		width = std::stoi(values[3]);
+		std::initializer_list<const char*const> names = {
+			"url", "proxy_url", "height", "width"
+		};
+
+		std::vector<std::string> values = json::getValues(rawJSON->c_str(), names);
+		url       =           values[index(names, "url"      )] ;
+		proxy_url =           values[index(names, "proxy_url")] ;
+		height    = std::stoi(values[index(names, "height"   )]);
+		width     = std::stoi(values[index(names, "width"    )]);
 	}
 
 	EmbedProvider::EmbedProvider() {
 	}
 
 	EmbedProvider::EmbedProvider(const std::string * rawJSON) {
-		std::vector<std::string> values = json::getValues(rawJSON->c_str(),
-			{ "name", "url" });
-		name = values[0];
-		url = values[1];
+		std::initializer_list<const char*const> names = {
+			"name", "url"
+		};
+
+		std::vector<std::string> values = json::getValues(rawJSON->c_str(), names);
+		name = values[index(names, "name")];
+		url  = values[index(names, "url" )];
 	}
 }

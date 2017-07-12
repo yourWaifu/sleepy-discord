@@ -11,8 +11,6 @@ namespace SleepyDiscord {
 
 	Message::Message(const std::string * rawJson)
 	{
-		//set default values
-		nonce = 0;
 		//parse json and convert from string to type
 		std::initializer_list<const char*const> names = {
 			"id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
@@ -88,10 +86,13 @@ namespace SleepyDiscord {
 	}
 
 	Reaction::Reaction(const std::string * rawJson) {
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-			{"count", "me", "emoji"});
-		count = std::stoul(values[0]);
-		me = getBool(values[1]);
-		//emoji = Emoji(&values[3]);
+		std::initializer_list<const char*const> names = {
+			"count", "me", "emoji"
+		};
+
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+		count = std::stoul(values[index(names, "count")]);
+		me    = getBool(   values[index(names, "me"   )]);
+		//emoji = Emoji(&values[index(names, "emoji"   )]);
 	}
 }

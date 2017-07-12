@@ -8,51 +8,55 @@ namespace SleepyDiscord {
 
 	Server::Server(const std::string * rawJson) {
 		//parse json and convert from string to type
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-			{ "id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
-			  "afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
-			  "unavailable", "mfa_level", "large", "joined_at", "default_message_notifications" });
+		std::initializer_list<const char*const> names = {
+			"id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
+			"afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
+			"unavailable", "mfa_level", "large", "joined_at", "default_message_notifications"
+		};
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		unsigned int i = -1;
-		id                            = values[++i];
-		name                          = values[++i];
-		icon                          = values[++i];
-		splash                        = values[++i];
-		owner_id                      = values[++i];
-		region                        = values[++i];
-		afk_channel_id                = values[++i];
-		afk_timeout                   = std::stod(values[++i]);
-		embed_enable                  = getBool(values[++i]);
-		embed_channel_id              = values[++i];
-		verfication_level             = std::stod(values[++i]);
-		unavailable                   = getBool(values[++i]);
-		mfa_level                     = std::stod(values[++i]);
-		large                         = getBool(values[++i]);
-		joined_at                     = values[++i];
-		default_message_notifications = std::stod(values[++i]);
+		id                            =           values[index(names, "id"                           )] ;
+		name                          =           values[index(names, "name"                         )] ;
+		icon                          =           values[index(names, "icon"                         )] ;
+		splash                        =           values[index(names, "splash"                       )] ;
+		owner_id                      =           values[index(names, "owner_id"                     )] ;
+		region                        =           values[index(names, "region"                       )] ;
+		afk_channel_id                =           values[index(names, "afk_channel_id"               )] ;
+		afk_timeout                   = std::stod(values[index(names, "afk_timeout"                  )]);
+		embed_enable                  = getBool(  values[index(names, "embed_enabled"                )]);
+		embed_channel_id              =           values[index(names, "embed_channel_id"             )] ;
+		verfication_level             = std::stod(values[index(names, "verification_level"           )]);
+		unavailable                   = getBool(  values[index(names, "unavailable"                  )]);
+		mfa_level                     = std::stod(values[index(names, "mfa_level"                    )]);
+		large                         = getBool(  values[index(names, "large"                        )]);
+		joined_at                     =           values[index(names, "joined_at"                    )] ;
+		default_message_notifications = std::stod(values[index(names, "default_message_notifications")]);
 	}
 
 	ServerEmbed::ServerEmbed(const std::string * rawJson) {
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-		{ "enabled", "channel_id" });
+		std::initializer_list<const char*const> names = {
+			"enabled", "channel_id"
+		};
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		unsigned int i = -1;
-		enabled    = getBool(values[++i]);
-		channel_id = values[++i];
+		enabled    = getBool(values[index(names, "enabled"   )]);
+		channel_id =         values[index(names, "channel_id")] ;
 	}
 
 	ServerMember::ServerMember(const std::string * rawJson) {
 		//parse json and convert from string to type
-		std::vector<std::string> values = json::getValues(rawJson->c_str(),
-			{ "user", "nick", "roles", "joined_at", "deaf", "mute" });
+		std::initializer_list<const char*const> names = {
+			"user", "nick", "roles", "joined_at", "deaf", "mute"
+		};
+		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		unsigned int i = -1;
-		user      = User(&values[++i]);
-		nick      = isDefined(values[++i]) ? values[i] : "";
-		roles     = json::getArray(&values[++i]);
-		joined_at = values[++i];
-		deaf      = getBool(values[++i]);
-		mute      = getBool(values[++i]);
+		user      = User(           &values[index(names, "user"     )]);
+		const std::string nickTemp = values[index(names, "nick"     )] ;
+		nick      = isDefined(nickTemp) ? nickTemp : "";
+		roles     = json::getArray( &values[index(names, "roles"    )]);
+		joined_at =                  values[index(names, "joined_at")] ;
+		deaf      = getBool(         values[index(names, "deaf"     )]);
+		mute      = getBool(         values[index(names, "mute"     )]);
 	}
 
 	ServerMember::ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id) {
