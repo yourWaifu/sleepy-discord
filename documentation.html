@@ -959,11 +959,11 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 </code></pre>
 <p>Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. <a href="#CustomSession">Click here for info on the CustomSession Class</a></p>
 
-<h2 id="sleepy_no_sessions">SLEEPY_NO_SESSIONS</h2>
-<pre class="highlight make tab-make"><code><span class="err">SLEEPY_NO_SESSIONS</span>
-<span class="err">-DSLEEPY_NO_SESSIONS</span>
+<h2 id="sleepy_use_hard_coded_gateway">SLEEPY_USE_HARD_CODED_GATEWAY</h2>
+<pre class="highlight make tab-make"><code><span class="err">SLEEPY_USE_HARD_CODED_GATEWAY</span>
+<span class="err">-DSLEEPY_USE_HARD_CODED_GATEWAY</span>
 </code></pre>
-<p>This does not disable sessions, but instead it stops sessions from being used, unless you make a request to do so, for example sending a message. This just means that Sleepy Discord will not use sessions unless you say so.</p>
+<p>This makes Sleepy Discord skip connecting to <code class="prettyprint">api/gateway</code> to get the gateway and instead it use the gateway that is hard coded into Sleepy Discord.</p>
 
       </div>
       <div class="dark-box">
