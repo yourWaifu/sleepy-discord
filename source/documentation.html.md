@@ -811,10 +811,10 @@ SLEEPY_CUSTOM_SESSION
 ```
 Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#CustomSession)
 
-## SLEEPY_NO_SESSIONS
+## SLEEPY_USE_HARD_CODED_GATEWAY
 
 ```make
-SLEEPY_NO_SESSIONS
--DSLEEPY_NO_SESSIONS
+SLEEPY_USE_HARD_CODED_GATEWAY
+-DSLEEPY_USE_HARD_CODED_GATEWAY
 ```
-This does not disable sessions, but instead it stops sessions from being used, unless you make a request to do so, for example sending a message. This just means that Sleepy Discord will not use sessions unless you say so.
+This makes Sleepy Discord skip connecting to ``api/gateway`` to get the gateway and instead it use the gateway that is hard coded into Sleepy Discord.
