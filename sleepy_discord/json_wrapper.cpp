@@ -65,7 +65,7 @@ namespace json {
 	}
 
 	const std::string UInteger(const uint64_t num) {
-		return std::to_string(num & 0x1fffffffffffff);   //just in case numbers are larger then 52 bits
+		return std::to_string(num & 0x3FFFFFFFFFFFFF);   //just in case numbers are larger then 53 bits
 	}
 
 	const std::string optionalUInteger(const uint64_t num) {
@@ -73,7 +73,7 @@ namespace json {
 	}
 
 	const std::string integer(const int64_t num) {
-		return std::to_string(num & 0x801FFFFFFFFFFFFF);  //just in case numbers are larger then 53 bits
+		return std::to_string(num & 0x803FFFFFFFFFFFFF);  //just in case numbers are larger then 53 bits
 	}
 
 	const std::string optionalInteger(const int64_t num) {
