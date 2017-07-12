@@ -3,9 +3,9 @@
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::testFunction(std::string teststring) {
-		/*disconnect(1001, "");
-		connect(theGateway);*/
-		getMember("202917641101246465", "99259409045143552");
+		request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
+				{"color", json::UInteger(0x1000000)}
+		}));
 	}
 	//
 	//channel functions
@@ -180,13 +180,13 @@ namespace SleepyDiscord {
 			std::vector<std::string> values(roles.size());
 			for (Role role : roles) {
 				values[++i] = json::createJSON({
-					{ "id"         , json::string (role.id         ) },
-					{ "name"       , json::string (role.name       ) },
-					{ "color"      , json::integer(role.color      ) },
-					{ "hoist"      , json::boolean(role.hoist      ) },
-					{ "position"   , json::integer(role.position   ) },
-					{ "managed"    , json::boolean(role.managed    ) },
-					{ "mentionable", json::boolean(role.mantionable) }
+					{ "id"         , json::string  (role.id         ) },
+					{ "name"       , json::string  (role.name       ) },
+					{ "color"      , json::UInteger(role.color      ) },
+					{ "hoist"      , json::boolean (role.hoist      ) },
+					{ "position"   , json::integer (role.position   ) },
+					{ "managed"    , json::boolean (role.managed    ) },
+					{ "mentionable", json::boolean (role.mantionable) }
 				});
 			}
 			rolesString = json::createJSONArray(values);
@@ -203,6 +203,20 @@ namespace SleepyDiscord {
 
 	std::vector<Role> BaseDiscordClient::editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions) {
 		return requestVector<Role>(Patch, path("guilds/{guild.id}/roles", server_id), getEditPositionString(positions));
+	}
+
+	std::string BaseDiscordClient::editRole(std::string server_id, std::string role_id, std::string name, Permission permissions, uint32_t color, int position, uint8_t hoist, uint8_t mentionable) {
+		const std::string colorString       = color       >> 24 == 0 ? std::to_string(color      ) : "";	//if over 24 bits, do not change color
+		const std::string hoistString       = hoist       >> 1  == 0 ? json::boolean (hoist      ) : "";	//if larger then 1 bit, do change hoist
+		const std::string mentionableString = mentionable >> 1  == 0 ? json::boolean (mentionable) : "";
+
+		return request(Patch, path("guilds/{guild.id}/roles/{role.id}", server_id, role_id), json::createJSON({
+			{ "name"       , json::string(name)         },
+			{ "permissions", json::integer(permissions) },
+			{ "color"      , colorString                },
+			{ "hoist"      , hoistString                },
+			{ "mentionable", mentionableString          }
+		})).text;
 	}
 
 	bool SleepyDiscord::BaseDiscordClient::deleteRole(std::string server_id, std::string role_id) {
