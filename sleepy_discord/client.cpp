@@ -30,11 +30,12 @@ namespace SleepyDiscord {
 		//check if rate limited
 		static bool isRateLimited = false;
 		static int64_t nextRetry = 0;
+		Response response;
 		if (isRateLimited) {
 			if (nextRetry <= getEpochTimeMillisecond())
 				isRateLimited = false;
 			else {
-				Response response;
+				//Response response;
 				response.statusCode = TOO_MANY_REQUESTS;
 				setError(response.statusCode);
 				return response;
@@ -42,48 +43,51 @@ namespace SleepyDiscord {
 		} else if (_url == "gateway") {  //getting the gateway should happen in getTheGateway
 			return { NO_CONTENT, "", {} };
 		}
-		//request starts here
-		Session session;
-		std::pair<std::string, std::string> contentType;
-		session.setUrl("https://discordapp.com/api/" + _url);
-		if (jsonParameters != "") {
-			session.setBody(&jsonParameters);
-			contentType = { "Content-Type", "application/json" };
-		/*} else if (httpParameters.content != "") {	//this is broken for now
-			session.SetParameters(httpParameters);*/
-		} else if (0 < multipartParameters.size()) {
-			session.setMultipart(multipartParameters);
-			contentType = { "Content-Type", "multipart/form-data" };
-		}
-		session.setHeader({
-			{ "Authorization", "Bot " + getToken() },
-			{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
-			contentType,
-			{ "Content-Length", std::to_string(jsonParameters.length()) }
+		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
+			//request starts here
+			Session session;
+			std::pair<std::string, std::string> contentType;
+			session.setUrl("https://discordapp.com/api/" + _url);
+			if (jsonParameters != "") {
+				session.setBody(&jsonParameters);
+				contentType = { "Content-Type", "application/json" };
+				/*} else if (httpParameters.content != "") {	//this is broken for now
+					session.SetParameters(httpParameters);*/
+			} else if (0 < multipartParameters.size()) {
+				session.setMultipart(multipartParameters);
+				contentType = { "Content-Type", "multipart/form-data" };
+			}
+			session.setHeader({
+				{ "Authorization", "Bot " + getToken() },
+				{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
+				contentType,
+				{ "Content-Length", std::to_string(jsonParameters.length()) }
 			});
-		Response response;
-		switch (method) {
-		case Post:   response = session.Post  ();       break;
-		case Patch:  response = session.Patch ();       break;
-		case Delete: response = session.Delete();       break;
-		case Get:    response = session.Get   ();       break;
-		case Put:    response = session.Put   ();       break;
-		default:     response.statusCode = BAD_REQUEST; break; //unexpected method
-		}
-		//status checking
-		switch (response.statusCode) {
-		case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
-		case TOO_MANY_REQUESTS:   //this should fall down to default
-			nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
-			isRateLimited = true;
-			setError(TOO_MANY_REQUESTS);
-		default: {		//error
-			setError(response.statusCode);		//https error
-			std::vector<std::string> values = json::getValues(response.text.c_str(),
+			//Response response;
+			switch (method) {
+			case Post:   response = session.Post  ();       break;
+			case Patch:  response = session.Patch ();       break;
+			case Delete: response = session.Delete();       break;
+			case Get:    response = session.Get   ();       break;
+			case Put:    response = session.Put   ();       break;
+			default:     response.statusCode = BAD_REQUEST; break; //unexpected method
+			}
+			//status checking
+			switch (response.statusCode) {
+			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
+			case TOO_MANY_REQUESTS:   //this should fall down to default
+				nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
+				isRateLimited = true;
+				setError(TOO_MANY_REQUESTS);
+			default:
+			{		//error
+				setError(response.statusCode);		//https error
+				std::vector<std::string> values = json::getValues(response.text.c_str(),
 				{ "code", "message" });	//parse json to get code and message
-			if (values[0] != "")
-				onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
+				if (values[0] != "")
+					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
 			} break;
+			}
 		}
 		onResponse(response);
 		return response;
@@ -159,7 +163,7 @@ namespace SleepyDiscord {
 #endif
 
 	void BaseDiscordClient::getTheGateway() {
-#ifdef SLEEPY_NO_SESSIONS
+#ifdef SLEEPY_USE_HARD_CODED_GATEWAY
 		std::strncpy(theGateway, "wss://gateway.discord.gg", 32);  //This is needed for when session is disabled
 #else
 		Session session;
