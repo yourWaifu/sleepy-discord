@@ -18,7 +18,7 @@ search: true
 Before a library gets a channel on the Discord API server, it must go though a moderator that'll review. The library has already been submitted to a moderator, and is currently waiting for detailed feedback for the library before getting a channel.
 
 ## Is this feature complete?
-There are a few features not support just yet. They are createServer, editServer, editMember, editRole, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. Each one isn't support mostly because I'm confused about the parameters needed to get them to work.
+There are a few features not support just yet. They are createServer, editServer, editMember, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. Each one isn't support mostly because I'm confused about the parameters needed to get them to work.
 
 ## Does it work on a normal Computer like Windows or Linux?
 Yes. I plan on having support on a large number of devices. However, Linux is untested.
