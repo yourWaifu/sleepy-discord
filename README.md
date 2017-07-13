@@ -1,7 +1,7 @@
 # Sleepy Discord
 C++ library for Discord
 
-Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would noramaly prononce sleepy.
+Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would normally prononce sleepy.
 
 # [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
 [Here is the link to the docs:](https://yourWaifu.github.io/sleepy-discord/documentation.html)
@@ -40,7 +40,7 @@ Hello Sleepy Flower Girl
 ```
 # Will Updating the library break my bot?
 
-Yes, and for now I don't plan on making 0.0 versions backwards compatable with 1.0 versions or later.
+Yes, and for now I don't plan on making 0.0 versions backwards compatible with 1.0 versions or later.
 
 # Requirements
 * [OpenSSL](https://www.openssl.org/)
@@ -50,4 +50,4 @@ or
 [uWebSockets](https://github.com/uWebSockets/uWebSockets)
 
 # Develop Breach
-For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to complie or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
+For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
