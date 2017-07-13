@@ -30,13 +30,13 @@ You may skip this step, if you are planning on using your own http library
 </aside>
 The CPR library can be found here [https://github.com/whoshuu/cpr](https://github.com/whoshuu/cpr). Once downloaded, in the sleepy-discord folder, make a new folder called deps (short for dependencies). Inside the deps, place the cpr-master folder in there, and rename it to cpr. Open the cpr folder, and take the include folder, and place it inside deps.
 <pre>
-<img src="images/cdeps.png">
-<img src="images/cindeps.png">
+![alt text](images/cdeps.png)
+![alt text](images/cindeps.png)
 </pre>
 
 And in the cpr folder, open the opt folder. You should see an empty folder named curl. You will need to place curl there. Go here [https://github.com/whoshuu/cpr/tree/master/opt](https://github.com/whoshuu/cpr/tree/master/opt) and click on curl and download curl. Open the zip file and curl folder, and then drag everything in that folder into the curl folder that's inside the opt folder. And just build curl. If on windows, just open the buildconf.bat file.
 <pre>
-<img src="images/cincurl.png">
+![alt text](images/cincurl.png)
 </pre>
 
 ##Downloading the Websocket Library
@@ -49,7 +49,7 @@ You may skip this step, if you are planning on using other websocket libraries
 ##Websocketpp
 You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, Open the zip file, and the websocketpp-master file, and open extract the websocketpp to the deps folder.
 <pre>
-<img src="images/cindeps2.png">
+![alt text](images/cindeps2.png)
 </pre>
 
 You are also going to need the asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps folder.
@@ -57,9 +57,9 @@ You are also going to need the asio library, that can be found here [http://thin
 Sleepy Discord uses version 1.10.8, and does not work with 1.10.6
 </aside>
 
-Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL, because this has it's own set of instructions including downloading and installing some other stuff. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps.
+Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL, because this has it's own set of instructions including downloading and installing some other stuff. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
 <pre>
-<img src="images/cininclude.png">
+![alt text](images/cininclude.png)
 </pre>
 
 ##Compiling Sleepy Discord
