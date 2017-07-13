@@ -21,9 +21,12 @@ function resize() {
 	backgorundStyle.left = -((cssWidth - 1) * 50) + "%";
 	backgorundStyle.top = -((cssHeight - 1) * 50) + "%";
 	//resize main content
-	var mainSectionRect = document.getElementById("mainSection").getBoundingClientRect();
-	if (mainSectionRect.bottom < height) {
-		var mainSectionStyle = document.getElementById("mainSection").style;
+	var mainDivRect = document.getElementById("mainDiv").getBoundingClientRect();
+	var mainSectionStyle = document.getElementById("mainSection").style;
+	if (mainDivRect.bottom < height) {
+		var mainSectionRect = document.getElementById("mainSection").getBoundingClientRect();
 		mainSectionStyle.height = (height - mainSectionRect.top) + "px"
+	} else {
+		mainSectionStyle.height = "100%";
 	}
 }
