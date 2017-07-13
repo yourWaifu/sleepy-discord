@@ -253,48 +253,51 @@
 I&rsquo;m going to assume that you have compiled Sleepy Discord or got one precompiled
 </aside>
 
-<h2 id="visual-studio">Visual Studio</h2>
+<h1 id="visual-studio">Visual Studio</h1>
 
 <aside class="notice">
 For now, Visual Studio is the only opinion.
 </aside>
 
-<p>Step 1: First you need a project, of corse. Go make a new one if you haven&rsquo;t done so already.</p>
+<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. Here&rsquo;s a good guide to do just that, but before you read it remember to change things like <code class="prettyprint">Microsoft Visual Studio 12.0</code> or <code class="prettyprint">VC=12</code> or <code class="prettyprint">vc12</code> to <code class="prettyprint">Microsoft Visual Studio 14.0</code> or <code class="prettyprint">VC=14</code> or <code class="prettyprint">vc14</code> or whatever version of Visual Studio. <a href="https://stackoverflow.com/a/32168255">Anyway, here is the guide that I&rsquo;m talking about.</a> After you have compiled curl, place the include and lib folders into deps.</p>
 
-<p>Step 2: Right click on your project in the Solution Explorer and go to Properties.</p>
+<p><strong>Step 1:</strong> First you need a project, of corse. Go make a new one if you haven&rsquo;t done so already.</p>
 
-<p><img src="images/lopenproperties.png" style='object-fit: contain'></p>
+<p><strong>Step 2:</strong> Right click on your project in the Solution Explorer and go to Properties.</p>
+
+<p><img src="images/lopenproperties.png" alt="alt text" /></p>
 
 <aside class="notice">
 Alt+F7 also works if you have only one project in your solution.
 </aside>
 
-<p>Step 3: On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
+<p><strong>Step 3:</strong> On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
 
-<p><img src="images/lvcdir.png" style='object-fit: contain'></p>
+<p><img src="images/lvcdir.png" alt="alt text" /></p>
 
-<p>Step 4: Click on the white empty box at the top, and then click on the 3 dots on the right.</p>
+<p><strong>Step 4:</strong> Click on the white empty box at the top, and then click on the 3 dots on the right.</p>
 
 <blockquote>
 <p>The box of Include Directories should look something like this, but with the full path</p>
 </blockquote>
-<pre class="highlight shell"><code><span class="k">$(</span>SolutionDir<span class="k">)</span>
-<span class="k">$(</span>SolutionDir<span class="k">)</span>deps
-<span class="k">$(</span>SolutionDir<span class="k">)</span>deps<span class="se">\i</span>nclude
-<span class="k">$(</span>SolutionDir<span class="k">)</span>sleepy_discord<span class="se">\I</span>ncludeNonexistent
+<pre class="highlight shell"><code><span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\</span>
+<span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps
+<span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\i</span>nclude
+<span class="k">$(</span>projectdir<span class="k">)</span>IncludeNonexistent
 </code></pre>
-<p>Step 5: Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same thing for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">sleepy_discord/IncludeNonexistent</code>. Once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
+<p><strong>Step 5:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same thing for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">sleepy_discord/IncludeNonexistent</code>. Once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
 
 <blockquote>
 <p>The box of Library Directories should look like this, but with full paths</p>
 </blockquote>
-<pre class="highlight shell"><code><span class="k">$(</span>SolutionDir<span class="k">)</span>deps<span class="se">\l</span>ib
+<pre class="highlight shell"><code><span class="k">$(</span>projectdir<span class="k">)$(</span>Configuration<span class="k">)</span>
+<span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\l</span>ib
 </code></pre>
-<p>Step 6: Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
+<p><strong>Step 6:</strong> Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
 
-<p>Step 7: To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
+<p><strong>Step 7:</strong> To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
 
-<p><img src="images/ladddeps.png" style='object-fit: contain'></p>
+<p><img src="images/ladddeps.png" alt="alt text" /></p>
 
 <blockquote>
 <p>Here&rsquo;s a good example of the library files to list</p>
@@ -304,7 +307,11 @@ libcurl_a.lib
 ssleay32MT.lib
 libeay32MT.lib
 </code></pre>
-<p>Step 8: On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+
+<p><strong>(optional) Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
+
+<p><strong>(optional) Step 10:</strong> On the text box at the top add whatever preprocessor definitions, you need. You don&rsquo;t need any to link Sleepy Discord. This is here just in case, you need it.</p>
 
 <h2 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h2>
 
