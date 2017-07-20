@@ -20,11 +20,11 @@ I'm going to assume that you have compiled Sleepy Discord or got one precompiled
 
 #Visual Studio
 <aside class="notice">
-For now, Visual Studio is the only opinion.
+For now, Visual Studio is the only option.
 </aside>
 **Preparing:** Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. Here's a good guide to do just that, but before you read it remember to change things like ``Microsoft Visual Studio 12.0`` or ``VC=12`` or ``vc12`` to ``Microsoft Visual Studio 14.0`` or ``VC=14`` or ``vc14`` or whatever version of Visual Studio. [Anyway, here is the guide that I'm talking about.](https://stackoverflow.com/a/32168255) After you have compiled curl, place the include and lib folders into deps.
 
-**Step 1:** First you need a project, of corse. Go make a new one if you haven't done so already.
+**Step 1:** First you need a project, of course. Go make a new one if you haven't done so already.
 
 **Step 2:** Right click on your project in the Solution Explorer and go to Properties.
 
