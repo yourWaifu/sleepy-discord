@@ -5,6 +5,7 @@
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>How To Compile Sleepy Discord</title>
+    <link rel="icon" href="images/title-icon.png" type="image/png">
     <meta property="og:title" content="Sleepy Discord">
     <meta name="description" content="C++ library for Discord">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -314,6 +315,10 @@ I plan on adding more in the future
 </aside>
 
 <h2 id="visual-studio">Visual Studio</h2>
+
+<aside class="warning">
+Right now, There&rsquo;s an issue with the way cpr is linked. For now, please add the missing files &ldquo;ssl_options.cpp&rdquo; and &ldquo;timeout.cpp&rdquo; from the cpr/cpr folder. You can do this by dragging and dropping the files from the file explorer to the solution in the solution explorer on Visual Studio, drop (let go of the left mouse button) when the Sleepy Discord Solution is Highlighted. A fix is on the way.
+</aside>
 
 <p>Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And your done.</p>
 
