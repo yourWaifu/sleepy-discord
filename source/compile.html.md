@@ -69,6 +69,9 @@ I plan on adding more in the future
 </aside>
 
 ##Visual Studio
+<aside class="warning">
+Right now, There's an issue with the way cpr is linked. For now, please add the missing files ``ssl_options.cpp`` and ``timeout.cpp`` from the cpr/cpr folder. You can do this by dragging and dropping the files from the file explorer to the solution in the solution explorer on Visual Studio, drop (let go of the left mouse button) when the Sleepy Discord Solution is Highlighted. A fix is on the way.
+</aside>
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And your done.
 
 <aside class="success">
