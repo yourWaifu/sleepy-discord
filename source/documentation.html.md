@@ -791,6 +791,65 @@ virtual Response Get() = 0;
 virtual Response Put() = 0;
 ```
 
+# Custom Websockets
+
+Without websockets, Discord can't get any thing in real time as http does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord's websockets are customizable. Right now, there isn't a special class for websockets, it's part of the ``BaseDiscordClient`` class.
+
+## run
+
+```cpp
+virtual void run();
+```
+
+A function called by the user to run the websocket client when there's 2 or less threads that can be used for Sleepy Discord
+
+<aside class="note">
+All functions below should be specified as private
+</aside>
+
+## connect
+
+```cpp
+virtual bool connect(const std::string & uri) { return false; }
+```
+
+Called when Sleepy Discord wants to connect.
+
+### Return value
+True on a successful connection.
+
+## disconnect
+```cpp
+virtual void disconnect(unsigned int code, const std::string reason) {}
+```
+
+The function that Sleepy Discord uses to disconnect
+
+## send
+```cpp
+void send(std::string message);
+```
+
+A function used for send things like heartbeats and status updates
+
+## runAsync
+```cpp
+virtual void runAsync();
+```
+
+Runs the websocket client on another thread. This is the function that Sleepy Discord calls to run when it's told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.
+
+## SLEEPY_LOCK_CLIENT_FUNCTIONS
+
+```cpp
+class WebSocketDiscordClient : public BaseDiscordClient {
+private:
+	SLEEPY_LOCK_CLIENT_FUNCTIONS
+};
+```
+
+A macro that is a must for any Discord Clients that will be used by others, that may include you. It specifies functions that a normal user should not touch as private.
+
 # Preprocessor Directives
 
 Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifdef``. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.
