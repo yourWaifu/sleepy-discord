@@ -87,6 +87,7 @@ public:
 			if (game.player == message.author) {
 				switch (*game.state) {
 				case SHOOT: {
+					*game.state = ENDED; //game state is set to end here, so that "you lose" isn't sent after a weapon was picked
 					Weapon botChoice = static_cast<Weapon>(rand() % 3);	//random number 0 to 2
 					switch (botChoice) {
 					case ROCK:     sendMessage(message.channel_id, ":fist:"); break;
@@ -98,7 +99,6 @@ public:
 					case TIE:  sendMessage(message.channel_id, ":neutral_face: It's a tie");      break;
 					case WIN:  sendMessage(message.channel_id, ":frowning: I lost, and you won"); break;
 					}
-					*game.state = ENDED;
 					return true;	//remove the game from the list
 				} break;
 				case ENDED: return true; break;
