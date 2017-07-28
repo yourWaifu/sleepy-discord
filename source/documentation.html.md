@@ -803,7 +803,7 @@ virtual void run();
 
 A function called by the user to run the websocket client when there's 2 or less threads that can be used for Sleepy Discord
 
-<aside class="note">
+<aside class="warning">
 All functions below should be specified as private
 </aside>
 
