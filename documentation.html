@@ -944,6 +944,51 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h2 id="put">Put</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Put</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </code></pre>
+<h1 id="custom-websockets">Custom Websockets</h1>
+
+<p>Without websockets, Discord can&rsquo;t get any thing in real time as http does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord&rsquo;s websockets are customizable. Right now, there isn&rsquo;t a special class for websockets, it&rsquo;s part of the <code class="prettyprint">BaseDiscordClient</code> class.</p>
+
+<h2 id="run">run</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
+</code></pre>
+<p>A function called by the user to run the websocket client when there&rsquo;s 2 or less threads that can be used for Sleepy Discord</p>
+
+<aside class="note">
+All functions below should be specified as private
+</aside>
+
+<h2 id="connect">connect</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">bool</span> <span class="nf">connect</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span> <span class="n">uri</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="p">}</span>
+</code></pre>
+<p>Called when Sleepy Discord wants to connect.</p>
+
+<h3 id="return-value">Return value</h3>
+
+<p>True on a successful connection.</p>
+
+<h2 id="disconnect">disconnect</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="nf">disconnect</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">code</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">reason</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre>
+<p>The function that Sleepy Discord uses to disconnect</p>
+
+<h2 id="send">send</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">);</span>
+</code></pre>
+<p>A function used for send things like heartbeats and status updates</p>
+
+<h2 id="runasync">runAsync</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">runAsync</span><span class="p">();</span>
+</code></pre>
+<p>Runs the websocket client on another thread. This is the function that Sleepy Discord calls to run when it&rsquo;s told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.</p>
+
+<h2 id="sleepy_lock_client_functions">SLEEPY_LOCK_CLIENT_FUNCTIONS</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">WebSocketDiscordClient</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseDiscordClient</span> <span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">SLEEPY_LOCK_CLIENT_FUNCTIONS</span>
+<span class="p">};</span>
+</code></pre>
+<p>A macro that is a must for any Discord Clients that will be used by others, that may include you. It specifies functions that a normal user should not touch as private.</p>
+
 <h1 id="preprocessor-directives">Preprocessor Directives</h1>
 
 <p>Sleepy Discord uses some preprocessor directives such as <code class="prettyprint">#define</code> and <code class="prettyprint">#ifdef</code>. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.</p>
