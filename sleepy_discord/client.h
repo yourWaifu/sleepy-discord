@@ -26,9 +26,6 @@ remember to make function perimeters const
 
 */
 
-
-class WebsocketClient;
-
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 	class BaseDiscordClient {
@@ -110,7 +107,7 @@ namespace SleepyDiscord {
 		std::vector<Role> getRoles(std::string server_id);                                                                    //to do test this
 		Role createRole(std::string server_id, std::string name = "", Permission permissions = NONE, unsigned int color = 0, bool hoist = false, bool mentionable = false);//to do test this
 		std::vector<Role> editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions);                //to do test this
-		std::string editRole(std::string server_id, std::string role_id, std::string name = "", Permission permissions = NONE, uint32_t color = 1<<24, int position = -1, uint8_t hoist = 2, uint8_t mentionable = 2);	//to do test
+		std::string editRole(std::string server_id, std::string role_id, std::string name = "", Permission permissions = NONE, uint32_t color = 1 << 24, int position = -1, uint8_t hoist = 2, uint8_t mentionable = 2);	//to do test
 		bool deleteRole(std::string server_id, std::string role_id);                                                          //to do test this
 		//get prune count	needs testing to know what object they are talking about
 		void pruneMembers(std::string server_id, const unsigned int numOfDays);                                               //to do test
@@ -338,3 +335,9 @@ namespace SleepyDiscord {
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions);
 	};
 }
+
+//locks away functions that users shouldn't be using
+#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                 \
+                                     using BaseDiscordClient::processMessage; \
+                                     using BaseDiscordClient::heartbeat;      \
+                                     using BaseDiscordClient::start;

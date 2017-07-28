@@ -24,6 +24,7 @@ namespace SleepyDiscord {
 		std::thread thread;
 		const char maxNumOfThreads;
 		bool isConnectionBad;
+		SLEEPY_LOCK_CLIENT_FUNCTIONS
 	};
 
 	typedef UWebSocketsDiscordClient DiscordClient;
