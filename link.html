@@ -260,7 +260,16 @@ I&rsquo;m going to assume that you have compiled Sleepy Discord or got one preco
 For now, Visual Studio is the only option.
 </aside>
 
-<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. Here&rsquo;s a good guide to do just that, but before you read it remember to change things like <code class="prettyprint">Microsoft Visual Studio 12.0</code> or <code class="prettyprint">VC=12</code> or <code class="prettyprint">vc12</code> to <code class="prettyprint">Microsoft Visual Studio 14.0</code> or <code class="prettyprint">VC=14</code> or <code class="prettyprint">vc14</code> or whatever version of Visual Studio. <a href="https://stackoverflow.com/a/32168255">Anyway, here is the guide that I&rsquo;m talking about.</a> After you have compiled curl, place the include and lib folders into deps.</p>
+<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it.</p>
+
+<blockquote>
+<p>Here what the commands should look like for compiling curl</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="s2">"C:</span><span class="se">\P</span><span class="s2">rogram Files (x86)</span><span class="se">\M</span><span class="s2">icrosoft Visual Studio</span><span class="se">\2</span><span class="s2">017</span><span class="se">\C</span><span class="s2">ommunity</span><span class="se">\V</span><span class="s2">C</span><span class="se">\A</span><span class="s2">uxiliary</span><span class="se">\B</span><span class="s2">uild</span><span class="se">\v</span><span class="s2">cvars32.bat"</span>
+<span class="nb">cd</span> ..<span class="se">\.</span>.<span class="se">\s</span>leepy-discord
+nmake /f Makefile.vc <span class="nv">mode</span><span class="o">=</span>static <span class="nv">VC</span><span class="o">=</span>14
+</code></pre>
+<p>Here&rsquo;s a good guide to do just that, but before you read it remember to change things like <code class="prettyprint">Microsoft Visual Studio 12.0</code> or <code class="prettyprint">VC=12</code> or <code class="prettyprint">vc12</code> to <code class="prettyprint">Microsoft Visual Studio 14.0</code> or <code class="prettyprint">VC=14</code> or <code class="prettyprint">vc14</code> or whatever version of Visual Studio. <a href="https://stackoverflow.com/a/32168255">Anyway, here is the guide that I&rsquo;m talking about.</a> After you have compiled curl, place the include and lib folders into deps.</p>
 
 <p><strong>Step 1:</strong> First you need a project, of course. Go make a new one if you haven&rsquo;t done so already.</p>
 

@@ -590,6 +590,42 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h2 id="run">run</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
 </code></pre>
+<p>For more information, check out <a href="#custom-websockets">custom websockets</a></p>
+
+<h2 id="request">request</h2>
+
+<aside class="warning">
+Please do not use unless you have a good reason.
+</aside>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Response</span> <span class="n">request</span><span class="p">(</span><span class="k">const</span> <span class="n">RequestMethod</span> <span class="n">method</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">url</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">jsonParameters</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">Part</span><span class="o">&gt;&amp;</span> <span class="n">multipartParameters</span> <span class="o">=</span> <span class="p">{});</span>
+<span class="n">Response</span> <span class="n">request</span><span class="p">(</span><span class="k">const</span> <span class="n">RequestMethod</span> <span class="n">method</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">url</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">Part</span><span class="o">&gt;&amp;</span> <span class="n">multipartParameters</span><span class="p">);</span>
+</code></pre>
+<p>Used to make a request to Discord. For more information, see <a href="#session">Session</a>.</p>
+
+<h2 id="path">path</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">path</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">source</span><span class="p">,</span> <span class="p">...);</span>
+</code></pre>
+<p>Usually used with the request function. This creates a path by putting together the url and the parameters.</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table>
+  <tbody>
+      <tr><td><strong>source</strong></td>
+        <td>The link with &ldquo;{&rdquo; and &ldquo;}&rdquo; to specify where to place the parameters</td></tr>
+      <tr><td><strong>&hellip;</strong></td>
+        <td>The parameters in std::string. Parameters should go in order from when they appear in source</td></tr>
+  </tbody>
+</table>
+
+<aside class="note">
+Any parameter that&rsquo;s not a std::string will cause issues. If you are using a hard coded string, like &ldquo;&quot;this&rdquo;&ldquo;, make sure it&rsquo;s a std::string.
+</aside>
+
+<h3 id="return-value">Return value</h3>
+
+<p>The url with all <code class="prettyprint">{</code>, <code class="prettyprint">}</code>, and in between replaced with the parameters.</p>
+
 <h1 id="discordclient-events">DiscordClient Events</h1>
 
 <p>Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.</p>
@@ -823,9 +859,9 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <h1 id="user">User</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">User</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DiscordObject</span> <span class="p">{</span>
-        <span class="o">~</span><span class="n">User</span><span class="p">();</span>
-        <span class="n">User</span><span class="p">();</span>
-        <span class="n">User</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJSON</span><span class="p">);</span>
+  <span class="o">~</span><span class="n">User</span><span class="p">();</span>
+  <span class="n">User</span><span class="p">();</span>
+  <span class="n">User</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJSON</span><span class="p">);</span>
 </code></pre>
 <p>Based on <a href="https://discordapp.com/developers/docs/resources/user#user-object">the object with the same name from the api</a></p>
 
@@ -927,7 +963,11 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 </code></pre>
 <h2 id="request-methods">Request Methods</h2>
 
-<p>Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method.</p>
+<p>Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method. <a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods">Here&rsquo;s a useful wikipedia about them.</a></p>
+
+<h3 id="return-value">Return value</h3>
+
+<p><a href="#response">The response</a></p>
 
 <h2 id="post">Post</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Post</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -944,17 +984,30 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h2 id="put">Put</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="n">Response</span> <span class="n">Put</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </code></pre>
+<h2 id="response">Response</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Response</span> <span class="p">{</span>
+    <span class="kt">int32_t</span> <span class="n">statusCode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">text</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">header</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre>
+<p>When you make a request, a response is returned. The Response struct stores the response from a request.</p>
+
+<aside class="note">
+Response is a separate part of Session
+</aside>
+
 <h1 id="custom-websockets">Custom Websockets</h1>
 
-<p>Without websockets, Discord can&rsquo;t get any thing in real time as http does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord&rsquo;s websockets are customizable. Right now, there isn&rsquo;t a special class for websockets, it&rsquo;s part of the <code class="prettyprint">BaseDiscordClient</code> class.</p>
+<p>Without websockets, Discord can&rsquo;t get anything in real time, because http only does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord&rsquo;s websockets are customizable. Right now, there isn&rsquo;t a special class for websockets, it&rsquo;s part of the <code class="prettyprint">BaseDiscordClient</code> class.</p>
 
 <h2 id="run">run</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
 </code></pre>
 <p>A function called by the user to run the websocket client when there&rsquo;s 2 or less threads that can be used for Sleepy Discord</p>
 
-<aside class="note">
-All functions below should be specified as private
+<aside class="warning">
+All functions <b>below</b> should be specified as private
 </aside>
 
 <h2 id="connect">connect</h2>
@@ -974,12 +1027,12 @@ All functions below should be specified as private
 <h2 id="send">send</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">);</span>
 </code></pre>
-<p>A function used for send things like heartbeats and status updates</p>
+<p>A function used for sending things like heartbeats and status updates</p>
 
 <h2 id="runasync">runAsync</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">runAsync</span><span class="p">();</span>
 </code></pre>
-<p>Runs the websocket client on another thread. This is the function that Sleepy Discord calls to run when it&rsquo;s told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.</p>
+<p>Runs the websocket client on another thread. This is the function that Sleepy Discord calls when it&rsquo;s told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.</p>
 
 <h2 id="sleepy_lock_client_functions">SLEEPY_LOCK_CLIENT_FUNCTIONS</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">WebSocketDiscordClient</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseDiscordClient</span> <span class="p">{</span>
