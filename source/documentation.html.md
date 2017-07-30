@@ -42,7 +42,7 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 ## deleteChannel
 
- ```cpp 
+```cpp 
 Channel deleteChannel(std::string channel_id);
 ```
 
@@ -376,6 +376,44 @@ lets you disconnect from discord and stops the client
 virtual void run();
 ```
 
+For more information, check out [custom websockets](#custom-websockets)
+
+## request
+<aside class="warning">
+Please do not use unless you have a good reason.
+</aside>
+
+```cpp
+Response request(const RequestMethod method, const std::string url, const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {});
+Response request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters);
+```
+
+Used to make a request to Discord. For more information, see [Session](#session).
+
+## path
+```cpp
+const std::string path(const char* source, ...);
+```
+
+Usually used with the request function. This creates a path by putting together the url and the parameters.
+
+### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>source</strong></td>
+        <td>The link with ``{`` and ``}`` to specify where to place the parameters</td></tr>
+      <tr><td><strong>...</strong></td>
+        <td>The parameters in std::string. Parameters should go in order from when they appear in source</td></tr>
+  </tbody>
+</table>
+
+<aside class="note">
+Any parameter that's not a std::string will cause issues. If you are using a hard coded string, like ``"this"``, make sure it's a std::string.
+</aside>
+
+### Return value
+The url with all ``{``, ``}``, and in between replaced with the parameters.
+
 # DiscordClient Events
 
 Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.
@@ -629,9 +667,9 @@ Compares the ids of two messages
 # User
 ```cpp
 struct User : public DiscordObject {
-		~User();
-		User();
-		User(const std::string * rawJSON);
+  ~User();
+  User();
+  User(const std::string * rawJSON);
 ```
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
@@ -759,7 +797,10 @@ virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
 
 ## Request Methods
 
-Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method.
+Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method. [Here's a useful wikipedia about them.](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
+
+### Return value
+[The response](#response)
 
 ## Post
 
@@ -791,9 +832,25 @@ virtual Response Get() = 0;
 virtual Response Put() = 0;
 ```
 
+## Response
+
+```cpp
+struct Response {
+	int32_t statusCode;
+	std::string text;
+	std::map<std::string, std::string> header;
+};
+```
+
+When you make a request, a response is returned. The Response struct stores the response from a request.
+
+<aside class="note">
+Response is a separate part of Session
+</aside>
+
 # Custom Websockets
 
-Without websockets, Discord can't get any thing in real time as http does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord's websockets are customizable. Right now, there isn't a special class for websockets, it's part of the ``BaseDiscordClient`` class.
+Without websockets, Discord can't get anything in real time, because http only does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord's websockets are customizable. Right now, there isn't a special class for websockets, it's part of the ``BaseDiscordClient`` class.
 
 ## run
 
@@ -804,7 +861,7 @@ virtual void run();
 A function called by the user to run the websocket client when there's 2 or less threads that can be used for Sleepy Discord
 
 <aside class="warning">
-All functions below should be specified as private
+All functions <b>below</b> should be specified as private
 </aside>
 
 ## connect
@@ -830,14 +887,14 @@ The function that Sleepy Discord uses to disconnect
 void send(std::string message);
 ```
 
-A function used for send things like heartbeats and status updates
+A function used for sending things like heartbeats and status updates
 
 ## runAsync
 ```cpp
 virtual void runAsync();
 ```
 
-Runs the websocket client on another thread. This is the function that Sleepy Discord calls to run when it's told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.
+Runs the websocket client on another thread. This is the function that Sleepy Discord calls when it's told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.
 
 ## SLEEPY_LOCK_CLIENT_FUNCTIONS
 
