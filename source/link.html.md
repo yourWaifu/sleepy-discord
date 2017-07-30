@@ -22,7 +22,18 @@ I'm going to assume that you have compiled Sleepy Discord or got one precompiled
 <aside class="notice">
 For now, Visual Studio is the only option.
 </aside>
-**Preparing:** Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. Here's a good guide to do just that, but before you read it remember to change things like ``Microsoft Visual Studio 12.0`` or ``VC=12`` or ``vc12`` to ``Microsoft Visual Studio 14.0`` or ``VC=14`` or ``vc14`` or whatever version of Visual Studio. [Anyway, here is the guide that I'm talking about.](https://stackoverflow.com/a/32168255) After you have compiled curl, place the include and lib folders into deps.
+
+**Preparing:** Before we start, if are using a library that needs curl, for example cpr, then you need to compile it.
+
+> Here what the commands should look like for compiling curl
+
+```shell
+"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+cd ..\..\sleepy-discord\deps\cpr\opt\curl\winbuild
+nmake /f Makefile.vc mode=static VC=14
+```
+
+Here's a good guide to do just that, but before you read it remember to change things like ``Microsoft Visual Studio 12.0`` or ``VC=12`` or ``vc12`` to ``Microsoft Visual Studio 14.0`` or ``VC=14`` or ``vc14`` or whatever version of Visual Studio. [Anyway, here is the guide that I'm talking about.](https://stackoverflow.com/a/32168255) After you have compiled curl, place the include and lib folders into deps.
 
 **Step 1:** First you need a project, of course. Go make a new one if you haven't done so already.
 
