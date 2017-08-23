@@ -896,7 +896,7 @@ virtual void runAsync();
 
 Runs the websocket client on another thread. This is the function that Sleepy Discord calls when it's told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.
 
-## SLEEPY_LOCK_CLIENT_FUNCTIONS
+## SLEEPY LOCK CLIENT FUNCTIONS
 
 ```cpp
 class WebSocketDiscordClient : public BaseDiscordClient {
@@ -911,7 +911,7 @@ A macro that is a must for any Discord Clients that will be used by others, that
 
 Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifdef``. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.
 
-## SLEEPY_ONE_THREAD
+## SLEEPY ONE THREAD
 
 ```make
 SLEEPY_ONE_THREAD
@@ -919,7 +919,7 @@ SLEEPY_ONE_THREAD
 ```
 Disables anything that has to do with threads, because threads or ``std::threads`` doesn't work on everything. Currently there's no way to add in thread support of your own device yet.
 
-## SLEEPY_CUSTOM_SESSION
+## SLEEPY CUSTOM SESSION
 
 ```make
 SLEEPY_CUSTOM_SESSION
@@ -927,7 +927,7 @@ SLEEPY_CUSTOM_SESSION
 ```
 Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#CustomSession)
 
-## SLEEPY_USE_HARD_CODED_GATEWAY
+## SLEEPY USE HARD CODED GATEWAY
 
 ```make
 SLEEPY_USE_HARD_CODED_GATEWAY
