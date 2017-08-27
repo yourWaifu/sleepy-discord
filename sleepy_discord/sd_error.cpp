@@ -80,6 +80,7 @@ namespace SleepyDiscord {
 		//Sleepy Errors
 		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"); break;
 		case EVENT_UNKNOWN:  onError(code, "Unexpected or unknown event occurred"             ); break;
+		case GATEWAY_FAILED: onError(code, "Could not get the gateway"                        ); break;
 		}
 	}
 }

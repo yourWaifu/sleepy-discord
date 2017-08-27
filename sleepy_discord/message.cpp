@@ -9,9 +9,8 @@ namespace SleepyDiscord {
 	Message::~Message() {
 	}
 
-	Message::Message(const std::string * rawJson)
-	{
-		//parse json and convert from string to type
+	Message::Message(const std::string * rawJson) {
+				//parse json and convert from string to type
 		std::initializer_list<const char*const> names = {
 			"id", "channel_id", "content", "timestamp" , "edited_timestamp", "tts",
 			"mention_everyone", "author", "mentions", "mention_roles", "attachments",

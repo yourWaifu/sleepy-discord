@@ -23,7 +23,7 @@ namespace SleepyDiscord {
 		bool isMentioned(User& _user);
 		Message send(BaseDiscordClient * client);
 		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
-		bool operator==(const std::string& rawJson);
+		//bool operator==(const std::string& rawJson);
 		bool operator==(const Message& right);
 		std::string id;
 		std::string channel_id;
