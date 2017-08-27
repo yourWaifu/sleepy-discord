@@ -248,6 +248,7 @@
     <ClInclude Include="http.h" />
     <ClInclude Include="IncludeNonexistent\cpr\cpr.h" />
     <ClInclude Include="session.h" />
+    <ClInclude Include="snowflake.h" />
     <ClInclude Include="standard_config.h" />
     <ClInclude Include="discord_object_interface.h" />
     <ClInclude Include="embed.h" />
