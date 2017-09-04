@@ -49,8 +49,8 @@ namespace SleepyDiscord {
 		Channel editChannelName(std::string channel_id, std::string name);                                                    //to do test this
 		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
 		Channel deleteChannel(std::string channel_id);
-		enum GetMessagesKey { around, before, after };
-		std::vector<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit);  //to do test this
+		enum GetMessagesKey {na, around, before, after, limit};
+		json::RawJSONArrayWrapper<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit = 0);
 		Message getMessage(std::string channel_id, std::string message_id);                                                    //to do test this, and add more then one message return
 		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
 		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);                             //to do test this
@@ -143,9 +143,9 @@ namespace SleepyDiscord {
 
 		//Webhook functions
 		Webhook createWebhook(std::string channel_id, std::string name, std::string avatar = "");                             //to do test this
-		std::vector<Webhook> getChannelWebhooks(std::string channel_id);													  //to do test this
-		std::vector<Webhook> getServerWebhooks(std::string server_id);														  //to do test this
-		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");											  //to do test this
+		std::vector<Webhook> getChannelWebhooks(std::string channel_id);                                                      //to do test this
+		std::vector<Webhook> getServerWebhooks(std::string server_id);                                                        //to do test this
+		Webhook getWebhook(std::string webhook_id, std::string webhookToken = "");                                            //to do test this
 		Webhook editWebhook(std::string webhook_id, std::string webhookToken = "", std::string name = "", std::string avatar = "");    //you can leave token or name as null //to do test this
 		bool deleteWebhook(std::string webhook_id, std::string webhookToken = "");
 		Webhook requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts);     //note: it's possiable to have both a file and embeds
@@ -239,7 +239,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteAllReaction (std::string* jsonMessage);
 		virtual void onMessage           (Message message         );
 		virtual void onEditedMessage     (std::string* jsonMessage);
-		virtual void onServer            (std::string* jsonMessage);
+		virtual void onServer            (Server server           );
 		virtual void onChannel           (std::string* jsonMessage);
 		virtual void onEditedRole        (std::string* jsonMessage);
 		virtual void onDispatch          (std::string* jsonMessage);
@@ -341,3 +341,5 @@ namespace SleepyDiscord {
                                      using BaseDiscordClient::processMessage; \
                                      using BaseDiscordClient::heartbeat;      \
                                      using BaseDiscordClient::start;
+
+//This comment stops a warning

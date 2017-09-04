@@ -64,16 +64,20 @@ namespace SleepyDiscord {
 		return request<Channel>(Get, path("channels/{channel.id}", channel_id));
 	}
 
-	std::vector<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit) {
-		const uint8_t trueLimit = 100 < limit ? 100 : limit;
+	json::RawJSONArrayWrapper<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t _limit) {
+		const uint8_t trueLimit = 100 < _limit ? 100 : _limit;
 		std::string key;
 		switch (when) {
 		case around: key = "?around=" + message_id; break;
 		case before: key = "?before=" + message_id; break;
-		case after: key = "?after=" + message_id; break;
+		case after:  key = "?after="  + message_id; break;
+		case limit:  key = "?"                    ; break;
+		default:     key = ""                     ; break;
 		}
-		return requestVector<Message>(Get, 
-			path("/channels/{channel.id}/messages{key}{limit}", channel_id, key, (trueLimit != 0 ? "&limit=" + std::to_string(trueLimit) : "")));
+		if (trueLimit != 0 && when != limit) key += '&';
+		return request(Get,
+			path("channels/{channel.id}/messages{key}{limit}", channel_id, key,
+			(trueLimit != 0 ? "limit=" + std::to_string(trueLimit) : ""))).text;
 	}
 
 	Message BaseDiscordClient::getMessage(std::string channel_id, std::string message_id) {
