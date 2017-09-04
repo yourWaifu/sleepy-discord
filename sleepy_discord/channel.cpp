@@ -5,26 +5,29 @@ namespace SleepyDiscord {
 		//default values
 		bitrate = 0;
 		userLimit = 0;   //this only matters on voice channels
+		position = 0;
 		topic = "";
 		lastMessage_id = "";
 
 		std::initializer_list<const char *const> names = {
 			"id", "guild_id", "name", "type", "position", "is_private",
-			"permission_overwrites", "topic", "last_message_id", "bitrate", "user_limit"
+			/*"permission_overwrites",*/ "topic", "last_message_id", "bitrate", "user_limit"
 		};
 
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+
 		id                   =            values[index(names, "id"                   )] ;
 		guild_id             =            values[index(names, "guild_id"             )] ;
 		name                 =            values[index(names, "name"                 )] ;
-		type                 =            values[index(names, "type"                 )] ;
-		position             = std::stoi( values[index(names, "position"             )]);
+		type = static_cast<ChannelType>(std::stoi(values[index(names, "type")]));
+		if (isDefined(values[index(names, "position")])) position = std::stoi( values[index(names, "position")]);
 		isPrivate            = getBool(   values[index(names, "is_private"           )]);
-		permissionOverwrites = Overwrite(&values[index(names, "permission_overwrites")]);
+		//permissionOverwrites = Overwrite(&values[index(names, "permission_overwrites")]);
 		topic                =            values[index(names, "topic"                )] ;
 		lastMessage_id       =            values[index(names, "last_message_id"      )] ;
-		bitrate              = std::stoi( values[index(names, "bitrate"              )]);
-		userLimit            = std::stoi( values[index(names, "user_limit"           )]);
+		//const std::string 
+		if (isDefined(values[index(names, "bitrate")])) bitrate = std::stoi(values[index(names, "bitrate")]);
+		if (isDefined(values[index(names, "user_limit")])) userLimit = std::stoi(values[index(names, "user_limit")]);
 	}
 
 	Channel::~Channel() {
