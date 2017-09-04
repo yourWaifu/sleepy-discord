@@ -4,6 +4,9 @@
 #include <functional>
 #include "client.h"
 #include "json.h"
+#ifdef SLEEPY_USE_HARD_CODED_GATEWAY
+	#include <cstring>
+#endif
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
@@ -46,23 +49,22 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			std::pair<std::string, std::string> contentType;
 			session.setUrl("https://discordapp.com/api/" + _url);
+			std::vector<HeaderPair> header = {
+				{ "Authorization", "Bot " + getToken() },
+				{ "User-Agent", "SleepyDiscord (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
+			};
 			if (jsonParameters != "") {
 				session.setBody(&jsonParameters);
-				contentType = { "Content-Type", "application/json" };
-				/*} else if (httpParameters.content != "") {	//this is broken for now
-					session.SetParameters(httpParameters);*/
+				header.push_back({"Content-Type", "application/json"});
+			//} else if (httpParameters.content != "") {	//this is broken for now
+			//	session.SetParameters(httpParameters);
 			} else if (0 < multipartParameters.size()) {
 				session.setMultipart(multipartParameters);
-				contentType = { "Content-Type", "multipart/form-data" };
+				header.push_back({ "Content-Type", "multipart/form-data" });
 			}
-			session.setHeader({
-				{ "Authorization", "Bot " + getToken() },
-				{ "User-Agent", "DiscordBot (unknown, theBestVerison)" },
-				contentType,
-				{ "Content-Length", std::to_string(jsonParameters.length()) }
-			});
+			header.push_back({ "Content-Length", std::to_string(jsonParameters.length()) });
+			session.setHeader(header);
 			//Response response;
 			switch (method) {
 			case Post:   response = session.Post  ();       break;
@@ -82,11 +84,20 @@ namespace SleepyDiscord {
 			default:
 			{		//error
 				setError(response.statusCode);		//https error
-				std::vector<std::string> values = json::getValues(response.text.c_str(),
-				{ "code", "message" });	//parse json to get code and message
-				if (values[0] != "")
-					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
+				if (response.text != "") {
+					std::vector<std::string> values = json::getValues(response.text.c_str(),
+					{ "code", "message" });	//parse json to get code and message
+					if (values[0] != "")
+						onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
+				}
 			} break;
+			}
+			//rate limit check
+			std::string remaining = response.header["X-RateLimit-Remaining"];
+			if (remaining != "" && std::stoi(remaining) == 0) {
+				nextRetry = std::stoi(response.header["X-RateLimit-Reset"]);
+				isRateLimited = true;
+				setError(TOO_MANY_REQUESTS);
 			}
 		}
 		onResponse(response);
@@ -113,8 +124,12 @@ namespace SleepyDiscord {
 			case '}':
 			{
 				const unsigned int startIndex = start - path.c_str();
-				path.replace(startIndex, c - path.c_str() - startIndex + 1, va_arg(arguments, std::string));
-				c = start = path.c_str() + startIndex;
+				const std::string replaceWith = va_arg(arguments, std::string);
+				if (replaceWith != "")
+					path.replace(startIndex, c - path.c_str() - startIndex + 1, replaceWith);
+				else
+					path.erase(startIndex, c - path.c_str() - startIndex + 1);
+				c = start = path.c_str() + startIndex + replaceWith.length() - 1;
 			}
 			break;
 			case 0:
@@ -164,11 +179,12 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
-		std::strncpy(theGateway, "wss://gateway.discord.gg", 32);  //This is needed for when session is disabled
+		std::strncpy(theGateway, "wss://gateway.discord.gg", 32);	//This is needed for when session is disabled
 #else
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
-		Response a = session.Post();
+		Response a = session.Get();	//todo change this back to a post
+		if (!a.text.length()) return setError(GATEWAY_FAILED);	//error check
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
 			if (a.text[position] == '"')
@@ -219,7 +235,25 @@ namespace SleepyDiscord {
 #else
 		const char* os = "\\u00AF\\\\_(\\u30C4)_\\/\\u00AF";  //shrug I dunno
 #endif
-		sendL("{\"op\":2,\"d\":{\"token\":\"" + getToken() + "\",\"properties\":{\"$os\":\"" + os + "\",\"$browser\":\"Sleepy_Discord\",\"$device\":\"Sleepy_Discord\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"compress\":false,\"large_threshold\":250}}");
+		std::string identity;
+		identity.reserve(272); //remember to change this number when editing identity
+		identity += 
+		"{"
+			"\"op\":2,"
+			"\"d\":{"
+			"\"token\":\""; identity += getToken(); identity += "\","
+			"\"properties\":{"
+				"\"$os\":\""; identity += os; identity += "\","
+				"\"$browser\":\"Sleepy_Discord\","
+				"\"$device\":\"Sleepy_Discord\","
+				"\"$referrer\":\"\","
+				"\"$referring_domain\":\"\""
+			"},"
+			"\"compress\":false,"
+			"\"large_threshold\":250"
+			"}"
+		"}";
+		sendL(identity);
 	}
 
 	void BaseDiscordClient::sendResume() {
@@ -362,11 +396,12 @@ namespace SleepyDiscord {
 
 		if (nextHeartbeat <= getEpochTimeMillisecond()) {	//note:this sends the heartbeat early
 			nextHeartbeat += heartbeatInterval;
-
+			
 			if (!wasHeartbeatAcked) {
-				disconnectWebsocket(1006);
+				reconnect(1006);
 				return;
 			}
+
 
 			std::string str = std::to_string(lastSReceived);
 			sendL("{\"op\":1,\"d\":" + str + "}");

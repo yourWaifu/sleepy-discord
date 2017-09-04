@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 		CustomSession() : session(init()) {}
 		inline void setUrl(const std::string& url) { session->setUrl(url); }
 		inline void setBody(const std::string* jsonParamters) { session->setBody(jsonParamters); }
-		inline void setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) {
+		inline void setHeader(const std::vector<HeaderPair>& header) {
 			session->setHeader(header);
 		}
 		inline void setMultipart(const std::initializer_list<Part>& parts) {

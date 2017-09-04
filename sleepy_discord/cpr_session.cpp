@@ -2,9 +2,10 @@
 #ifndef NONEXISTENT_CPR
 
 namespace SleepyDiscord {
-	void CPRSession::setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) {
+	void CPRSession::setHeader(const std::vector<HeaderPair>& header) {
 		cpr::Header head;
-		for (auto h : header) head.insert(h);
+		for (HeaderPair pair : header)
+			head.insert({ pair.name, pair.value });
 		session.SetHeader(head);
 	}
 

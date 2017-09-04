@@ -12,7 +12,7 @@ namespace SleepyDiscord {
 		inline void setBody(const std::string* jsonParameters) {
 			session.SetBody(cpr::Body{ *jsonParameters });
 		}
-		void setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header);
+		void setHeader(const std::vector<HeaderPair>& header);
 		void setMultipart(const std::initializer_list<Part>& parts);
 		inline Response Post  () { return convertResponse(session.Post  ()); }
 		inline Response Patch () { return convertResponse(session.Patch ()); }

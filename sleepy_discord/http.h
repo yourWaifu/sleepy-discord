@@ -2,16 +2,17 @@
 #include <string>
 #include <utility>
 #include <map>
+#include <vector>
 
 namespace SleepyDiscord {
 	//http variables and functions
 	//request functions
 	enum RequestMethod {
-		Post,
-		Patch,
-		Delete,
-		Get,
-		Put
+		Post   = 0,
+		Patch  = 1,
+		Delete = 2,
+		Get    = 3,
+		Put	   = 4
 	};
 
 	struct Response {
@@ -36,11 +37,18 @@ namespace SleepyDiscord {
 
 	typedef std::initializer_list<Part> Multipart;
 
+	struct HeaderPair {
+		const char *const name;
+		std::string value = "";
+		HeaderPair(const char* _name) : name(_name) {}
+		HeaderPair(const char* _name, std::string _value) : name(_name), value(_value) {}
+	};
+
 	class GenericSession {
 	public:
 		virtual void setUrl(const std::string& url) = 0;
 		virtual void setBody(const std::string* jsonParameters) = 0;
-		virtual void setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) = 0;
+		virtual void setHeader(const std::vector<HeaderPair>& header) = 0;
 		virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
 		virtual Response Post() = 0;
 		virtual Response Patch() = 0;
