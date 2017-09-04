@@ -4,6 +4,10 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::setError(int errorCode) {
 		ErrorCode code = static_cast<ErrorCode>(errorCode);
 		switch (code) {
+		case AN_ERROR : onError(code, "A wild error appeared"                                            ); break;
+		case NO_ERRORS: onError(code, "Don't worry, everything is ok"                                    ); break;
+		case OTHER    : onError(code, "The programmer was too lazy to give this error a code and message"); break;
+
 		//HTTP Response/Error Codes
 		case OK:                  onError(code, "The request completed successfully"                                             ); break;
 		case CREATED:             onError(code, "The entity was created successfully"                                            ); break;
