@@ -167,7 +167,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onServer(std::string* jsonMessage) {
+	void BaseDiscordClient::onServer(Server jsonMessage) {
 	
 	}
 
