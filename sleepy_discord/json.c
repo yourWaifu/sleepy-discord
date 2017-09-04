@@ -85,22 +85,26 @@ void JSON_skipObject(const char * JSONstring, unsigned int *position) {
 		if (JSONstring[*position] == '"') {
 			JSON_skipString(JSONstring, position);
 			if (JSONstring[*position + 1] == ':') {
-				switch (JSONstring[++*position + 1]) {
-				case '{': 
-					++*position;
-					JSON_skipObject(JSONstring, position);
-					break;
-				case '[':
-					++*position;
-					JSON_skipArray(JSONstring, position);
-					break;
-				case '"':
-					++*position;
-					JSON_skipString(JSONstring, position);
-					break;
-				case 't': case 'n': *position += 4; break;
-				case 'f': *position += 5; break;
-				default: break;
+				for (bool loop = true; loop;) {
+					loop = false;
+					switch (JSONstring[++*position + 1]) {
+					case '{':
+						++*position;
+						JSON_skipObject(JSONstring, position);
+						break;
+					case '[':
+						++*position;
+						JSON_skipArray(JSONstring, position);
+						break;
+					case '"':
+						++*position;
+						JSON_skipString(JSONstring, position);
+						break;
+					case 't': case 'n': *position += 4; break;
+					case 'f': *position += 5; break;
+					case ' ': loop = true;
+					default: break;
+					}
 				}
 			}
 		}

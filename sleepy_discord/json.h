@@ -35,58 +35,8 @@ extern "C" {
 #ifdef __cplusplus
 	}
 
-namespace json {
-	template<class Type>
-	std::vector<Type> getArray(const std::string* _source, void(*function)(Type*, std::string)) {
-		const char* source = _source->c_str();
-		if (source[0] != '[') return std::vector<Type>();
-		if (source[1] == ']') return std::vector<Type>();
 
-		//get size of array and change size of target array
-		const unsigned int sourceLength = _source->size();
-		unsigned int arraySize = 0;
-		unsigned int position = 1;
-		for (; position < sourceLength; position++) {
-			switch (source[position]) {
-			case '"': JSON_skipString(source, &position); break;
-			case '{': JSON_skipObject(source, &position); break;
-			case '[': JSON_skipObject(source, &position); break;
-			case ',': ++arraySize; break;
-			default: break;
-			}
-		}
-		for (bool loop = true; loop;) {	//count last variable
-			switch (source[--position]) {
-			case '[': return std::vector<Type>(); break;	//empty array
-			case ' ': break;
-			case ']': break;
-			default:
-				loop = false;
-				++arraySize;
-				break;
-			}
-		}
-		std::vector<Type> target(arraySize);
-
-		//fill the vector with variables
-		position = 1;
-		for (unsigned int index = 0; index < arraySize && position < sourceLength; position++) {	//variables should be the same type, right?
-			switch (source[position]) {
-			case '"': {
-				const unsigned int size = JSON_measureString(source, &position) - 1;	//the -1 removes the "
-				function(&(target[index++]), std::string(source + position + 1, size));
-				position += size + 1;	//the +1 should skip the "
-			} break;	//This should make a string, and the +1 and -1 removes the two "
-			case '{': {
-				const unsigned int size = JSON_measureObject(source, &position) + 1;	//the +1 adds a }
-				function(&(target[index++]), std::string(source + position, size));
-				position += size;
-			} break;
-			}
-		}
-		return target;
-	}
-
+namespace SleepyDiscord { namespace json {
 	std::vector<std::string> getArray(const std::string* _source);
 	//void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);
 	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names);
@@ -101,6 +51,42 @@ namespace json {
 	const std::string optionalInteger(const int64_t num);
 	const std::string boolean(const bool boolean);
 
-}
+	template<class TypeToConvertTo>
+	struct RawJSONArrayWrapper {
+		const std::string rawJSON; //to do change this to s pointer
+
+		RawJSONArrayWrapper(const std::string json) : rawJSON(json) {}
+
+		template<template<class...> class Container, typename Type = TypeToConvertTo>
+		Container<Type> get() {
+			std::vector<std::string> jsonArray = getArray(&rawJSON);
+			const unsigned int size = jsonArray.size();
+			Container<Type> target(size);
+			for (unsigned int i = 0; i < size; ++i)
+				target[i] = &jsonArray[i];
+			return target;
+
+			//this doesn't work because the consturctors need to be using &
+			//currently objects are using *
+			//return Container<Type>(jsonArray.begin(), jsonArray.end());
+		}
+		template<template<class...> class Container>
+		inline Container<std::string> getStrings() { return get<Container, std::string>(); }
+
+		inline std::vector<std::string> vectorStrings() { return getArray(&rawJSON); }
+		inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
+
+		//c arrays
+		inline TypeToConvertTo* cArray() { return &vector()[0]; }
+		inline std::string* cArrayStrings() { return &vectorStrings()[0]; }
+
+		//conversions
+		//template<template<class...> class Container>
+		//operator Container<TypeToConvertTo>() { return get<Container>(); }
+		operator std::string() const { return rawJSON; }
+		operator std::vector<std::string>() { return vectorStrings(); }
+		operator std::vector<TypeToConvertTo>() { return vector(); }
+	};
+}}
 
 #endif
