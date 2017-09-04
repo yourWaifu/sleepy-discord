@@ -2,12 +2,14 @@
 #include <string>
 #include "discord_object_interface.h"
 #include "user.h"
+#include "channel.h"
 
 namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	struct Server : public DiscordObject {
 		~Server();
+		Server();
 		Server(const std::string * rawJson);
 		std::string id;
 		std::string name;
@@ -29,9 +31,12 @@ namespace SleepyDiscord {
 		//presences
 		double mfa_level;
 		//members
-		bool large;
 		std::string joined_at;
 		double default_message_notifications;
+
+		//those are only filled in from the onServer event
+		std::vector<Channel> channels;
+		bool large;
 	};
 
 	struct UnavailableServer : public DiscordObject {

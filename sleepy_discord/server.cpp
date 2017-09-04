@@ -6,12 +6,19 @@ namespace SleepyDiscord {
 
 	}
 
+	Server::Server() {
+
+	}
+
 	Server::Server(const std::string * rawJson) {
 		//parse json and convert from string to type
 		std::initializer_list<const char*const> names = {
 			"id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
 			"afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
-			"unavailable", "mfa_level", "large", "joined_at", "default_message_notifications"
+			"unavailable", "mfa_level", "large", "joined_at", "default_message_notifications",
+			/*"roles", "emojis", "features", "explicit_content_filter", application_id,
+			widget_enabled, widget_channel_id, member_count, voice_states, members, presences*/
+			"channels"
 		};
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
@@ -31,6 +38,7 @@ namespace SleepyDiscord {
 		large                         = getBool(  values[index(names, "large"                        )]);
 		joined_at                     =           values[index(names, "joined_at"                    )] ;
 		default_message_notifications = std::stod(values[index(names, "default_message_notifications")]);
+		channels                      = JSON_getArray<Channel>(&values[index(names, "channels")]);
 	}
 
 	ServerEmbed::ServerEmbed(const std::string * rawJson) {
