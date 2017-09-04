@@ -17,6 +17,9 @@ namespace SleepyDiscord {
 			"embeds", "nonce", "pinned"
 		};
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+		if (values[0] == "")//error check
+			return;
+
 		id               =                            values[index(names, "id"              )] ;
 		channel_id       =                            values[index(names, "channel_id"      )] ;
 		content          =                            values[index(names, "content"         )] ;
