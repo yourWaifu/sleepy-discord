@@ -50,4 +50,4 @@ or
 [uWebSockets](https://github.com/uWebSockets/uWebSockets)
 
 # Develop Breach
-For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the breach is used for code that may not work.
+For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the breach is used for code that may not work. Also check to see if it's not behide the master branch, you don't want to use an out of date version.
