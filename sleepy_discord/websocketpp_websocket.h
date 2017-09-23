@@ -1,7 +1,12 @@
 #pragma once
-#define ASIO_STANDALONE
-#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+
+#ifdef _MSC_VER
+	#pragma message(": warning: Forcing non-boost version of asio")
+	#define ASIO_STANDALONE
+	#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+	#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#endif // _MSC_VER
+
 #include <websocketpp/config/asio_client.hpp>
 #ifndef NONEXISTENT_WEBSOCKETPP
 //#include <websocketpp/config/asio_no_tls_client.hpp>
@@ -37,8 +42,11 @@ namespace SleepyDiscord {
 	};
 	typedef WebsocketppDiscordClient DiscordClient;
 }
-#else
-#undef ASIO_STANDALONE
-#undef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#undef _WEBSOCKETPP_CPP11_TYPE_TRAITS_
-#endif
+#else // NONEXISTENT_WEBSOCKETPP
+
+#ifdef _MSC_VER
+	#undef ASIO_STANDALONE
+	#undef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+	#undef _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#endif // _MSC_VER
+#endif // NONEXISTENT_WEBSOCKETPP
