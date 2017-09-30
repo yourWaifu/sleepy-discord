@@ -11,6 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello", "examples\hello\hel
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rock-paper-scissors", "examples\rock-paper-scissors\rock-paper-scissors.vcxproj", "{0B499EFB-B39C-4C6A-9661-A46C76F8EE4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C} = {8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{F7BF596F-1501-4167-B978-C7DB1A97C271}"
 EndProject
