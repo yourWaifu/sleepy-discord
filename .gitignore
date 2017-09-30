@@ -66,10 +66,7 @@ bld/
 
 # All Visual Studio files
 Win32/
-*.vcxproj
-*.vcxproj.filters
 *.filters
-*.sln
 *.VC.db
 
 
@@ -268,6 +265,4 @@ ModelManifest.xml
 
 #my files
 deps/
-sleepy_discord/examples/syswin_main.cpp
-sleepy_discord/examples/test.png
 /discord token.txt
