@@ -92,7 +92,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 .PHONY: clean all
 
 #---------------------------------------------------------------------------------
-all: lib/sleepy_discord.a
+all: lib/libsleepy_discord.a
 
 dist-bin: all
 	@tar --exclude=*~ -cjf sleepy_discord-$(VERSION).tar.bz2 include lib default_icon.png
@@ -115,14 +115,14 @@ release:
 debug:
 	@[ -d $@ ] || mkdir -p $@
 
-lib/sleepy_discord.a : lib release $(SOURCES) $(INCLUDES)
+lib/libsleepy_discord.a : lib release $(SOURCES) $(INCLUDES)
 	@$(MAKE) BUILD=release OUTPUT=$(CURDIR)/$@ \
 	BUILD_CFLAGS="-DNDEBUG=1 -O2 -fomit-frame-pointer" \
 	DEPSDIR=$(CURDIR)/release \
 	--no-print-directory -C release \
 	-f $(CURDIR)/Makefile
 
-lib/sleepy_discordd.a : lib debug $(SOURCES) $(INCLUDES)
+lib/libsleepy_discordd.a : lib debug $(SOURCES) $(INCLUDES)
 	@$(MAKE) BUILD=debug OUTPUT=$(CURDIR)/$@ \
 	BUILD_CFLAGS="-DDEBUG=1 -Og" \
 	DEPSDIR=$(CURDIR)/debug \
