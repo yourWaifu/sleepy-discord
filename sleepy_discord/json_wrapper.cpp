@@ -76,32 +76,26 @@ namespace SleepyDiscord { namespace json {
 
 	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json) {
 		std::string target;
+		target.reserve(2);	//revents crash
 		for (auto pair : json) {
 			if (pair.second != "") {
 				target += ",\"" + pair.first + "\":" + pair.second;
 			}
 		}
-		try {
-			target.at(0) = '{';
-			target.push_back('}');
-		} catch (std::out_of_range) {
-			target = "{}";
-		}
+		target[0] = '{';
+		target.push_back('}');
 		return target;
 	}
 
 	const std::string createJSONArray(std::vector<std::string> source) {
 		std::string target;
+		target.reserve(2);	//revents crash
 		for (auto value : source) {
 			if (value != "")
 				target += ',' + value;
 		}
-		try {
-			target.at(0) = '[';
-			target.push_back(']');
-		} catch (std::out_of_range) {
-			target = "[]";
-		}
+		target[0] = '[';
+		target.push_back(']');
 		return target;
 	}
 

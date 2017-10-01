@@ -22,8 +22,6 @@ namespace SleepyDiscord {
 		//SERVER_ERROR	    = 5xx  //The server had an error processing your request(these are rare)
 
 		//JSON Error Response
-		//I'll add them later
-		REACTION_BLOCKED = 90001, //fixes all those warnings or not
 
 		//Disconnections
 		UNKNOWN_ERROR           = 4000, //We're not sure what went wrong. Try reconnecting?

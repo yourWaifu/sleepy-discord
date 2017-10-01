@@ -6,6 +6,7 @@
 #else
 #include "cpr_session.h"
 #ifdef NONEXISTENT_CPR
-//I don't know
+//last resort
+#include "custom_session.h"
 #endif
 #endif

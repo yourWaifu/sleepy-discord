@@ -1,4 +1,4 @@
-#include "Attachment.h"
+#include "attachment.h"
 
 namespace SleepyDiscord {
 	Attachment::Attachment() {

@@ -1,4 +1,6 @@
+#if _MSC_VER && !__INTEL_COMPILER
 #pragma warning( disable: 4307 )
+#endif
 
 #include <chrono>
 #include <functional>

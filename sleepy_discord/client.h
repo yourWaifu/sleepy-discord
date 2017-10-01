@@ -2,6 +2,7 @@
 #include <string>
 #ifndef SLEEPY_ONE_THREAD
 #include <thread>
+#include <condition_variable>
 #endif
 #include <memory>
 #include <unordered_map>
