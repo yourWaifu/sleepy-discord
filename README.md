@@ -43,7 +43,7 @@ Hello Sleepy Flower Girl
 Yes, and for now I don't plan on making 0.0 versions backwards compatible with 1.0 versions or later.
 
 # Requirements
-The library doesn't require you to use any libraries, so that you can use any library you wish or your own code. However, my library provides native support for a few libraries and I recommend you use those instead of writing your own.
+Sleepy Discord doesn't require you to use any libraries, so that you can use any library you wish or your own code. However, Sleepy Discord provides native support for a few libraries and it is recommend you use those instead of writing your own.
 
 * [OpenSSL](https://www.openssl.org/)
 * [cpr](https://github.com/whoshuu/cpr)
