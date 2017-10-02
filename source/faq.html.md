@@ -15,10 +15,10 @@ search: true
 # Frequently Asked Questions
 
 ## Why isn't a channel for this library on the Discord API server?
-Before a library gets a channel on the Discord API server, it must go though a moderator that'll review. The library has already been submitted to a moderator, and is currently waiting for detailed feedback for the library before getting a channel.
+Before a library gets a channel on the Discord API server, it must go though a moderator who will review the library. The library has already been submitted to a moderator and is currently waiting for feedback regarding library before getting a channel.
 
 ## Is this feature complete?
-There are a few features not support just yet. They are createServer, editServer, editMember, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. Each one isn't support mostly because I'm confused about the parameters needed to get them to work.
+There are a few features which are currently unsupported: createServer, editServer, editMember, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. The ones which are not supported are unsupported because I'm confused about the parameters required.
 
 ## Does it work on a normal Computer like Windows or Linux?
 Yes. I plan on having support on a large number of devices. However, Linux is untested.
@@ -30,6 +30,6 @@ Unlike other Discord libraries, Sleepy Discord can support a large number of HTT
 This is because Sleepy Discord started out as a c library, and it was then never touched ever again.
 
 ## Why a custom json parser?
-It's understandable why this question comes up, because "reinventing the wheel" is considered bad, and all because the existing wheel have already been tested in lots of circumstances and situations. But please, stop asking "Use a real json parser", because that's not happening unless the custom json parser really needs to be replaced because of some feature that gets added and that would requite a rewrite of the whole thing to get working.
+It's understandable why this question comes up, because "reinventing the wheel" is considered bad, and all because the existing wheel has already been tested in lots of circumstances and situations. But please stop asking "Use a real json parser", because that's not happening unless the custom json parser really needs to be replaced because some feature gets added and that would require a rewrite of the whole thing to get working.
 
-Json is a big part of the Discord api, everything Discord sends back is in json. As Discord only sends json in a current way, assumptions can be made that can be used to speed up the json parsing. I wouldn't say that it's faster or better then Rapid json, but it is fast. Plus the user wouldn't be directly using the json parser to use the library, so it didn't seem to really matter.
+Json is a big part of the Discord API, everything Discord sends is in json. Because Discord only sends json in a current way, assumptions can be made that can be used to speed up the json parsing. I wouldn't say that it's faster or better then Rapid json, but it is fast. Plus the user wouldn't be directly using the json parser to use the library, so it didn't seem to really matter.
