@@ -5,7 +5,7 @@ class GameClient : public SleepyDiscord::DiscordClient {
 private:
 	enum State {
 		NA        = 0,
-		GET_READY = 1,	//Game is starting
+		GET_READY = 1,	//game is starting
 		SHOOT     = 2,	//waiting for answer
 		ENDED     = 3
 	};
@@ -59,7 +59,7 @@ public:
 				*statePointer = &state;	//needed so that we can end the game when the player picks a weapon
 				SleepyDiscord::Message countMessage = sendMessage(message.channel_id, "**ROCK!**");
 				sleep(1000);  //wait a second
-				editMessage(countMessage, "**PAPER!**"); //message.edit("**PAPER!**"); I don't know if this is a better idea
+				editMessage(countMessage, "**PAPER!**");
 				sleep(1000);
 				editMessage(countMessage, "**SCISSORS!**");
 				state = SHOOT;
@@ -82,13 +82,13 @@ public:
 		if      (message.content == "rock"     || message.content == ":fist:"       ) playerChoice = ROCK;
 		else if (message.content == "paper"    || message.content == ":raised_hand:") playerChoice = PAPER;
 		else if (message.content == "scissors" || message.content == ":v:"          ) playerChoice = SCISSORS;
-		else return;	//go back if there's no choice was detected
-		games.remove_if([=](Game game) -> bool {	//remove game from the list, when the player wins or loses
+		else return;	//go back if no choice was detected
+		games.remove_if([=](Game game) -> bool {	//remove the game from the list when the player wins or loses
 			if (game.player == message.author) {
 				switch (*game.state) {
 				case SHOOT: {
 					*game.state = ENDED; //game state is set to end here, so that "you lose" isn't sent after a weapon was picked
-					Weapon botChoice = static_cast<Weapon>(rand() % 3);	//random number 0 to 2
+					Weapon botChoice = static_cast<Weapon>(rand() % 3);	//random number from 0 to 2
 					switch (botChoice) {
 					case ROCK:     sendMessage(message.channel_id, ":fist:"); break;
 					case PAPER:    sendMessage(message.channel_id, ":raised_hand:"); break;
