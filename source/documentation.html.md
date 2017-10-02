@@ -13,7 +13,7 @@ search: true
 
 # A Warm Welcome
 
-Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on discord; right now there is no official server for this library, but you can alway find me on the Discord api server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
+Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can alway find me on the Discord server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
 
 # Topics
 <table>
@@ -207,7 +207,7 @@ Returns ``true`` on success
 bool unpinMessage(std::string channel_id, std::string message_id);
 ```
 
-Removes a message from Pinned Messages of a channel
+Removes a message from the Pinned Messages in a channel
 
 ### Parameters
 <table>
@@ -368,7 +368,7 @@ Tell you if the Ready event has ocurred or not
 void quit();
 ```
 
-lets you disconnect from discord and stops the client
+Lets you disconnect from discord and stops the client
 
 ## run
 
@@ -523,7 +523,7 @@ Happens when an error is detected
 Objects used to represent things from Discord, these include things like messages, users, server, etc.
 
 ## Snowflake
-Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.
+Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned ints, currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.
 
 ### Structure
 <pre>
@@ -543,7 +543,7 @@ Most Discord Objects have ids, these ids have the type called Snowflake. Snowfla
 </table>
 
 ### But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?
-That's a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you can not sent Snowflakes as integers to Discord, as that will give you an error.
+That's a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you cannot send Snowflakes as integers to Discord, as that will give you an error.
 
 # Message
 
@@ -551,7 +551,7 @@ That's a good question. The fact that they are given to the client as strings an
 struct Message : public DiscordObject {
 ```
 
-An object that represents a message from Discord. Also very similar to [the message object from the api](https://discordapp.com/developers/docs/resources/channel#message-object)
+An object that represents a message from Discord. Also very similar to [the message object from the API](https://discordapp.com/developers/docs/resources/channel#message-object)
 
 ## (constructor)
 ```cpp
@@ -584,7 +584,7 @@ int length();
 ```
 
 ### Return value
-The length of the content in the message
+The content length of the message
 
 ## isMentioned
 
@@ -597,7 +597,7 @@ bool isMentioned(User& _user);
 <table>
   <tbody>
       <tr><td><strong>id</strong></td>
-        <td>the id of the user that you want to check that they were mentioned or not</td></tr>
+        <td>The id of the user that you want to check that they were mentioned or not</td></tr>
       <tr><td><strong>_user</strong></td>
         <td>The user object of the user you want to check that they were mentioned or not </td></tr>
   </tbody>
@@ -699,13 +699,13 @@ Compares the id of two Users
 class CustomSession : public GenericSession {
 ```
 
-Sessions are used for http requests, it's basically wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. [To learn more about Sessions, click here.](#session)
+Sessions are used for http requests, it's essentially a wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. [To learn more about Sessions, click here.](#session)
 
 ###Member types
 <table>
   <tbody>
       <tr><td><strong>CustomInit</strong></td>
-        <td>a function pointer to a function that returns a new Session</td></tr>
+        <td>A function pointer to a function that returns a new Session</td></tr>
   </tbody>
 </table>
 
@@ -917,7 +917,7 @@ Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifde
 SLEEPY_ONE_THREAD
 -DSLEEPY_ONE_THREAD
 ```
-Disables anything that has to do with threads, because threads or ``std::threads`` doesn't work on everything. Currently there's no way to add in thread support of your own device yet.
+Disables anything that has to do with threads, because threads or ``std::threads`` don't work on everything. Currently there's no way to add in thread support of your own device yet.
 
 ## SLEEPY CUSTOM SESSION
 
@@ -933,4 +933,4 @@ Makes Sleepy Discord use the CustomSession Class for sessions, This allows you t
 SLEEPY_USE_HARD_CODED_GATEWAY
 -DSLEEPY_USE_HARD_CODED_GATEWAY
 ```
-This makes Sleepy Discord skip connecting to ``api/gateway`` to get the gateway and instead it use the gateway that is hard coded into Sleepy Discord.
+This makes Sleepy Discord skip connecting to ``api/gateway`` to get the gateway and instead it uses the gateway that is hard coded into Sleepy Discord.
