@@ -205,7 +205,8 @@
       <script src="javascripts/all.js"></script>
 
     <link rel="stylesheet" type="text/css" href="stylesheets/oldnormalize.css" media="screen">
-	  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Creepster" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Pangolin" rel="stylesheet">
 	  <link rel="stylesheet" type="text/css" href="stylesheets/Stylesheet.css" media="screen">
 	  <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
@@ -947,16 +948,28 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 </table>
 
 <h2 id="setheader">setHeader</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setHeader</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;&amp;</span> <span class="n">header</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setHeader</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">HeaderPair</span><span class="o">&gt;&amp;</span> <span class="n">header</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </code></pre>
 <h3 id="parameters">Parameters</h3>
 
 <table>
   <tbody>
       <tr><td><strong>header</strong></td>
-        <td>A list of stuff in the header, the first string in the pair is the name, and the 2nd is the value</td></tr>
+        <td>A vector of stuff in the header</td></tr>
   </tbody>
 </table>
+
+<h3 id="headerpair">HeaderPair</h3>
+
+<p>Represents one line of the header
+<table>
+  <tbody>
+      <tr><td><strong>name</strong></td>
+        <td>The name of the value, or the left of the header field</td></tr>
+      <tr><td><strong>value</strong></td>
+        <td>The value, or the right of the header field</td></tr>
+  </tbody>
+</table></p>
 
 <h2 id="setmultipart">setMultipart</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">setMultipart</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">Part</span><span class="o">&gt;&amp;</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
