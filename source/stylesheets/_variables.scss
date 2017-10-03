@@ -28,7 +28,7 @@ $examples-bg: #212121 !default;
 $code-bg: #1e1e1e !default;
 $code-annotation-bg: #1c1c1c !default;
 $nav-subitem-bg: #262626 !default;
-$nav-active-bg: #2467af !default;
+$nav-active-bg: #BF360C !default;
 $lang-select-border: #000 !default;
 $lang-select-bg: #222 !default;
 $lang-select-active-bg: $examples-bg !default; // feel free to change this to blue or something
@@ -40,7 +40,7 @@ $main-bg: #212121 !default;
 $search-notice-bg: #c97a7e !default;
 $aside-warning-bg: #762125 !default;
 $aside-success-bg: #3e7044 !default;
-$aside-notice-bg: #235b79 !default;
+$aside-notice-bg: #FF8A65 !default;
 
 
 // TEXT COLORS
@@ -71,11 +71,11 @@ $phone-width: $tablet-width - $nav-width !default; // min width before reverting
 // FONTS
 ////////////////////
 %default-font {
-  font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft Yahei","微软雅黑", STXihei, "华文细黑", sans-serif;
+  font-family: 'Pangolin', cursive;
 }
 
 %header-font {
-  @extend %default-font;
+  font-family: 'Creepster', cursive;
   font-weight: bold;
 }
 
@@ -105,3 +105,4 @@ $search-box-border-color: #666 !default;
     word-break: break-all;
     hyphens: auto;
 }
+
