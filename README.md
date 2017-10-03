@@ -51,5 +51,5 @@ Sleepy Discord doesn't require you to use any libraries, so that you can use any
 or
 [uWebSockets](https://github.com/uWebSockets/uWebSockets)
 
-# Develop Breach
-For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the breach is used for code that may not work. Also check to see if it's not behide the master branch, unless you want to use an older version of Sleepy Discord.
+# Develop Branch
+For the cutting edge of Sleepy Discord, check out the develop branch. Please use the develop branch with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the branch is used for code that may not work. Also check to see if it's not behind the master branch, unless you want to use an older version of Sleepy Discord.
