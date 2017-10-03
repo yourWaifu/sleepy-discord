@@ -1,3 +1,5 @@
+/* This is no longer needed. Delete if you want. */
+
 function reply_click(clicked_id) {
 	var backgorund = document.getElementById("backgorund");
 	var style = window.getComputedStyle(backgorund);
