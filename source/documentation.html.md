@@ -778,14 +778,25 @@ virtual void setBody(const std::string* jsonParameters) = 0;
 ## setHeader
 
 ```cpp
-virtual void setHeader(const std::initializer_list<std::pair<std::string, std::string>>& header) = 0;
+virtual void setHeader(const std::vector<SleepyDiscord::HeaderPair>& header) = 0;
 ```
 
 ###Parameters
 <table>
   <tbody>
       <tr><td><strong>header</strong></td>
-        <td>A list of stuff in the header, the first string in the pair is the name, and the 2nd is the value</td></tr>
+        <td>A vector of stuff in the header</td></tr>
+  </tbody>
+</table>
+
+### HeaderPair
+Represents one line of the header
+<table>
+  <tbody>
+      <tr><td><strong>name</strong></td>
+        <td>The name of the value, or the left of the header field</td></tr>
+      <tr><td><strong>value</strong></td>
+        <td>The value, or the right of the header field</td></tr>
   </tbody>
 </table>
 
