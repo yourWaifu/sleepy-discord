@@ -19,6 +19,7 @@ a {
   color: #FF3D00;
   text-decoration: none; }
   a:hover {
+    text-decoration: underline; }
 
 .btn {
   display: inline-block;
