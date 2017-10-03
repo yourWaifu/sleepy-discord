@@ -4,18 +4,21 @@
 body {
   padding: 0;
   margin: 0;
-  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Pangolin', cursive;
   font-size: 16px;
   line-height: 1.5;
   color: rgb(255, 255, 255);
   background-color: #212121;
    }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Creepster', cursive;
+}
+
 a {
-  color: #64b8fc;
+  color: #FF3D00;
   text-decoration: none; }
   a:hover {
-    text-decoration: underline; }
 
 .btn {
   display: inline-block;
