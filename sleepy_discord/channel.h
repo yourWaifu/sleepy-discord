@@ -22,11 +22,11 @@ namespace SleepyDiscord {
 		std::string guild_id;
 		std::string name;
 		enum ChannelType{
-			GUILD_TEXT     = 0,
-			DM             = 1,
-			GUILD_VOICE    = 2,
-			GROUP_DM       = 3,
-			GUILD_CATEGORY = 4
+			SERVER_TEXT     = 0,
+			DM              = 1,
+			SERVER_VOICE    = 2,
+			GROUP_DM        = 3,
+			SERVER_CATEGORY = 4
 		} type;
 		int position;
 		bool isPrivate;
