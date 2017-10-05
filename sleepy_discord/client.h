@@ -250,6 +250,7 @@ namespace SleepyDiscord {
 		virtual void onHeartbeatAck();
 		virtual void onInvaldSession();
 		virtual void onDisconnet();
+		virtual void onResume();
 
 		virtual void onQuit();
 		virtual void onResponse(Response response);
