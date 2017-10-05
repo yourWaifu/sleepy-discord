@@ -43,11 +43,13 @@ Hello Sleepy Flower Girl
 Yes, and for now I don't plan on making 0.0 versions backwards compatible with 1.0 versions or later.
 
 # Requirements
+Sleepy Discord doesn't require you to use any libraries, so that you can use any library you wish or your own code. However, Sleepy Discord provides native support for a few libraries and it is recommend you use those instead of writing your own.
+
 * [OpenSSL](https://www.openssl.org/)
 * [cpr](https://github.com/whoshuu/cpr)
 * [Websocket++](https://github.com/zaphoyd/websocketpp)
 or
 [uWebSockets](https://github.com/uWebSockets/uWebSockets)
 
-# Develop Breach
-For the cutting edge of Sleepy Discord, check out the develop breach. Please use the develop breach with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the breach is used for code that may not work. Also check to see if it's not behide the master branch, unless you want to use an older version of Sleepy Discord.
+# Develop Branch
+For the cutting edge of Sleepy Discord, check out the develop branch. Please use the develop branch with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the branch is used for code that may not work. Also check to see if it's not behind the master branch, unless you want to use an older version of Sleepy Discord.
