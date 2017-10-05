@@ -43,7 +43,7 @@ CFLAGS	:=	-g -Wall -Werror -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
+CXXFLAGS	:= $(CFLAGS) -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
 
@@ -120,14 +120,14 @@ lib/libsleepy_discord.a : lib release $(SOURCES) $(INCLUDES)
 	BUILD_CFLAGS="-DNDEBUG=1 -O2 -fomit-frame-pointer" \
 	DEPSDIR=$(CURDIR)/release \
 	--no-print-directory -C release \
-	-f $(CURDIR)/Makefile
+	-f $(CURDIR)/Makefile.3ds
 
 lib/libsleepy_discordd.a : lib debug $(SOURCES) $(INCLUDES)
 	@$(MAKE) BUILD=debug OUTPUT=$(CURDIR)/$@ \
 	BUILD_CFLAGS="-DDEBUG=1 -Og" \
 	DEPSDIR=$(CURDIR)/debug \
 	--no-print-directory -C debug \
-	-f $(CURDIR)/Makefile
+	-f $(CURDIR)/Makefile.3ds
 
 #---------------------------------------------------------------------------------
 clean:
