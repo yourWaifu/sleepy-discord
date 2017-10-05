@@ -259,7 +259,19 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::sendResume() {
-		sendL("{\"op\":6,\"d\":{\"token\":\"" + getToken() + "\",\"session_id\":\"" + session_id + "\",\"seq\":" + std::to_string(lastSReceived) + "}}");
+		std::string resume;
+		resume.reserve(208);
+		resume +=
+		"{"
+			"\"op\":6,"
+			"\"d\":{"
+				"\"token\":\""; resume += getToken(); resume += "\","
+				"\"session_id\":\""; resume += session_id; resume += "\","
+				"\"seq\":"; resume += std::to_string(lastSReceived); resume +=
+			"}"
+		"}";
+		sendL(resume);
+		onResume();
 	}
 
 //	bool BaseDiscordClient::restart() {
@@ -270,13 +282,18 @@ namespace SleepyDiscord {
 //	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
-		//ready = false;
-		disconnectWebsocket(status);
-		if (connect(theGateway)) return sendResume();
-		if (connect(theGateway)) return sendResume();
-		if (connect(theGateway)) return sendResume();
+		if (status != 1000) {         //check for a deliberate reconnect
+			heartbeatInterval = 0;    //stop heartbeating
+			wasHeartbeatAcked = true; //stops the library from spamming discord
+			disconnectWebsocket(status);
+		}
+		//loop unrolling
+		if (connect(theGateway)) return;
+		if (connect(theGateway)) return;
+		if (connect(theGateway)) return;
 		getTheGateway();
-		if (!connect(theGateway)) setError(CONNECT_FAILED);
+		if (connect(theGateway)) return;
+		setError(CONNECT_FAILED);
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -372,7 +389,8 @@ namespace SleepyDiscord {
 			if (condition != nullptr) condition->notify_all();
 			else onError(OTHER, "Received a HELLO packet after condition was deallocated");
 #endif
-			sendIdentity();
+			if (!ready) sendIdentity();
+			else sendResume();
 			break;
 		case RECONNECT:
 			reconnect();
@@ -397,13 +415,13 @@ namespace SleepyDiscord {
 		if (!heartbeatInterval) return;
 
 		if (nextHeartbeat <= getEpochTimeMillisecond()) {	//note:this sends the heartbeat early
-			nextHeartbeat += heartbeatInterval;
-			
+			do nextHeartbeat += heartbeatInterval;
+			while (nextHeartbeat <= getEpochTimeMillisecond()); //prevents spam
+
 			if (!wasHeartbeatAcked) {
 				reconnect(1006);
 				return;
 			}
-
 
 			std::string str = std::to_string(lastSReceived);
 			sendL("{\"op\":1,\"d\":" + str + "}");

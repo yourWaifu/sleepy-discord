@@ -35,6 +35,7 @@ namespace SleepyDiscord {
 		std::string lastMessage_id;
 		int bitrate;
 		int userLimit;
+		std::string parent_id;
 	};
 
 	struct DirectMessageChannel : public DiscordObject {
