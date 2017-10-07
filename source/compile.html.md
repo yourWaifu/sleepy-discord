@@ -52,12 +52,12 @@ You can find the Websocket++ library here [https://github.com/zaphoyd/websocketp
 ![alt text](images/cindeps2.png)
 </pre>
 
-You are also going to need the asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps folder.
+You are also going to need the Asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps folder.
 <aside class="notice">
 Sleepy Discord uses version 1.10.8, and does not work with 1.10.6
 </aside>
 
-Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL, because this has it's own set of instructions including downloading and installing some other stuff. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
+Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
 <pre>
 ![alt text](images/cininclude.png)
 </pre>
@@ -70,7 +70,7 @@ I plan on adding more in the future
 
 ##Visual Studio
 <aside class="warning">
-Right now, There's an issue with the way cpr is linked. For now, please add the missing files ``ssl_options.cpp`` and ``timeout.cpp`` from the cpr/cpr folder. You can do this by dragging and dropping the files from the file explorer to the solution in the solution explorer on Visual Studio, drop (let go of the left mouse button) when the Sleepy Discord Solution is Highlighted. A fix is on the way.
+Right now, There's an issue with the way cpr is linked. For now, please add the missing files ``ssl_options.cpp`` and ``timeout.cpp`` from the cpr/cpr folder. You can do this by dragging and dropping the files from the file explorer to the Sleepy Discord solution in the solution explorer on Visual Studio. A fix is on the way.
 </aside>
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And your done.
 
