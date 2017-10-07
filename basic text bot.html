@@ -258,12 +258,12 @@ For this tutorial, I&rsquo;m going to assume that you everything set up. If not,
 <h2 id="including-sleepy-discord">Including Sleepy Discord</h2>
 
 <blockquote>
-<p>Use this for you want use your own input, output, and websocket</p>
+<p>Use this if you want to use your own input, output, and websocket</p>
 </blockquote>
 <pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/sleepy_discord.h"
 </span></code></pre>
-<p>As of this writing, to include Sleepy Discord you use the first one.
-However this gives you very basic functionally with no websocket, input, or output. Sleepy Discord will call for these and it will expect that they will be done without failure. If you need more info about this, check out (future topic that I haven&rsquo;t written as of this writing)</p>
+<p>As of this writing, to include Sleepy Discord you use <code class="prettyprint">sleepy_discord.h</code>.
+However this gives you the bare minimum, no input, output or websockets. Sleepy Discord will call for these and it will expect that they will be done without failure. If you need more info about this, check out (future topic that I haven&rsquo;t written as of this writing)</p>
 
 <blockquote>
 <p>Use this for input and output from the c++ standard library and your websocket library of choice</p>
@@ -271,14 +271,14 @@ However this gives you very basic functionally with no websocket, input, or outp
 <pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/websocketpp_websocket.h"
 </span></code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include "sleepy_discord/uwebsockets_websocket.h"
 </span></code></pre>
-<p>I&rsquo;m going to assume that most people will not need to do this, and having all of this done for you is going to work fine for your proposes.
-if so, the last two are what you are looking for, they include basic functionally for input, and output from the standard c++ library, and your websocket library of choice.</p>
+<p>I&rsquo;m going to assume that most people will not need to do this and having all of this done for you is going to work fine for your proposes.
+If so, the last two are what you are looking for. They include basic functionally for input, and output from the standard C++ library, and your websocket library of choice.</p>
 
 <h2 id="declaring-the-client">Declaring the Client</h2>
 
-<p>Included in both <code class="prettyprint">websocketpp_websocket.h</code> and <code class="prettyprint">uwebsockets_websocket.h</code> is DiscordClient. This where almost everything that has to do with Discord is done.
+<p>Included in both <code class="prettyprint">websocketpp_websocket.h</code> and <code class="prettyprint">uwebsockets_websocket.h</code> is DiscordClient. This where almost everything that has to do with Discord is completed.
 By default, DiscordClient from <code class="prettyprint">websocketpp_websocket.h</code> or <code class="prettyprint">uwebsockets_websocket.h</code> will not do anything when it receives a message. This is where Events come into play.
-When DiscordClient receives a message, it&rsquo;ll call a function that is an empty function by default. You must overwrite it with your own code to make it do something when DiscordClient receives a message.</p>
+When DiscordClient receives a message, it&rsquo;ll call an empty function by default. You must overwrite it with your own code to make it do something when DiscordClient receives a message.</p>
 
 <blockquote>
 <p>Use Inheritance to make a derived class with DiscordClient as the base class</p>
@@ -314,7 +314,7 @@ When DiscordClient receives a message, it&rsquo;ll call a function that is an em
     <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre>
-<p>The client can&rsquo;t do anything before it is initialized, all you have to do to initialize is creating a client like so. Oh, by the way, you&rsquo;ll need your <a href="https://discordapp.com/developers/applications/me">bot&rsquo;s token from here</a>. Also take note of the number 2, that&rsquo;s the number of threads  Sleepy Discord will want to use. Also just in case you couldn&rsquo;t tell, Calling <code class="prettyprint">run</code> will run Sleepy Discord.</p>
+<p>The client can&rsquo;t do anything before it is initialized, so you have to initialize a client like so (Oh, by the way, you&rsquo;ll need your <a href="https://discordapp.com/developers/applications/me">bot&rsquo;s token from here</a>). Also take note of the number 2, that&rsquo;s the number of threads Sleepy Discord will want to use. Also, just in case you couldn&rsquo;t tell, Calling <code class="prettyprint">run</code> will run Sleepy Discord.</p>
 
 <aside class="notice">
  If you changed threads to 3, you&rsquo;ll need something to prevent your bot from closing itself. Also, do not call &ldquo;run&rdquo; with 3 or more threads, because Sleepy Discord will call run on another thread.<br>
@@ -332,7 +332,7 @@ When DiscordClient receives a message, it&rsquo;ll call a function that is an em
 </code></pre>
 <p>With that out of the way, onMessage takes in a Message object that you can use to read messages that others have posted.
 <aside class="notice">
-For now all other events take in the raw JSON from Discord using <code class="prettyprint">std::string</code>, <code class="prettyprint">onMessage</code> is currently the only event that doesn&rsquo;t give you the raw JSON.
+For now all other events take in the raw JSON from Discord using <code class="prettyprint">std::string</code>. <code class="prettyprint">onMessage</code> is currently the only event that doesn&rsquo;t give you the raw JSON.
 </aside></p>
 
 <blockquote>
@@ -346,7 +346,7 @@ For now all other events take in the raw JSON from Discord using <code class="pr
 </code></pre>
 <p>Lets make our bot say hello and the person&rsquo;s name when someone says hello to the bot. This done by using the <code class="prettyprint">sendMessage</code> function, and to get the person&rsquo;s name is stored in <code class="prettyprint">author.username</code>.
 <aside class="warning">
-Do not use <code class="prettyprint">if (message.startsWith(&quot;hello&quot;))</code> as it is not good practice. Your bot should not activate on normal chat.
+Do not use <code class="prettyprint">if (message.startsWith(&quot;hello&quot;))</code> it is not good practice. Your bot should not activate on normal chat.
 </aside>
 <aside class="success">
 You may also use <code class="prettyprint">if (message.isMentioned(bot id))</code>
@@ -386,7 +386,7 @@ You may also use <code class="prettyprint">if (message.isMentioned(bot id))</cod
 </code></pre>
 <h2 id="conclusion">Conclusion</h2>
 
-<p>Now that you understand the basics of using the Sleepy Discord Library, I&rsquo;m sure that you can be able to read the rest of <a href="documentation.html">the documentation</a> whenever you need any help. If you have any more questions, you can always ask Sleepy Flower Girl on Discord.</p>
+<p>Now that you understand the basics of using the Sleepy Discord Library, I&rsquo;m sure that you can be able to read the rest of <a href="documentation.html">the documentation</a> whenever you need help. If you have any more questions, you can always ask Sleepy Flower Girl on Discord.</p>
 
       </div>
       <div class="dark-box">

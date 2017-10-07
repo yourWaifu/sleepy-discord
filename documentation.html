@@ -249,7 +249,7 @@
       <div class="content">
         <h1 id="a-warm-welcome">A Warm Welcome</h1>
 
-<p>Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on discord; right now there is no official server for this library, but you can alway find me on the Discord api server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!</p>
+<p>Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can alway find me on the Discord API server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!</p>
 
 <h1 id="topics">Topics</h1>
 
@@ -435,7 +435,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h2 id="unpinmessage">unpinMessage</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">unpinMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">);</span>
 </code></pre>
-<p>Removes a message from Pinned Messages of a channel</p>
+<p>Removes a message from the Pinned Messages in a channel</p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -586,7 +586,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h2 id="quit">quit</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">quit</span><span class="p">();</span>
 </code></pre>
-<p>lets you disconnect from discord and stops the client</p>
+<p>Lets you disconnect from discord and stops the client</p>
 
 <h2 id="run">run</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
@@ -724,7 +724,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <h2 id="snowflake">Snowflake</h2>
 
-<p>Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned int, however currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.</p>
+<p>Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned ints, currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.</p>
 
 <h3 id="structure">Structure</h3>
 
@@ -747,12 +747,12 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <h3 id="but-if-c-has-support-for-unsigned-64-bit-integer-then-why-does-sleepy-discord-store-them-as-strings">But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?</h3>
 
-<p>That&rsquo;s a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you can not sent Snowflakes as integers to Discord, as that will give you an error.</p>
+<p>That&rsquo;s a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you cannot send Snowflakes as integers to Discord, as that will give you an error.</p>
 
 <h1 id="message">Message</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Message</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DiscordObject</span> <span class="p">{</span>
 </code></pre>
-<p>An object that represents a message from Discord. Also very similar to <a href="https://discordapp.com/developers/docs/resources/channel#message-object">the message object from the api</a></p>
+<p>An object that represents a message from Discord. Also very similar to <a href="https://discordapp.com/developers/docs/resources/channel#message-object">the message object from the API</a></p>
 
 <h2 id="constructor">(constructor)</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
@@ -781,7 +781,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 </code></pre>
 <h3 id="return-value">Return value</h3>
 
-<p>The length of the content in the message</p>
+<p>The content length of the message</p>
 
 <h2 id="ismentioned">isMentioned</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">isMentioned</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">id</span><span class="p">);</span>
@@ -792,7 +792,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <table>
   <tbody>
       <tr><td><strong>id</strong></td>
-        <td>the id of the user that you want to check that they were mentioned or not</td></tr>
+        <td>The id of the user that you want to check that they were mentioned or not</td></tr>
       <tr><td><strong>_user</strong></td>
         <td>The user object of the user you want to check that they were mentioned or not </td></tr>
   </tbody>
@@ -887,14 +887,14 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <h1 id="customsession">CustomSession</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">CustomSession</span> <span class="o">:</span> <span class="k">public</span> <span class="n">GenericSession</span> <span class="p">{</span>
 </code></pre>
-<p>Sessions are used for http requests, it&rsquo;s basically wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. <a href="#session">To learn more about Sessions, click here.</a></p>
+<p>Sessions are used for http requests, it&rsquo;s essentially a wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. <a href="#session">To learn more about Sessions, click here.</a></p>
 
 <h3 id="member-types">Member types</h3>
 
 <table>
   <tbody>
       <tr><td><strong>CustomInit</strong></td>
-        <td>a function pointer to a function that returns a new Session</td></tr>
+        <td>A function pointer to a function that returns a new Session</td></tr>
   </tbody>
 </table>
 
@@ -1063,7 +1063,7 @@ All functions <b>below</b> should be specified as private
 <pre class="highlight make tab-make"><code><span class="err">SLEEPY_ONE_THREAD</span>
 <span class="err">-DSLEEPY_ONE_THREAD</span>
 </code></pre>
-<p>Disables anything that has to do with threads, because threads or <code class="prettyprint">std::threads</code> doesn&rsquo;t work on everything. Currently there&rsquo;s no way to add in thread support of your own device yet.</p>
+<p>Disables anything that has to do with threads, because threads or <code class="prettyprint">std::threads</code> don&rsquo;t work on everything. Currently there&rsquo;s no way to add in thread support of your own device yet.</p>
 
 <h2 id="sleepy-custom-session">SLEEPY CUSTOM SESSION</h2>
 <pre class="highlight make tab-make"><code><span class="err">SLEEPY_CUSTOM_SESSION</span>
@@ -1075,7 +1075,7 @@ All functions <b>below</b> should be specified as private
 <pre class="highlight make tab-make"><code><span class="err">SLEEPY_USE_HARD_CODED_GATEWAY</span>
 <span class="err">-DSLEEPY_USE_HARD_CODED_GATEWAY</span>
 </code></pre>
-<p>This makes Sleepy Discord skip connecting to <code class="prettyprint">api/gateway</code> to get the gateway and instead it use the gateway that is hard coded into Sleepy Discord.</p>
+<p>This makes Sleepy Discord skip connecting to <code class="prettyprint">api/gateway</code> to get the gateway and instead it uses the gateway that is hard coded into Sleepy Discord.</p>
 
       </div>
       <div class="dark-box">

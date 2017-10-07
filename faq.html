@@ -253,11 +253,11 @@
 
 <h2 id="why-isnt-a-channel-for-this-library-on-the-discord-api-server">Why isn&rsquo;t a channel for this library on the Discord API server?</h2>
 
-<p>Before a library gets a channel on the Discord API server, it must go though a moderator that&rsquo;ll review. The library has already been submitted to a moderator, and is currently waiting for detailed feedback for the library before getting a channel.</p>
+<p>Before a library gets a channel on the Discord API server, it must go though a moderator who will review the library. The library has already been submitted to a moderator and is currently waiting for feedback regarding library before getting a channel.</p>
 
 <h2 id="is-this-feature-complete">Is this feature complete?</h2>
 
-<p>There are a few features not support just yet. They are createServer, editServer, editMember, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. Each one isn&rsquo;t support mostly because I&rsquo;m confused about the parameters needed to get them to work.</p>
+<p>There are a few features which are currently unsupported: createServer, editServer, editMember, pruneCount, editServerEmbed, editCurrentUser, createGroupDirectMessageChannel, and voice. Everything else is supported. The ones which are not supported are unsupported because I&rsquo;m confused about the parameters required.</p>
 
 <h2 id="does-it-work-on-a-normal-computer-like-windows-or-linux">Does it work on a normal Computer like Windows or Linux?</h2>
 
@@ -273,9 +273,9 @@
 
 <h2 id="why-a-custom-json-parser">Why a custom json parser?</h2>
 
-<p>It&rsquo;s understandable why this question comes up, because &ldquo;reinventing the wheel&rdquo; is considered bad, and all because the existing wheel have already been tested in lots of circumstances and situations. But please, stop asking &ldquo;Use a real json parser&rdquo;, because that&rsquo;s not happening unless the custom json parser really needs to be replaced because of some feature that gets added and that would requite a rewrite of the whole thing to get working.</p>
+<p>It&rsquo;s understandable why this question comes up, because &ldquo;reinventing the wheel&rdquo; is considered bad, and all because the existing wheel has already been tested in lots of circumstances and situations. But please stop asking &ldquo;Use a real json parser&rdquo;, because that&rsquo;s not happening unless the custom json parser really needs to be replaced because some feature gets added and that would require a rewrite of the whole thing to get working.</p>
 
-<p>Json is a big part of the Discord api, everything Discord sends back is in json. As Discord only sends json in a current way, assumptions can be made that can be used to speed up the json parsing. I wouldn&rsquo;t say that it&rsquo;s faster or better then Rapid json, but it is fast. Plus the user wouldn&rsquo;t be directly using the json parser to use the library, so it didn&rsquo;t seem to really matter.</p>
+<p>Json is a big part of the Discord API, everything Discord sends is in json. Because Discord only sends json in a current way, assumptions can be made that can be used to speed up the json parsing. I wouldn&rsquo;t say that it&rsquo;s faster or better then Rapid json, but it is fast. Plus the user wouldn&rsquo;t be directly using the json parser to use the library, so it didn&rsquo;t seem to really matter.</p>
 
       </div>
       <div class="dark-box">

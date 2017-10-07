@@ -252,7 +252,7 @@
 <h1 id="how-to-link">How To Link</h1>
 
 <aside class="notice">
-I&rsquo;m going to assume that you have compiled Sleepy Discord or got one precompiled
+I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a compiled binary
 </aside>
 
 <h1 id="visual-studio">Visual Studio</h1>
@@ -296,7 +296,7 @@ Alt+F7 also works if you have only one project in your solution.
 <span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\i</span>nclude
 <span class="k">$(</span>projectdir<span class="k">)</span>IncludeNonexistent
 </code></pre>
-<p><strong>Step 5:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same thing for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">sleepy_discord/IncludeNonexistent</code>. Also, it&rsquo;s important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so <code class="prettyprint">sleepy_discord/IncludeNonexistent</code> needs to be last. This is so that we don&rsquo;t get &ldquo;any include files not found&rdquo; errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
+<p><strong>Step 5:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">sleepy_discord/IncludeNonexistent</code>. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so <code class="prettyprint">sleepy_discord/IncludeNonexistent</code> needs to be last. This is so that we don&rsquo;t get &ldquo;any include files not found&rdquo; errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
 
 <blockquote>
 <p>The box of Library Directories should look like this, but with full paths</p>
