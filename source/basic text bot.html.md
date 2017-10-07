@@ -24,7 +24,7 @@ For this tutorial, I'm going to assume that you everything set up. If not, pleas
 ```cpp
 #include "sleepy_discord/sleepy_discord.h"
 ```
-As of this writing, to include Sleepy Discord you use the example.
+As of this writing, to include Sleepy Discord you use ``sleepy_discord.h``.
 However this gives you the bare minimum, no input, output or websockets. Sleepy Discord will call for these and it will expect that they will be done without failure. If you need more info about this, check out (future topic that I haven't written as of this writing)
 
 >Use this for input and output from the c++ standard library and your websocket library of choice
