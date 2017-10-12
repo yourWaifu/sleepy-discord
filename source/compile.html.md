@@ -47,14 +47,14 @@ You may skip this step, if you are planning on using other websocket libraries
 ###[uWebSockets](#uwebsockets)
 
 ##Websocketpp
-You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, Open the zip file, and the websocketpp-master file, and open extract the websocketpp to the deps folder.
+You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, Open the zip file, and the websocketpp-master folder, and extract the websocketpp folder to the deps folder.
 <pre>
 ![alt text](images/cindeps2.png)
 </pre>
 
 You are also going to need the Asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps folder.
 <aside class="notice">
-Sleepy Discord uses version 1.10.8, and does not work with 1.10.6
+Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. [The latest version can be downloaded here](https://sourceforge.net/projects/asio/files/latest/download)
 </aside>
 
 Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
