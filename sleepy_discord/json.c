@@ -143,7 +143,13 @@ void JSON_find(const unsigned int numberOfNames, const char* source, JSON_findMu
 			bool found = false;				//if one of the names is the same as the string then this is true
 			unsigned int index = 0;	//index to the variable name in names that was found
 			for (; index < numberOfNames; index++) {
-				if (values[index].namePosition == 0 && strncmp(source + position + 1, values[index].name, values[index].nameLength) == 0) {
+				//check that it hasn't been found
+				if (values[index].namePosition == 0 &&
+					//check that this string is on the list
+					strncmp(source + position + 1, values[index].name, values[index].nameLength) == 0 &&
+					//check that the string has the same length
+					source[position + 1 + values[index].nameLength] == '"'
+					) {
 					found = true;
 					JSON_skipString(source, &position);
 					for (int loop = true; loop; ++position) {

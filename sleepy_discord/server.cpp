@@ -22,23 +22,24 @@ namespace SleepyDiscord {
 		};
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		id                            =           values[index(names, "id"                           )] ;
-		name                          =           values[index(names, "name"                         )] ;
-		icon                          =           values[index(names, "icon"                         )] ;
-		splash                        =           values[index(names, "splash"                       )] ;
-		owner_id                      =           values[index(names, "owner_id"                     )] ;
-		region                        =           values[index(names, "region"                       )] ;
-		afk_channel_id                =           values[index(names, "afk_channel_id"               )] ;
-		afk_timeout                   = std::stod(values[index(names, "afk_timeout"                  )]);
-		embed_enable                  = getBool(  values[index(names, "embed_enabled"                )]);
-		embed_channel_id              =           values[index(names, "embed_channel_id"             )] ;
-		verfication_level             = std::stod(values[index(names, "verification_level"           )]);
-		unavailable                   = getBool(  values[index(names, "unavailable"                  )]);
-		mfa_level                     = std::stod(values[index(names, "mfa_level"                    )]);
-		large                         = getBool(  values[index(names, "large"                        )]);
-		joined_at                     =           values[index(names, "joined_at"                    )] ;
-		default_message_notifications = std::stod(values[index(names, "default_message_notifications")]);
-		channels                      = JSON_getArray<Channel>(&values[index(names, "channels")]);
+		//    condition    variable                      modifier                  value               felid
+		                   id                            =                         values[index(names, "id"                           )] ;
+		                   name                          =                         values[index(names, "name"                         )] ;
+		                   icon                          =                         values[index(names, "icon"                         )] ;
+		                   splash                        =                         values[index(names, "splash"                       )] ;
+		                   owner_id                      =                         values[index(names, "owner_id"                     )] ;
+		                   region                        =                         values[index(names, "region"                       )] ;
+		                   afk_channel_id                =                         values[index(names, "afk_channel_id"               )] ;
+		                   afk_timeout                   = toInt                  (values[index(names, "afk_timeout"                  )]);
+		                   embed_enable                  = getBool                (values[index(names, "embed_enabled"                )]);
+		                   embed_channel_id              =                         values[index(names, "embed_channel_id"             )] ;
+		                   verfication_level             = toInt                  (values[index(names, "verification_level"           )]);
+		                   unavailable                   = getBool                (values[index(names, "unavailable"                  )]);
+		                   mfa_level                     = toInt                  (values[index(names, "mfa_level"                    )]);
+		                   large                         = getBool                (values[index(names, "large"                        )]);
+		                   joined_at                     =                         values[index(names, "joined_at"                    )] ;
+		                   default_message_notifications = toInt                  (values[index(names, "default_message_notifications")]);
+		modIf(isSpecified, channels                      , JSON_getArray<Channel>, values[index(names, "channels"                     )]);
 	}
 
 	ServerEmbed::ServerEmbed(const std::string * rawJson) {
@@ -58,13 +59,13 @@ namespace SleepyDiscord {
 		};
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		user      = User(           &values[index(names, "user"     )]);
-		const std::string nickTemp = values[index(names, "nick"     )] ;
-		nick      = isDefined(nickTemp) ? nickTemp : "";
-		roles     = json::getArray( &values[index(names, "roles"    )]);
-		joined_at =                  values[index(names, "joined_at")] ;
-		deaf      = getBool(         values[index(names, "deaf"     )]);
-		mute      = getBool(         values[index(names, "mute"     )]);
+		//        condition  felid       modifier         value               felid        else
+		                     user      = User(           &values[index(names, "user"     )]    );
+		setIfElse(isDefined, nick      ,                  values[index(names, "nick"     )], "");
+		                     roles     = json::getArray( &values[index(names, "roles"    )]    );
+		                     joined_at =                  values[index(names, "joined_at")]     ;
+		                     deaf      = getBool(         values[index(names, "deaf"     )]    );
+		                     mute      = getBool(         values[index(names, "mute"     )]    );
 	}
 
 	ServerMember::ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id) {

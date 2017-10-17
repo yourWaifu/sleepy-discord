@@ -3,9 +3,10 @@
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::testFunction(std::string teststring) {
-		request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
-				{"color", json::UInteger(0x1000000)}
-		}));
+		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
+		//		{"color", json::UInteger(0x1000000)}
+		//}));
+		std::vector<Message> message = getMessages("202917641101246465", limit, "", 2);
 	}
 	//
 	//channel functions
@@ -64,7 +65,7 @@ namespace SleepyDiscord {
 		return request<Channel>(Get, path("channels/{channel.id}", channel_id));
 	}
 
-	json::RawJSONArrayWrapper<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t _limit) {
+	json::ArrayWrapper<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t _limit) {
 		const uint8_t trueLimit = 100 < _limit ? 100 : _limit;
 		std::string key;
 		switch (when) {
@@ -239,8 +240,8 @@ namespace SleepyDiscord {
 		return request<Server>(Delete, path("guilds/{guild.id}", server_id));
 	}
 
-	std::vector<Channel> SleepyDiscord::BaseDiscordClient::GetServerChannels(std::string server_id) {
-		return requestVector<Channel>(Get, path("guilds/{guild.id}/channels", server_id));
+	json::ArrayWrapper<Channel> SleepyDiscord::BaseDiscordClient::GetServerChannels(std::string server_id) {
+		return request(Get, path("guilds/{guild.id}/channels", server_id)).text;
 	}
 
 	bool BaseDiscordClient::editNickname(std::string server_id, std::string newNickname) {
@@ -356,8 +357,8 @@ namespace SleepyDiscord {
 		return request<User>(Get, path("users/{user.id}", user_id));
 	}
 
-	UserServer BaseDiscordClient::getServers() {
-		return request<UserServer>(Get, "users/@me/guilds");
+	json::ArrayWrapper<Server> BaseDiscordClient::getServers() {
+		return request(Get, "users/@me/guilds").text;
 	}
 
 	bool BaseDiscordClient::leaveServer(std::string server_id) {

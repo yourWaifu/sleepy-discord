@@ -16,18 +16,19 @@ namespace SleepyDiscord {
 
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		id                   =            values[index(names, "id"                   )] ;
-		guild_id             =            values[index(names, "guild_id"             )] ;
-		name                 =            values[index(names, "name"                 )] ;
-		type = static_cast<ChannelType>(std::stoi(values[index(names, "type")]));
-		if (isDefined(values[index(names, "position")])) position = std::stoi( values[index(names, "position")]);
-		isPrivate            = getBool(   values[index(names, "is_private"           )]);
+		//felid                modifier                        value
+		id                   =                                 values[index(names, "id"                   )]  ;
+		guild_id             =                                 values[index(names, "guild_id"             )]  ;
+		name                 =                                 values[index(names, "name"                 )]  ;
+		type                 = static_cast<ChannelType>(toInt( values[index(names, "type"                 )]));
+		position             = toInt                         ( values[index(names, "position"             )]) ;
+		isPrivate            = getBool                       ( values[index(names, "is_private"           )]) ;
 		//permissionOverwrites = Overwrite(&values[index(names, "permission_overwrites")]);
-		topic                =            values[index(names, "topic"                )] ;
-		lastMessage_id       =            values[index(names, "last_message_id"      )] ;
+		topic                =                                 values[index(names, "topic"                )]  ;
+		lastMessage_id       =                                 values[index(names, "last_message_id"      )]  ;
 		//const std::string 
-		if (isDefined(values[index(names, "bitrate")])) bitrate = std::stoi(values[index(names, "bitrate")]);
-		if (isDefined(values[index(names, "user_limit")])) userLimit = std::stoi(values[index(names, "user_limit")]);
+		bitrate              = toInt                         ( values[index(names, "bitrate"              )]) ;
+		userLimit            = toInt                         ( values[index(names, "user_limit"           )]) ;
 	}
 
 	Channel::~Channel() {

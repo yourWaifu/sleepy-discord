@@ -6,6 +6,10 @@ namespace SleepyDiscord {
 	//	client = _client;
 	//}
 
+	BaseDiscordClient * DiscordObject::getOriginClient() {
+		return BaseDiscordClient::clients[originClientHandle];
+	}
+
 	//void DiscordObject::changeDiscordClient(BaseDiscordClient& _client) {
 	//	client = &_client;
 	//}

@@ -13,8 +13,10 @@
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
 		ready = false;
-		token = std::unique_ptr<std::string>(new std::string(_token));
-		messagesRemaining = 2;
+		bot = true;
+		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
+		
+		messagesRemaining = 4;
 		getTheGateway();
  		connect(theGateway);
 #ifndef SLEEPY_ONE_THREAD
@@ -51,9 +53,9 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discordapp.com/api/" + _url);
+			session.setUrl("https://discordapp.com/api/v6/" + _url);
 			std::vector<HeaderPair> header = {
-				{ "Authorization", "Bot " + getToken() },
+				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", "SleepyDiscord (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
 			};
 			if (jsonParameters != "") {
@@ -82,7 +84,6 @@ namespace SleepyDiscord {
 			case TOO_MANY_REQUESTS:   //this should fall down to default
 				nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
 				isRateLimited = true;
-				setError(TOO_MANY_REQUESTS);
 			default:
 			{		//error
 				setError(response.statusCode);		//https error
@@ -173,7 +174,7 @@ namespace SleepyDiscord {
 		}  //I don't think we need those anymore
 		condition = nullptr;
 		do {
-			heartbeat();
+			resumeHeartbeatLoop();
 			sleep(heartbeatInterval);
 		} while (ready);
 	}
@@ -181,7 +182,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
-		std::strncpy(theGateway, "wss://gateway.discord.gg", 32);	//This is needed for when session is disabled
+		std::strncpy(theGateway, "wss://gateway.discord.gg/?v=6", 32);	//This is needed for when session is disabled
 #else
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
@@ -334,11 +335,13 @@ namespace SleepyDiscord {
 		case DISPATCH:
 			lastSReceived = std::stoi(values[2]);
 			switch (hash(t.c_str())) {
-			case hash("READY"):
-				session_id = json::getValue(d->c_str(), "session_id");
+			case hash("READY"): {
+				Ready readyData = d;
+				session_id = readyData.session_id;
+				bot = readyData.user.bot;
 				onReady(d);
 				ready = true;
-				break;
+				} break;
 			case hash("RESUMED"                    ): onResumed           (d); break;
 			case hash("GUILD_CREATE"               ): onServer            (d); break;
 			case hash("GUILD_DELETE"               ): onDeleteServer      (d); break;
@@ -411,10 +414,10 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void BaseDiscordClient::heartbeat() {
+	void BaseDiscordClient::resumeHeartbeatLoop() {
 		if (!heartbeatInterval) return;
 
-		if (nextHeartbeat <= getEpochTimeMillisecond()) {	//note:this sends the heartbeat early
+		if (nextHeartbeat <= getEpochTimeMillisecond()) {
 			do nextHeartbeat += heartbeatInterval;
 			while (nextHeartbeat <= getEpochTimeMillisecond()); //prevents spam
 
