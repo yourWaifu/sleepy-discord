@@ -18,10 +18,10 @@ namespace SleepyDiscord {
 		std::string owner_id;
 		std::string region;
 		std::string afk_channel_id;
-		double afk_timeout;
+		int afk_timeout;
 		bool embed_enable;
 		std::string embed_channel_id;
-		double verfication_level;
+		int verfication_level;
 		//voice_states
 		//roles
 		//emojis
@@ -29,10 +29,10 @@ namespace SleepyDiscord {
 		bool unavailable;
 
 		//presences
-		double mfa_level;
+		int mfa_level;
 		//members
 		std::string joined_at;
-		double default_message_notifications;
+		int default_message_notifications;
 
 		//those are only filled in from the onServer event
 		std::vector<Channel> channels;

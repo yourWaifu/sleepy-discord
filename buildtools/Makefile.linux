@@ -1,0 +1,13 @@
+CXX      = g++ #compiler
+CXXFLAGS = -Wall -c #flags
+SOURCE   = ../sleepy_discord
+INCLUDE  = ../sleepy_discord/IncludeNonexistent
+TARGET   = sleepy_discord
+
+all: ${TARGET}.o ${TARGET}.a
+
+$(TARGET).o: 
+	$(CXX) $(CXXFLAGS) $(SOURCE)/*.cpp $(SOURCE)/*.c -I $(INCLUDE)
+
+$(TARGET).a:
+	ar rv $@ *.o

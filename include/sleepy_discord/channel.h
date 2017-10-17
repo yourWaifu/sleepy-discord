@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 		std::string id;
 		std::string guild_id;
 		std::string name;
-		enum ChannelType{
+		enum ChannelType {
 			SERVER_TEXT     = 0,
 			DM              = 1,
 			SERVER_VOICE    = 2,

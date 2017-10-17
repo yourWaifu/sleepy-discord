@@ -51,7 +51,7 @@ namespace SleepyDiscord {
 		Channel editChannelTopic(std::string channel_id, std::string topic);                                                  //to do test this
 		Channel deleteChannel(std::string channel_id);
 		enum GetMessagesKey {na, around, before, after, limit};
-		json::RawJSONArrayWrapper<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit = 0);
+		json::ArrayWrapper<Message> getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t limit = 0);
 		Message getMessage(std::string channel_id, std::string message_id);                                                    //to do test this, and add more then one message return
 		Message sendMessage(std::string channel_id, std::string message, bool tts = false);
 		Message uploadFile(std::string channel_id, std::string fileLocation, std::string message);                             //to do test this
@@ -90,7 +90,7 @@ namespace SleepyDiscord {
 		Server getServer(std::string server_id);                                                                              //to do test this
 		//edit Server		//ask discord api server about what the default values should be
 		Server deleteServer(std::string server_id);                                                                           //to do test this
-		std::vector<Channel> GetServerChannels(std::string server_id);                                                        //to do test this
+		json::ArrayWrapper<Channel> GetServerChannels(std::string server_id);                                                        //to do test this
 		Channel createTextChannel(std::string server_id, std::string name);	                                                  //to do test this
 		std::vector<Channel> editChannelPositions(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions);         //to do test this
 		ServerMember getMember(std::string server_id, std::string user_id);                                                   //to do test this
@@ -132,7 +132,7 @@ namespace SleepyDiscord {
 		User getCurrentUser();                                                                                                //to do test this
 		User getUser(std::string user_id);                                                                                    //to do test this
 		//User editCurrentUser();		//needs Avatar data thing?
-		UserServer getServers();
+		json::ArrayWrapper<Server> getServers();
 		bool leaveServer(std::string server_id);                                                                              //to do test this
 		std::vector<DMChannel> getDirectMessageChannels();
 		DMChannel createDirectMessageChannel(std::string recipient_id);
@@ -159,6 +159,7 @@ namespace SleepyDiscord {
 
 		void waitTilReady();
 		const bool isReady() { return ready; }
+		const bool isBot() { return bot; }
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		void quit();	//public function for diconnecting
 		virtual void run();
@@ -262,7 +263,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
-		void heartbeat();
+		void resumeHeartbeatLoop();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(const std::string & uri) { return false; }
@@ -272,7 +273,7 @@ namespace SleepyDiscord {
 	private:
 		int heartbeatInterval = 0;
 		int64_t nextHeartbeat = 0;
-		int lastSReceived;
+		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
 
 		enum OPCode {
@@ -301,6 +302,7 @@ namespace SleepyDiscord {
 		void getTheGateway();
 		char theGateway[32];
 		bool ready;
+		bool bot;
 		void sendIdentity();
 		void sendResume();
 		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form
@@ -335,13 +337,18 @@ namespace SleepyDiscord {
 
 		//for endpoint functions
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions);
+		
+		//client tracking
+		static std::vector<BaseDiscordClient*> clients;
+		ClientHandle handle;
+		friend BaseDiscordClient* DiscordObject::getOriginClient();
 	};
 }
 
 //locks away functions that users shouldn't be using
-#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                 \
-                                     using BaseDiscordClient::processMessage; \
-                                     using BaseDiscordClient::heartbeat;      \
+#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                      \
+                                     using BaseDiscordClient::processMessage;      \
+                                     using BaseDiscordClient::resumeHeartbeatLoop; \
                                      using BaseDiscordClient::start;
 
 //This comment stops a warning

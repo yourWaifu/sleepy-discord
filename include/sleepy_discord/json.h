@@ -18,9 +18,9 @@ extern "C" {
 #endif
 	typedef struct {	//values need for JSON_findMuitiple to function
 		const char * name;
-		unsigned int namePosition;
-		unsigned int nameLength;
-		unsigned int valueLength;
+		size_t namePosition;
+		size_t nameLength;
+		size_t valueLength;
 	} JSON_findMuitipleStruct;
 
 	void JSON_skipString(const char * JSONstring, unsigned int *position);
@@ -51,12 +51,20 @@ namespace SleepyDiscord { namespace json {
 	const std::string optionalInteger(const int64_t num);
 	const std::string boolean(const bool boolean);
 
-	template<class TypeToConvertTo>
-	struct RawJSONArrayWrapper {
+	struct BaseArrayWrapper {
 		const std::string rawJSON; //to do change this to s pointer
 
-		RawJSONArrayWrapper(const std::string json) : rawJSON(json) {}
+		BaseArrayWrapper(const std::string json) : rawJSON(json) {}
 
+		inline std::vector<std::string> vectorStrings() { return getArray(&rawJSON); }
+		inline std::string* cArrayStrings() { return &vectorStrings()[0]; }
+
+		operator std::string() const { return rawJSON; }
+	};
+
+	template<class TypeToConvertTo>
+	struct ArrayWrapper : public BaseArrayWrapper {
+		using BaseArrayWrapper::BaseArrayWrapper;
 		template<template<class...> class Container, typename Type = TypeToConvertTo>
 		Container<Type> get() {
 			std::vector<std::string> jsonArray = getArray(&rawJSON);
@@ -73,19 +81,21 @@ namespace SleepyDiscord { namespace json {
 		template<template<class...> class Container>
 		inline Container<std::string> getStrings() { return get<Container, std::string>(); }
 
-		inline std::vector<std::string> vectorStrings() { return getArray(&rawJSON); }
 		inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
 
 		//c arrays
 		inline TypeToConvertTo* cArray() { return &vector()[0]; }
-		inline std::string* cArrayStrings() { return &vectorStrings()[0]; }
 
-		//conversions
-		//template<template<class...> class Container>
-		//operator Container<TypeToConvertTo>() { return get<Container>(); }
-		operator std::string() const { return rawJSON; }
 		operator std::vector<std::string>() { return vectorStrings(); }
 		operator std::vector<TypeToConvertTo>() { return vector(); }
+	};
+
+	template<>
+	struct ArrayWrapper<std::string> : public BaseArrayWrapper {
+		using BaseArrayWrapper::BaseArrayWrapper;
+		operator std::vector<std::string>() {
+			return getArray(&rawJSON);
+		}
 	};
 }}
 
