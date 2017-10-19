@@ -4,10 +4,6 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::setError(int errorCode) {
 		ErrorCode code = static_cast<ErrorCode>(errorCode);
 		switch (errorCode) {
-		case AN_ERROR : onError(code, "A wild error appeared"                                            ); break;
-		case NO_ERRORS: onError(code, "Don't worry, everything is ok"                                    ); break;
-		case OTHER    : onError(code, "The programmer was too lazy to give this error a code and message"); break;
-
 		//HTTP Response/Error Codes
 		case OK                 : onError(code, "The request completed successfully"                                             ); break;
 		case CREATED            : onError(code, "The entity was created successfully"                                            ); break;
@@ -82,9 +78,11 @@ namespace SleepyDiscord {
 		case SHARDING_REQUIRED    : onError(code, "sharding required - The session would have handled too many guilds - you are required to shard your connection in order to connect."); break;
 		
 		//Sleepy Errors
-		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"); break;
-		case EVENT_UNKNOWN : onError(code, "Unexpected or unknown event occurred"             ); break;
-		case GATEWAY_FAILED: onError(code, "Could not get the gateway"                        ); break;
+		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"                ); break;
+		case EVENT_UNKNOWN : onError(code, "Unexpected or unknown event occurred"                             ); break;
+		case GATEWAY_FAILED: onError(code, "Could not get the gateway"                                        ); break;
+		case GENERAL_ERROR : onError(code, "A wild error appeared"                                            ); break;
+		case LAZY_ERROR    : onError(code, "The programmer was too lazy to give this error a code and message"); break;
 		}
 	}
 }

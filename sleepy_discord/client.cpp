@@ -390,7 +390,7 @@ namespace SleepyDiscord {
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
 #ifndef SLEEPY_ONE_THREAD
 			if (condition != nullptr) condition->notify_all();
-			else onError(OTHER, "Received a HELLO packet after condition was deallocated");
+			else onError(GENERAL_ERROR, "Received a HELLO packet after condition was deallocated");
 #endif
 			if (!ready) sendIdentity();
 			else sendResume();

@@ -38,7 +38,7 @@ namespace SleepyDiscord {
 		_client::connection_ptr con = this_client.get_connection(uri, ec);
 
 		if (ec) {
-			onError(OTHER, "Connect initialization: " + ec.message());
+			onError(GENERAL_ERROR, "Connect initialization: " + ec.message());
 			return false;
 		}
 		// Grab a handle for this connection so we can talk to it in a thread 
