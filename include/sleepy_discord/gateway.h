@@ -10,11 +10,12 @@ namespace SleepyDiscord {
 	};
 
 	enum Status {
-		online       = 1,
-		doNotDisturb = 2,
-		idle         = 3,
-		invisuble    = 4,
-		offline      = 5
+		statusError = 0,
+		online         ,
+		doNotDisturb   ,
+		idle           ,
+		invisuble      ,
+		offline        
 	};
 
 	struct Game : DiscordObject {

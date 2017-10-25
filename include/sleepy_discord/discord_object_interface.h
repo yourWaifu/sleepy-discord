@@ -39,7 +39,7 @@ namespace SleepyDiscord {
 		modIf(condition, variable, modifier, value) \
 			if (condition(value)) variable = modifier(value)
 #define \
-		modIfElse(condition, variable, modifier, value, el) \
+		modIfElse(condition, variable, modifier, el, value) \
 			variable = condition(value) ? modifier(value) : el
 
 		////this doesn't work, but the above does
@@ -57,7 +57,7 @@ namespace SleepyDiscord {
 		setIf(condition, variable, value) \
 			if (condition(value)) variable = value
 #define \
-		setIfElse(condition, variable, value, el) \
+		setIfElse(condition, variable, el, value) \
 			variable = condition(value) ? value : el
 
 		template<typename Number>

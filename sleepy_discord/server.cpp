@@ -59,13 +59,13 @@ namespace SleepyDiscord {
 		};
 		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
 
-		//        condition  felid       modifier         value               felid        else
-		                     user      = User(           &values[index(names, "user"     )]    );
-		setIfElse(isDefined, nick      ,                  values[index(names, "nick"     )], "");
-		                     roles     = json::getArray( &values[index(names, "roles"    )]    );
-		                     joined_at =                  values[index(names, "joined_at")]     ;
-		                     deaf      = getBool(         values[index(names, "deaf"     )]    );
-		                     mute      = getBool(         values[index(names, "mute"     )]    );
+		//        condition  felid       modifier         else value               felid
+		                     user      = User(                &values[index(names, "user"     )]);
+		setIfElse(isDefined, nick      ,                 , "", values[index(names, "nick"     )]);
+		                     roles     = json::getArray(      &values[index(names, "roles"    )]);
+		                     joined_at =                       values[index(names, "joined_at")] ;
+		                     deaf      = getBool(              values[index(names, "deaf"     )]);
+		                     mute      = getBool(              values[index(names, "mute"     )]);
 	}
 
 	ServerMember::ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id) {
