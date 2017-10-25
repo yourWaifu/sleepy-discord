@@ -2,9 +2,7 @@
 
 namespace SleepyDiscord {
 	enum ErrorCode {
-		AN_ERROR            = 0, //you'll get an error if this was ERROR
-		NO_ERRORS           = 1,
-		OTHER               = 2,
+		ERROR_ZERO = 0,
 
 		//HTTP Response/Error Codes
 		SWITCHING_PROTOCOLS = 101, //The server has acknowledged a request to switch protocols
@@ -40,5 +38,7 @@ namespace SleepyDiscord {
 		CONNECT_FAILED = 5000, //Failed to connect to the Discord api after 4 trys
 		EVENT_UNKNOWN  = 5001, //Unexpected or unknown event occurred
 		GATEWAY_FAILED = 5002, //Could not get the gateway
+		GENERAL_ERROR  = 5003, //Used when you are too lazy to use a error code
+		LAZY_ERROR     = 5004, //Used when you are too lazy to use a error code and message
 	};
 }
