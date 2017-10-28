@@ -561,6 +561,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="..\deps\cpr\cpr\payload.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\proxies.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\session.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp" />
+    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
     <ClCompile Include="attachment.cpp" />
     <ClCompile Include="channel.cpp" />
