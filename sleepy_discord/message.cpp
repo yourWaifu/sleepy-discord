@@ -32,7 +32,7 @@ namespace SleepyDiscord {
 		mention_roles    = json::getArray(           &values[index(names, "mention_roles"   )]);
 		attachments      = JSON_getArray<Attachment>(&values[index(names, "attachments"     )]);
 		embeds           = JSON_getArray<Embed>(     &values[index(names, "embeds"          )]);
-		modIfElse(isDefined, nonce, 0, values[index(names, "nonce")]);
+		modIfElse(isDefined, nonce, toLongLong, 0, values[index(names, "nonce")]);
 		pinned           = getBool(                   values[index(names, "pinned"          )]);
 	}
 

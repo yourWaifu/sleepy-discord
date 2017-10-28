@@ -72,6 +72,10 @@ namespace SleepyDiscord {
 			return toNumber(std::stoi, value);
 		}
 
+		inline long long toLongLong(std::string& value) {
+			return toNumber(std::stoll, value);
+		}
+
 		inline unsigned long toUnsignedLong(std::string& value) {
 			return toNumber(std::stoul, value);
 		}
