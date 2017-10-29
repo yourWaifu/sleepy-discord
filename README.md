@@ -38,6 +38,10 @@ Possible Output: Message sent
 ```
 Hello Sleepy Flower Girl
 ```
+
+More complex examples:
+ - [Rock Paper Scissors](https://github.com/yourWaifu/sleepy-discord/blob/master/examples/rock-paper-scissors/main.cpp)
+ - [Unofficial Discord 3DS Client](https://github.com/yourWaifu/Unofficial-Discord-3DS-Client)
 # Will Updating the library break my bot?
 
 Yes, and for now I don't plan on making 0.0 versions backwards compatible with 1.0 versions or later.
