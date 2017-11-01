@@ -61,7 +61,7 @@ namespace SleepyDiscord {
 
 		//        condition  felid       modifier         else value               felid
 		                     user      = User(                &values[index(names, "user"     )]);
-		setIfElse(isDefined, nick      ,                   "", values[index(names, "nick"     )]);
+		setIfElse(isDefined, nick                          "", values[index(names, "nick"     )]);
 		                     roles     = json::getArray(      &values[index(names, "roles"    )]);
 		                     joined_at =                       values[index(names, "joined_at")] ;
 		                     deaf      = getBool(              values[index(names, "deaf"     )]);
