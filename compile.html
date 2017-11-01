@@ -262,6 +262,19 @@ The first step to using Sleepy Discord
 
 <p>Then unzip it by extracting the files out of the zip file</p>
 
+<h2 id="using-the-setup-script">Using the setup script</h2>
+<pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\&gt;</span> python -v
+Python 3.6.3 <span class="o">(</span>v3.6.3:2c5fed8, Oct  3 2017, 17:26:49<span class="o">)</span> <span class="o">[</span>MSC v.1900 32 bit <span class="o">(</span>Intel<span class="o">)]</span> on win32
+</code></pre>
+<p>Make sure you have Python 3.6.3, by using <code class="prettyprint">python -V</code>.</p>
+<pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\s</span>leepy-discord-master<span class="se">\&gt;</span> .<span class="se">\s</span>etup.py
+What OS are you building Sleepy Discord <span class="k">for</span>?
+&gt;0
+What libraries <span class="k">do </span>you want to use?
+&gt;0 1
+</code></pre>
+<p>Run the script <code class="prettyprint">setup.py</code> by double clicking the py file, or call <code class="prettyprint">.\setup.py</code> in the command line. Then just follow the instructions on screen. Once that&rsquo;s done go to <a href="(##compiling-sleepy-discord)">Compiling Sleepy Discord</a></p>
+
 <h2 id="downloading-cpr">Downloading CPR</h2>
 
 <aside class="notice">
@@ -310,17 +323,11 @@ Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. <a href="http
 
 <h3 id="visual-studio"><a href="#visual-studio">Visual Studio</a></h3>
 
-<aside class="notice">
-I plan on adding more in the future
-</aside>
+<h3 id="make"><a href="#make">Make</a></h3>
 
 <h2 id="visual-studio">Visual Studio</h2>
 
-<aside class="warning">
-Right now, There&rsquo;s an issue with the way cpr is linked. For now, please add the missing files &ldquo;ssl_options.cpp&rdquo; and &ldquo;timeout.cpp&rdquo; from the cpr/cpr folder. You can do this by dragging and dropping the files from the file explorer to the Sleepy Discord solution in the solution explorer on Visual Studio. A fix is on the way.
-</aside>
-
-<p>Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And your done.</p>
+<p>Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And you&rsquo;re done.</p>
 
 <aside class="success">
 If you were able to compile the library, but can&rsquo;t find it, look up at the toolbar, click Project and then Properties.<br>
@@ -332,6 +339,12 @@ Then do the same thing for the Target Name to get the name of the file.
 <aside class="success">
 Don&rsquo;t forget to change the configuration to &ldquo;Release&rdquo; if you don&rsquo;t want the debug version.
 </aside>
+
+<h2 id="make">Make</h2>
+<pre class="highlight shell tab-shell"><code><span class="nb">cd </span>buildtools/
+make -f Makefile.linux
+</code></pre>
+<p>Call those commands in your shell, and you&rsquo;re done.</p>
 
 <h2 id="the-next-step">The Next Step</h2>
 
