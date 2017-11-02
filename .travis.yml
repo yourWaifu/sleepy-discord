@@ -2,4 +2,6 @@ dist: trusty
 sudo: false
 language: cpp
 
-script: make -f buildtools/Makefile.linux
+script: 
+- cd buildtools
+- make -f Makefile.linux
