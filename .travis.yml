@@ -2,14 +2,6 @@ dist: trusty
 sudo: false
 language: cpp
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
-
 script: 
 - cd buildtools
-- make -f Makefile.linux
+- make -f Makefile.linux CXXFLAGS="-Wall -c -std=c++11"
