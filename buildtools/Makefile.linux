@@ -1,8 +1,8 @@
-         CXX       = g++ #compiler
-override CXXFLAGS := -Wall -c #flags
-         SOURCE    = ../sleepy_discord
-         INCLUDE   = ../include/sleepy_discord ../include/sleepy_discord/IncludeNonexistent ../deps/include
-         TARGET    = libsleepy_discord
+         CXX      = g++ #compiler
+override CXXFLAGS = -Wall -c $(CXXFLAGS) #flags
+         SOURCE   = ../sleepy_discord
+         INCLUDE  = ../include/sleepy_discord ../include/sleepy_discord/IncludeNonexistent ../deps/include
+         TARGET   = libsleepy_discord
 
 all: ${TARGET}.o ${TARGET}.a
 
