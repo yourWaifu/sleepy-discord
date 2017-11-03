@@ -40,7 +40,7 @@ namespace SleepyDiscord {
 		Response request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
-		const std::string path(const char* source, ...);	//only works with std::strings
+		const std::string path(const char* source, std::initializer_list<std::string> values = {});
 
 		void testFunction(std::string teststring);
 

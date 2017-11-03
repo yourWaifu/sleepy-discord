@@ -115,31 +115,24 @@ namespace SleepyDiscord {
 		return request(method, url, "", httpParameters);
 	}*/
 
-	const std::string BaseDiscordClient::path(const char * source, ...) {
-		va_list arguments;
-		va_start(arguments, source);
-
+	const std::string BaseDiscordClient::path(const char * source, std::initializer_list<std::string> values) {
 		std::string path(source);
-		const char* start = 0;
-		for (const char* c = path.c_str(); ; ++c) {
-			switch (*c) {
-			case '{': start = c; break;
-			case '}':
-			{
-				const unsigned int startIndex = start - path.c_str();
-				const std::string replaceWith = va_arg(arguments, std::string);
-				if (replaceWith != "")
-					path.replace(startIndex, c - path.c_str() - startIndex + 1, replaceWith);
-				else
-					path.erase(startIndex, c - path.c_str() - startIndex + 1);
-				c = start = path.c_str() + startIndex + replaceWith.length() - 1;
+		const char* start = path.c_str();
+		for (std::string replaceWith : values) {
+			unsigned int length = 0;
+			for (const char* c = start; length == 0; ++c) {
+				switch (*c) {
+				case '{': start = c; break;
+				case '}': length = c - start + 1; break;
+				case 0: return path;
+				default: break;
+				}
 			}
-			break;
-			case 0:
-				va_end(arguments);
-				return path;
-			}
+			const unsigned int startIndex = start - path.c_str();
+			path.replace(startIndex, length, replaceWith);
+			start = path.c_str() + startIndex + replaceWith.length() - 1;
 		}
+		return path;
 	}
 
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince) {

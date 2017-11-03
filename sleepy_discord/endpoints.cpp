@@ -6,13 +6,12 @@ namespace SleepyDiscord {
 		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
 		//		{"color", json::UInteger(0x1000000)}
 		//}));
-		std::vector<Message> message = getMessages("202917641101246465", limit, "", 2);
 	}
 	//
 	//channel functions
 	//
 	Message BaseDiscordClient::sendMessage(std::string channel_id, std::string message, bool tts) {
-		return request<Message>(Post, path("channels/{channel.id}/messages", channel_id), "{\"content\":\"" + message + (tts ? "\",\"tts\":\"true\"" : "\"") + "}");
+		return request<Message>(Post, path("channels/{channel.id}/messages", { channel_id }), "{\"content\":\"" + message + (tts ? "\",\"tts\":\"true\"" : "\"") + "}");
 	}
 
 	Message BaseDiscordClient::uploadFile(std::string channel_id, std::string fileLocation, std::string message) {
@@ -25,17 +24,17 @@ namespace SleepyDiscord {
 	}
 
 	Message BaseDiscordClient::editMessage(std::string channel_id, std::string message_id, std::string newMessage) {
-		return request<Message>(Patch, path("channels/{channel.id}/messages/{message.id}", channel_id, message_id), "{\"content\": \"" + newMessage + "\"}");
+		return request<Message>(Patch, path("channels/{channel.id}/messages/{message.id}", { channel_id, message_id }), "{\"content\": \"" + newMessage + "\"}");
 	}
 
 	bool BaseDiscordClient::deleteMessage(const std::string channel_id, const std::string * message_id, const unsigned int numOfMessages) {
-		if (numOfMessages == 1) return request(Delete, path("channels/{channel.id}/messages/{message.id}", channel_id, *message_id)).statusCode == NO_CONTENT;
+		if (numOfMessages == 1) return request(Delete, path("channels/{channel.id}/messages/{message.id}", { channel_id, *message_id })).statusCode == NO_CONTENT;
 		std::string JSON = "{\"messages\":[";
 		for (unsigned int i = 0; i < numOfMessages; ++i) {
 			JSON += message_id[i];
 		}
 		JSON += "]}";
-		return request(Post, path("channels/{channel.id}/messages/bulk-delete", channel_id), JSON).statusCode == NO_CONTENT;
+		return request(Post, path("channels/{channel.id}/messages/bulk-delete", { channel_id }), JSON).statusCode == NO_CONTENT;
 	}
 
 	Channel BaseDiscordClient::editChannel(std::string channel_id, std::string name, std::string topic) {
@@ -45,7 +44,7 @@ namespace SleepyDiscord {
 		if (topic != "")
 			json += "\"topic\":\"" + topic + "\",";
 		json[json.length() - 1] = '}';
-		auto r = request(Patch, path("channels/{channel.id}", channel_id), json);
+		auto r = request(Patch, path("channels/{channel.id}", { channel_id }), json);
 		return Channel(&r.text);
 	}
 
@@ -58,11 +57,11 @@ namespace SleepyDiscord {
 	}
 
 	Channel BaseDiscordClient::deleteChannel(std::string channel_id) {
-		return request<Channel>(Delete, path("channels/{channel.id}", channel_id));
+		return request<Channel>(Delete, path("channels/{channel.id}", { channel_id }));
 	}
 
 	Channel BaseDiscordClient::getChannel(std::string channel_id) {
-		return request<Channel>(Get, path("channels/{channel.id}", channel_id));
+		return request<Channel>(Get, path("channels/{channel.id}", { channel_id }));
 	}
 
 	json::ArrayWrapper<Message> BaseDiscordClient::getMessages(std::string channel_id, GetMessagesKey when, std::string message_id, uint8_t _limit) {
@@ -77,34 +76,34 @@ namespace SleepyDiscord {
 		}
 		if (trueLimit != 0 && when != limit) key += '&';
 		return request(Get,
-			path("channels/{channel.id}/messages{key}{limit}", channel_id, key,
-			(trueLimit != 0 ? "limit=" + std::to_string(trueLimit) : ""))).text;
+			path("channels/{channel.id}/messages{key}{limit}", { channel_id, key,
+			(trueLimit != 0 ? "limit=" + std::to_string(trueLimit) : "")})).text;
 	}
 
 	Message BaseDiscordClient::getMessage(std::string channel_id, std::string message_id) {
-		return request<Message>(Get, path("channels/{channel.id}/messages/{message.id}", channel_id, message_id));
+		return request<Message>(Get, path("channels/{channel.id}/messages/{message.id}", { channel_id, message_id }));
 	}
 
 	bool BaseDiscordClient::addReaction(std::string channel_id, std::string message_id, std::string emoji) {
-		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", channel_id, message_id, emoji)).statusCode == NO_CONTENT;
+		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", { channel_id, message_id, emoji })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::removeReaction(std::string channel_id, std::string message_id, std::string emoji, std::string user_id) {
-		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", channel_id, message_id, emoji, user_id)).statusCode == NO_CONTENT;
+		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channel_id, message_id, emoji, user_id })).statusCode == NO_CONTENT;
 	}
 
 	std::vector<Reaction> BaseDiscordClient::getReactions(std::string channel_id, std::string message_id, std::string emoji) {
-		return requestVector<Reaction>(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", channel_id, message_id, emoji));
+		return requestVector<Reaction>(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channel_id, message_id, emoji }));
 	}
 
 	void BaseDiscordClient::removeAllReactions(std::string channel_id, std::string message_id) {
-		request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions", channel_id, message_id));
+		request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions", { channel_id, message_id }));
 	}
 
 	bool BaseDiscordClient::editChannelPermissions(std::string channel_id, std::string id, int allow, int deny, std::string type) {
 		return request(
 			Put,
-			path("channels/{channel.id}/permissions/{overwrite.id}", channel_id, id),
+			path("channels/{channel.id}/permissions/{overwrite.id}", { channel_id, id }),
 			json::createJSON({
 				{ "allow", std::to_string(allow) },
 				{ "deny", std::to_string(deny) },
@@ -113,11 +112,11 @@ namespace SleepyDiscord {
 	}
 
 	std::vector<Invite> BaseDiscordClient::getChannelInvites(std::string channel_id) {
-		return requestVector<Invite>(Get, path("channels/{channel.id}/invites", channel_id));
+		return requestVector<Invite>(Get, path("channels/{channel.id}/invites", { channel_id }));
 	}
 
 	Invite BaseDiscordClient::createChannelInvite(std::string channel_id, const uint64_t maxAge, const uint64_t maxUses, const bool temporary, const bool unique) {
-		return request<Invite>(Post, path("channels/{channel.id}/invites"),
+		return request<Invite>(Post, path("channels/{channel.id}/invites"), 
 			json::createJSON({
 				{"max_age", json::optionalUInteger(maxAge) },
 				{"max_uses", json::optionalUInteger(maxUses) },
@@ -127,50 +126,50 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::removeChannelPermission(std::string channel_id, std::string id) {
-		return request(Delete, path("channels/{channel.id}/permissions/{overwrite.id}", channel_id, id)).statusCode == NO_CONTENT;
+		return request(Delete, path("channels/{channel.id}/permissions/{overwrite.id}", { channel_id, id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::sendTyping(std::string channel_id) {
-		return request(Post, path("channels/{channel.id}/typing", channel_id)).statusCode == NO_CONTENT;
+		return request(Post, path("channels/{channel.id}/typing", { channel_id })).statusCode == NO_CONTENT;
 	}
 
 	std::vector<Message> BaseDiscordClient::getPinnedMessages(std::string channel_id) {
-		return requestVector<Message>(Get, path("channels/{channel.id}/pins", channel_id));
+		return requestVector<Message>(Get, path("channels/{channel.id}/pins", { channel_id }));
 	}
 
 	bool BaseDiscordClient::pinMessage(std::string channel_id, std::string message_id) {
-		return request(Put, path("channels/{channel.id}/pins/{message.id}", channel_id, message_id)).statusCode == NO_CONTENT;
+		return request(Put, path("channels/{channel.id}/pins/{message.id}", { channel_id, message_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::unpinMessage(std::string channel_id, std::string message_id) {
-		return request(Delete, path("channels/{channel.id}/pins/{message.id}", channel_id, message_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("channels/{channel.id}/pins/{message.id}", { channel_id, message_id })).statusCode == NO_CONTENT;
 	}
 
 	void BaseDiscordClient::addRecipient(std::string channel_id, std::string user_id) {
-		request(Put, path("channels/{channel.id}/recipients/{user.id}", channel_id, user_id));
+		request(Put, path("channels/{channel.id}/recipients/{user.id}", { channel_id, user_id }));
 	}
 
 	void BaseDiscordClient::removeRecipient(std::string channel_id, std::string user_id) {
-		request(Delete, path("channels/{channel.id}/recipients/{user.id}", channel_id, user_id));
+		request(Delete, path("channels/{channel.id}/recipients/{user.id}", { channel_id, user_id }));
 	}
 
 	//
 	//server functions
 	//
 	Channel BaseDiscordClient::createTextChannel(std::string server_id, std::string name) {
-		return request<Channel>(Post, path("guilds/{guild.id}/channels", server_id), "{\"name\": \"" + name + "\", \"type\": \"text\"}");
+		return request<Channel>(Post, path("guilds/{guild.id}/channels", { server_id }), "{\"name\": \"" + name + "\", \"type\": \"text\"}");
 	}
 
 	std::vector<Channel> BaseDiscordClient::editChannelPositions(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions) {
-		return requestVector<Channel>(Patch, path("guilds/{guild.id}/channels", server_id), getEditPositionString(positions));
+		return requestVector<Channel>(Patch, path("guilds/{guild.id}/channels", { server_id }), getEditPositionString(positions));
 	}
 
 	ServerMember SleepyDiscord::BaseDiscordClient::getMember(std::string server_id, std::string user_id) {
-		return request<ServerMember>(Get, path("guilds/{guild.id}/members/{user.id}", server_id, user_id));
+		return request<ServerMember>(Get, path("guilds/{guild.id}/members/{user.id}", { server_id, user_id }));
 	}
 
 	std::vector<ServerMember> BaseDiscordClient::listMembers(std::string server_id, uint16_t limit, std::string after) {
-		return requestVector<ServerMember>(Get, path("guilds/{guild.id}/members", server_id), json::createJSON({
+		return requestVector<ServerMember>(Get, path("guilds/{guild.id}/members", { server_id }), json::createJSON({
 			{ "limit", json::optionalUInteger(limit) },
 			{ "after", json::string(after) }
 		}));
@@ -207,7 +206,7 @@ namespace SleepyDiscord {
 	}
 
 	std::vector<Role> BaseDiscordClient::editRolePosition(std::string server_id, std::vector<std::pair<std::string, uint64_t>> positions) {
-		return requestVector<Role>(Patch, path("guilds/{guild.id}/roles", server_id), getEditPositionString(positions));
+		return requestVector<Role>(Patch, path("guilds/{guild.id}/roles", { server_id }), getEditPositionString(positions));
 	}
 
 	std::string BaseDiscordClient::editRole(std::string server_id, std::string role_id, std::string name, Permission permissions, uint32_t color, int position, uint8_t hoist, uint8_t mentionable) {
@@ -215,7 +214,7 @@ namespace SleepyDiscord {
 		const std::string hoistString       = hoist       >> 1  == 0 ? json::boolean (hoist      ) : "";	//if larger then 1 bit, do change hoist
 		const std::string mentionableString = mentionable >> 1  == 0 ? json::boolean (mentionable) : "";
 
-		return request(Patch, path("guilds/{guild.id}/roles/{role.id}", server_id, role_id), json::createJSON({
+		return request(Patch, path("guilds/{guild.id}/roles/{role.id}", { server_id, role_id }), json::createJSON({
 			{ "name"       , json::string(name)         },
 			{ "permissions", json::integer(permissions) },
 			{ "color"      , colorString                },
@@ -225,59 +224,59 @@ namespace SleepyDiscord {
 	}
 
 	bool SleepyDiscord::BaseDiscordClient::deleteRole(std::string server_id, std::string role_id) {
-		return request(Delete, path("guilds/{guild.id}/roles/{role.id}", server_id, role_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("guilds/{guild.id}/roles/{role.id}", { server_id, role_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::muteServerMember(std::string server_id, std::string user_id, bool mute) {
-		return request(Patch, path("guilds/{guild.id}/members/{user.id}", server_id, user_id), mute ? "{\"mute\":true}" : "{\"mute\":false}").statusCode == NO_CONTENT;
+		return request(Patch, path("guilds/{guild.id}/members/{user.id}", { server_id, user_id }), mute ? "{\"mute\":true}" : "{\"mute\":false}").statusCode == NO_CONTENT;
 	}
 
 	Server BaseDiscordClient::getServer(std::string server_id) {
-		return request<Server>(Get, path("guilds/{guild.id}", server_id));
+		return request<Server>(Get, path("guilds/{guild.id}", { server_id }));
 	}
 
 	Server BaseDiscordClient::deleteServer(std::string server_id) {
-		return request<Server>(Delete, path("guilds/{guild.id}", server_id));
+		return request<Server>(Delete, path("guilds/{guild.id}", { server_id }));
 	}
 
 	json::ArrayWrapper<Channel> SleepyDiscord::BaseDiscordClient::GetServerChannels(std::string server_id) {
-		return request(Get, path("guilds/{guild.id}/channels", server_id)).text;
+		return request(Get, path("guilds/{guild.id}/channels", { server_id })).text;
 	}
 
 	bool BaseDiscordClient::editNickname(std::string server_id, std::string newNickname) {
-		return request(Patch, path("guilds/{guild.id}/members/@me/nick", server_id), "{\"nick\":\"" + newNickname + "\"}").statusCode == OK;
+		return request(Patch, path("guilds/{guild.id}/members/@me/nick", { server_id }), "{\"nick\":\"" + newNickname + "\"}").statusCode == OK;
 	}
 
 	bool BaseDiscordClient::addRole(std::string server_id, std::string member_id, std::string role_id) {
-		return request(Put, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", server_id, member_id, role_id)).statusCode == NO_CONTENT;
+		return request(Put, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { server_id, member_id, role_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::removeRole(std::string server_id, std::string member_id, std::string role_id) {
-		return request(Delete, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", server_id, member_id, role_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { server_id, member_id, role_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::kickMember(std::string server_id, std::string member_id) {
-		return request(Delete, path("guilds/{guild.id}/members/{user.id}", server_id, member_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("guilds/{guild.id}/members/{user.id}", { server_id, member_id })).statusCode == NO_CONTENT;
 	}
 
 	std::vector<User> BaseDiscordClient::getBans(std::string server_id) {
-		return requestVector<User>(Get, path("guilds/{guild.id}/bans", server_id));
+		return requestVector<User>(Get, path("guilds/{guild.id}/bans", { server_id }));
 	}
 
 	bool BaseDiscordClient::banMember(std::string server_id, std::string member_id) {
-		return request(Put, path("guilds/{guild.id}/bans/{user.id}", server_id, member_id)).statusCode == NO_CONTENT;
+		return request(Put, path("guilds/{guild.id}/bans/{user.id}", { server_id, member_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::unbanMember(std::string server_id, std::string member_id) {
-		return request(Delete, path("guilds/{guild.id}/bans/{user.id}", server_id, member_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("guilds/{guild.id}/bans/{user.id}", { server_id, member_id })).statusCode == NO_CONTENT;
 	}
 
 	std::vector<Role> BaseDiscordClient::getRoles(std::string server_id) {
-		return requestVector<Role>(Get, path("guilds/{guild.id}/roles", server_id));
+		return requestVector<Role>(Get, path("guilds/{guild.id}/roles", { server_id }));
 	}
 
 	Role BaseDiscordClient::createRole(std::string server_id, std::string name, Permission permissions, unsigned int color, bool hoist, bool mentiionable) {
-		return request<Role>(Post, path("guilds/{guild.id}/roles", server_id), json::createJSON({
+		return request<Role>(Post, path("guilds/{guild.id}/roles", { server_id }), json::createJSON({
 			{ "name"       , json::string (name        ) },
 			{ "permissions", json::integer(permissions ) },
 			{ "color"      , json::integer(color       ) },
@@ -288,7 +287,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::pruneMembers(std::string server_id, const unsigned int numOfDays) {
 		if (numOfDays == 0) return;
-		request(Post, path("guilds/{guild.id}/prune", server_id), "{\"days\":" + numOfDays + '}');
+		request(Post, path("guilds/{guild.id}/prune", { server_id }), "{\"days\":" + numOfDays + '}');
 	}
 
 	std::vector<VoiceRegion> BaseDiscordClient::getVoiceRegions() {
@@ -296,22 +295,22 @@ namespace SleepyDiscord {
 	}
 
 	std::vector<Invite> BaseDiscordClient::getServerInvites(std::string server_id) {
-		return requestVector<Invite>(Get, path("guilds/{guild.id}/invites", server_id));
+		return requestVector<Invite>(Get, path("guilds/{guild.id}/invites", { server_id }));
 	}
 
 	std::string BaseDiscordClient::getIntegrations(std::string server_id) {
-		return request(Get, path("guilds/{guild.id}/integrations", server_id)).text;
+		return request(Get, path("guilds/{guild.id}/integrations", { server_id })).text;
 	}
 
 	bool BaseDiscordClient::createIntegration(std::string server_id, std::string type, std::string integration_id) {
-		return request(Post, path("guilds/{guild.id}/integrations", server_id), json::createJSON({
+		return request(Post, path("guilds/{guild.id}/integrations", { server_id }), json::createJSON({
 			{ "type", json::string(type) },
 			{ "id", json::string(integration_id) }
 		})).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::editIntergration(std::string server_id, std::string integration_id, int expireBegavior, int expireGracePeriod, bool enbleEmoticons) {
-		return request(Patch, path("guilds/{guild.id}/integrations/{integration.id}", server_id, integration_id), json::createJSON({
+		return request(Patch, path("guilds/{guild.id}/integrations/{integration.id}", { server_id, integration_id }), json::createJSON({
 			{ "expire_behavior", json::integer(expireBegavior) },
 			{ "expire_grace_period", json::integer(expireGracePeriod) },
 			{ "enable_emoticons", json::boolean(enbleEmoticons) }
@@ -319,20 +318,20 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::deleteIntegration(std::string server_id, std::string integration_id) {
-		return request(Delete, path("guilds/{guild.id}/integrations/{integration.id}", server_id, integration_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("guilds/{guild.id}/integrations/{integration.id}", { server_id, integration_id })).statusCode == NO_CONTENT;
 	}
 
 	bool BaseDiscordClient::syncIntegration(std::string server_id, std::string integration_id) {
-		return request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", server_id, integration_id)).statusCode == NO_CONTENT;
+		return request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", { server_id, integration_id })).statusCode == NO_CONTENT;
 	}
 	ServerEmbed BaseDiscordClient::getServerEmbed(std::string server_id) {
-		return request<ServerEmbed>(Get, path("guilds/{guild.id}/embed", server_id));
+		return request<ServerEmbed>(Get, path("guilds/{guild.id}/embed", { server_id }));
 	}
 	//
 	//Invite functions
 	//
 	Invite BaseDiscordClient::inviteEndpoint(RequestMethod method, std::string inviteCode) {
-		return request<Invite>(method, path("invites/{invite.code}", inviteCode));
+		return request<Invite>(method, path("invites/{invite.code}", { inviteCode }));
 	}
 
 	Invite BaseDiscordClient::getInvite(std::string inviteCode) {
@@ -354,7 +353,7 @@ namespace SleepyDiscord {
 	}
 
 	User BaseDiscordClient::getUser(std::string user_id) {
-		return request<User>(Get, path("users/{user.id}", user_id));
+		return request<User>(Get, path("users/{user.id}", { user_id }));
 	}
 
 	json::ArrayWrapper<Server> BaseDiscordClient::getServers() {
@@ -362,7 +361,7 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::leaveServer(std::string server_id) {
-		return request(Delete, path("users/@me/guilds/{guild.id}", server_id)).statusCode == NO_CONTENT;
+		return request(Delete, path("users/@me/guilds/{guild.id}", { server_id })).statusCode == NO_CONTENT;
 	}
 
 	std::vector<DMChannel> BaseDiscordClient::getDirectMessageChannels() {
@@ -381,18 +380,18 @@ namespace SleepyDiscord {
 	//Webhook functions
 	//
 	Webhook BaseDiscordClient::createWebhook(std::string channel_id, std::string name, std::string avatar) {
-		return request<Webhook>(Post, path("channels/{channel.id}/webhooks", channel_id), json::createJSON({
+		return request<Webhook>(Post, path("channels/{channel.id}/webhooks", { channel_id }), json::createJSON({
 			{"name", json::string(name)},
 			{"avatar", avatar}
 		}));
 	}
 
 	std::vector<Webhook> BaseDiscordClient::getChannelWebhooks(std::string channel_id) {
-		return requestVector<Webhook>(Get, path("channels/{channel.id}/webhooks", channel_id));
+		return requestVector<Webhook>(Get, path("channels/{channel.id}/webhooks", { channel_id }));
 	}
 
 	std::vector<Webhook> BaseDiscordClient::getServerWebhooks(std::string server_id) {
-		return requestVector<Webhook>(Get, path("guilds/{guild.id}/webhooks", server_id));
+		return requestVector<Webhook>(Get, path("guilds/{guild.id}/webhooks", { server_id }));
 	}
 
 	inline const char* optionalWebhookToken(std::string webhookToken) {
@@ -400,24 +399,24 @@ namespace SleepyDiscord {
 	}
 
 	Webhook BaseDiscordClient::getWebhook(std::string webhook_id, std::string webhookToken) {
-		return request<Webhook>(Get, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken));
+		return request<Webhook>(Get, path(optionalWebhookToken(webhookToken), { webhook_id, webhookToken }));
 	}
 
 	Webhook BaseDiscordClient::editWebhook(std::string webhook_id, std::string webhookToken, std::string name, std::string avatar) {
-		return request<Webhook>(Patch, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken), json::createJSON({
+		return request<Webhook>(Patch, path(optionalWebhookToken(webhookToken), { webhook_id, webhookToken }), json::createJSON({
 			{ "name", json::string(name) },
 			{ "avatar", json::string(avatar) }
 		}));
 	}
 
 	bool BaseDiscordClient::deleteWebhook(std::string webhook_id, std::string webhookToken) {
-		return request(Delete, path(optionalWebhookToken(webhookToken), webhook_id, webhookToken)).statusCode == NO_CONTENT;
+		return request(Delete, path(optionalWebhookToken(webhookToken), { webhook_id, webhookToken })).statusCode == NO_CONTENT;
 	}
 
 	//excute webhook
 
 	Webhook BaseDiscordClient::requestExecuteWebhook(std::string webhook_id, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts) {
-		return request<Webhook>(Post, path("webhooks/{webhook.id}/{webhook.token}{wait}", webhook_id, webhookToken, (wait ? "?around=true" : "")), json::createJSON({
+		return request<Webhook>(Post, path("webhooks/{webhook.id}/{webhook.token}{wait}", { webhook_id, webhookToken, (wait ? "?around=true" : "") }), json::createJSON({
 			pair,
 			{ "username"  , json::string(username  ) },
 			{ "avatar_url", json::string(avatar_url) },
@@ -435,7 +434,7 @@ namespace SleepyDiscord {
 	//}
 	
 	Webhook BaseDiscordClient::executeWebhook(std::string webhook_id, std::string webhookToken, filePathPart file, bool wait, std::string username, std::string avatar_url, bool tts) {
-		std::string response = request(Post, path("webhooks/{webhook.id}/{webhook.token}", webhook_id, webhookToken), {
+		std::string response = request(Post, path("webhooks/{webhook.id}/{webhook.token}", { webhook_id, webhookToken }), {
 			{ "file"      , filePathPart(file)  },
 			{ "username"  , username            },
 			{ "avatar_url", avatar_url          },
