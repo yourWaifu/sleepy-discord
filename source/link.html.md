@@ -53,13 +53,13 @@ Alt+F7 also works if you have only one project in your solution.
 > The box of Include Directories should look something like this, but with the full path
 
 ```bash
-$(projectdir)..\
+$(projectdir)..\include
 $(projectdir)..\deps
 $(projectdir)..\deps\include
-$(projectdir)..\sleepy_discord\IncludeNonexistent
+$(projectdir)..\include\sleepy_discord\IncludeNonexistent
 ```
 
-**Step 5:** Select the folder containing the folder ``sleepy_discord``, and do the same for the dependencies(``deps``), include dependencies (``deps/include``), and the ``sleepy_discord/IncludeNonexistent``. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so ``sleepy_discord/IncludeNonexistent`` needs to be last. This is so that we don't get "any include files not found" errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.
+**Step 5:** Select the folder containing the folder ``sleepy_discord``, and do the same for the dependencies(``deps``), include dependencies (``deps/include``), and the ``\include\sleepy_discord\IncludeNonexistent``. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so ``\include\sleepy_discord\IncludeNonexistent`` needs to be last. This is so that we don't get "any include files not found" errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.
 
 > The box of Library Directories should look like this, but with full paths
 
