@@ -4,4 +4,4 @@ language: cpp
 
 script: 
 - cd buildtools
-- make -f Makefile.linux CXXFLAGS="-Wall -c -std=c++11"
+- make -f Makefile.linux CXXFLAGS="-std=c++11"
