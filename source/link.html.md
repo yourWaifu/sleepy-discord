@@ -53,7 +53,7 @@ Alt+F7 also works if you have only one project in your solution.
 > The box of Include Directories should look something like this, but with the full path
 
 ```bash
-$(projectdir)..\
+$(projectdir)..\include
 $(projectdir)..\deps
 $(projectdir)..\deps\include
 $(projectdir)..\include\sleepy_discord\IncludeNonexistent
