@@ -265,13 +265,14 @@ The first step to using Sleepy Discord
 <h2 id="using-the-setup-script">Using the setup script</h2>
 <pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\&gt;</span> python -v
 Python 3.6.3 <span class="o">(</span>v3.6.3:2c5fed8, Oct  3 2017, 17:26:49<span class="o">)</span> <span class="o">[</span>MSC v.1900 32 bit <span class="o">(</span>Intel<span class="o">)]</span> on win32
+<span class="gp">&gt;&gt;&gt; </span>quit<span class="o">()</span>
 </code></pre>
 <p>Make sure you have Python 3.6.3, by using <code class="prettyprint">python -V</code>.</p>
 <pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\s</span>leepy-discord-master<span class="se">\&gt;</span> .<span class="se">\s</span>etup.py
 What OS are you building Sleepy Discord <span class="k">for</span>?
-&gt;0
+<span class="gp">&gt; </span>0
 What libraries <span class="k">do </span>you want to use?
-&gt;0 1
+<span class="gp">&gt; </span>0 1
 </code></pre>
 <p>Run the script <code class="prettyprint">setup.py</code> by double clicking the py file, or call <code class="prettyprint">.\setup.py</code> in the command line. Then just follow the instructions on screen. Once that&rsquo;s done go to <a href="(##compiling-sleepy-discord)">Compiling Sleepy Discord</a></p>
 
@@ -344,7 +345,7 @@ Don&rsquo;t forget to change the configuration to &ldquo;Release&rdquo; if you d
 <pre class="highlight shell tab-shell"><code><span class="nb">cd </span>buildtools/
 make -f Makefile.linux
 </code></pre>
-<p>Call those commands in your shell, and you&rsquo;re done.</p>
+<p>Call those commands in your shell, and you&rsquo;re done. It should compile a file called libsleepy_discord.a.</p>
 
 <h2 id="the-next-step">The Next Step</h2>
 
