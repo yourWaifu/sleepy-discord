@@ -28,15 +28,16 @@ Then unzip it by extracting the files out of the zip file
 ```powershell
 PS C:\> python -v
 Python 3.6.3 (v3.6.3:2c5fed8, Oct  3 2017, 17:26:49) [MSC v.1900 32 bit (Intel)] on win32
+>>> quit()
 ```
 Make sure you have Python 3.6.3, by using ``python -V``.
 
 ```powershell
 PS C:\sleepy-discord-master\> .\setup.py
 What OS are you building Sleepy Discord for?
->0
+> 0
 What libraries do you want to use?
->0 1
+> 0 1
 ```
 Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord]((##compiling-sleepy-discord))
 
@@ -100,7 +101,7 @@ Don't forget to change the configuration to ``Release`` if you don't want the de
 cd buildtools/
 make -f Makefile.linux
 ```
-Call those commands in your shell, and you're done.
+Call those commands in your shell, and you're done. It should compile a file called libsleepy_discord.a.
 
 ##The Next Step
 Now that you have a compiled Sleepy Discord, head over to [How to Link](link.html) to link it to a new or existing project.
