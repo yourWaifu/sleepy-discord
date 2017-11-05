@@ -41,7 +41,7 @@ PS C:\sleepy-discord-master\> .\setup.py
 What OS are you building Sleepy Discord for?
 0 - Windows
 1 - Linux
-2 -macOS
+2 - macOS
 > 0
 What libraries do you want to use?
 0 - CPR
