@@ -84,7 +84,10 @@ You are also going to need the Asio library, that can be found here [http://thin
 Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. [The latest version can be downloaded here](https://sourceforge.net/projects/asio/files/latest/download)
 </aside>
 
-Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. However, you can find openSSL precompiled on the internet. [(Here's good one)](https;//github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip) Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
+Last, you are also going to need openSSL. There's two options:
+1. Download precompiled openSSL [https;//github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip](https;//github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip).
+2. Or download it from [https://www.openssl.org/](https://www.openssl.org/). Once downloaded, extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. 
+Once one of those two options are done, make new folder in deps\include named openssl and move there content of include folder from openSSL. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
 <pre>
 ![alt text](images/cininclude.png)
 </pre>
