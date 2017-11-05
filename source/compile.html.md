@@ -22,13 +22,13 @@ The first step to using Sleepy Discord
 - Visual Studio
 - Python 3.6.3 (optional - setup script)
 
-##1. Downloading Sleepy Discord
+##Downloading Sleepy Discord
 
 [Just click here to download.](https://github.com/NoNamer64/sleepy-discord/zipball/master)
 
 Then unzip it by extracting the files out of the zip file.
 
-##2a. Using the setup script
+##Automated setting up libraries
 ```powershell
 PS C:\> python -v
 Python 3.6.3 (v3.6.3:2c5fed8, Oct  3 2017, 17:26:49) [MSC v.1900 32 bit (Intel)] on win32
@@ -50,7 +50,8 @@ What libraries do you want to use?
 ```
 Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord](##compiling-sleepy-discord).
 
-##2b.1. Downloading CPR
+##Manual setting up libraries
+###Downloading CPR
 <aside class="notice">
 You may skip this step, if you are planning on using your own http library
 </aside>
@@ -65,14 +66,14 @@ And in the cpr folder, open the opt folder. You should see an empty folder named
 ![alt text](images/cincurl.png)
 </pre>
 
-##2b.2. Downloading the Websocket Library
+###Downloading the Websocket Library
 <aside class="notice">
 You may skip this step, if you are planning on using other websocket libraries
 </aside>
 ###[Websocket++](#websocketpp)
 ###[uWebSockets](#uwebsockets)
 
-##2b.2a. Websocketpp
+###Websocketpp
 You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, open the zip file, and the websocketpp-master folder, and extract the websocketpp folder to the deps\include folder.
 <pre>
 ![alt text](images/cindeps2.png)
@@ -88,11 +89,14 @@ Last, you are also going to need openSSL. That can be found here [https://www.op
 ![alt text](images/cininclude.png)
 </pre>
 
-##3. Compiling Sleepy Discord
+##Compiling Sleepy Discord
+<u>
+There's only two options:
+</u><!--Attributes changes how links under works. Without them links send to themselves, with them send to proper place. So HAVE TO find other solution or just leave it how is it.-->
 ###[Visual Studio](#visual-studio)
 ###[Make](#make)
 
-##3a. Visual Studio
+###Visual Studio
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And you're done.
 
 <aside class="success">
@@ -105,12 +109,12 @@ Then do the same thing for the Target Name to get the name of the file.
 Don't forget to change the configuration to ``Release`` if you don't want the debug version.
 </aside>
 
-##3b. Make
+###Make
 ```shell
 cd buildtools/
 make -f Makefile.linux
 ```
 Call those commands in your shell, and you're done.
 
-##4. The Next Step
+##The Next Step
 Now that you have a compiled Sleepy Discord, head over to [How to Link](link.html) to link it to a new or existing project.
