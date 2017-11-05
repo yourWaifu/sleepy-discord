@@ -38,14 +38,14 @@ Make sure you have Python 3.6.3, by using ``python -V``.
 ```powershell
 PS C:\sleepy-discord-master\> .\setup.py
 What OS are you building Sleepy Discord for?
-(0) Windows
-(1) Linux
-(2) macOS
+0 Windows
+1 Linux
+2 macOS
 > 0
 What libraries do you want to use?
-(0) CPR
-(1) Websocket++
-(2) uWebSockets
+0 CPR
+1 Websocket++
+2 uWebSockets
 > 0 1
 ```
 Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord](##compiling-sleepy-discord).
