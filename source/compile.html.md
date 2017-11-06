@@ -17,14 +17,18 @@ search: true
 The first step to using Sleepy Discord
 </aside>
 
+##Requirements
+
+- Visual Studio (recommended)
+- Python 3.6.3 (optional - setup script)
+
 ##Downloading Sleepy Discord
-<strike>First, go to https://github.com/NoNamer64/sleepy-discord and click clone then Download Zip.</strike>
 
-[Just click here.](https://github.com/NoNamer64/sleepy-discord/zipball/master)
+[Just click here to download.](https://github.com/NoNamer64/sleepy-discord/zipball/master)
 
-Then unzip it by extracting the files out of the zip file
+Then unzip it by extracting the files out of the zip file.
 
-##Using the setup script
+##Automated setting up libraries
 ```powershell
 PS C:\> python -v
 Python 3.6.3 (v3.6.3:2c5fed8, Oct  3 2017, 17:26:49) [MSC v.1900 32 bit (Intel)] on win32
@@ -35,13 +39,20 @@ Make sure you have Python 3.6.3, by using ``python -V``.
 ```powershell
 PS C:\sleepy-discord-master\> .\setup.py
 What OS are you building Sleepy Discord for?
+0 - Windows
+1 - Linux
+2 - macOS
 > 0
 What libraries do you want to use?
+0 - CPR
+1 - Websocket++
+2 - uWebSockets
 > 0 1
 ```
-Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord]((##compiling-sleepy-discord))
+Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord](##compiling-sleepy-discord).
 
-##Downloading CPR
+##Manual setting up libraries
+###Downloading CPR
 <aside class="notice">
 You may skip this step, if you are planning on using your own http library
 </aside>
@@ -56,34 +67,40 @@ And in the cpr folder, open the opt folder. You should see an empty folder named
 ![alt text](images/cincurl.png)
 </pre>
 
-##Downloading the Websocket Library
+###Downloading the Websocket Library
 <aside class="notice">
 You may skip this step, if you are planning on using other websocket libraries
 </aside>
 ###[Websocket++](#websocketpp)
 ###[uWebSockets](#uwebsockets)
 
-##Websocketpp
-You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, Open the zip file, and the websocketpp-master folder, and extract the websocketpp folder to the deps folder.
+###Websocketpp
+You can find the Websocket++ library here [https://github.com/zaphoyd/websocketpp](https://github.com/zaphoyd/websocketpp). Once downloaded, open the zip file, and the websocketpp-master folder, and extract the websocketpp folder to the deps\include folder.
 <pre>
 ![alt text](images/cindeps2.png)
 </pre>
 
-You are also going to need the Asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps folder.
+You are also going to need the Asio library, that can be found here [http://think-async.com/Asio/Download](http://think-async.com/Asio/Download). Open the zip file, and asio folder, and include folder. Extract the asio folder, and asio.hpp file to your deps\include folder.
 <aside class="notice">
 Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. [The latest version can be downloaded here](https://sourceforge.net/projects/asio/files/latest/download)
 </aside>
 
-Last, you are also going to need openSSL. That can be found here [https://www.openssl.org/](https://www.openssl.org/). Extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. However, you can find openSSL precompiled on the internet. Once that's done, merge (or move) the include folder with the include folder in deps. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
+Last, you are also going to need openSSL. There's two options:
+1. Download precompiled openSSL: [wiki.openssl.org](https://wiki.openssl.org/index.php/Binaries) or [npcglib.org](https://www.npcglib.org/~stathis/blog/precompiled-openssl/). You will be needing 7-zip, WinRAR or other program which one is able to unzip .7z files.
+2. Or download it from [https://www.openssl.org/](https://www.openssl.org/). Once downloaded, extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. 
+Once one of those two options are done, make new folder in deps\include named openssl and move there content of include folder from openSSL. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
 <pre>
 ![alt text](images/cininclude.png)
 </pre>
 
 ##Compiling Sleepy Discord
+<u>
+There's only two options:
+</u><!--Attributes changes how links under works. Without them links send to themselves, with them send to proper place. So HAVE TO find other solution or just leave it how is it.-->
 ###[Visual Studio](#visual-studio)
 ###[Make](#make)
 
-##Visual Studio
+###Visual Studio
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And you're done.
 
 <aside class="success">
@@ -96,7 +113,7 @@ Then do the same thing for the Target Name to get the name of the file.
 Don't forget to change the configuration to ``Release`` if you don't want the debug version.
 </aside>
 
-##Make
+###Make
 ```shell
 cd buildtools/
 make -f Makefile.linux
