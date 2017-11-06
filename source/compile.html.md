@@ -19,7 +19,7 @@ The first step to using Sleepy Discord
 
 ##Requirements
 
-- Visual Studio
+- Visual Studio (recommended)
 - Python 3.6.3 (optional - setup script)
 
 ##Downloading Sleepy Discord
@@ -86,7 +86,7 @@ Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. [The latest v
 </aside>
 
 Last, you are also going to need openSSL. There's two options:
-1. Download precompiled openSSL [https;//github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip](https;//github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip).
+1. Download precompiled openSSL: [wiki.openssl.org](https://wiki.openssl.org/index.php/Binaries) or [npcglib.org](https://www.npcglib.org/~stathis/blog/precompiled-openssl/). You will be needing 7-zip, WinRAR or other program which one is able to unzip .7z files.
 2. Or download it from [https://www.openssl.org/](https://www.openssl.org/). Once downloaded, extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. 
 Once one of those two options are done, make new folder in deps\include named openssl and move there content of include folder from openSSL. Also (I forgot to do this for the pictures) you'll need to place the lib folder into deps, you'll need this to link Sleepy Discord. 
 <pre>
