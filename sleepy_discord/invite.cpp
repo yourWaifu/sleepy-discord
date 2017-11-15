@@ -1,53 +1,61 @@
 #include "invite.h"
 
-SleepyDiscord::ChannelInvite::ChannelInvite() {
-}
+namespace SleepyDiscord {
+	ChannelInvite::ChannelInvite() {
+	}
 
-SleepyDiscord::ChannelInvite::~ChannelInvite() {
-}
+	ChannelInvite::~ChannelInvite() {
+	}
 
-SleepyDiscord::ChannelInvite::ChannelInvite(const std::string * rawJson) {
-	std::initializer_list<const char*const> names = {
+	ChannelInvite::ChannelInvite(const std::string * rawJSON) : ChannelInvite(json::getValues(rawJSON->c_str(), fields)) {}
+
+	ChannelInvite::ChannelInvite(const std::vector<std::string> values) :
+		//variable value               felid
+		ID  (values[index(fields, "id"  )]),
+		name(values[index(fields, "name")]),
+		type(values[index(fields, "type")])
+	{}
+
+	const std::initializer_list<const char*const> ChannelInvite::fields = {
 		"id", "name", "type"
 	};
 
-	std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-	id   = values[index(names, "id"  )];
-	name = values[index(names, "name")];
-	type = values[index(names, "type")];
-}
+	ServerInvite::ServerInvite() {
+	}
 
-SleepyDiscord::ServerInvite::ServerInvite() {
-}
+	ServerInvite::~ServerInvite() {
+	}
 
-SleepyDiscord::ServerInvite::~ServerInvite() {
-}
+	ServerInvite::ServerInvite(const std::string * rawJSON) : ServerInvite(json::getValues(rawJSON->c_str(), fields)) {}
 
-SleepyDiscord::ServerInvite::ServerInvite(const std::string * rawJson) {
-	std::initializer_list<const char*const> names = {
+	ServerInvite::ServerInvite(const std::vector<std::string> values) :
+		//variable value                 felid
+		ID    (values[index(fields, "id"    )]),
+		name  (values[index(fields, "name"  )]),
+		splash(values[index(fields, "splash")]),
+		icon  (values[index(fields, "icon"  )])
+	{}
+
+	const std::initializer_list<const char*const> ServerInvite::fields = {
 		"id", "name", "splash", "icon"
 	};
 
-	std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-	id     = values[index(names, "id"    )];
-	name   = values[index(names, "name"  )];
-	splash = values[index(names, "splash")];
-	icon   = values[index(names, "icon"  )];
-}
+	Invite::Invite() {
+	}
 
-SleepyDiscord::Invite::Invite() {
-}
+	Invite::~Invite() {
+	}
 
-SleepyDiscord::Invite::~Invite() {
-}
+	Invite::Invite(const std::string * rawJSON) : Invite(json::getValues(rawJSON->c_str(), fields)) {}
 
-SleepyDiscord::Invite::Invite(const std::string * rawJson) {
-	std::initializer_list<const char*const> names = {
+	Invite::Invite(const std::vector<std::string> values) :
+		//variable modifier    value                     felid
+		code   (               values[index(fields, "code"   )] ),
+		server (ServerInvite( &values[index(fields, "guild"  )])),
+		channel(ChannelInvite(&values[index(fields, "channel")]))
+	{}
+
+	const std::initializer_list<const char*const> Invite::fields = {
 		"code", "guild", "channel"
 	};
-
-	std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-	code    =                values[index(names, "code"   )] ;
-	server  = ServerInvite( &values[index(names, "guild"  )]);
-	channel = ChannelInvite(&values[index(names, "channel")]);
 }

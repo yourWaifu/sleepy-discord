@@ -1,35 +1,29 @@
 #include "channel.h"
 
 namespace SleepyDiscord {
-	Channel::Channel(const std::string * rawJson) {
-		//default values
-		bitrate = 0;
-		userLimit = 0;   //this only matters on voice channels
-		position = 0;
-		topic = "";
-		lastMessage_id = "";
+	Channel::Channel(const std::string * rawJSON) : Channel(json::getValues(rawJSON->c_str(), fields)) {}
 
-		std::initializer_list<const char *const> names = {
-			"id", "guild_id", "name", "type", "position", "is_private",
-			/*"permission_overwrites",*/ "topic", "last_message_id", "bitrate", "user_limit"
-		};
+	Channel::Channel(const Response & response) : Channel(&response.text) {}
 
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-
+	Channel::Channel(const std::vector<std::string> values) :
 		//felid                modifier                        value
-		id                   =                                 values[index(names, "id"                   )]  ;
-		guild_id             =                                 values[index(names, "guild_id"             )]  ;
-		name                 =                                 values[index(names, "name"                 )]  ;
-		type                 = static_cast<ChannelType>(toInt( values[index(names, "type"                 )]));
-		position             = toInt                         ( values[index(names, "position"             )]) ;
-		isPrivate            = getBool                       ( values[index(names, "is_private"           )]) ;
-		//permissionOverwrites = Overwrite(&values[index(names, "permission_overwrites")]);
-		topic                =                                 values[index(names, "topic"                )]  ;
-		lastMessage_id       =                                 values[index(names, "last_message_id"      )]  ;
-		//const std::string 
-		bitrate              = toInt                         ( values[index(names, "bitrate"              )]) ;
-		userLimit            = toInt                         ( values[index(names, "user_limit"           )]) ;
-	}
+		ID                   (                                 values[index(fields, "id"                   )]  ),
+		serverID             (                                 values[index(fields, "guild_id"             )]  ),
+		name                 (                                 values[index(fields, "name"                 )]  ),
+		type                 ( static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
+		position             ( toInt                         ( values[index(fields, "position"             )]) ),
+		isPrivate            ( getBool                       ( values[index(fields, "is_private"           )]) ),
+		//permissionOverwrites ( Overwrite                     (&values[index(fields, "permission_overwrites")]) ),
+		topic                (                                 values[index(fields, "topic"                )]  ),
+		lastMessageID       (                                 values[index(fields, "last_message_id"      )]  ),
+		bitrate              ( toInt                         ( values[index(fields, "bitrate"              )]) ),
+		userLimit            ( toInt                         ( values[index(fields, "user_limit"           )]) )
+	{}
+
+	const std::initializer_list<const char*const> Channel::fields = {
+		"id", "guild_id", "name", "type", "position", "is_private",
+		/*"permission_overwrites",*/ "topic", "last_message_id", "bitrate", "user_limit"
+	};
 
 	Channel::~Channel() {
 
@@ -39,25 +33,30 @@ namespace SleepyDiscord {
 
 	}
 
-	DirectMessageChannel::DirectMessageChannel(const std::string * rawJson) {
-		std::initializer_list<const char *const> names = {
-			"id", "is_private", "recipient", "last_message_id"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-		id             =         values[index(names, "id"             )] ;
-		is_private     = getBool(values[index(names, "is_private"     )]);
-		recipient      = User(  &values[index(names, "recipient"      )]);
-		lastMessage_id =         values[index(names, "last_message_id")] ;
-	}
+	DirectMessageChannel::DirectMessageChannel(const std::string * rawJSON) : DirectMessageChannel(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Overwrite::Overwrite(const std::string * rawJson) {
-		std::initializer_list<const char *const> names = {
-			"id", "type", "allow", "deny"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-		id    =           values[index(names, "id"   )] ;
-		type  =           values[index(names, "type" )] ;
-		allow = std::stoi(values[index(names, "allow")]);
-		deny  = std::stoi(values[index(names, "deny" )]);
-	}
+	DirectMessageChannel::DirectMessageChannel(const std::vector<std::string> values) :
+		//variable       modifier value                    felid
+		ID             (         values[index(fields, "id"             )] ),
+		is_private     ( getBool(values[index(fields, "is_private"     )])),
+		recipient      ( User(  &values[index(fields, "recipient"      )])),
+		lastMessageID  (         values[index(fields, "last_message_id")] )
+	{}
+
+	const std::initializer_list<const char*const> DirectMessageChannel::fields = {
+		"id", "is_private", "recipient", "last_message_id"
+	};
+
+	Overwrite::Overwrite(const std::string * rawJSON) : Overwrite(json::getValues(rawJSON->c_str(), fields)) {}
+
+	Overwrite::Overwrite(const std::vector<std::string> values) :
+		//variable modifier value              felid
+		ID    (      values[index(fields, "id"   )] ),
+		type  (      values[index(fields, "type" )] ),
+		allow (toInt(values[index(fields, "allow")])),
+		deny  (toInt(values[index(fields, "deny" )]))
+	{}
+	const std::initializer_list<const char*const> Overwrite::fields = {
+		"id", "type", "allow", "deny"
+	};
 }

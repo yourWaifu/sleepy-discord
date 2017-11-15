@@ -1,6 +1,9 @@
 #pragma once
 #include "discord_object_interface.h"
 #include "user.h"
+#include "server.h"
+#include "channel.h"
+#include "snowflake.h"
 
 namespace SleepyDiscord {
 	/*Webhook Structure
@@ -17,12 +20,15 @@ namespace SleepyDiscord {
 	public:
 		Webhook() {}
 		Webhook(const std::string * rawJSON);
-		std::string id;
-		std::string server_id;
-		std::string channel_id;
+		Webhook(const std::vector<std::string> values);
+		Snowflake<Webhook> ID;
+		Snowflake<Server> serverID;
+		Snowflake<Channel> channelID;
 		User user;
 		std::string name;
 		std::string avatar;
 		std::string token;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }

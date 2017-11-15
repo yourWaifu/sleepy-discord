@@ -2,19 +2,22 @@
 #include "json.h"
 
 namespace SleepyDiscord {
-	Role::Role(const std::string * rawJson) {
-		std::initializer_list<const char*const> names = {
-			"id", "name", "color", "hoist", "position", "permissions",
-			"managed", "mentionable"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-		id          =                                    values[index(names, "id"         )]  ;
-		name        =                                    values[index(names, "name"       )]  ;
-		color       =                         std::stol( values[index(names, "color"      )]) ;
-		hoist       =                         getBool(   values[index(names, "hoist"      )]) ;
-		position    =                         std::stol( values[index(names, "position"   )]) ;
-		permissions = static_cast<Permission>(std::stoll(values[index(names, "permissions")]));
-		managed     =                         std::stol( values[index(names, "managed"    )]) ;
-		mantionable =                         std::stol( values[index(names, "mentionable")]) ;
-	}
+	Role::Role(const std::string * rawJSON) : Role(json::getValues(rawJSON->c_str(), fields)) {}
+
+	Role::Role(const std::vector<std::string> values) :
+		//variable  modifier                           value                     felid
+		ID         (                                   values[index(fields, "id"         )]  ),
+		name       (                                   values[index(fields, "name"       )]  ),
+		color      (                        std::stol (values[index(fields, "color"      )]) ),
+		hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
+		position   (                        std::stol (values[index(fields, "position"   )]) ),
+		permissions(static_cast<Permission>(std::stoll(values[index(fields, "permissions")]))),
+		managed    (                        std::stol (values[index(fields, "managed"    )]) ),
+		mantionable(                        std::stol (values[index(fields, "mentionable")]) )
+	{}
+
+	const std::initializer_list<const char*const> Role::fields = {
+		"id", "name", "color", "hoist", "position", "permissions",
+		"managed", "mentionable"
+	};
 }

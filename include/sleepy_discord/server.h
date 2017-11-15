@@ -3,6 +3,7 @@
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
+#include "snowflake.h"
 
 namespace SleepyDiscord {
 	class BaseDiscordClient;
@@ -11,17 +12,20 @@ namespace SleepyDiscord {
 		~Server();
 		Server();
 		Server(const std::string * rawJson);
-		std::string id;
+		Server(const Response& response);
+		Server(const std::vector<std::string> values);
+		Snowflake<Server> ID;
 		std::string name;
 		std::string icon;
 		std::string splash;
-		std::string owner_id;
+		std::string ownerID;
 		std::string region;
-		std::string afk_channel_id;
+		std::string AFKchannelID;
 		int afk_timeout;
-		bool embed_enable;
-		std::string embed_channel_id;
-		int verfication_level;
+		bool embedEnable;
+		std::string embedChannelID;
+		int verficationLevel;
+		int defaultMessageNotifications;
 		//voice_states
 		//roles
 		//emojis
@@ -29,26 +33,33 @@ namespace SleepyDiscord {
 		bool unavailable;
 
 		//presences
-		int mfa_level;
+		int MFALevel;
 		//members
-		std::string joined_at;
-		int default_message_notifications;
+		std::string joinedAt;
 
 		//those are only filled in from the onServer event
-		std::vector<Channel> channels;
 		bool large;
+		std::vector<Channel> channels;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	struct UnavailableServer : public DiscordObject {
 		UnavailableServer(const std::string * rawJson);
-		std::string id;
+		UnavailableServer(const std::vector<std::string> values);
+		Snowflake<UnavailableServer> ID;
 		bool unavailable;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	struct ServerEmbed : public DiscordObject {
 		ServerEmbed(const std::string * rawJson);
+		ServerEmbed(const std::vector<std::string> values);
 		bool enabled;
-		std::string channel_id;
+		Snowflake<ServerEmbed> channelID;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*Guild Member Structure
@@ -62,13 +73,15 @@ namespace SleepyDiscord {
 	*/
 	struct ServerMember : public DiscordObject {
 		ServerMember() {}
-		ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id);
 		ServerMember(const std::string * rawJson);
+		ServerMember(const std::vector<std::string> values);
 		User user;
 		std::string nick; //nullable
 		std::vector<std::string> roles;
-		std::string joined_at;
+		std::string joinedAt;
 		bool deaf;
 		bool mute;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }

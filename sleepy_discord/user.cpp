@@ -7,45 +7,56 @@ namespace SleepyDiscord {
 	User::User() {
 	}
 
-	User::User(const std::string * rawJSON) {
-		std::initializer_list<const char*const> names = {
-			"id", "username", "discriminator", "avatar", "bot", "mfa_enabled", "verified", "email"
-		};
-		std::vector<std::string> values = json::getValues(rawJSON->c_str(), names);
-		id            =         values[index(names, "id"           )] ;
-		username      =         values[index(names, "username"     )] ;
-		discriminator =         values[index(names, "discriminator")] ;
-		avatar        =         values[index(names, "avatar"       )] ;
-		bot           = getBool(values[index(names, "bot"          )]);
-		mfa_enabled   = getBool(values[index(names, "mfa_enabled"  )]);
-		verified      = getBool(values[index(names, "verified"     )]);
-		email         =         values[index(names, "email"        )] ;
-	}
+	const std::initializer_list<const char*const> User::fields = {
+		"id", "username", "discriminator", "avatar", "bot", "mfa_enabled", "verified", "email"
+	};
+
+	User::User(const std::string * rawJSON) : User(json::getValues(rawJSON->c_str(), fields)) {}
+
+	User::User(const Response & response) : User(&response.text) {}
+
+	User::User(const std::vector<std::string> values) :
+		//variable     modifier value               felid
+		ID            (        values[index(fields, "id"           )] ),
+		username      (        values[index(fields, "username"     )] ),
+		discriminator (        values[index(fields, "discriminator")] ),
+		avatar        (        values[index(fields, "avatar"       )] ),
+		bot           (getBool(values[index(fields, "bot"          )])),
+		mfa_enabled   (getBool(values[index(fields, "mfa_enabled"  )])),
+		verified      (getBool(values[index(fields, "verified"     )])),
+		email         (        values[index(fields, "email"        )] )
+	{}
 
 	bool User::operator==(const User& rightUser) {
-		return id == rightUser.id;
+		return ID == rightUser.ID;
 	}
 
-	UserServer::UserServer(const std::string * rawJson) {
-		std::initializer_list<const char*const> names = {
-			"id", "name", "icon", "owner", "permissions"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-		id          =                                   values[index(names, "id"         )]  ;
-		name        =                                   values[index(names, "name"       )]  ;
-		icon        =                                   values[index(names, "icon"       )]  ;
-		owner       = getBool(                          values[index(names, "owner"      )]) ;
-		permissions = static_cast<Permission>(std::stoi(values[index(names, "permissions")]));
-	}
+	ServerUser::ServerUser(const std::string * rawJSON) : ServerUser(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Connection::Connection(const std::string * rawJson) {
-		std::initializer_list<const char*const> names = {
-			"id", "name", "type", "revoked"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
-		id      =         values[index(names, "id"     )] ;
-		name    =         values[index(names, "name"   )] ;
-		type    =         values[index(names, "type"   )] ;
-		revoked = getBool(values[index(names, "revoked")]);
-	}
+	ServerUser::ServerUser(const std::vector<std::string> values) :
+		//variable  modifier                          value                felid
+		ID         (                                  values[index(fields, "id"         )]  ),
+		name       (                                  values[index(fields, "name"       )]  ),
+		icon       (                                  values[index(fields, "icon"       )]  ),
+		owner      (getBool(                          values[index(fields, "owner"      )]) ),
+		permissions(static_cast<Permission>(std::stoi(values[index(fields, "permissions")])))
+	{}
+
+	const std::initializer_list<const char*const> ServerUser::fields = {
+		"id", "name", "icon", "owner", "permissions"
+	};
+
+	Connection::Connection(const std::string * rawJSON) : Connection(json::getValues(rawJSON->c_str(), fields)) {}
+
+	Connection::Connection(const std::vector<std::string> values) :
+		//variable modifier value            felid
+		ID     (        values[index(fields, "id"     )] ),
+		name   (        values[index(fields, "name"   )] ),
+		type   (        values[index(fields, "type"   )] ),
+		revoked(getBool(values[index(fields, "revoked")]))
+	{}
+
+	const std::initializer_list<const char*const> Connection::fields = {
+		"id", "name", "type", "revoked"
+	};
 }

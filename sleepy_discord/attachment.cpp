@@ -7,20 +7,19 @@ namespace SleepyDiscord {
 	Attachment::~Attachment() {
 	}
 	
-	Attachment::Attachment(const std::string * rawJSON) {
-		//parse json and convert from string to type
-		std::initializer_list<const char*const> names = {
-			"id", "filename", "size", "url", "proxy_url", "height", "width"
-		};
-		std::vector<std::string> values = json::getValues(rawJSON->c_str(), names);
-		id        =                    values[index(names, "id"       )] ;
-		filename  =                    values[index(names, "filename" )] ;
-		size      = std::stoull(       values[index(names, "size"     )]);
-		url       =                    values[index(names, "url"      )] ;
-		proxy_url =                    values[index(names, "proxy_url")] ;
-		const std::string heightTemp = values[index(names, "height"   )] ;
-		height    = isDefined(heightTemp) ? std::stoul(heightTemp) : 0;
-		const std::string widthTemp  = values[index(names, "width"    )] ;
-		width     = isDefined(widthTemp ) ? std::stoul(widthTemp ) : 0;
-	}
+	Attachment::Attachment(const std::string * rawJSON) : Attachment(json::getValues(rawJSON->c_str(), fields)) {}
+
+	Attachment::Attachment(const std::vector<std::string> values) :
+		//variable           condition  modifier    value                     felid
+		ID        (                                 values[index(fields, "id"       )]    ),
+		filename  (                                 values[index(fields, "filename" )]    ),
+		size      ( std::stoull(                    values[index(fields, "size"     )]   )),
+		url       (                                 values[index(fields, "url"      )]    ),
+		proxy_url (                                 values[index(fields, "proxy_url")]    ),
+		height    (modIfElse(isDefined, std::stoul, values[index(fields, "height"   )], 0)),
+		width     (modIfElse(isDefined, std::stoul, values[index(fields, "width"    )], 0))
+	{}
+	const std::initializer_list<const char*const> Attachment::fields = {
+		"id", "filename", "size", "url", "proxy_url", "height", "width"
+	};
 }

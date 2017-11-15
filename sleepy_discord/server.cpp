@@ -10,65 +10,65 @@ namespace SleepyDiscord {
 
 	}
 
-	Server::Server(const std::string * rawJson) {
-		//parse json and convert from string to type
-		std::initializer_list<const char*const> names = {
-			"id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
-			"afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
-			"unavailable", "mfa_level", "large", "joined_at", "default_message_notifications",
-			/*"roles", "emojis", "features", "explicit_content_filter", application_id,
-			widget_enabled, widget_channel_id, member_count, voice_states, members, presences*/
-			"channels"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+	Server::Server(const std::string * rawJSON) : Server(json::getValues(rawJSON->c_str(), fields)) {}
 
-		//    condition    variable                      modifier                  value               felid
-		                   id                            =                         values[index(names, "id"                           )] ;
-		                   name                          =                         values[index(names, "name"                         )] ;
-		                   icon                          =                         values[index(names, "icon"                         )] ;
-		                   splash                        =                         values[index(names, "splash"                       )] ;
-		                   owner_id                      =                         values[index(names, "owner_id"                     )] ;
-		                   region                        =                         values[index(names, "region"                       )] ;
-		                   afk_channel_id                =                         values[index(names, "afk_channel_id"               )] ;
-		                   afk_timeout                   = toInt                  (values[index(names, "afk_timeout"                  )]);
-		                   embed_enable                  = getBool                (values[index(names, "embed_enabled"                )]);
-		                   embed_channel_id              =                         values[index(names, "embed_channel_id"             )] ;
-		                   verfication_level             = toInt                  (values[index(names, "verification_level"           )]);
-		                   unavailable                   = getBool                (values[index(names, "unavailable"                  )]);
-		                   mfa_level                     = toInt                  (values[index(names, "mfa_level"                    )]);
-		                   large                         = getBool                (values[index(names, "large"                        )]);
-		                   joined_at                     =                         values[index(names, "joined_at"                    )] ;
-		                   default_message_notifications = toInt                  (values[index(names, "default_message_notifications")]);
-		modIf(isSpecified, channels                      , JSON_getArray<Channel>, values[index(names, "channels"                     )]);
-	}
+	Server::Server(const Response & response) : Server(&response.text) {}
 
-	ServerEmbed::ServerEmbed(const std::string * rawJson) {
-		std::initializer_list<const char*const> names = {
-			"enabled", "channel_id"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+	Server::Server(const std::vector<std::string> values) :
+		//variable                            condition    modifier                value        felid                                    else
+		ID                         (                                               values[index(fields, "id"                           )]                         ),
+		name                       (                                               values[index(fields, "name"                         )]                         ),
+		icon                       (                                               values[index(fields, "icon"                         )]                         ),
+		splash                     (                                               values[index(fields, "splash"                       )]                         ),
+		ownerID                    (                                               values[index(fields, "owner_id"                     )]                         ),
+		region                     (                                               values[index(fields, "region"                       )]                         ),
+		AFKchannelID               (                                               values[index(fields, "afk_channel_id"               )]                         ),
+		afk_timeout                (                       toInt                  (values[index(fields, "afk_timeout"                  )]                        )),
+		embedEnable                (                       getBool                (values[index(fields, "embed_enabled"                )]                        )),
+		embedChannelID             (                                               values[index(fields, "embed_channel_id"             )]                         ),
+		verficationLevel           (                       toInt                  (values[index(fields, "verification_level"           )]                        )),
+		defaultMessageNotifications(                       toInt                  (values[index(fields, "default_message_notifications")]                        )),
+		unavailable                (                       getBool                (values[index(fields, "unavailable"                  )]                        )),
+		MFALevel                   (                       toInt                  (values[index(fields, "mfa_level"                    )]                        )),
+		joinedAt                   (                                               values[index(fields, "joined_at"                    )]                         ),
+		large                      (                       getBool                (values[index(fields, "large"                        )]                        )),
+		channels                   (modIfElse(isSpecified, JSON_getArray<Channel>, values[index(fields, "channels"                     )], std::vector<Channel>()))
+	{}
 
-		enabled    = getBool(values[index(names, "enabled"   )]);
-		channel_id =         values[index(names, "channel_id")] ;
-	}
+	const std::initializer_list<const char*const> Server::fields = {
+		"id", "name", "icon", "splash", "owner_id", "region", "afk_channel_id",
+		"afk_timeout", "embed_enabled", "embed_channel_id", "verification_level",
+		"unavailable", "mfa_level", "large", "joined_at", "default_message_notifications",
+		/*"Servers", "emojis", "features", "explicit_content_filter", application_id,
+		widget_enabled, widget_channel_id, member_count, voice_states, members, presences*/
+		"channels"
+	};
 
-	ServerMember::ServerMember(const std::string * rawJson) {
-		//parse json and convert from string to type
-		std::initializer_list<const char*const> names = {
-			"user", "nick", "roles", "joined_at", "deaf", "mute"
-		};
-		std::vector<std::string> values = json::getValues(rawJson->c_str(), names);
+	ServerEmbed::ServerEmbed(const std::string * rawJSON) : ServerEmbed(json::getValues(rawJSON->c_str(), fields)) {}
 
-		//        condition  felid       modifier         else value               felid
-		                     user      = User(                &values[index(names, "user"     )]);
-		setIfElse(isDefined, nick      ,                   "", values[index(names, "nick"     )]);
-		                     roles     = json::getArray(      &values[index(names, "roles"    )]);
-		                     joined_at =                       values[index(names, "joined_at")] ;
-		                     deaf      = getBool(              values[index(names, "deaf"     )]);
-		                     mute      = getBool(              values[index(names, "mute"     )]);
-	}
+	ServerEmbed::ServerEmbed(const std::vector<std::string> values) :
+		//variable modifier value              felid
+		enabled  (getBool(values[index(fields, "enabled"   )])),
+		channelID(        values[index(fields, "channel_id")] )
+	{}
 
-	ServerMember::ServerMember(BaseDiscordClient* client, std::string server_id, std::string user_id) {
-		*this = client->getMember(server_id, user_id);
-	}
+	const std::initializer_list<const char*const> ServerEmbed::fields = {
+		"enabled", "channel_id"
+	};
+
+	ServerMember::ServerMember(const std::string * rawJSON) : ServerMember(json::getValues(rawJSON->c_str(), fields)) {}
+
+	ServerMember::ServerMember(const std::vector<std::string> values) :
+		//variable         condition modifier        value                felid         else
+		user    (                    User          (&values[index(fields, "user"     )]    )),
+		nick    (setIfElse(isDefined,                values[index(fields, "nick"     )], "")),
+		roles   (                    json::getArray(&values[index(fields, "roles"    )]    )),
+		joinedAt(                                    values[index(fields, "joined_at")]     ),
+		deaf    (                    getBool        (values[index(fields, "deaf"     )]    )),
+		mute    (                    getBool        (values[index(fields, "mute"     )]    ))
+	{}
+
+	const std::initializer_list<const char*const> ServerMember::fields = {
+		"user", "nick", "roles", "joined_at", "deaf", "mute"
+	};
 }

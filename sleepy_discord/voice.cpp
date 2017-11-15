@@ -1,17 +1,22 @@
 #include "voice.h"
 
-SleepyDiscord::VoiceRegion::VoiceRegion(const std::string * rawJson) {
-	std::vector<std::string> values = json::getValues(rawJson->c_str(),
-	{ "id", "name", "sample_hostname", "sample_port" , "vip", "optimal",
-		"deprecated", "custom" });
+namespace SleepyDiscord {
+	VoiceRegion::VoiceRegion(const std::string * rawJSON) : VoiceRegion(json::getValues(rawJSON->c_str(), fields)) {}
 
-	unsigned int i = -1;
-	id              = values[++i];
-	name            = values[++i];
-	sample_hostname = values[++i];
-	sample_port     = std::stoi(values[++i]);
-	vip             = getBool(values[++i]);
-	optimal         = getBool(values[++i]);
-	deprecated      = getBool(values[++i]);
-	custom          = getBool(values[++i]);
+	VoiceRegion::VoiceRegion(const std::vector<std::string> values) :
+		//variable      modifier value               felid
+		ID             (        values[index(fields, "id"             )] ),
+		name           (        values[index(fields, "name"           )] ),
+		sampleHostname(        values[index(fields, "sample_hostname")] ),
+		samplePort    (toInt  (values[index(fields, "sample_port"    )])),
+		vip            (getBool(values[index(fields, "vip"            )])),
+		optimal        (getBool(values[index(fields, "optimal"        )])),
+		deprecated     (getBool(values[index(fields, "deprecated"     )])),
+		custom         (getBool(values[index(fields, "custom"         )]))
+	{}
+
+	const std::initializer_list<const char*const> VoiceRegion::fields = { 
+		"id", "name", "sample_hostname", "sample_port" , "vip", "optimal",
+		"deprecated", "custom"
+	};
 }

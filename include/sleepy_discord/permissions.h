@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "discord_object_interface.h"
+#include "snowflake.h"
 
 //source: discord api docs | /topics/Permissions.md | Nov 16
 
@@ -59,7 +60,8 @@ namespace SleepyDiscord {
 		Role() {}
 		~Role() {}
 		Role(const std::string * rawJson);
-		std::string id;
+		Role(const std::vector<std::string> values);
+		Snowflake<Role> ID;
 		std::string name;
 		int color;		//I don't know if this should be 64 bit. ask the api server!!!
 		bool hoist;
@@ -67,5 +69,7 @@ namespace SleepyDiscord {
 		Permission permissions;
 		bool managed;
 		bool mantionable;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }

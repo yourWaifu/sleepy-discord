@@ -1,25 +1,35 @@
 #pragma once
 #include <string>
 #include "user.h"
+#include "snowflake.h"
 
 namespace SleepyDiscord {
 	struct Overwrite : DiscordObject {
 		Overwrite() {}
 		Overwrite(const std::string * rawJson);
+		Overwrite(const std::vector<std::string> values);
 		~Overwrite() {}
-		std::string id;
+		Snowflake<Overwrite> ID;
 		std::string type;
 		int allow;
 		int deny;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
+
+	//forward declearion
+	struct Server;
+	struct Message;
 
 	class Channel : public DiscordObject {
 	public:
 		Channel() {}
 		Channel(const std::string * rawJson);
+		Channel(const Response& response);
+		Channel(const std::vector<std::string> values);
 		~Channel();
-		std::string id;
-		std::string guild_id;
+		Snowflake<Channel> ID;
+		Snowflake<Server> serverID;
 		std::string name;
 		enum ChannelType {
 			SERVER_TEXT     = 0,
@@ -32,20 +42,25 @@ namespace SleepyDiscord {
 		bool isPrivate;
 		Overwrite permissionOverwrites;
 		std::string topic;
-		std::string lastMessage_id;
+		Snowflake<Message> lastMessageID;
 		int bitrate;
 		int userLimit;
-		std::string parent_id;
+		Snowflake<Message> parentID;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	struct DirectMessageChannel : public DiscordObject {
 		DirectMessageChannel() {}
 		DirectMessageChannel(const std::string * rawJson);
+		DirectMessageChannel(const std::vector<std::string> values);
 		~DirectMessageChannel();
-		std::string id;
+		Snowflake<DirectMessageChannel> ID;
 		bool is_private;
 		User recipient;
-		std::string lastMessage_id;
+		Snowflake<Message> lastMessageID;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	typedef DirectMessageChannel DMChannel;

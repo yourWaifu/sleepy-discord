@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "discord_object_interface.h"
+#include "snowflake.h"
 #include "permissions.h"
 
 namespace SleepyDiscord {
@@ -18,18 +19,24 @@ namespace SleepyDiscord {
 	email           string      the user's email                                            email
 	*/
 	struct User : public DiscordObject {
+	public:
 		~User();
 		User();
 		User(const std::string * rawJSON);
+		User(const Response& response);
+		User(const std::vector<std::string> values);
 		bool operator==(const User& rightUser);
-		std::string id;
+		Snowflake<User> ID;
 		std::string username;
 		std::string discriminator;
 		std::string avatar;			//base64 encoded jpeg image
+		//these are optional
 		bool bot = false;
 		bool mfa_enabled = false;	//true if two-factor authentication is enabled
 		bool verified = false;		//true if email has been verified
 		std::string email = "";
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*
@@ -42,15 +49,21 @@ namespace SleepyDiscord {
 	owner	bool	true if the user is an owner of the guild
 	permissions	integer	bitwise of the user's enabled/disabled permissions
 	*/
-	struct UserServer : public DiscordObject{
-		UserServer() {}
-		UserServer(const std::string * rawJSON);
-		std::string id;
+	struct ServerUser : public DiscordObject{
+	public:
+		ServerUser() {}
+		ServerUser(const std::string * rawJSON);
+		ServerUser(const std::vector<std::string> values);
+		Snowflake<ServerUser> ID;
 		std::string name;
 		std::string icon;
 		bool owner;
 		Permission permissions;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
+
+	typedef ServerUser UserServer; //useful for intellisense
 
 	/*Connection Structure  The connection object that the user has attached.
 
@@ -62,12 +75,15 @@ namespace SleepyDiscord {
 	integrations	array   an array of partial server integrations
 	*/
 	struct Connection : public DiscordObject {
+	public:
 		Connection() {}
 		Connection(const std::string * rawJSON);
-		std::string id;
+		Connection(const std::vector<std::string> values);
+		Snowflake<Connection> ID;
 		std::string name;
 		std::string type;
 		bool revoked;
-
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }

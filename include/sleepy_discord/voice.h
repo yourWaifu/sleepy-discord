@@ -1,13 +1,18 @@
 #pragma once
 #include "discord_object_interface.h"
+#include "snowflake.h"
 
 namespace SleepyDiscord {
+	//forward declearion
+	struct Server;
+	class Channel;
+	struct User;
 
 	struct VoiceState : public DiscordObject {
-		std::string guild_id;
-		std::string channel_id;
-		std::string user_id;
-		std::string session_id;
+		Snowflake<Server> serverID;
+		Snowflake<Channel> channelID;
+		Snowflake<User> userID;
+		std::string sessionID;
 		bool deaf;
 		bool mute;
 		bool selfDeaf;
@@ -30,13 +35,16 @@ namespace SleepyDiscord {
 	struct VoiceRegion : DiscordObject {
 		VoiceRegion() {}
 		VoiceRegion(const std::string * rawJson);
-		std::string id;
+		VoiceRegion(const std::vector<std::string> values);
+		Snowflake<VoiceRegion> ID;
 		std::string name;
-		std::string sample_hostname;
-		int sample_port;
+		std::string sampleHostname;
+		int samplePort;
 		bool vip;
 		bool optimal;
 		bool deprecated;
 		bool custom;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }
