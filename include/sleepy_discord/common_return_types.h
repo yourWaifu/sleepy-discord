@@ -5,7 +5,7 @@
 
 namespace SleepyDiscord {
 	struct StandardResponse : Response {	//this is just used for the constructor
-		StandardResponse(Response& response) : Response(response) {}
+		StandardResponse(const Response& response) : Response(response) {}
 		operator const Response&() { return *this; }
 	};
 
@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 	struct ObjectResponse : public StandardResponse {
 		using StandardResponse::StandardResponse;
 		operator Type() {
-			if (!error()) return Type(text);
+			if (!error()) return Type(&text);
 			else return Type();
 		}
 	};
