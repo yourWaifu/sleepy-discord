@@ -3,7 +3,7 @@
 #include <utility>
 #include <map>
 #include <vector>
-#include "client_handle.h"
+#include "error.h"
 
 namespace SleepyDiscord {
 	//http variables and functions
@@ -16,11 +16,15 @@ namespace SleepyDiscord {
 		Put	   = 4
 	};
 
+	class BaseDiscordClient;
+
 	struct Response {
 		int32_t statusCode;
 		std::string text;
 		std::map<std::string, std::string> header;
-		ClientHandle clientHandle; //track which client that called the request
+		inline bool error() {
+			return statusCode <= BAD_REQUEST;
+		}
 	};
 
 	struct filePathPart {
