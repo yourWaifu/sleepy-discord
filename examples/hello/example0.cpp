@@ -7,7 +7,7 @@ public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 	void onMessage(SleepyDiscord::Message message) {
 		if (message.startsWith("whcg hello"))
-			sendMessage(message.channel_id, "Hello " + message.author.username);
+			sendMessage(message.channelID, "Hello " + message.author.username);
 	}
 };
 
