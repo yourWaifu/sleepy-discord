@@ -26,11 +26,14 @@ namespace SleepyDiscord {
 
 	struct Ready : public DiscordObject {
 		Ready(const std::string * rawJSON);
+		Ready(const std::vector<std::string> values);
 		int v;	//gateway protocol version
 		User user;
 		std::vector<DMChannel> privateChannels;
 		//std::vector<UnavailableServer> servers;
-		std::string session_id;
+		std::string sessionID;
 		std::vector<std::string> trace;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }

@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 
 	void CPRSession::setMultipart(const std::initializer_list<Part>& parts) {
 		std::vector<cpr::Part> cprParts;
-		for (auto m : parts) {
+		for (Part m : parts) {
 			if (m.isFile) cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
 			else          cprParts.push_back(cpr::Part(m.name, m.value));
 		}
@@ -24,7 +24,7 @@ namespace SleepyDiscord {
 		Response target;
 		target.statusCode = response.status_code;
 		target.text = response.text;
-		for (auto i : response.header) {
+		for (std::pair<std::string, std::string> i : response.header) {
 			target.header.insert(i);
 		}
 		return target;

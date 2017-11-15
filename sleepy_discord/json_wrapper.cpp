@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 namespace SleepyDiscord { namespace json {
-	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names) {
+	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> const &names) {
 		if (*source == 0) return std::vector<std::string>{};
 		const unsigned int numOfValues = names.size();
 		std::vector<JSON_findMuitipleStruct>values(numOfValues);
@@ -77,7 +77,7 @@ namespace SleepyDiscord { namespace json {
 	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json) {
 		std::string target;
 		target.reserve(2);	//revents crash
-		for (auto pair : json) {
+		for (std::pair<std::string, std::string> pair : json) {
 			if (pair.second != "") {
 				target += ",\"" + pair.first + "\":" + pair.second;
 			}
@@ -90,7 +90,7 @@ namespace SleepyDiscord { namespace json {
 	const std::string createJSONArray(std::vector<std::string> source) {
 		std::string target;
 		target.reserve(2);	//revents crash
-		for (auto value : source) {
+		for (std::string value : source) {
 			if (value != "")
 				target += ',' + value;
 		}

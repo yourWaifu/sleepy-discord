@@ -87,12 +87,13 @@ namespace SleepyDiscord {
 			default:
 			{		//error
 				setError(response.statusCode);		//https error
-				if (response.text != "") {
-					std::vector<std::string> values = json::getValues(response.text.c_str(),
-					{ "code", "message" });	//parse json to get code and message
-					if (values[0] != "")
-						onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the function
-				}
+				std::vector<std::string> values = json::getValues(response.text.c_str(),
+				{ "code", "message" });	//parse json to get code and message
+				if (!values.empty())
+					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the 
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+				throw static_cast<ErrorCode>(response.statusCode);
+#endif
 			} break;
 			}
 			//rate limit check
@@ -260,7 +261,7 @@ namespace SleepyDiscord {
 			"\"op\":6,"
 			"\"d\":{"
 				"\"token\":\""; resume += getToken(); resume += "\","
-				"\"session_id\":\""; resume += session_id; resume += "\","
+				"\"session_id\":\""; resume += sessionID; resume += "\","
 				"\"seq\":"; resume += std::to_string(lastSReceived); resume +=
 			"}"
 		"}";
@@ -330,7 +331,7 @@ namespace SleepyDiscord {
 			switch (hash(t.c_str())) {
 			case hash("READY"): {
 				Ready readyData = d;
-				session_id = readyData.session_id;
+				sessionID = readyData.sessionID;
 				bot = readyData.user.bot;
 				onReady(d);
 				ready = true;
@@ -396,7 +397,7 @@ namespace SleepyDiscord {
 				sleep(2500);
 				sendResume();
 			} else {
-				session_id = "";
+				sessionID = "";
 				sendIdentity();
 			}
 			break;

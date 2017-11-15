@@ -298,7 +298,7 @@ namespace SleepyDiscord {
 #endif
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
-		std::string session_id;
+		std::string sessionID;
 		void getTheGateway();
 		char theGateway[32];
 		bool ready;
