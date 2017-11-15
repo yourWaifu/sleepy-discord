@@ -39,7 +39,7 @@ extern "C" {
 namespace SleepyDiscord { namespace json {
 	std::vector<std::string> getArray(const std::string* _source);
 	//void JSON_getValues(const char* source, const char ** names, std::string * targets, const unsigned int numOfValues);
-	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> names);
+	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> const &names);
 	std::string getValue(const char* source, const char * name);
 	
 	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json);
@@ -52,27 +52,30 @@ namespace SleepyDiscord { namespace json {
 	const std::string boolean(const bool boolean);
 
 	struct BaseArrayWrapper {
-		const std::string rawJSON; //to do change this to s pointer
+		virtual operator const std::string&() const = 0;
+		operator const std::string() const { return operator const std::string&(); }
 
-		BaseArrayWrapper(const std::string json) : rawJSON(json) {}
-
-		inline std::vector<std::string> vectorStrings() { return getArray(&rawJSON); }
+		inline std::vector<std::string> vectorStrings() { return getArray(&operator const std::string&()); }
 		inline std::string* cArrayStrings() { return &vectorStrings()[0]; }
-
-		operator std::string() const { return rawJSON; }
 	};
 
-	template<class TypeToConvertTo>
-	struct ArrayWrapper : public BaseArrayWrapper {
-		using BaseArrayWrapper::BaseArrayWrapper;
+	struct ArrayStringWrapper : public BaseArrayWrapper {
+		const std::string rawJSON; //to do change this to s pointer
+		ArrayStringWrapper(const std::string json) : rawJSON(json) {}
+		operator const std::string&() const { return rawJSON; }
+	};
+
+	template<class TypeToConvertTo, class Base = ArrayStringWrapper>
+	struct ArrayWrapper : public Base {
+		using Base::Base;
 		template<template<class...> class Container, typename Type = TypeToConvertTo>
 		Container<Type> get() {
-			std::vector<std::string> jsonArray = getArray(&rawJSON);
+			std::vector<std::string> jsonArray = Base::vectorStrings();
 			const unsigned int size = jsonArray.size();
-			Container<Type> target(size);
+			std::vector<std::string*> jsonPointers(size);
 			for (unsigned int i = 0; i < size; ++i)
-				target[i] = &jsonArray[i];
-			return target;
+				jsonPointers[i] = &jsonArray[i];
+			return Container<Type>(jsonPointers.begin(), jsonPointers.end());
 
 			//this doesn't work because the consturctors need to be using &
 			//currently objects are using *
@@ -86,15 +89,15 @@ namespace SleepyDiscord { namespace json {
 		//c arrays
 		inline TypeToConvertTo* cArray() { return &vector()[0]; }
 
-		operator std::vector<std::string>() { return vectorStrings(); }
+		operator std::vector<std::string>() { return Base::vectorStrings(); }
 		operator std::vector<TypeToConvertTo>() { return vector(); }
 	};
 
-	template<>
-	struct ArrayWrapper<std::string> : public BaseArrayWrapper {
-		using BaseArrayWrapper::BaseArrayWrapper;
+	template<class Base>
+	struct ArrayWrapper<std::string, Base> : public Base {
+		using Base::Base;
 		operator std::vector<std::string>() {
-			return getArray(&rawJSON);
+			return Base::vectorStrings();
 		}
 	};
 }}
