@@ -1,19 +1,14 @@
 #pragma once
 #include "json.h"
-#include "client_handle.h"
+#include "error.h"
+#include "http.h"
 
 namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	class DiscordObject {
 	public:
-		DiscordObject() : originClientHandle(-1) {}
-		DiscordObject(ClientHandle origin);
-		BaseDiscordClient* getOriginClient();
-
-	private:
-		//client tracking
-		ClientHandle originClientHandle;
+		DiscordObject() {}
 
 	protected:
 		//functions for parsing JSON
@@ -21,26 +16,42 @@ namespace SleepyDiscord {
 			return string[0] == 't';
 		}
 		
+		//for optional fields
 		inline bool isSpecified(const std::string& string) {
 			return string[0] != 0;
 		}
 
+		//for nullable and opinional fields
 		inline bool isDefined(const std::string& string) {
 			return isSpecified(string) && string != "null";
 		}
 
+		//for nullable fields
 		inline bool isDefault(const std::string& string) {	
-			return isSpecified(string) || string == "null";
+			return isSpecified(string) && string == "null";
+		}
+		
+		//pointer to referance convertion, needed or you will get an error
+		inline bool isSpecified(const std::string* string) {
+			return isSpecified(*string);
+		}
+
+		inline bool isDefined(const std::string* string) {
+			return isDefined(*string);
+		}
+
+		inline bool isDefault(const std::string* string) {
+			return isDefault(*string);
 		}
 
 		//some of those function declarations got so long that
 		//I gave them muitiple lines
-#define \
+/*#define \
 		modIf(condition, variable, modifier, value) \
-			if (condition(value)) variable = modifier(value)
+			if (condition(value)) variable = modifier(value)*/
 #define \
-		modIfElse(condition, variable, modifier, el, value) \
-			variable = condition(value) ? modifier(value) : el
+		modIfElse(condition, modifier, value, el) \
+			condition(value) ? modifier(value) : el
 
 		////this doesn't work, but the above does
 		//template<typename Type>
@@ -53,30 +64,30 @@ namespace SleepyDiscord {
 		//	if (condition(value)) variable = function(value);
 		//}
 
-#define \
+/*#define \
 		setIf(condition, variable, value) \
-			if (condition(value)) variable = value
+			if (condition(value)) variable = value*/
 #define \
-		setIfElse(condition, variable, el, value) \
-			variable = condition(value) ? value : el
+		setIfElse(condition, value, el) \
+			condition(value) ? value : el
 
 		template<typename Number>
 		inline Number toNumber(
 			Number (*convertFunction)(const std::string&, size_t*, int),
-			std::string& value
+			const std::string& value
 			) {
 			return isDefined(value) ? convertFunction(value, 0, 10) : 0;
 		}
 
-		inline int toInt(std::string& value) {
+		inline int toInt(const std::string& value) {
 			return toNumber(std::stoi, value);
 		}
 
-		inline long long toLongLong(std::string& value) {
+		inline long long toLongLong(const std::string& value) {
 			return toNumber(std::stoll, value);
 		}
 
-		inline unsigned long toUnsignedLong(std::string& value) {
+		inline unsigned long toUnsignedLong(const std::string& value) {
 			return toNumber(std::stoul, value);
 		}
 	};
