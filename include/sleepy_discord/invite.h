@@ -2,6 +2,7 @@
 #include <string>
 #include "discord_object_interface.h"
 #include "user.h"
+#include "snowflake.h"
 
 namespace SleepyDiscord {
 	/*
@@ -17,9 +18,12 @@ namespace SleepyDiscord {
 		ChannelInvite();
 		~ChannelInvite();
 		ChannelInvite(const std::string * rawJson);
-		std::string id;
+		ChannelInvite(const std::vector<std::string> values);
+		Snowflake<ChannelInvite> ID;
 		std::string name;
 		std::string type;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*
@@ -36,10 +40,13 @@ namespace SleepyDiscord {
 		ServerInvite();
 		~ServerInvite();
 		ServerInvite(const std::string * rawJson);
-		std::string id;
+		ServerInvite(const std::vector<std::string> values);
+		Snowflake<ServerInvite> ID;
 		std::string name;
 		std::string splash;
 		std::string icon;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*
@@ -55,11 +62,12 @@ namespace SleepyDiscord {
 		Invite();
 		~Invite();
 		Invite(const std::string * rawJson);
+		Invite(const std::vector<std::string> values);
 		std::string code;
 		ServerInvite server;
 		ChannelInvite channel;
 	private:
-
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*
@@ -78,12 +86,15 @@ namespace SleepyDiscord {
 		InviteMetadata();
 		~InviteMetadata();
 		InviteMetadata(const std::string * rawJson);
+		InviteMetadata(const std::vector<std::string> values);
 		User inviter;
 		int uses;
 		int max_users;
 		int max_age;
 		bool isTemporary;
-		std::string create_at;	//you may want to use a different type for this one
+		std::string createAt;	//you may want to use a different type for this one
 		bool isRevoked;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 }
