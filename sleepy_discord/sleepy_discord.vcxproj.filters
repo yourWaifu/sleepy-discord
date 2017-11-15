@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="default_functions.cpp" />
+    <ClCompile Include="experimental.cpp" />
+    <ClCompile Include="json.c" />
+    <ClCompile Include="json_wrapper.cpp" />
+    <ClCompile Include="sd_error.cpp" />
+    <ClCompile Include="attachment.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="channel.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="embed.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="invite.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="message.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="permissions.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="server.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="user.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="webhook.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\auth.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\cookies.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\cprtypes.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\digest.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\error.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\parameters.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\multipart.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\payload.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\util.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\session.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\proxies.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+	<ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp">
+	  <Filter>cpr</Filter>
+	</ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp">
+	  <Filter>cpr</Filter>
+	</ClCompile>
+    <ClCompile Include="endpoints.cpp" />
+    <ClCompile Include="discord_object_interface.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="websocketpp_websocket.cpp">
+      <Filter>websocket\websocketpp</Filter>
+    </ClCompile>
+    <ClCompile Include="uwebsockets_websocket.cpp">
+      <Filter>websocket\uwebsocket</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr_session.cpp">
+      <Filter>http\cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="voice.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+    <ClCompile Include="gateway.cpp">
+      <Filter>discord objects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\sleepy_discord\client.h" />
+    <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
+    <ClInclude Include="..\include\sleepy_discord\experimental.h" />
+    <ClInclude Include="..\include\sleepy_discord\json.h" />
+    <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
+    <ClInclude Include="..\include\sleepy_discord\webhook.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\voice.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\user.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\snowflake.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\server.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\permissions.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\message.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\invite.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\embed.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\discord_object_interface.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\channel.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\attachment.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_websocket.h">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h">
+      <Filter>websocket\uwebsocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\uWS\uWS.h">
+      <Filter>websocket\uwebsocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\http.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\cpr\cpr.h">
+      <Filter>http\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\cpr_session.h">
+      <Filter>http\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\websocketpp\config\asio_client.hpp">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\custom_session.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\error.h" />
+    <ClInclude Include="..\include\sleepy_discord\gateway.h">
+      <Filter>discord objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\session.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\sleepy_discord\sleepy_discord.h" />
+    <None Include="..\buildtools\Makefile.3ds">
+      <Filter>buildtools</Filter>
+    </None>
+    <None Include="..\buildtools\Makefile">
+      <Filter>buildtools</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="websocket">
+      <UniqueIdentifier>{72be85c9-800f-43d2-9fe1-b08ee0bffcae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="discord objects">
+      <UniqueIdentifier>{f88c318c-4324-4221-8af2-3a2131793f6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpr">
+      <UniqueIdentifier>{89d0c5e4-e7b1-4953-8d50-49cabd028852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="http">
+      <UniqueIdentifier>{a4b7f2aa-2364-40b3-8110-fcb8574b778f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="buildtools">
+      <UniqueIdentifier>{da5b2a4b-d083-426a-b0ed-606f57667cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="websocket\uwebsocket">
+      <UniqueIdentifier>{7885f715-bd01-495f-aad3-0479b702cb8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="websocket\websocketpp">
+      <UniqueIdentifier>{1825b046-cb29-4d67-b7ae-07f1648017f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="http\cpr">
+      <UniqueIdentifier>{ebefac73-a71e-4c11-ad6a-e5174432f14e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
