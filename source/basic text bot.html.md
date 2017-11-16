@@ -102,7 +102,7 @@ For now all other events take in the raw JSON from Discord using ``std::string``
 void onMessage(SleepyDiscord::Message message) {
 	//say hello back when someone says hello to you
 	if (message.startsWith("whcg hello"))
-		sendMessage(message.channel_id, "Hello " + message.author.username);
+		sendMessage(message.channelID, "Hello " + message.author.username);
 }
 ```
 
@@ -125,7 +125,7 @@ public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 	void onMessage(SleepyDiscord::Message message) {
 		if (message.startsWith("whcg hello"))
-			sendMessage(message.channel_id, "Hello " + message.author.username);
+			sendMessage(message.channelID, "Hello " + message.author.username);
 	}
 };
 

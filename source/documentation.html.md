@@ -43,13 +43,13 @@ The DiscordClient class is the base class for a client that can be used to send 
 ## deleteChannel
 
 ```cpp 
-Channel deleteChannel(std::string channel_id);
+Channel deleteChannel(Snowflake<Channel> channelID);
 ```
 
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel that you delete</td></tr>
   </tbody>
 </table>
@@ -60,7 +60,7 @@ The channel was just deleted
 ## sendMessage
 
  ```cpp 
-Message sendMessage(std::string channel_id, std::string message, bool tts = false);
+ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, bool tts = false);
 ```
 ```cpp
 #include <sleepy_discord.h>
@@ -88,7 +88,7 @@ If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, 
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel you want to post the message to</td></tr>
       <tr><td><strong>message</strong></td>
         <td>The message you want to post</td></tr>
@@ -108,7 +108,7 @@ Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#c
 ## addReaction
 
  ```cpp 
-bool SleepyDiscord::DiscordClient::addReaction(std::string channel_id, std::string message_id, std::string emoji);
+bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 ```
 ```cpp
 #include <sleepy_discord>
@@ -127,11 +127,11 @@ Adds reaction to a message.
 <table>
   <tbody>
     <tr>
-      <td><strong>channel_id</strong></td>
+      <td><strong>channelID</strong></td>
       <td>The id of the channel with the message you want to add a reaction to</td>
     </tr>
     <tr>
-      <td><strong>message_id</strong></td>
+      <td><strong>messageID</strong></td>
       <td>The id of the message you want to add a reaction to</td>
     </tr>
     <tr>
@@ -157,7 +157,7 @@ Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#
 ## editMessage
 
 ```cpp 
-Message editMessage(std::string channel_id, std::string message_id, std::string newMessage);
+Message editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
 Message editMessage(Message message, std::string newMessage);
 ```
 
@@ -166,9 +166,9 @@ Edits an existing Message
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to edit</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to edit</td></tr>
       <tr><td><strong>message</strong></td>
         <td>The message with the id of the message that you want to edit</td></tr>
@@ -183,7 +183,7 @@ Returns the message you just edited
 ## pinMessage
 
 ```cpp 
-bool pinMessage(std::string channel_id, std::string message_id);
+bool pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
 Puts a message into the Pinned Messages of a channel
@@ -191,9 +191,9 @@ Puts a message into the Pinned Messages of a channel
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to pin</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to pin</td></tr>
   </tbody>
 </table>
@@ -204,7 +204,7 @@ Returns ``true`` on success
 ## unpinMessage
 
 ```cpp 
-bool unpinMessage(std::string channel_id, std::string message_id);
+bool unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
 Removes a message from the Pinned Messages in a channel
@@ -212,9 +212,9 @@ Removes a message from the Pinned Messages in a channel
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to unpin</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to unpin</td></tr>
   </tbody>
 </table>
@@ -225,7 +225,7 @@ Returns ``true`` on success
 ## deleteMessage
 
 ```cpp 
-bool deleteMessage(const std::string channel_id, const std::string* message_id, const unsigned int numOfMessages = 1);
+bool deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
 Deletes a message
@@ -233,12 +233,10 @@ Deletes a message
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the messages that you want to delete</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>An array of ids of the messages you want to delete</td></tr>
-      <tr><td><strong>numOfMessages</strong></td>
-        <td>the number of messages to delete</td></tr>
   </tbody>
 </table>
 
@@ -248,7 +246,7 @@ Returns ``true`` on success
 ## editNickname
 
 ```cpp 
-bool editNickname(std::string server_id, std::string newNickname);
+bool editNickname(Snowflake<Server> serverID, std::string newNickname);
 ```
 
 Changes the name that is displayed on a server
@@ -256,7 +254,7 @@ Changes the name that is displayed on a server
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server where you want to this nickname</td></tr>
       <tr><td><strong>newNickname</strong></td>
         <td>The Nickname that you want your bot to have</td></tr>
@@ -269,7 +267,7 @@ Returns ``true`` on success
 ## addRole
 
 ```cpp 
-bool addRole(std::string server_id, std::string member_id, std::string role_id);
+bool addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
 ```
 
 Gives a member a role on a server 
@@ -277,11 +275,11 @@ Gives a member a role on a server
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to give the role to</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to give the role to</td></tr>
-      <tr><td><strong>role_id</strong></td>
+      <tr><td><strong>roleID</strong></td>
         <td>The id of role that you want to give</td></tr>
   </tbody>
 </table>
@@ -292,7 +290,7 @@ Returns ``true`` on success
 ## removeRole
 
 ```cpp 
-bool removeRole(std::string server_id, std::string member_id, std::string role_id);
+bool removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
 ```
 
 Takes away a role from a member on a server
@@ -300,11 +298,11 @@ Takes away a role from a member on a server
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove the role from</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to remove the role from</td></tr>
-      <tr><td><strong>role_id</strong></td>
+      <tr><td><strong>roleID</strong></td>
         <td>The id of role that you want to remove from the user</td></tr>
   </tbody>
 </table>
@@ -315,7 +313,7 @@ Returns ``true`` on success
 ## kickMember
 
 ```cpp 
-bool kickMember(std::string server_id, std::string member_id);
+bool kickMember(Snowflake<Server> serverID, Snowflake<User> userID);
 ```
 
 Removes a member from a server
@@ -323,9 +321,9 @@ Removes a member from a server
 ### Parameters
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to remove</td></tr>
   </tbody>
 </table>
@@ -445,7 +443,7 @@ public:
 	using DiscordClient::DiscordClient;
 	void onMessage(SleepyDiscord::Message m) {
 		if (m.startsWith("whcg hello")) {
-			SleepyDiscord::Message message = sendMessage(message.channel_id, "Hello " + message.author.username);
+			SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
 			std::cout << message.content;
 		}
 	}
@@ -556,7 +554,7 @@ An object that represents a message from Discord. Also very similar to [the mess
 ## (constructor)
 ```cpp
 Message(const std::string * rawJson);
-Message(BaseDiscordClient* client, std::string channel_id, std::string message, bool tts = false);
+Message(BaseDiscordClient* client, std::string channelID, std::string message, bool tts = false);
 ```
 
 Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
@@ -693,7 +691,7 @@ Compares the id of two Users
 ### Return value
 ``ture`` when the two Users have the same id
 
-# CustomSession
+# Custom Session
 
 ```cpp
 class CustomSession : public GenericSession {
