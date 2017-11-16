@@ -340,7 +340,7 @@ For now all other events take in the raw JSON from Discord using <code class="pr
 <pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//say hello back when someone says hello to you
 </span>    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
-        <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+        <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channelID</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
 <p>Lets make our bot say hello and the person&rsquo;s name when someone says hello to the bot. This done by using the <code class="prettyprint">sendMessage</code> function, and to get the person&rsquo;s name is stored in <code class="prettyprint">author.username</code>.
@@ -363,7 +363,7 @@ You may also use <code class="prettyprint">if (message.isMentioned(bot id))</cod
     <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
     <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span>
-            <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+            <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channelID</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">};</span>
 

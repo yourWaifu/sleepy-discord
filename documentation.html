@@ -275,13 +275,13 @@
 <h1 id="discordclient-functions">DiscordClient Functions</h1>
 
 <h2 id="deletechannel">deleteChannel</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="n">Channel</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Channel</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">);</span>
 </code></pre>
 <h3 id="parameters">Parameters</h3>
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel that you delete</td></tr>
   </tbody>
 </table>
@@ -291,7 +291,7 @@
 <p>The channel was just deleted</p>
 
 <h2 id="sendmessage">sendMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord.h&gt;
 #include &lt;iostream&gt;
 </span>
@@ -317,7 +317,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel you want to post the message to</td></tr>
       <tr><td><strong>message</strong></td>
         <td>The message you want to post</td></tr>
@@ -337,7 +337,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-message">Create Message</a></p>
 
 <h2 id="addreaction">addReaction</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">addReaction</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">emoji</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">addReaction</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">emoji</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord&gt;
 </span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -357,11 +357,11 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <table>
   <tbody>
     <tr>
-      <td><strong>channel_id</strong></td>
+      <td><strong>channelID</strong></td>
       <td>The id of the channel with the message you want to add a reaction to</td>
     </tr>
     <tr>
-      <td><strong>message_id</strong></td>
+      <td><strong>messageID</strong></td>
       <td>The id of the message you want to add a reaction to</td>
     </tr>
     <tr>
@@ -387,7 +387,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-reaction">Create Reaction</a></p>
 
 <h2 id="editmessage">editMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
 <span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
 </code></pre>
 <p>Edits an existing Message</p>
@@ -396,9 +396,9 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to edit</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to edit</td></tr>
       <tr><td><strong>message</strong></td>
         <td>The message with the id of the message that you want to edit</td></tr>
@@ -412,7 +412,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns the message you just edited</p>
 
 <h2 id="pinmessage">pinMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">pinMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">pinMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">);</span>
 </code></pre>
 <p>Puts a message into the Pinned Messages of a channel</p>
 
@@ -420,9 +420,9 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to pin</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to pin</td></tr>
   </tbody>
 </table>
@@ -432,7 +432,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="unpinmessage">unpinMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">unpinMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">unpinMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">);</span>
 </code></pre>
 <p>Removes a message from the Pinned Messages in a channel</p>
 
@@ -440,9 +440,9 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the message that you want to unpin</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>The id of the message you want to unpin</td></tr>
   </tbody>
 </table>
@@ -452,7 +452,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="deletemessage">deleteMessage</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">deleteMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">message_id</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">numOfMessages</span> <span class="o">=</span> <span class="mi">1</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">deleteMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">);</span>
 </code></pre>
 <p>Deletes a message</p>
 
@@ -460,12 +460,10 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>channel_id</strong></td>
+      <tr><td><strong>channelID</strong></td>
         <td>The id of the channel with the messages that you want to delete</td></tr>
-      <tr><td><strong>message_id</strong></td>
+      <tr><td><strong>messageID</strong></td>
         <td>An array of ids of the messages you want to delete</td></tr>
-      <tr><td><strong>numOfMessages</strong></td>
-        <td>the number of messages to delete</td></tr>
   </tbody>
 </table>
 
@@ -474,7 +472,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="editnickname">editNickname</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">editNickname</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newNickname</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">editNickname</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newNickname</span><span class="p">);</span>
 </code></pre>
 <p>Changes the name that is displayed on a server</p>
 
@@ -482,7 +480,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server where you want to this nickname</td></tr>
       <tr><td><strong>newNickname</strong></td>
         <td>The Nickname that you want your bot to have</td></tr>
@@ -494,7 +492,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="addrole">addRole</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">addRole</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">role_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">addRole</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">userID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Role</span><span class="o">&gt;</span> <span class="n">roleID</span><span class="p">);</span>
 </code></pre>
 <p>Gives a member a role on a server </p>
 
@@ -502,11 +500,11 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to give the role to</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to give the role to</td></tr>
-      <tr><td><strong>role_id</strong></td>
+      <tr><td><strong>roleID</strong></td>
         <td>The id of role that you want to give</td></tr>
   </tbody>
 </table>
@@ -516,7 +514,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="removerole">removeRole</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">removeRole</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">role_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">removeRole</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">userID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Role</span><span class="o">&gt;</span> <span class="n">roleID</span><span class="p">);</span>
 </code></pre>
 <p>Takes away a role from a member on a server</p>
 
@@ -524,11 +522,11 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove the role from</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to remove the role from</td></tr>
-      <tr><td><strong>role_id</strong></td>
+      <tr><td><strong>roleID</strong></td>
         <td>The id of role that you want to remove from the user</td></tr>
   </tbody>
 </table>
@@ -538,7 +536,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Returns <code class="prettyprint">true</code> on success</p>
 
 <h2 id="kickmember">kickMember</h2>
-<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">kickMember</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">server_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">member_id</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">kickMember</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">userID</span><span class="p">);</span>
 </code></pre>
 <p>Removes a member from a server</p>
 
@@ -546,9 +544,9 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 
 <table>
   <tbody>
-      <tr><td><strong>server_id</strong></td>
+      <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove</td></tr>
-      <tr><td><strong>member_id</strong></td>
+      <tr><td><strong>memberID</strong></td>
         <td>The id of the user that you want to remove</td></tr>
   </tbody>
 </table>
@@ -651,7 +649,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
     <span class="k">using</span> <span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
     <span class="kt">void</span> <span class="nf">onMessage</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">m</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">startsWith</span><span class="p">(</span><span class="s">"whcg hello"</span><span class="p">))</span> <span class="p">{</span>
-            <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
+            <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">channelID</span><span class="p">,</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">message</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">username</span><span class="p">);</span>
             <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">content</span><span class="p">;</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -755,7 +753,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <h2 id="constructor">(constructor)</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="n">Message</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span> <span class="n">rawJson</span><span class="p">);</span>
-<span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
+<span class="n">Message</span><span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">tts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">);</span>
 </code></pre>
 <p>Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor&rsquo;s implementation, it uses the first constructor to initializes the message object.</p>
 
@@ -883,7 +881,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <p><code class="prettyprint">ture</code> when the two Users have the same id</p>
 
-<h1 id="customsession">CustomSession</h1>
+<h1 id="custom-session">Custom Session</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">CustomSession</span> <span class="o">:</span> <span class="k">public</span> <span class="n">GenericSession</span> <span class="p">{</span>
 </code></pre>
 <p>Sessions are used for http requests, it&rsquo;s essentially a wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. <a href="#session">To learn more about Sessions, click here.</a></p>
