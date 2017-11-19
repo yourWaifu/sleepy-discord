@@ -25,7 +25,6 @@ namespace SleepyDiscord {
 	public:
 		Channel() {}
 		Channel(const std::string * rawJson);
-		Channel(const Response& response);
 		Channel(const std::vector<std::string> values);
 		~Channel();
 		Snowflake<Channel> ID;

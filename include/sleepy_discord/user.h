@@ -23,7 +23,6 @@ namespace SleepyDiscord {
 		~User();
 		User();
 		User(const std::string * rawJSON);
-		User(const Response& response);
 		User(const std::vector<std::string> values);
 		bool operator==(const User& rightUser);
 		Snowflake<User> ID;

@@ -13,8 +13,6 @@ namespace SleepyDiscord {
 
 	User::User(const std::string * rawJSON) : User(json::getValues(rawJSON->c_str(), fields)) {}
 
-	User::User(const Response & response) : User(&response.text) {}
-
 	User::User(const std::vector<std::string> values) :
 		//variable     modifier value               felid
 		ID            (        values[index(fields, "id"           )] ),

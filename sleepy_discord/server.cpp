@@ -12,8 +12,6 @@ namespace SleepyDiscord {
 
 	Server::Server(const std::string * rawJSON) : Server(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Server::Server(const Response & response) : Server(&response.text) {}
-
 	Server::Server(const std::vector<std::string> values) :
 		//variable                            condition    modifier                value        felid                                    else
 		ID                         (                                               values[index(fields, "id"                           )]                         ),

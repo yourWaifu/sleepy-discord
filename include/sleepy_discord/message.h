@@ -48,7 +48,6 @@ namespace SleepyDiscord {
 		~Message();
 		Message(const std::vector<std::string> values);
 		Message(const std::string * rawJson);
-		Message(const Response& response);
 		using DiscordObject::DiscordObject;
 		bool startsWith(char* test);
 		int length();

@@ -3,8 +3,6 @@
 namespace SleepyDiscord {
 	Channel::Channel(const std::string * rawJSON) : Channel(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Channel::Channel(const Response & response) : Channel(&response.text) {}
-
 	Channel::Channel(const std::vector<std::string> values) :
 		//felid                modifier                        value
 		ID                   (                                 values[index(fields, "id"                   )]  ),

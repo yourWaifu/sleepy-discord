@@ -12,7 +12,6 @@ namespace SleepyDiscord {
 		~Server();
 		Server();
 		Server(const std::string * rawJson);
-		Server(const Response& response);
 		Server(const std::vector<std::string> values);
 		Snowflake<Server> ID;
 		std::string name;

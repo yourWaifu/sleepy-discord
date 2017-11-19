@@ -32,13 +32,11 @@ namespace SleepyDiscord {
 		reactions        (modIfElse(isSpecified, JSON_getArray<Reaction>       , &values[index(fields, "reactions"       )], std::vector<Reaction>())),
 		nonce            (modIfElse(isDefined  , toLongLong                    ,  values[index(fields, "nonce"           )], 0                      )),
 		pinned           (                       getBool                        ( values[index(fields, "pinned"          )]                         )),
-		webhookID       (setIfElse(isSpecified,                                  values[index(fields, "webhook_id"      )], ""                     )),
+		webhookID        (setIfElse(isSpecified,                                  values[index(fields, "webhook_id"      )], ""                     )),
 		type             (                       static_cast<MessageType>(toInt ( values[index(fields, "type"            )]                        )))
 	{}
 
 	Message::Message(const std::string * rawJson) : Message(json::getValues(rawJson->c_str(), fields)) {}
-
-	Message::Message(const Response & response) : Message(&response.text) {}
 
 	bool Message::startsWith(char* test) {
 		return strncmp(content.c_str(), test, strlen(test)) == 0;
