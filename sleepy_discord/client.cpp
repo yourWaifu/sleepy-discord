@@ -86,13 +86,16 @@ namespace SleepyDiscord {
 				isRateLimited = true;
 			default:
 			{		//error
-				setError(response.statusCode);		//https error
+				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
+				setError(code);		//https error
 				std::vector<std::string> values = json::getValues(response.text.c_str(),
 				{ "code", "message" });	//parse json to get code and message
-				if (!values.empty())
-					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the 
+				if (!values.empty() && values[0] != "")
+					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the error event
+				else
+					onError(code, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-				throw static_cast<ErrorCode>(response.statusCode);
+				throw code;
 #endif
 			} break;
 			}
