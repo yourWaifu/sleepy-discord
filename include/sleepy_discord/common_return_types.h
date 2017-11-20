@@ -21,16 +21,15 @@ namespace SleepyDiscord {
 	struct ObjectResponse : public StandardResponse {
 		using StandardResponse::StandardResponse;
 		operator Type() {
-			if (!error()) return Type(&text);
-			else return Type();
+			return error() ? Type() : Type(&text);
 		}
 	};
 
 	struct ArrayResponseWrapper : public json::BaseArrayWrapper, public StandardResponse {
 		using StandardResponse::StandardResponse;
-		inline std::vector<std::string> vectorStrings() { return json::getArray(&text); }
-
-		operator const std::string&() const { return text; }
+		operator const std::string&() const {
+			return text;
+		}
 	};
 
 	template <class Type>
