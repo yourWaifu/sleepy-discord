@@ -40,5 +40,6 @@ namespace SleepyDiscord {
 		GATEWAY_FAILED = 5002, //Could not get the gateway
 		GENERAL_ERROR  = 5003, //Used when you are too lazy to use a error code
 		LAZY_ERROR     = 5004, //Used when you are too lazy to use a error code and message
+		ERROR_NOTE     = 5005, //Comes after an error to give more detail about an error in the message
 	};
 }
