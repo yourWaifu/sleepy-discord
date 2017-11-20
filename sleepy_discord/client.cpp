@@ -93,7 +93,7 @@ namespace SleepyDiscord {
 				if (!values.empty() && values[0] != "")
 					onError(static_cast<ErrorCode>(std::stoi(values[0])), values[1]);	//send message to the error event
 				else
-					onError(code, response.text);
+					onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 				throw code;
 #endif
