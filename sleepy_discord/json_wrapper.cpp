@@ -27,7 +27,7 @@ namespace SleepyDiscord { namespace json {
 
 	std::vector<std::string> getArray(const std::string* _source) {
 		const char* source = _source->c_str();
-		if (source[0] != '[' && source[1] == ']') return std::vector<std::string>();
+		if (source[0] != '[' || source[1] == ']') return std::vector<std::string>();
 
 		//get size of array and change size of target array
 		const unsigned int sourceLength = _source->size();
