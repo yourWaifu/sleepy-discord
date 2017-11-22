@@ -187,7 +187,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onDisconnet() {
+	void BaseDiscordClient::onDisconnect() {
 
 	}
 

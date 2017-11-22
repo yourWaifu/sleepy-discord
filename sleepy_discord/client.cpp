@@ -296,7 +296,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
 		disconnect(code, reason);
-		onDisconnet();
+		onDisconnect();
 	}
 
 	bool BaseDiscordClient::sendL(std::string message) {
