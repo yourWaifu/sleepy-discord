@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sleepy_discord", "sleepy_discord\sleepy_discord.vcxproj", "{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}"
 EndProject
@@ -32,15 +32,21 @@ Global
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Debug|x64.ActiveCfg = Debug|Win32
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Debug|x86.ActiveCfg = Debug|Win32
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Debug|x86.Build.0 = Debug|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x64.ActiveCfg = MinSizeRel|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x86.ActiveCfg = MinSizeRel|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x86.Build.0 = MinSizeRel|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x64.ActiveCfg = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x64.Build.0 = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x64.Deploy.0 = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x86.ActiveCfg = Make|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x86.Build.0 = Make|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.MinSizeRel|x86.Deploy.0 = Make|Win32
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Release|x64.ActiveCfg = Release|Win32
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Release|x86.ActiveCfg = Release|Win32
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Release|x86.Build.0 = Release|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x86.ActiveCfg = RelWithDebInfo|Win32
-		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x86.Build.0 = RelWithDebInfo|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x64.ActiveCfg = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x64.Build.0 = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x64.Deploy.0 = Release|ARM
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x86.Build.0 = Release|Win32
+		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.RelWithDebInfo|x86.Deploy.0 = Release|Win32
 		{62F30952-924E-4567-9EE6-A8B7000368B7}.Debug|x64.ActiveCfg = Debug|x64
 		{62F30952-924E-4567-9EE6-A8B7000368B7}.Debug|x64.Build.0 = Debug|x64
 		{62F30952-924E-4567-9EE6-A8B7000368B7}.Debug|x86.ActiveCfg = Debug|Win32
