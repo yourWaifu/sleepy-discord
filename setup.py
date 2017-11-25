@@ -29,19 +29,37 @@ def download(url, filename=None):
 	return filename
 
 class unzip():
-	def __inti__(self, filename, path=None):
+	def __init__(self, filename, path=None):
 		self.filename = filename
 		self.path = path
+		self.fileType = filename.split('.')[-1]
 	def __enter__(self):
-		with zipfile.ZipFile(filename) as outputZip:
-			outputZip.extractall(path)
-	def __exit__(self):
-		os.remove(filename)
+		if   self.fileType == "zip":
+			with zipfile.ZipFile(self.filename) as outputZip:
+				outputZip.extractall(self.path)
+		elif self.fileType == "7z" :
+			global windows
+			if not windows:
+				print("7z files is only supported on windows for now")
+				return
+			#download 7zip for command line
+			if not os.path.exists("7za.exe"):
+				sevenZipFilename = download("http://www.7-zip.org/a/7za920.zip", "7za920.zip")
+				with zipfile.ZipFile(sevenZipFilename) as outputZip:
+					outputZip.extract("7za.exe")
+			#run 7zip command
+			run(["7za.exe", "-y", "x", self.filename, "-o" + self.path if self.path != None else "-o."])
+		else:
+			print(self.fileType, "is not supported")
+	def __exit__(self, type, value, traceback):
+		try:
+			os.remove(self.filename)
+		except:
+			pass
 
 def convertFromZip(filename, path=None):
-	with zipfile.ZipFile(filename) as outputZip:
-		outputZip.extractall(path)
-	os.remove(filename)
+	with unzip(filename, path):
+		pass
 
 def mergeDirectories(source, target):
 	for file in os.listdir(source):
@@ -81,16 +99,16 @@ def installWebsocketPP():
 	#download and unzip openssl
 	global windows
 	if windows:
-		#just get it precompiled
-		print("This is going to take a while")
-		filename = download("https://github.com/David-Reguera-Garcia-Dreg/Precompiled-OpenSSL-Windows/archive/master.zip", "Precompiled-OpenSSL-Windows-master.zip")
+		#add support for 64 bit
+		filename = download("https://www.npcglib.org/~stathis/downloads/openssl-1.1.0f-vs2015.7z")
 		convertFromZip(filename, "deps")
-		shutil.move("deps/Precompiled-OpenSSL-Windows-master/openssl-1.1.0e-vs2015/include/openssl", "deps/include")
-		mergeDirectories("deps/Precompiled-OpenSSL-Windows-master/openssl-1.1.0e-vs2015/lib", "deps/lib")
-		shutil.rmtree("deps/Precompiled-OpenSSL-Windows-master")
+		shutil.move("deps/openssl-1.1.0f-vs2015/include/openssl", "deps/include")
+		mergeDirectories("deps/openssl-1.1.0f-vs2015/lib", "deps/lib")
+		shutil.rmtree("deps/openssl-1.1.0f-vs2015")
 
 
 def installUWebsockets():
+	print("setup.py doesn't support uWebSockets yet")
 	return
 
 #questions
@@ -133,7 +151,7 @@ except FileExistsError:
 
 #ask and install
 #ask libraries to get and for what os
-ask("What OS are you building Sleepy Discord for?", [
+ask("What OS are you using right now?", [
 	Option("Windows", setWindows),
 	Option("Linux"  , setLinux  ),
 	Option("macOS"  , setLinux  ),
