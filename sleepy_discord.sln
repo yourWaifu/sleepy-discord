@@ -19,14 +19,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{F7
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		MinSizeRel|x64 = MinSizeRel|x64
-		MinSizeRel|x86 = MinSizeRel|x86
-		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-		RelWithDebInfo|x64 = RelWithDebInfo|x64
+		Release|x64 = Release|x64
+		Debug|x86 = Debug|x86
+		Debug|x64 = Debug|x64
+		MinSizeRel|x86 = MinSizeRel|x86
+		MinSizeRel|x64 = MinSizeRel|x64
 		RelWithDebInfo|x86 = RelWithDebInfo|x86
+		RelWithDebInfo|x64 = RelWithDebInfo|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8CBF2E76-59D6-34F2-A2B7-E2C0C4DC892C}.Debug|x64.ActiveCfg = Debug|Win32
