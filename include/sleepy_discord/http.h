@@ -23,7 +23,7 @@ namespace SleepyDiscord {
 		std::string text;
 		std::map<std::string, std::string> header;
 		inline bool error() const {
-			return statusCode <= BAD_REQUEST;
+			return BAD_REQUEST <= statusCode;
 		}
 	};
 
