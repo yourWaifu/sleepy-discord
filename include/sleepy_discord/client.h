@@ -263,7 +263,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
-		void resumeHeartbeatLoop();
+		bool resumeHeartbeatLoop();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(const std::string & uri) { return false; }

@@ -171,8 +171,10 @@ namespace SleepyDiscord {
 		}  //I don't think we need those anymore
 		condition = nullptr;
 		do {
-			resumeHeartbeatLoop();
-			sleep(heartbeatInterval);
+			if (resumeHeartbeatLoop() == true) //the if makes sure that a heartbeat was sent
+				sleep(heartbeatInterval);
+			else
+				sleep(1);
 		} while (ready);
 	}
 #endif
@@ -411,8 +413,8 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void BaseDiscordClient::resumeHeartbeatLoop() {
-		if (!heartbeatInterval) return;
+	bool BaseDiscordClient::resumeHeartbeatLoop() {
+		if (!heartbeatInterval) return false;
 
 		if (nextHeartbeat <= getEpochTimeMillisecond()) {
 			do nextHeartbeat += heartbeatInterval;
@@ -420,14 +422,16 @@ namespace SleepyDiscord {
 
 			if (!wasHeartbeatAcked) {
 				reconnect(1006);
-				return;
+				return false;
 			}
 
 			std::string str = std::to_string(lastSReceived);
 			sendL("{\"op\":1,\"d\":" + str + "}");
 			wasHeartbeatAcked = false;
 			onHeartbeat();
+			return true;
 		}
+		return false;
 	}
 
 	const int64_t BaseDiscordClient::getEpochTimeMillisecond() {
