@@ -321,7 +321,7 @@ namespace SleepyDiscord {
 		const int64_t getEpochTimeMillisecond();
 
 		//for endpoint functions
-		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions);
+		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
 	};
 }
 

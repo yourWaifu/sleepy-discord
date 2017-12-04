@@ -435,9 +435,9 @@ namespace SleepyDiscord {
 		return ms.time_since_epoch().count();
 	}
 
-	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>> positions) {
+	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) {
 		std::vector<std::string> params(positions.size());
-		for (auto value : positions) {
+		for (auto& value : positions) {
 			params.push_back(json::createJSON({
 				{ "id", json::string(value.first) },
 				{ "position", json::UInteger(value.second) }
