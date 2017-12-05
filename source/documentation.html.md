@@ -573,7 +573,7 @@ bool startsWith(char* test);
 </table>
 
 ### Return value
-``ture`` when the message starts with the given string
+``true`` when the message starts with the given string
 
 ## length
 
@@ -602,7 +602,7 @@ bool isMentioned(User& _user);
 </table>
 
 ### Return value
-``ture`` if the user was mentioned
+``true`` if the user was mentioned
 
 ## send
 
@@ -689,7 +689,7 @@ Compares the id of two Users
 </table>
 
 ### Return value
-``ture`` when the two Users have the same id
+``true`` when the two Users have the same id
 
 # Custom Session
 
