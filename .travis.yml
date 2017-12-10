@@ -14,5 +14,6 @@ install:
   - export CXX="g++-5" CC="gcc-5";
 
 script:
+- "$CXX" --version
 - cd buildtools
-- make -f Makefile.linux FLAGS=-std=c++11
+- make -f Makefile.linux CXX=g++-5 FLAGS=-std=c++11
