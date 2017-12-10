@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
+#include <cstring>
 #include "client.h"
 #include "json.h"
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
