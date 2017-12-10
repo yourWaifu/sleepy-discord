@@ -16,7 +16,7 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
-		 
+
 script:
 - cd buildtools
 - make -f Makefile.linux FLAGS=-std=c++11
