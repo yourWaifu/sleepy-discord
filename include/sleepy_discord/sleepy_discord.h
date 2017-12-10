@@ -1,5 +1,15 @@
 #pragma once
+#ifndef SLEEPY_AUTO_SELECT_CLIENT
 #include "client.h"
+#else
+#include "websocketpp_websocket.h"
+#ifdef NONEXISTENT_WEBSOCKETPP
+#include "uwebsockets_websocket.h"
+#ifdef NONEXISTENT_UWEBSOCKETS
+#include "client.h"
+#endif
+#endif
+#endif
 
 /*
 FEEDBACK
