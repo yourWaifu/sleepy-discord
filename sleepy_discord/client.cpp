@@ -4,6 +4,9 @@
 
 #include <chrono>
 #include <functional>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
 #include "client.h"
 #include "json.h"
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
@@ -100,9 +103,26 @@ namespace SleepyDiscord {
 			} break;
 			}
 			//rate limit check
-			std::string remaining = response.header["X-RateLimit-Remaining"];
-			if (remaining != "" && std::stoi(remaining) == 0) {
-				nextRetry = std::stoi(response.header["X-RateLimit-Reset"]);
+			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+				std::tm date = {};
+				std::istringstream(response.header["Date"]) >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+				//get timezone offset
+				const std::time_t time = std::time(nullptr);
+#if defined(_WIN32) || defined(_WIN64)
+				std::tm localTM;
+				std::tm gmTM;
+				std::tm*const local = &localTM;
+				std::tm*const gm    = &gmTM;
+				localtime_s(local, &time);
+				gmtime_s   (gm,    &time);
+#else
+				std::tm* local = std::localtime(&time);
+				std::tm* gm    = std::gmtime   (&time);
+#endif
+				const time_t offset = std::mktime(local) - std::mktime(gm);
+				const time_t reset  = std::stoi(response.header["X-RateLimit-Reset"]);
+				const time_t now    = mktime(&date) + offset;
+				nextRetry = ((reset - now) * 1000) + getEpochTimeMillisecond();
 				isRateLimited = true;
 				setError(TOO_MANY_REQUESTS);
 			}
