@@ -11,7 +11,7 @@ addons:
     - g++-5
 
 install:
-- export CXX="g++-5" CC="gcc-5";
+  - export CXX="g++-5" CC="gcc-5";
 	
 script:
 - cd buildtools
