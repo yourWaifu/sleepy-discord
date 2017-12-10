@@ -23,6 +23,18 @@ namespace SleepyDiscord {
 		operator Type() {
 			return error() ? Type() : Type(&text);
 		}
+
+		Type& operator*() const {
+			return Type();
+		}
+
+		Type* operator->() const {
+			return &Type();
+		}
+
+		inline Type cast() {
+			return operator Type();
+		}
 	};
 
 	struct ArrayResponseWrapper : public json::BaseArrayWrapper, public StandardResponse {
