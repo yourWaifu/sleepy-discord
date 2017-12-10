@@ -12,7 +12,7 @@ addons:
 
 install:
   - export CXX="g++-5" CC="gcc-5";
-	
+
 script:
 - cd buildtools
 - make -f Makefile.linux FLAGS=-std=c++11
