@@ -106,7 +106,9 @@ namespace SleepyDiscord {
 			//rate limit check
 			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
 				std::tm date = {};
-				std::istringstream(response.header["Date"]) >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+				//for some reason std::get_time requires gcc 5
+				std::istringstream dateStream(response.header["Date"]);
+				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
 				//get timezone offset
 				const std::time_t time = std::time(nullptr);
 #if defined(_WIN32) || defined(_WIN64)
