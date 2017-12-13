@@ -23,7 +23,7 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message) {
-		return request(Post, "channels/" + channelID + "/messages",
+		return request(Post, path("channels/{channel.id}/messages", { channelID }),
 			{ { "content", message },
 			{ "file", filePathPart{fileLocation} }
 		}

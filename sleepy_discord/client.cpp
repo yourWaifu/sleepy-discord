@@ -64,14 +64,14 @@ namespace SleepyDiscord {
 			};
 			if (jsonParameters != "") {
 				session.setBody(&jsonParameters);
-				header.push_back({"Content-Type", "application/json"});
+				header.push_back({ "Content-Type"  , "application/json"                      });
+				header.push_back({ "Content-Length", std::to_string(jsonParameters.length()) });
 			//} else if (httpParameters.content != "") {	//this is broken for now
 			//	session.SetParameters(httpParameters);
 			} else if (0 < multipartParameters.size()) {
 				session.setMultipart(multipartParameters);
 				header.push_back({ "Content-Type", "multipart/form-data" });
 			}
-			header.push_back({ "Content-Length", std::to_string(jsonParameters.length()) });
 			session.setHeader(header);
 			//Response response;
 			switch (method) {
