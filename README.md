@@ -3,10 +3,10 @@ C++ library for Discord
 
 Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would normally pronounce sleepy.
 
-# [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/documentation.html.md "Edit Documentation")
-* [How to Compile](https://yourwaifu.github.io/sleepy-discord/compile.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/compile.html.md "Edit Documentation")
-* [How To Link](https://yourwaifu.github.io/sleepy-discord/link.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/link.html.md "Edit Documentation")
-* [How to make a Basic Text Bot](https://yourwaifu.github.io/sleepy-discord/basic%20text%20bot.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/basic%20text%20bot.html.md "Edit Documentation")
+# [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
+[:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/compile.html.md "Edit Documentation") [How to Compile](https://yourwaifu.github.io/sleepy-discord/compile.html)<br />
+[:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/link.html.md "Edit Documentation") [How To Link](https://yourwaifu.github.io/sleepy-discord/link.html)<br />
+[:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/basic%20text%20bot.html.md "Edit Documentation") [How to make a Basic Text Bot](https://yourwaifu.github.io/sleepy-discord/basic%20text%20bot.html)<br />
 
 If you like to edit them, [please check out the docs branch](https://github.com/yourWaifu/sleepy-discord/tree/docs) or click on the [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/documentation.html.md "Edit Documentation").
 
