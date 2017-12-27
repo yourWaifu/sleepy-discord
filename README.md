@@ -3,13 +3,12 @@ C++ library for Discord
 
 Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would normally pronounce sleepy.
 
-# [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
-* [How to Compile](https://yourwaifu.github.io/sleepy-discord/compile.html)
-* [How To Link](https://yourwaifu.github.io/sleepy-discord/link.html)
-* [How to make a Basic Text Bot](https://yourwaifu.github.io/sleepy-discord/basic%20text%20bot.html)
+# [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/documentation.html.md "Edit Documentation")
+* [How to Compile](https://yourwaifu.github.io/sleepy-discord/compile.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/compile.html.md "Edit Documentation")
+* [How To Link](https://yourwaifu.github.io/sleepy-discord/link.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/link.html.md "Edit Documentation")
+* [How to make a Basic Text Bot](https://yourwaifu.github.io/sleepy-discord/basic%20text%20bot.html) [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/basic%20text%20bot.html.md "Edit Documentation")
 
-If you like to edit them, [please check out the docs branch](https://github.com/yourWaifu/sleepy-discord/tree/docs).
-* [Main Documentation](https://github.com/yourWaifu/sleepy-discord/blob/docs/source/documentation.html.md)
+If you like to edit them, [please check out the docs branch](https://github.com/yourWaifu/sleepy-discord/tree/docs) or click on the [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/documentation.html.md "Edit Documentation").
 
 # Why?
 Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
