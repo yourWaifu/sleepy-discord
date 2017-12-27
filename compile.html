@@ -329,10 +329,14 @@ You may skip this step, if you are planning on using other websocket libraries
 Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. <a href="https://sourceforge.net/projects/asio/files/latest/download">The latest version can be downloaded here</a>
 </aside></p>
 
-<p>Last, you are also going to need openSSL. There&rsquo;s two options:
-1. Download precompiled openSSL: <a href="https://wiki.openssl.org/index.php/Binaries">wiki.openssl.org</a> or <a href="https://www.npcglib.org/~stathis/blog/precompiled-openssl/">npcglib.org</a>. You will be needing 7-zip, WinRAR or other program which one is able to unzip .7z files.
-2. Or download it from <a href="https://www.openssl.org/">https://www.openssl.org/</a>. Once downloaded, extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. 
-Once one of those two options are done, make new folder in deps\include named openssl and move there content of include folder from openSSL. Also (I forgot to do this for the pictures) you&rsquo;ll need to place the lib folder into deps, you&rsquo;ll need this to link Sleepy Discord. 
+<p>Last, you are also going to need openSSL. There&rsquo;s two options:</p>
+
+<ol>
+<li><p>Download precompiled openSSL: <a href="https://wiki.openssl.org/index.php/Binaries">wiki.openssl.org</a> or <a href="https://www.npcglib.org/~stathis/blog/precompiled-openssl/">npcglib.org</a>. You will be needing 7-zip, WinRAR or other program which one is able to unzip .7z files.</p></li>
+<li><p>Or download it from <a href="https://www.openssl.org/">https://www.openssl.org/</a>. Once downloaded, extract the folder inside to somewhere to work on it. To install look at the instructions in INSTALL because this has its own set of instructions including downloading and installing some other dependencies. </p></li>
+</ol>
+
+<p>Once one of those two options are done, move all the .h files in openssl\include\openssl into deps\include\openssl. You&rsquo;ll also need to place lib folder into deps, you&rsquo;ll need this to link Sleepy Discord. 
 <pre>
 <img src="images/cininclude.png" alt="alt text" />
 </pre></p>
