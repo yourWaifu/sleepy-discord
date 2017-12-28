@@ -22,6 +22,9 @@ namespace SleepyDiscord {
 	private:
 		Response convertResponse(cpr::Response response);
 		cpr::Session session;
+		//muiltpart is needs to be here when uploading images,
+		//so that it's not deallocated when making the request
+		cpr::Multipart muiltpart = {};
 	};
 
 	typedef CPRSession Session;

@@ -15,7 +15,7 @@ namespace SleepyDiscord {
 			if (m.isFile) cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
 			else          cprParts.push_back(cpr::Part(m.name, m.value));
 		}
-		cpr::Multipart muiltpart({});
+
 		muiltpart.parts = cprParts;
 		session.SetMultipart(muiltpart);
 	}
