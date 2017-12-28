@@ -308,8 +308,8 @@ namespace SleepyDiscord {
 		if (status != 1000) {         //check for a deliberate reconnect
 			heartbeatInterval = 0;    //stop heartbeating
 			wasHeartbeatAcked = true; //stops the library from spamming discord
-			disconnectWebsocket(status);
 		}
+		disconnectWebsocket(status);
 		//loop unrolling
 		if (connect(theGateway)) return;
 		if (connect(theGateway)) return;
