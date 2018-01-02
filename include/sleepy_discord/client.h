@@ -252,6 +252,7 @@ namespace SleepyDiscord {
 		virtual void onInvaldSession();
 		virtual void onDisconnect();
 		virtual void onResume();
+		virtual void onHelloHeartbeatInterval(int heartbeatInterval);
 
 		virtual void onQuit();
 		virtual void onResponse(Response response);
@@ -267,6 +268,7 @@ namespace SleepyDiscord {
 		void heartbeat();            //for muiti  threaded systems
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
+		void runClock_thread();
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
@@ -295,8 +297,7 @@ namespace SleepyDiscord {
 
 #ifndef SLEEPY_ONE_THREAD
 		std::thread clock_thread;
-		std::condition_variable* condition = nullptr;
-		void runClock_thread();
+		char maxNumOfThreadsAllowed;
 #endif
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger

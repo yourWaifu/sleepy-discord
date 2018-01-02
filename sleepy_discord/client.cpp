@@ -25,7 +25,7 @@ namespace SleepyDiscord {
  		connect(theGateway);
 #ifndef SLEEPY_ONE_THREAD
 		if (2 < maxNumOfThreads) runAsync();
-		if (1 < maxNumOfThreads) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+		maxNumOfThreadsAllowed = maxNumOfThreads;
 #endif
 	}
 
@@ -182,25 +182,21 @@ namespace SleepyDiscord {
 		disconnectWebsocket(1000);
 		onQuit();
 	}
-
+	
+	void BaseDiscordClient::onHelloHeartbeatInterval(int heartbeatInterval) {
 #ifndef SLEEPY_ONE_THREAD
+		if (1 < maxNumOfThreadsAllowed) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
+#endif
+	}
+
 	void BaseDiscordClient::runClock_thread() {
-		{
-			std::mutex mut;
-			std::unique_lock<std::mutex> lock(mut);
-			std::condition_variable variable;
-			condition = &variable;
-			condition->wait(lock, [=] { return heartbeatInterval != 0; });
-		}  //I don't think we need those anymore
-		condition = nullptr;
-		do {
+		do {  //TODO: use heartbeat function instead
 			if (resumeHeartbeatLoop() == true) //the if makes sure that a heartbeat was sent
 				sleep(heartbeatInterval);
 			else
 				sleep(1);
 		} while (ready);
 	}
-#endif
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
@@ -410,10 +406,7 @@ namespace SleepyDiscord {
 		case HELLO:
 			nextHeartbeat = getEpochTimeMillisecond();
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-#ifndef SLEEPY_ONE_THREAD
-			if (condition != nullptr) condition->notify_all();
-			else onError(GENERAL_ERROR, "Received a HELLO packet after condition was deallocated");
-#endif
+			onHelloHeartbeatInterval(heartbeatInterval);
 			if (!ready) sendIdentity();
 			else sendResume();
 			break;
