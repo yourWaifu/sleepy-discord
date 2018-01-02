@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{7B7E9FBB-67A7-4141-B665-B05C46CA06E9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\steve\Documents\nsprojects\sleepy_discord\include;C:\Users\steve\Documents\nsprojects\sleepy_discord\include\sleepy_discord\IncludeNonexistent;C:\Users\steve\Documents\GitHub\emsdk\emscripten\1.37.21\system\include\emscripten;$(IncludePath)</IncludePath>
+    <NMakeBuildCommandLine>cd ..\..\..\..\GitHub\emsdk
+emsdk_env --build=Release
+
+cd ..\..\nsprojects\sleepy_discord\buildtools
+emmake make -f Makefile.linux CXX="emcc -O2 -s WASM=1" CXXFLAGS="-std=c++11 -DSLEEPY_USE_HARD_CODED_GATEWAY" AR="emcc -O2 -o" SUFFIX=.o
+xcopy libsleepy_discord.o ..\examples\wasm_example /y
+cd ..\examples\wasm_example
+emcc -O2 -std=c++11 -I ../../include -I ../../include/sleepy_discord/IncludeNonexistent libsleepy_discord.o wasm_websocket.cpp main.cpp --pre-js mod.js --js-library websocket.js --js-library session.js -s WASM=1  --emrun -o discord.html</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\steve\Documents\nsprojects\sleepy_discord\include;C:\Users\steve\Documents\nsprojects\sleepy_discord\include\sleepy_discord\IncludeNonexistent;C:\Users\steve\Documents\GitHub\emsdk\emscripten\1.37.21\system\include\emscripten;$(IncludePath)</IncludePath>
+    <NMakeBuildCommandLine>cd ..\..\..\..\GitHub\emsdk
+emsdk_env --build=Release
+cd ..\..\nsprojects\sleepy_discord\buildtools
+emmake make -f Makefile.linux CXX="emcc -O2 -s WASM=1" CXXFLAGS="-std=c++11 -DSLEEPY_USE_HARD_CODED_GATEWAY" AR="emcc -O2 -o" SUFFIX=.o
+xcopy libsleepy_discord.o ..\examples\wasm_example /y
+cd ..\examples\wasm_example
+emcc -O2 -std=c++11 -I ../../include -I ../../include/sleepy_discord/IncludeNonexistent libsleepy_discord.o wasm_websocket.cpp main.cpp --pre-js mod.js --js-library websocket.js --js-library session.js -s WASM=1  --emrun -o discord.htmll</NMakeBuildCommandLine>
+    <NMakeIncludeSearchPath>$(IncludePath);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\steve\Documents\nsprojects\sleepy_discord\include;C:\Users\steve\Documents\nsprojects\sleepy_discord\include\sleepy_discord\IncludeNonexistent;C:\Users\steve\Documents\GitHub\emsdk\emscripten\1.37.21\system\include\emscripten;$(IncludePath)</IncludePath>
+    <NMakeBuildCommandLine>cd ..\..\..\..\GitHub\emsdk
+emsdk_env --build=Release
+
+cd ..\..\nsprojects\sleepy_discord\buildtools
+emmake make -f Makefile.linux CXX="emcc -O2 -s WASM=1" CXXFLAGS="-std=c++11 -DSLEEPY_USE_HARD_CODED_GATEWAY" AR="emcc -O2 -o" SUFFIX=.o
+xcopy libsleepy_discord.o ..\examples\wasm_example /y
+cd ..\examples\wasm_example
+emcc -O2 -std=c++11 -I ../../include -I ../../include/sleepy_discord/IncludeNonexistent libsleepy_discord.o wasm_websocket.cpp main.cpp --pre-js mod.js --js-library websocket.js --js-library session.js -s WASM=1  --emrun -o discord.html</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\steve\Documents\nsprojects\sleepy_discord\include;C:\Users\steve\Documents\nsprojects\sleepy_discord\include\sleepy_discord\IncludeNonexistent;C:\Users\steve\Documents\GitHub\emsdk\emscripten\1.37.21\system\include\emscripten;$(IncludePath)</IncludePath>
+    <NMakeBuildCommandLine>cd ..\..\..\..\GitHub\emsdk
+emsdk_env --build=Release
+cd ..\..\nsprojects\sleepy_discord\buildtools
+emmake make -f Makefile.linux CXX="emcc -O2 -s WASM=1" CXXFLAGS="-std=c++11 -DSLEEPY_USE_HARD_CODED_GATEWAY" AR="emcc -O2 -o" SUFFIX=.o
+xcopy libsleepy_discord.o ..\examples\wasm_example /y
+cd ..\examples\wasm_example
+emcc -O2 -std=c++11 -I ../../include -I ../../include/sleepy_discord/IncludeNonexistent libsleepy_discord.o wasm_websocket.cpp main.cpp --pre-js mod.js --js-library websocket.js --js-library session.js -s WASM=1  --emrun -o discord.htmll</NMakeBuildCommandLine>
+    <NMakeIncludeSearchPath>$(IncludePath);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="index.html" />
+    <None Include="mod.js" />
+    <None Include="session.js" />
+    <None Include="websocket.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="wasm_session.h" />
+    <ClInclude Include="wasm_websocket.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="wasm_websocket.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
