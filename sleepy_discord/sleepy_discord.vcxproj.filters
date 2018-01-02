@@ -92,6 +92,9 @@
     <ClCompile Include="gateway.cpp">
       <Filter>discord objects</Filter>
     </ClCompile>
+    <ClCompile Include="http.cpp">
+      <Filter>http</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
