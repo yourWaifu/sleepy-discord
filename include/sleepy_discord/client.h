@@ -263,13 +263,15 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
-		bool resumeHeartbeatLoop();
+		bool resumeHeartbeatLoop();  //for single threaded systems
+		void heartbeat();            //for muiti  threaded systems
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
 		virtual void runAsync();
+		
 	private:
 		int heartbeatInterval = 0;
 		int64_t nextHeartbeat = 0;

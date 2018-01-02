@@ -436,7 +436,7 @@ namespace SleepyDiscord {
 		}
 	}
 
-	bool BaseDiscordClient::resumeHeartbeatLoop() {
+	bool BaseDiscordClient::resumeHeartbeatLoop() {  //TODO return nextHeartbeat - getEpochTimeMillisecond() on fail
 		if (!heartbeatInterval) return false;
 
 		if (nextHeartbeat <= getEpochTimeMillisecond()) {
@@ -448,13 +448,17 @@ namespace SleepyDiscord {
 				return false;
 			}
 
-			std::string str = std::to_string(lastSReceived);
-			sendL("{\"op\":1,\"d\":" + str + "}");
-			wasHeartbeatAcked = false;
-			onHeartbeat();
+			heartbeat();
 			return true;
 		}
 		return false;
+	}
+
+	void BaseDiscordClient::heartbeat() {
+		std::string str = std::to_string(lastSReceived);
+		sendL("{\"op\":1,\"d\":" + str + "}");
+		wasHeartbeatAcked = false;
+		onHeartbeat();
 	}
 
 	const int64_t BaseDiscordClient::getEpochTimeMillisecond() {
