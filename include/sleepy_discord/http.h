@@ -61,5 +61,9 @@ namespace SleepyDiscord {
 		virtual Response Delete() = 0;
 		virtual Response Get() = 0;
 		virtual Response Put() = 0;
+	protected:
+		//Use this to convert RequestMethod into a string
+		const char* getMethodName(const RequestMethod& method);
+		
 	};
 };
