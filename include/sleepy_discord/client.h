@@ -329,9 +329,12 @@ namespace SleepyDiscord {
 }
 
 //locks away functions that users shouldn't be using
-#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                      \
-                                     using BaseDiscordClient::processMessage;      \
-                                     using BaseDiscordClient::resumeHeartbeatLoop; \
-                                     using BaseDiscordClient::start;
+#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                          \
+                                     using BaseDiscordClient::processMessage;          \
+                                     using BaseDiscordClient::resumeHeartbeatLoop;     \
+                                     using BaseDiscordClient::start;                   \
+                                     using BaseDiscordClient::runClock_thread;         \
+                                     using BaseDiscordClient::heartbeat;               \
+                                     using BaseDiscordClient::onHelloHeartbeatInterval;
 
 //This comment stops a warning
