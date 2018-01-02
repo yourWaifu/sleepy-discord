@@ -60,7 +60,7 @@ namespace SleepyDiscord {
 			session.setUrl("https://discordapp.com/api/v6/" + _url);
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
-				{ "User-Agent", "SleepyDiscord (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
+				{ "User-Agent", "DiscordBot (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
 			};
 			if (jsonParameters != "") {
 				session.setBody(&jsonParameters);
