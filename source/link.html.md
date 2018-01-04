@@ -74,13 +74,14 @@ $(projectdir)..\deps\lib
 
 ![alt text](images/ladddeps.png)
 
-> Here's a good example of the library files to list
+> Here's a good example of the library files to list. Note: This will depend on your deps/lib folder, system, platform, and configuration.
 
 ```bash
 sleepy_discord.lib
 libcurl_a.lib
-ssleay32MT.lib
-libeay32MT.lib
+libcryptoMT.lib
+libsslMT.lib
+crypt32.lib
 ```
 
 **Step 8:** On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you're done, remember to click OK.
