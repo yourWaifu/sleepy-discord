@@ -84,7 +84,7 @@ libsslMT.lib
 crypt32.lib
 ```
 
-**Step 8:** On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. . The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you're done, remember to click OK.
+**Step 8:** On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you're done, remember to click OK.
 
 **(optional) Step 9:** Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit...
 
