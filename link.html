@@ -314,10 +314,11 @@ Alt+F7 also works if you have only one project in your solution.
 </blockquote>
 <pre class="highlight shell"><code>sleepy_discord.lib
 libcurl_a.lib
-ssleay32MT.lib
-libeay32MT.lib
+libcryptoMT.lib
+libsslMT.lib
+crypt32.lib
 </code></pre>
-<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. . The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
 
 <p><strong>(optional) Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
 
