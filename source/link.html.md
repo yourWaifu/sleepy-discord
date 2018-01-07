@@ -23,7 +23,7 @@ I'm going to assume that you have compiled Sleepy Discord or aquired a compiled 
 For now, Visual Studio is the only option.
 </aside>
 
-**Preparing:** Before we start, if are using a library that needs curl, for example cpr, then you need to compile it.
+**Preparing:** Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. If you used setup.py to download cpr, it should have also download curl for you in ``sleepy_discord\deps\cpr\opt\curl``.
 
 > Here what the commands should look like for compiling curl
 
