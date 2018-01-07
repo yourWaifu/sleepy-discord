@@ -260,7 +260,7 @@ I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a com
 For now, Visual Studio is the only option.
 </aside>
 
-<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it.</p>
+<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. If you used setup.py to download cpr, it should have also download curl for you in <code class="prettyprint">sleepy_discord\deps\cpr\opt\curl</code>.</p>
 
 <blockquote>
 <p>Here what the commands should look like for compiling curl</p>
@@ -318,7 +318,7 @@ libcryptoMT.lib
 libsslMT.lib
 crypt32.lib
 </code></pre>
-<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. . The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
 
 <p><strong>(optional) Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
 
