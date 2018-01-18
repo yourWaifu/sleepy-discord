@@ -71,6 +71,8 @@ namespace SleepyDiscord {
 			} else if (0 < multipartParameters.size()) {
 				session.setMultipart(multipartParameters);
 				header.push_back({ "Content-Type", "multipart/form-data" });
+			} else {
+				header.push_back({ "Content-Length", "0" });
 			}
 			session.setHeader(header);
 			//Response response;
