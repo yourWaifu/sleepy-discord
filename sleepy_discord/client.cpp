@@ -216,13 +216,9 @@ namespace SleepyDiscord {
 				const unsigned int start = position;
 				while (a.text[++position] != '"');
 				unsigned int size = position - start;
-				std::strncpy(theGateway, a.text.c_str() + start, size);
-				theGateway[size] = '/';	//super fast ultra loop unrolling
-				theGateway[++size] = '?';
-				theGateway[++size] = 'v';
-				theGateway[++size] = '=';
-				theGateway[++size] = '6';
-				theGateway[++size] = 0;
+				theGateway.reserve(32);
+				theGateway.append(a.text, start, size);
+				theGateway += "/?v=6";
 				break;
 			}
 		}
