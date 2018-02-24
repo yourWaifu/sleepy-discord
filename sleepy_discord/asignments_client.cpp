@@ -48,7 +48,7 @@ namespace SleepyDiscord {
 			assignments.insert_after(lastAssignment, newAssignemt);
 		}
 
-		return std::bind(&AssignmentBasedDiscordClient::unschedule, this, newJobID);
+		return Timer(std::bind(&AssignmentBasedDiscordClient::unschedule, this, newJobID));
 	}
 
 	void AssignmentBasedDiscordClient::unschedule(const int jobID) {

@@ -187,7 +187,7 @@ namespace SleepyDiscord {
 			EpochTime  = 1,
 		};
 		typedef std::function<void()> TimedTask;
-		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return [](){}; }
+		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return Timer([](){}); }
 		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
 			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
 		}
