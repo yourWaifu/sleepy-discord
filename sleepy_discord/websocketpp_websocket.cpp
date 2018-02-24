@@ -54,6 +54,11 @@ namespace SleepyDiscord {
 		this_client.run();
 	}
 
+	Timer WebsocketppDiscordClient::schedule(std::function<void()> code, const time_t milliseconds) {
+		auto timer = this_client.set_timer(milliseconds, std::bind(code));
+		return [timer]() { timer->cancel(); };
+	}
+
 	void WebsocketppDiscordClient::runAsync() {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 	}
