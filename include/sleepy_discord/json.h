@@ -23,15 +23,15 @@ extern "C" {
 		size_t valueLength;
 	} JSON_findMuitipleStruct;
 
-	void JSON_skipString(const char * JSONstring, unsigned int *position);
-	unsigned int JSON_measureAndSkipString(const char* JSONstring, unsigned int *position);
-	unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_position);
-	void JSON_find(const unsigned int numberOfNames, const char* source, JSON_findMuitipleStruct* values);
-	unsigned int JSON_find1(const char * name, const char * source);
-	void JSON_skipArray(const char * JSONstring, unsigned int *position);
-	void JSON_skipObject(const char * JSONstring, unsigned int *position);
-	unsigned int JSON_measureAndSkipObject(const char * JSONstring, unsigned int *position);
-	unsigned int JSON_measureObject(const char * JSONstring, const unsigned int *position);
+	void JSON_skipString(const char * JSONstring, size_t *position);
+	size_t JSON_measureAndSkipString(const char* JSONstring, size_t *position);
+	size_t JSON_measureString(const char * JSONstring, const size_t *_position);
+	void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitipleStruct* values);
+	size_t JSON_find1(const char * name, const char * source);
+	void JSON_skipArray(const char * JSONstring, size_t *position);
+	void JSON_skipObject(const char * JSONstring, size_t *position);
+	size_t JSON_measureAndSkipObject(const char * JSONstring, size_t *position);
+	size_t JSON_measureObject(const char * JSONstring, const size_t *position);
 #ifdef __cplusplus
 	}
 
