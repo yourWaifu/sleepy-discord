@@ -7,6 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include <forward_list>
 
 //objects
 #include "message.h"
@@ -30,7 +31,23 @@ remember to make function perimeters const
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
-	class BaseDiscordClient {
+
+	struct Timer {
+	public:
+		typedef std::function<void()> StopTimerFunction;
+		Timer() {}
+		Timer(StopTimerFunction stopTimer) : implStop(stopTimer) {}
+		inline void stop() const { implStop(); }
+	private:
+		StopTimerFunction implStop;
+	};
+
+	//template <
+	//	class Session          = SleepyDiscord::Session        ,
+	//	class WebsocketClient  = SleepyDiscord::WebsocketClient,
+	//	class UDPClient        = SleepyDiscord::UDPClient
+	//>
+	class BaseDiscordClient /*: public WebsocketClient*/ {
 	public:
 		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
@@ -157,12 +174,27 @@ namespace SleepyDiscord {
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
 
-		void waitTilReady();
+		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
 		const bool isBot() { return bot; }
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		void quit();	//public function for diconnecting
 		virtual void run();
+
+		//time
+		enum AssignmentType : bool {
+			TilDueTime = 0,
+			EpochTime  = 1,
+		};
+		typedef std::function<void()> TimedTask;
+		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return [](){}; }
+		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
+			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
+		}
+		inline  Timer  schedule(void (BaseDiscordClient::*code)(), const time_t milliseconds, AssignmentType mode = TilDueTime) {
+			return     schedule(std::bind(code, this), milliseconds, mode);
+		}
+		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
 	protected:
 		/* list of events
 		READY
@@ -252,11 +284,10 @@ namespace SleepyDiscord {
 		virtual void onInvaldSession();
 		virtual void onDisconnect();
 		virtual void onResume();
-		virtual void onHelloHeartbeatInterval(int heartbeatInterval);
 
 		virtual void onQuit();
 		virtual void onResponse(Response response);
-		virtual void sleep(const unsigned int milliseconds);
+		virtual void sleep(const unsigned int milliseconds);  //Deprecated, use schedule instead
 		virtual void fileRead(const char* path, std::string*const file);
 		virtual void tick(float deltaTime);
 		virtual void onError(ErrorCode errorCode, const std::string errorMessage);
@@ -264,19 +295,19 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
-		bool resumeHeartbeatLoop();  //for single threaded systems
-		void heartbeat();            //for muiti  threaded systems
+		void heartbeat();
+		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
-		void runClock_thread();
 		virtual bool connect(const std::string & uri) { return false; }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
 		virtual void runAsync();
+		virtual const time_t getEpochTimeMillisecond();
 		
 	private:
 		int heartbeatInterval = 0;
-		int64_t nextHeartbeat = 0;
+		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
 
@@ -326,15 +357,36 @@ namespace SleepyDiscord {
 		//for endpoint functions
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
 	};
+
+	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
+	  don't want to do yourself. I plan on somehow merging this with the baseClient
+	  somehow
+	  */
+	class AssignmentBasedDiscordClient : public BaseDiscordClient {
+	public:
+		Timer schedule(TimedTask code, const time_t milliseconds);
+	protected:
+		void resumeMainLoop();
+		virtual int setDoAssignmentTimer(const time_t milliseconds); //call doAssignment in x milliseconds
+		virtual void stopDoAssignmentTimer(const int jobID) {}
+		void doAssignment();
+	private:
+		struct Assignment {
+			int jobID;
+			TimedTask function;
+			time_t dueTime;
+		};
+		std::forward_list<Assignment> assignments;
+
+		void unschedule(const int jobID);
+	};
+
 }
 
 //locks away functions that users shouldn't be using
-#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                          \
-                                     using BaseDiscordClient::processMessage;          \
-                                     using BaseDiscordClient::resumeHeartbeatLoop;     \
-                                     using BaseDiscordClient::start;                   \
-                                     using BaseDiscordClient::runClock_thread;         \
-                                     using BaseDiscordClient::heartbeat;               \
-                                     using BaseDiscordClient::onHelloHeartbeatInterval;
+#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                 \
+                                     using BaseDiscordClient::processMessage; \
+                                     using BaseDiscordClient::start;          \
+                                     using BaseDiscordClient::sendHeartbeat;
 
 //This comment stops a warning

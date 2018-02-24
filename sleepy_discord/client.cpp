@@ -19,10 +19,10 @@ namespace SleepyDiscord {
 		ready = false;
 		bot = true;
 		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
-		
+
 		messagesRemaining = 4;
 		getTheGateway();
- 		connect(theGateway);
+		connect(theGateway);
 #ifndef SLEEPY_ONE_THREAD
 		if (2 < maxNumOfThreads) runAsync();
 		maxNumOfThreadsAllowed = maxNumOfThreads;
@@ -40,7 +40,7 @@ namespace SleepyDiscord {
 		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters) {
 		//check if rate limited
 		static bool isRateLimited = false;
-		static int64_t nextRetry = 0;
+		static time_t nextRetry = 0;
 		Response response;
 		if (isRateLimited) {
 			if (nextRetry <= getEpochTimeMillisecond())
@@ -77,11 +77,11 @@ namespace SleepyDiscord {
 			session.setHeader(header);
 			//Response response;
 			switch (method) {
-			case Post:   response = session.Post  ();       break;
-			case Patch:  response = session.Patch ();       break;
-			case Delete: response = session.Delete();       break;
-			case Get:    response = session.Get   ();       break;
-			case Put:    response = session.Put   ();       break;
+			case Post:   response = session.Post();   break;
+			case Patch:  response = session.Patch();  break;
+			case Delete: response = session.Delete(); break;
+			case Get:    response = session.Get();    break;
+			case Put:    response = session.Put();    break;
 			default:     response.statusCode = BAD_REQUEST; break; //unexpected method
 			}
 			//status checking
@@ -119,17 +119,18 @@ namespace SleepyDiscord {
 				std::tm*const local = &localTM;
 				std::tm*const gm    = &gmTM;
 				localtime_s(local, &time);
-				gmtime_s   (gm,    &time);
+				gmtime_s   (gm   , &time);
 #else
 				std::tm* local = std::localtime(&time);
 				std::tm* gm    = std::gmtime   (&time);
 #endif
-				const time_t offset = std::mktime(local) - std::mktime(gm);
-				const time_t reset  = std::stoi(response.header["X-RateLimit-Reset"]);
-				const time_t now    = mktime(&date) + offset;
-				nextRetry = ((reset - now) * 1000) + getEpochTimeMillisecond();
-				isRateLimited = true;
-				setError(TOO_MANY_REQUESTS);
+				const time_t offset     = std::mktime(local) - std::mktime(gm);
+				const time_t reset      = std::stoi(response.header["X-RateLimit-Reset"]);
+				const time_t now        = mktime(&date) + offset;
+				const time_t resetDelta = reset - now;
+				nextRetry               = (resetDelta * 1000) + getEpochTimeMillisecond();
+				isRateLimited           = true;
+				setError(TOO_MANY_REQUESTS);  //todo make this a warning
 			}
 		}
 		onResponse(response);
@@ -148,7 +149,7 @@ namespace SleepyDiscord {
 		std::string path(source);
 		const char* start = path.c_str();
 		for (std::string replaceWith : values) {
-			unsigned int length = 0;
+			std::size_t length = 0;
 			for (const char* c = start; length == 0; ++c) {
 				switch (*c) {
 				case '{': start = c; break;
@@ -157,7 +158,7 @@ namespace SleepyDiscord {
 				default: break;
 				}
 			}
-			const unsigned int startIndex = start - path.c_str();
+			const std::size_t startIndex = start - path.c_str();
 			path.replace(startIndex, length, replaceWith);
 			start = path.c_str() + startIndex + replaceWith.length() - 1;
 		}
@@ -168,7 +169,7 @@ namespace SleepyDiscord {
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
 			{ "d", json::createJSON({
-				{"idle_since", idleSince != 0? json::UInteger(idleSince) : "null"},
+				{"idle_since", idleSince != 0 ? json::UInteger(idleSince) : "null"},
 				{"game", gameName != "" ? json::createJSON({
 					{"name", json::string(gameName)}
 				}) : "null"}
@@ -183,21 +184,6 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::quit() {
 		disconnectWebsocket(1000);
 		onQuit();
-	}
-	
-	void BaseDiscordClient::onHelloHeartbeatInterval(int heartbeatInterval) {
-#ifndef SLEEPY_ONE_THREAD
-		if (1 < maxNumOfThreadsAllowed) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-#endif
-	}
-
-	void BaseDiscordClient::runClock_thread() {
-		do {  //TODO: use heartbeat function instead
-			if (resumeHeartbeatLoop() == true) //the if makes sure that a heartbeat was sent
-				sleep(heartbeatInterval);
-			else
-				sleep(1);
-		} while (ready);
 	}
 
 	void BaseDiscordClient::getTheGateway() {
@@ -402,9 +388,8 @@ namespace SleepyDiscord {
 			onDispatch(d);
 		break;
 		case HELLO:
-			nextHeartbeat = getEpochTimeMillisecond();
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-			onHelloHeartbeatInterval(heartbeatInterval);
+			heartbeat();
 			if (!ready) sendIdentity();
 			else sendResume();
 			break;
@@ -427,32 +412,36 @@ namespace SleepyDiscord {
 		}
 	}
 
-	bool BaseDiscordClient::resumeHeartbeatLoop() {  //TODO return nextHeartbeat - getEpochTimeMillisecond() on fail
-		if (!heartbeatInterval) return false;
-
-		if (nextHeartbeat <= getEpochTimeMillisecond()) {
-			do nextHeartbeat += heartbeatInterval;
-			while (nextHeartbeat <= getEpochTimeMillisecond()); //prevents spam
-
-			if (!wasHeartbeatAcked) {
-				reconnect(1006);
-				return false;
-			}
-
-			heartbeat();
-			return true;
+	void BaseDiscordClient::heartbeat() {
+		if (heartbeatInterval <= 0) return; //sanity test
+		
+		//if time and timer are out of sync, trust time
+		time_t currentTime = getEpochTimeMillisecond();
+		time_t nextHeartbest;
+		if (currentTime <= (nextHeartbest = lastHeartbeat + heartbeatInterval)) {
+			schedule(&BaseDiscordClient::heartbeat, nextHeartbest - currentTime);
+			return;
 		}
-		return false;
+
+		if (!wasHeartbeatAcked) {
+			reconnect(1006);
+			return;
+		}
+
+		lastHeartbeat = currentTime;
+		sendHeartbeat();
+
+		schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
 	}
 
-	void BaseDiscordClient::heartbeat() {
+	void BaseDiscordClient::sendHeartbeat() {
 		std::string str = std::to_string(lastSReceived);
 		sendL("{\"op\":1,\"d\":" + str + "}");
 		wasHeartbeatAcked = false;
 		onHeartbeat();
 	}
 
-	const int64_t BaseDiscordClient::getEpochTimeMillisecond() {
+	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
 	}
