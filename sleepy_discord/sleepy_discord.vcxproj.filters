@@ -67,12 +67,6 @@
     <ClCompile Include="..\deps\cpr\cpr\proxies.cpp">
       <Filter>cpr</Filter>
     </ClCompile>
-	<ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp">
-	  <Filter>cpr</Filter>
-	</ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp">
-	  <Filter>cpr</Filter>
-	</ClCompile>
     <ClCompile Include="endpoints.cpp" />
     <ClCompile Include="discord_object_interface.cpp">
       <Filter>discord objects</Filter>
@@ -94,6 +88,12 @@
     </ClCompile>
     <ClCompile Include="http.cpp">
       <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp">
+      <Filter>cpr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp">
+      <Filter>cpr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
