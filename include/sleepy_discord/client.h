@@ -351,9 +351,6 @@ namespace SleepyDiscord {
 		//error handling
 		void setError(int errorCode);
 
-		//time
-		const int64_t getEpochTimeMillisecond();
-
 		//for endpoint functions
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
 	};
