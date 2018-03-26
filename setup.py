@@ -82,6 +82,8 @@ def installCPR():
 		run("deps\\cpr\\opt\\curl\\buildconf.bat")
 		#run("C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\vcvars32.bat")
 	if linux:
+		os.chmod("./deps/cpr/opt/curl/buildconf", 0o777)
+		os.chdir("./deps/cpr/opt/curl")
 		run("./deps/cpr/opt/curl/buildconf")
 
 def installWebsocketPP():
