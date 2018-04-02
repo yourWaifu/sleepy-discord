@@ -84,7 +84,8 @@ def installCPR():
 	if linux:
 		os.chmod("./deps/cpr/opt/curl/buildconf", 0o777)
 		os.chdir("./deps/cpr/opt/curl")
-		run("./deps/cpr/opt/curl/buildconf")
+		run("./buildconf")
+		os.chdir("../../../../")
 
 def installWebsocketPP():
 	#download and unzip websocketpp
