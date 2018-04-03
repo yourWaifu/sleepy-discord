@@ -345,10 +345,15 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">addReaction</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">emoji</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord&gt;
 </span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="k">class</span> <span class="nc">MyDiscordClient</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Ready</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">client</span><span class="p">.</span><span class="n">addReaction</span><span class="p">(</span><span class="s">"channel id"</span><span class="p">,</span> <span class="s">"message id"</span><span class="p">,</span> <span class="s">"%F0%9F%98%95"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">);</span>
-    <span class="n">client</span><span class="p">.</span><span class="n">waitTilReady</span><span class="p">();</span>
-    <span class="n">client</span><span class="p">.</span><span class="n">addReaction</span><span class="p">(</span><span class="s">"channel id"</span><span class="p">,</span> <span class="s">"message id"</span><span class="p">,</span> <span class="s">"%F0%9F%98%95"</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
 <blockquote>
