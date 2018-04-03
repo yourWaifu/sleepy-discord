@@ -256,11 +256,9 @@ I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a com
 
 <h1 id="visual-studio">Visual Studio</h1>
 
-<aside class="notice">
-For now, Visual Studio is the only option.
-</aside>
+<h2 id="preparing">Preparing</h2>
 
-<p><strong>Preparing:</strong> Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. If you used setup.py to download cpr, it should have also download curl for you in <code class="prettyprint">sleepy_discord\deps\cpr\opt\curl</code>.</p>
+<p>Before we start, if are using a library that needs curl, for example cpr, then you need to compile it. If you used setup.py to download cpr, it should have also download curl for you in <code class="prettyprint">sleepy_discord\deps\cpr\opt\curl</code>.</p>
 
 <blockquote>
 <p>Here what the commands should look like for compiling curl</p>
@@ -271,6 +269,8 @@ nmake /f Makefile.vc <span class="nv">mode</span><span class="o">=</span>static 
 </code></pre>
 <p>Here&rsquo;s a good guide to do just that, but before you read it remember to change things like <code class="prettyprint">Microsoft Visual Studio 12.0</code> or <code class="prettyprint">VC=12</code> or <code class="prettyprint">vc12</code> to <code class="prettyprint">Microsoft Visual Studio 14.0</code> or <code class="prettyprint">VC=14</code> or <code class="prettyprint">vc14</code> or whatever version of Visual Studio. <a href="https://stackoverflow.com/a/32168255">Anyway, here is the guide that I&rsquo;m talking about.</a> After you have compiled curl, place the include and lib folders into deps.</p>
 
+<h2 id="open-properties">Open Properties</h2>
+
 <p><strong>Step 1:</strong> First you need a project, of course. Go make a new one if you haven&rsquo;t done so already.</p>
 
 <p><strong>Step 2:</strong> Right click on your project in the Solution Explorer and go to Properties.</p>
@@ -280,6 +280,8 @@ nmake /f Makefile.vc <span class="nv">mode</span><span class="o">=</span>static 
 <aside class="notice">
 Alt+F7 also works if you have only one project in your solution.
 </aside>
+
+<h2 id="include-directories">Include Directories</h2>
 
 <p><strong>Step 3:</strong> On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
 
@@ -297,6 +299,8 @@ Alt+F7 also works if you have only one project in your solution.
 </code></pre>
 <p><strong>Step 5:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code>. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code> needs to be last. This is so that we don&rsquo;t get &ldquo;any include files not found&rdquo; errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
 
+<h2 id="library-directories">Library Directories</h2>
+
 <blockquote>
 <p>The box of Library Directories should look like this, but with full paths</p>
 </blockquote>
@@ -304,6 +308,8 @@ Alt+F7 also works if you have only one project in your solution.
 <span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\l</span>ib
 </code></pre>
 <p><strong>Step 6:</strong> Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
+
+<h2 id="add-dependencies">Add Dependencies</h2>
 
 <p><strong>Step 7:</strong> To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
 
@@ -320,11 +326,79 @@ crypt32.lib
 </code></pre>
 <p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
 
-<p><strong>(optional) Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
+<h2 id="preprocessor-definitions">Preprocessor Definitions</h2>
 
-<p><strong>(optional) Step 10:</strong> On the text box at the top add whatever preprocessor definitions, you need. You don&rsquo;t need any to link Sleepy Discord. This is here just in case, you need it.</p>
+<aside class="notice">
+These steps are optional, and are here just in case you need them.
+</aside>
 
-<h2 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h2>
+<p><strong>Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
+
+<p><strong>Step 10:</strong> On the text box at the top add whatever preprocessor definitions, you need. You don&rsquo;t need any to link Sleepy Discord. This is here just in case, you need it.</p>
+
+<h2 id="build">Build</h2>
+
+<p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
+
+<h1 id="g">G++</h1>
+<pre class="highlight shell tab-shell"><code><span class="nb">cd</span> ./examples/hello/
+g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistant -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto example0.cpp -o example.out
+</code></pre>
+<p>This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.</p>
+
+<p><strong>Preparing:</strong> Before we start, we need the needed libraries. This depends on the libraries that you&rsquo;ll be using with Sleepy Discord. For example, to use CPR, you need the a compiled version of CPR (or maybe you could use CMake to that for you since that&rsquo;s what they recommend you to do, I guess) and libcurl. Another example is to use Websocket++, you&rsquo;ll need, you guessed it, the openSSL library files.</p>
+
+<h2 id="helpful-chart">Helpful Chart</h2>
+
+<p>To link the Sleepy Discord with g++, you&rsquo;ll need to add some options (Or whatever they are called). The helpful chart below should help breakdown what all the options in the example are for.</p>
+
+<table><thead>
+<tr>
+<th>Option</th>
+<th>Example</th>
+<th>Reason</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">-std=c++11</code></td>
+<td><code class="prettyprint">-std=c++11</code></td>
+<td>Lets you compile c++11 code, you can change this to something higher then 11 if you like.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-I</code></td>
+<td><code class="prettyprint">-I/path/to/includes</code></td>
+<td>Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure <code class="prettyprint">include/sleepy_discord/IncludeNonexistant</code> is last.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-L</code></td>
+<td><code class="prettyprint">-L/path/to/library/files</code></td>
+<td>Tells the compiler where to look for lib files</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-l</code></td>
+<td><code class="prettyprint">-llib</code></td>
+<td>Tells the compiler which libraries to link with</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-D</code></td>
+<td><code class="prettyprint">-DSomeVariable</code></td>
+<td>Defines preprocessor variable</td>
+</tr>
+<tr>
+<td></td>
+<td><code class="prettyprint">example.cpp</code></td>
+<td>The files you want to compile</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-o</code></td>
+<td><code class="prettyprint">-o example.out</code></td>
+<td>The output file</td>
+</tr>
+</tbody></table>
+
+<p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
+
+<h1 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h1>
 
 <blockquote>
 <p>Here&rsquo;s some example code for you to compile</p>
