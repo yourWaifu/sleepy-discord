@@ -66,11 +66,16 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <sleepy_discord.h>
 #include <iostream>
 
+class MyClientClass : public SleepyDiscord::DiscordClient {
+	private:
+	void onReady() {
+		SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
+		std::cout << message.content;
+	}
+}
+
 int main() {
-    myClientClass client("token");
-    client.waitTilReady();
-    SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
-    std::cout << message.content;
+	MyClientClass client("token");
 }
 ```
 >Output: Message sent
@@ -482,11 +487,67 @@ virtual void onQuit();
 
 Happens when the client is quitting and after disconnecting from Discord
 
+## schedule
+
+```cpp
+virtual Timer schedule(TimedTask                 code   , const time_t millisecondsTilDueTime);
+inline  Timer schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode);
+inline  Timer schedule(void (BaseDiscordClient::*code)(), const time_t milliseconds, AssignmentType mode = TilDueTime);
+```
+```cpp
+Snowflake<Channel> channel = message.channelID;
+sendMessage(channel, "Another message will be sent in 5 seconds from now.");
+schedule([this, channel]() { 
+	this->sendMessage(channel, "5 seconds has pasted"); 
+}, 5000);
+```
+
+Creates a timer that will execute a function after the timer expires. Based on JavaScript's setTimeout()
+
+### Timer
+Stores needed timer function. However, this does not store the function will be called when times up.
+
+### TimedTask
+Stores function that will be called when times up
+
+### AssignmentType
+
+```cpp
+enum AssignmentType : bool {
+	TilDueTime = 0,
+	EpochTime  = 1,
+};
+```
+
+Changes what ``milliseconds`` represents in milliseconds
+
+###Parameters
+<table>
+	<tbody>
+		<tr><td><strong>code</strong></td>
+			<td>Function that will be called when times up</td></tr>
+		<tr><td><strong>millisecondsTilDueTime</strong></td>
+			<td>The amount of milliseconds before execute code</td></tr>
+		<tr><td><strong>milliseconds</strong></td>
+			<td>Depends on mode</td></tr>
+		<tr><td><strong>mode</strong></td>
+			<td>When this is EpochTime, code will execute at milliseconds since epoch. Else, code will execute at milliseconds since schedule was called</td></tr>
+	</tbody>
+</table>
+
+###Return
+
+See Timer above.
+
 ## sleep
 
 ```cpp
 virtual void sleep(const unsigned int milliseconds);
 ```
+
+<aside class="warning">
+Deprecated, use schedule instead
+</aside>
 
 ###Parameters
 <table>
@@ -920,7 +981,7 @@ A macro that is a must for any Discord Clients that will be used by others, that
 
 Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifdef``. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.
 
-## SLEEPY ONE THREAD
+<h2>SLEEPY_<wbr>ONE_<wbr>THREAD</h2>
 
 ```make
 SLEEPY_ONE_THREAD
@@ -928,7 +989,7 @@ SLEEPY_ONE_THREAD
 ```
 Disables anything that has to do with threads, because threads or ``std::threads`` don't work on everything. Currently there's no way to add in thread support of your own device yet.
 
-## SLEEPY CUSTOM SESSION
+<h2>SLEEPY_<wbr>CUSTOM_<wbr>SESSION</h2>
 
 ```make
 SLEEPY_CUSTOM_SESSION
@@ -937,6 +998,7 @@ SLEEPY_CUSTOM_SESSION
 Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#CustomSession)
 
 ## SLEEPY USE HARD CODED GATEWAY
+<h2>SLEEPY_<wbr>USE_<wbr>HARD_<wbr>CODED_<wbr>GATEWAY</h2>
 
 ```make
 SLEEPY_USE_HARD_CODED_GATEWAY

@@ -108,6 +108,9 @@ There's only two options:
 ###Visual Studio
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And you're done.
 
+<aside>
+For now, compiling for x64 doesn't work just yet.
+</aside>
 <aside class="success">
 If you were able to compile the library, but can't find it, look up at the toolbar, click Project and then Properties.<br>
 Go to Configuration Properties -> General -> Output Directory<br>
