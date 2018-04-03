@@ -118,10 +118,15 @@ bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Sno
 ```cpp
 #include <sleepy_discord>
 
+class MyDiscordClient : public SleepyDiscord::DiscordClient {
+public:
+	void onReady(SleepyDiscord::Ready data) {
+		client.addReaction("channel id", "message id", "%F0%9F%98%95");
+	}
+}
+
 int main() {
 	SleepyDiscord::DiscordClient client("token");
-	client.waitTilReady();
-	client.addReaction("channel id", "message id", "%F0%9F%98%95");
 }
 ```
 >Output: added 😕 reaction
