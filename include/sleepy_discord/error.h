@@ -40,11 +40,13 @@ namespace SleepyDiscord {
 		UNKNOWN_ENCRYPTION_MODE = 4016, //We didn't recognize your encryption.
 
 		//Sleepy Errors
-		CONNECT_FAILED = 5000, //Failed to connect to the Discord api after 4 trys
-		EVENT_UNKNOWN  = 5001, //Unexpected or unknown event occurred
-		GATEWAY_FAILED = 5002, //Could not get the gateway
-		GENERAL_ERROR  = 5003, //Used when you are too lazy to use a error code
-		LAZY_ERROR     = 5004, //Used when you are too lazy to use a error code and message
-		ERROR_NOTE     = 5005, //Comes after an error to give more detail about an error in the message
+		CONNECT_FAILED  = 5000, //Failed to connect to the Discord api after 4 trys
+		EVENT_UNKNOWN   = 5001, //Unexpected or unknown event occurred
+		GATEWAY_FAILED  = 5002, //Could not get the gateway
+		GENERAL_ERROR   = 5003, //Used when you are too lazy to use a error code
+		LAZY_ERROR      = 5004, //Used when you are too lazy to use a error code and message
+		ERROR_NOTE      = 5005, //Comes after an error to give more detail about an error in the message
+		VOICE_NO_SODIUM = 5006, //Failed to init libsodium. Try linking libsodium?
+		VOICE_NO_OPUS   = 5007, //Failed to init libopus. Try linking libopus?
 	};
 }

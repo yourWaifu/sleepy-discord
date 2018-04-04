@@ -1,11 +1,5 @@
 #pragma once
-#ifndef BOOST_VERSION
-#define ASIO_STANDALONE
-#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
-#endif // !BOOST_VERSION
-
-#include <websocketpp/config/asio_client.hpp>
+#include "websocketpp_common.h"
 #ifndef NONEXISTENT_WEBSOCKETPP
 #include <chrono>
 //#include <websocketpp/config/asio_no_tls_client.hpp>
@@ -17,11 +11,15 @@
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
-	class WebsocketppDiscordClient : public BaseDiscordClient {
+	typedef websocketpp::connection_hdl WebsocketConnection;
+
+	//typedef GenericMessageReceiver MessageProcssor;
+
+	class WebsocketppWebsocketClient : public BaseDiscordClient {
 	public:
-		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
-		~WebsocketppDiscordClient();
+		WebsocketppWebsocketClient() : maxNumOfThreads(0) {}
+		WebsocketppWebsocketClient(const std::string token, const char numOfThreads = 3);
+		~WebsocketppWebsocketClient();
 
 		void run();
 		Timer schedule(std::function<void()> code, const time_t milliseconds);
@@ -29,19 +27,26 @@ namespace SleepyDiscord {
 #include "standard_config_header.h"
 	private:
 		void init();
-		bool connect(const std::string & uri);
-		void disconnect(unsigned int code, const std::string reason);
+		bool connect(const std::string & uri,
+			GenericMessageReceiver* messageProcessor,
+			WebsocketConnection* connection
+		);
+		void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection);
 		void onClose(_client * client, websocketpp::connection_hdl handle);
-		void send(std::string message);
+		void send(std::string message, WebsocketConnection* connection);
 		void runAsync();
+		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);
+		void onMessage(
+			websocketpp::connection_hdl hdl,
+			websocketpp::config::asio_client::message_type::ptr msg, 
+			GenericMessageReceiver* messageProcessor
+		);
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
-		void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
 		const char maxNumOfThreads;
-		SLEEPY_LOCK_CLIENT_FUNCTIONS
 	};
-	typedef WebsocketppDiscordClient DiscordClient;
+	typedef WebsocketppWebsocketClient DiscordClient;
 }
 #else
 #ifndef BOOST_VERSION

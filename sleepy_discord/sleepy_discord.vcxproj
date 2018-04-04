@@ -234,7 +234,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -429,7 +429,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -829,6 +829,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
     <ClCompile Include="asignments_client.cpp" />
+    <ClCompile Include="asio_udp.cpp" />
     <ClCompile Include="attachment.cpp" />
     <ClCompile Include="channel.cpp" />
     <ClCompile Include="client.cpp" />
@@ -852,15 +853,22 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="voice.cpp" />
     <ClCompile Include="webhook.cpp" />
     <ClCompile Include="websocketpp_websocket.cpp" />
+    <ClInclude Include="..\include\sleepy_discord\asio_include.h" />
+    <ClInclude Include="..\include\sleepy_discord\asio_udp.h" />
     <ClInclude Include="..\include\sleepy_discord\attachment.h" />
     <ClInclude Include="..\include\sleepy_discord\channel.h" />
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
     <ClInclude Include="..\include\sleepy_discord\cpr_session.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_session.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\gateway.h" />
     <ClInclude Include="..\include\sleepy_discord\http.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\boost\asio.hpp" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\cpr\cpr.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\sodium.h" />
     <ClInclude Include="..\include\sleepy_discord\session.h" />
     <ClInclude Include="..\include\sleepy_discord\snowflake.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
@@ -876,10 +884,16 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\permissions.h" />
     <ClInclude Include="..\include\sleepy_discord\server.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
+    <ClInclude Include="..\include\sleepy_discord\udp.h" />
+    <ClInclude Include="..\include\sleepy_discord\udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\user.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h" />
     <ClInclude Include="..\include\sleepy_discord\voice.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_common.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_connection.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\websocketpp_websocket.h" />
   </ItemGroup>
   <ItemGroup>

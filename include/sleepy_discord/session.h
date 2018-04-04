@@ -1,12 +1,25 @@
 #pragma once
 #include "http.h"
 
+//custom dynamic
 #ifdef SLEEPY_CUSTOM_SESSION
-#include "custom_session.h"
+	#include "custom_session.h"
+
+	//defined
+	#elif defined(SLEEPY_SESSION) || defined(SLEEPY_SESSION_INCLUDE)
+		#ifdef SLEEPY_SESSION_INCLUDE
+			#include SLEEPY_SESSION_INCLUDE
+		#endif
+		#ifdef SLEEPY_SESSION
+			typedef SLEEPY_SESSION Session
+		#endif
+
+	//defaults
 #else
-#include "cpr_session.h"
-#ifdef NONEXISTENT_CPR
-//last resort
-#include "custom_session.h"
-#endif
+	#include "cpr_session.h"
+	#ifdef NONEXISTENT_CPR
+
+		//last resort
+		#include "custom_session.h"
+	#endif
 #endif

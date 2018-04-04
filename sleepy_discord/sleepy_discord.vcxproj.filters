@@ -95,6 +95,10 @@
     <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp">
       <Filter>cpr</Filter>
     </ClCompile>
+    <ClCompile Include="asignments_client.cpp" />
+    <ClCompile Include="asio_udp.cpp">
+      <Filter>udp\asio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
@@ -170,6 +174,41 @@
       <Filter>http</Filter>
     </ClInclude>
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\udp_client.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\udp.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\asio_udp.h">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\asio_include.h">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\boost\asio.hpp">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\sodium.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket_connection.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_connection.h">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_common.h">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
@@ -204,6 +243,12 @@
     </Filter>
     <Filter Include="http\cpr">
       <UniqueIdentifier>{ebefac73-a71e-4c11-ad6a-e5174432f14e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="udp">
+      <UniqueIdentifier>{3498c3ab-fc17-43ab-a500-e6878ae8bdf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="udp\asio">
+      <UniqueIdentifier>{84414c41-10ce-47bf-8339-93909cc116b0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

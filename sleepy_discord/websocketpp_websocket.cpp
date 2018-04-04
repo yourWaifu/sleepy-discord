@@ -3,19 +3,19 @@
 
 namespace SleepyDiscord {
 
-	WebsocketppDiscordClient::WebsocketppDiscordClient(const std::string token, const char numOfThreads) :
+	WebsocketppWebsocketClient::WebsocketppWebsocketClient(const std::string token, const char numOfThreads) :
 		maxNumOfThreads(numOfThreads)
 	{
 		init();
 		start(token, numOfThreads);
 	}
 
-	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
+	WebsocketppWebsocketClient::~WebsocketppWebsocketClient() {
 		if (_thread) _thread->join();
 		else _thread.reset();
 	}
 
-	void WebsocketppDiscordClient::init() {
+	void WebsocketppWebsocketClient::init() {
 		// set up access channels to only log interesting things
 		this_client.clear_access_channels(websocketpp::log::alevel::all);
 		this_client.set_access_channels(websocketpp::log::alevel::connect);
@@ -28,11 +28,12 @@ namespace SleepyDiscord {
 
 		// Initialize the Asio transport policy
 		this_client.init_asio();
-
-		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
 	}
 
-	bool WebsocketppDiscordClient::connect(const std::string & uri) {
+	bool WebsocketppWebsocketClient::connect(const std::string & uri,
+		GenericMessageReceiver* messageProcessor,
+		WebsocketConnection* connection
+	) {
 		// Create a new connection to the given URI
 		websocketpp::lib::error_code ec;
 		_client::connection_ptr con = this_client.get_connection(uri, ec);
@@ -41,41 +42,60 @@ namespace SleepyDiscord {
 			onError(GENERAL_ERROR, "Connect initialization: " + ec.message());
 			return false;
 		}
-		// Grab a handle for this connection so we can talk to it in a thread 
-		// safe manor after the event loop starts.
-		handle = con->get_handle();
+		
+		con->set_open_handler(std::bind(&WebsocketppWebsocketClient::onOpen, this,
+			websocketpp::lib::placeholders::_1, messageProcessor
+		));
+
+		con->set_message_handler(std::bind(&WebsocketppWebsocketClient::onMessage, this,
+			websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2,
+			messageProcessor
+		));
+
+		*connection = con->get_handle();
 		// Queue the connection. No DNS queries or network connections will be
 		// made until the io_service event loop is run.
 		this_client.connect(con);
 		return true;
 	}
 
-	void WebsocketppDiscordClient::run() {
+	void WebsocketppWebsocketClient::run() {
 		this_client.run();
 	}
 
-	Timer WebsocketppDiscordClient::schedule(std::function<void()> code, const time_t milliseconds) {
+	Timer WebsocketppWebsocketClient::schedule(std::function<void()> code, const time_t milliseconds) {
 		auto timer = this_client.set_timer(milliseconds, std::bind(code));
 		return [timer]() { timer->cancel(); };
 	}
 
-	void WebsocketppDiscordClient::runAsync() {
+	void WebsocketppWebsocketClient::runAsync() {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 	}
 
-	void WebsocketppDiscordClient::send(std::string message) {
-		this_client.send(handle, message, websocketpp::frame::opcode::text);
+	void WebsocketppWebsocketClient::send(std::string message, WebsocketConnection* connection) {
+		this_client.send(*connection, message, websocketpp::frame::opcode::text);
 	}
 
-	void WebsocketppDiscordClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
-		processMessage(msg->get_payload());
+	void WebsocketppWebsocketClient::onOpen(websocketpp::connection_hdl hdl,
+		GenericMessageReceiver * messageProcessor) {
+		initialize(messageProcessor);
+	}
+
+	void WebsocketppWebsocketClient::onMessage(
+		websocketpp::connection_hdl hdl,
+		websocketpp::config::asio_client::message_type::ptr msg,
+		GenericMessageReceiver* messageProcessor) {
+		processMessage(messageProcessor, msg->get_payload());
 	}
 	
-	void WebsocketppDiscordClient::disconnect(unsigned int code, const std::string reason) {
-		this_client.close(handle, code, reason);
+	void WebsocketppWebsocketClient::disconnect(
+		unsigned int code,
+		const std::string reason,
+		WebsocketConnection* connection) {
+		this_client.close(*connection, code, reason);
 	}
 
-	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {
+	void WebsocketppWebsocketClient::onClose(_client * client, websocketpp::connection_hdl handle) {
 
 	}
 

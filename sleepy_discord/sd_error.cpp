@@ -83,11 +83,14 @@ namespace SleepyDiscord {
 		case UNKNOWN_ENCRYPTION_MODE: onError(code, "We didn't recognize your encryption."                                                                                               ); break;
 
 		//Sleepy Errors
-		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"                ); break;
-		case EVENT_UNKNOWN : onError(code, "Unexpected or unknown event occurred"                             ); break;
-		case GATEWAY_FAILED: onError(code, "Could not get the gateway"                                        ); break;
-		case GENERAL_ERROR : onError(code, "A wild error appeared"                                            ); break;
-		case LAZY_ERROR    : onError(code, "The programmer was too lazy to give this error a code and message"); break;
+		case CONNECT_FAILED : onError(code, "Failed to connect to the Discord api after 4 trys"                ); break;
+		case EVENT_UNKNOWN  : onError(code, "Unexpected or unknown event occurred"                             ); break;
+		case GATEWAY_FAILED : onError(code, "Could not get the gateway"                                        ); break;
+		case GENERAL_ERROR  : onError(code, "A wild error appeared"                                            ); break;
+		case LAZY_ERROR     : onError(code, "The programmer was too lazy to give this error a code and message"); break;
+		case ERROR_NOTE     : onError(code, "This is subposed to be a note"                                    ); break;
+		case VOICE_NO_SODIUM: onError(code, "Failed to init libsodium. Try linking libsodium?"                 ); break;
+		case VOICE_NO_OPUS  : onError(code, "Failed to init libopus. Try linking libopus?"                     ); break;
 		}
 	}
 }

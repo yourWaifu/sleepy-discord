@@ -14,6 +14,10 @@
 	#include <cstring>
 #endif
 
+#ifdef SLEEPY_VOICE_ENABLED
+	#include <sodium.h>
+#endif
+
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
 		ready = false;
@@ -22,7 +26,7 @@ namespace SleepyDiscord {
 
 		messagesRemaining = 4;
 		getTheGateway();
-		connect(theGateway);
+		connect(theGateway, this, &connection);
 #ifndef SLEEPY_ONE_THREAD
 		if (2 < maxNumOfThreads) runAsync();
 		maxNumOfThreadsAllowed = maxNumOfThreads;
@@ -188,7 +192,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
-		std::strncpy(theGateway, "wss://gateway.discord.gg/?v=6", 32);	//This is needed for when session is disabled
+		theGateway = "wss://gateway.discord.gg/?v=6";	//This is needed for when session is disabled
 #else
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
@@ -291,16 +295,16 @@ namespace SleepyDiscord {
 		}
 		disconnectWebsocket(status);
 		//loop unrolling
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
+		if (connect(theGateway, this, &connection)) return;
+		if (connect(theGateway, this, &connection)) return;
+		if (connect(theGateway, this, &connection)) return;
 		getTheGateway();
-		if (connect(theGateway)) return;
+		if (connect(theGateway, this, &connection)) return;
 		setError(CONNECT_FAILED);
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
-		disconnect(code, reason);
+		disconnect(code, reason, &connection);
 		onDisconnect();
 	}
 
@@ -319,7 +323,7 @@ namespace SleepyDiscord {
 			setError(RATE_LIMITED);
 			return false;
 		}
-		send(message);
+		send(message, &connection);
 		return true;
 	}
 
@@ -337,10 +341,11 @@ namespace SleepyDiscord {
 		case DISPATCH:
 			lastSReceived = std::stoi(values[2]);
 			switch (hash(t.c_str())) {
-			case hash("READY"): {
+			case hash("READY"                      ): {
 				Ready readyData = d;
 				sessionID = readyData.sessionID;
 				bot = readyData.user.bot;
+				userID = readyData.user;
 				onReady(d);
 				ready = true;
 				} break;
@@ -367,13 +372,52 @@ namespace SleepyDiscord {
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
 			case hash("USER_NOTE_UPDATE"           ): onEditUserNote      (d); break;
 			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
-			case hash("VOICE_STATE_UPDATE"         ): onEditVoiceState    (d); break;
+			case hash("VOICE_STATE_UPDATE"         ): {
+				VoiceState state(d);
+#ifdef SLEEPY_VOICE_ENABLED
+				if (!waitingVoiceContexts.empty()) {
+					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+						[&state](const VoiceContext& w) { 
+						return state.channelID == w.channelID && w.sessionID == "";
+					});
+					if (iterator != waitingVoiceContexts.end()) {
+						onError(ERROR_NOTE, "testing VOICE_STATE_UPDATE");
+						VoiceContext& context = *iterator;
+						context.sessionID = state.sessionID;
+						connectToVoiceIfReady(context);
+					}
+				}
+#endif
+				onEditVoiceState(state);
+				} break;
 			case hash("TYPING_START"               ): onTyping            (d); break;
 			case hash("MESSAGE_CREATE"             ): onMessage           (d); break;
 			case hash("MESSAGE_DELETE"             ): onDeleteMessage     (d); break;
 			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
 			case hash("MESSAGE_DELETE_BULK"        ): onBulkDelete        (d); break;
-			case hash("VOICE_SERVER_UPDATE"        ): onEditVoiceServer   (d); break;
+			case hash("VOICE_SERVER_UPDATE"        ): {
+				const std::initializer_list<const char* const> fields({
+				"token", "guild_id", "endpoint"
+				});
+				const std::vector<std::string> values = json::getValues(d->c_str(), fields);
+				Snowflake<Server> serverID = values[index(fields, "guild_id")];
+#ifdef SLEEPY_VOICE_ENABLED
+				if (!waitingVoiceContexts.empty()) {
+					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+						[&serverID](const VoiceContext& w) {
+						return serverID == w.serverID && w.endpoint == "";
+					});
+					if (iterator != waitingVoiceContexts.end()) {
+						onError(ERROR_NOTE, "testing VOICE_SERVER_UPDATE");
+						VoiceContext& context = *iterator;
+						context.token    = values[index(fields, "token"   )];
+						context.endpoint = values[index(fields, "endpoint")];
+						connectToVoiceIfReady(context);
+					}
+				}
+#endif
+				onEditVoiceServer(serverID);
+				} break;
 			case hash("GUILD_SYNC"                 ): onServerSync        (d); break;
 			case hash("RELATIONSHIP_ADD"           ): onRelationship      (d); break;
 			case hash("RELATIONSHIP_REMOVE"        ): onRemoveRelationship(d);
@@ -440,6 +484,203 @@ namespace SleepyDiscord {
 		wasHeartbeatAcked = false;
 		onHeartbeat();
 	}
+
+	//
+	//Voice
+	//
+
+#ifdef SLEEPY_VOICE_ENABLED
+
+	void BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
+
+		onError(ERROR_NOTE, "testing connectToVoiceChannel");
+
+		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel)->serverID;
+		
+		std::string voiceState;
+		/*The number 131 came from the number of letters in this string:
+		  {"op": 4,"d" : {"guild_id": "18446744073709551615",
+		  "channel_id" : "18446744073709551615","self_mute" : false,"self_deaf" : false}}
+		  plus one
+		*/
+		voiceState.reserve(131);  //remember to update this when making changes to voice status
+		voiceState +=
+			"{"
+				"\"op\": 4,"
+				"\"d\": {"
+				"\"guild_id\": \""; voiceState += serverTarget; voiceState += "\","
+					"\"channel_id\""": \""; voiceState += channel; voiceState += "\","
+					"\"self_mute\"" ": "; voiceState += settings & mute   ? "true" : "false"; voiceState += ","
+					"\"self_deaf\"" ": "; voiceState += settings & deafen ? "true" : "false"; voiceState +=
+				"}"
+			"}";
+		sendL(voiceState);
+		/*Discord will response by sending a VOICE_STATE_UPDATE and a
+		  VOICE_SERVER_UPDATE payload. Take a look at processMessage
+		  function at case VOICE_STATE_UPDATE and voiceServerUpdate
+		  */
+		
+		waitingVoiceContexts.push_front({ channel, server });
+	}
+
+	void BaseDiscordClient::connectToVoiceIfReady(VoiceContext& context) {
+		if (context.endpoint == "" || context.sessionID == "") //check that we are ready
+			return;
+
+		onError(ERROR_NOTE, "testing connetToVoiceIfReady ready");
+		
+		//remove the port numbers at the end of the endpoint string
+		std::string& givenEndpoint = context.endpoint;
+		givenEndpoint = givenEndpoint.substr(0, givenEndpoint.find(':'));
+
+		std::string endpoint;
+		//Discord doens't gives the endpoint with wss:// or ?v=3, so it's done here
+		//length of wss:///?v=3 is 11, plus one equals 12
+		endpoint.reserve(12 + givenEndpoint.length());
+		endpoint += "wss://";
+		endpoint += givenEndpoint;
+		endpoint += "/?v=3";
+
+		//Add a new connection to the list of connections
+		voiceConnections.push_back({ this, context });
+		VoiceConnection& voiceConnection = voiceConnections.back();
+
+		connect(endpoint, &voiceConnection, &voiceConnection.connection);
+
+		//remove from wait list
+		waitingVoiceContexts.remove(context);
+	}
+
+	void BaseDiscordClient::VoiceConnection::processMessage(std::string message) {
+
+		origin->onError(ERROR_NOTE, "testing VOICE processMessage");
+
+		//to do there is reused code here, plase place them into functions
+		std::vector<std::string> values = json::getValues(message.c_str(),
+			{ "op", "d" });
+		VoiceOPCode op = static_cast<VoiceOPCode>(std::stoi(values[0]));
+		std::string *d = &values[1];
+		switch (op) {
+		case HELLO: {
+			origin->onError(ERROR_NOTE, "testing VOICE HELLO");
+
+			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+			std::string identity;
+			/*The number 116 comes from the number of letters in this string + 1:
+				{"op": 0,"d": {"server_id": "18446744073709551615",
+				"user_id": "18446744073709551615","session_id": "","token": ""}}
+			*/
+			//remember to change the number below when editing identity
+			identity.reserve(116 + context.sessionID.length() + origin->token->length());
+			identity +=
+				"{"
+					"\"op\": 0," //VoiceOPCode::IDENTIFY
+					"\"d\": {"
+						"\"server_id\": \"" ; identity += context.serverID ; identity += "\","
+						"\"user_id\": \""   ; identity += origin->getID()  ; identity += "\","
+						"\"session_id\": \""; identity += context.sessionID; identity += "\","
+						"\"token\": \""     ; identity += context.token    ; identity += "\""
+					"}"
+				"}";
+			origin->send(identity, &connection);
+			}
+			state = static_cast<State>(state | CONNECTED);
+			break;
+		case READY: {
+			origin->onError(ERROR_NOTE, "testing VOICE READY");
+
+			std::vector<std::string> values = json::getValues(d->c_str(),
+			{ "ssrc", "port" });
+			sSRC = std::stoul(values[0]);
+			port = static_cast<uint16_t>(std::stoul(values[1]));
+			//start heartbeating
+			heartbeat();
+			//connect to UDP
+			//IP Discovery
+			unsigned char packet[70] = { 0 };
+			packet[0] = (sSRC >> 24) & 0xff;
+			packet[1] = (sSRC >> 16) & 0xff;
+			packet[2] = (sSRC >>  8) & 0xff;
+			packet[3] = (sSRC      ) & 0xff;
+			UDPClient::send(context.endpoint, port, packet, 70);
+			const std::vector<uint8_t> iPDiscovery = UDPClient::receive(context.endpoint, port); //note: receive blocks and is not async
+			std::vector<uint8_t>::const_iterator iPStart = std::find_if(iPDiscovery.begin(), iPDiscovery.end(),
+				[](uint8_t x) { return x & 0x60; }); //find start of string. 0x60 is a bitmask that should filter out non-letters
+			const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0)); //find may not be needed
+			//send Select Protocol Payload
+			std::string protocol;
+			/*The number 101 comes from the number of letters in this string + 1:
+				{"op": 1,"d": {"protocol": "udp","data": {
+				"address": "","port": 65535,
+				"mode": "xsalsa20_poly1305"}}}
+			*/
+			protocol.reserve(101 + iPAddress.length());
+			protocol +=
+				"{"
+					"\"op\": 1," //VoiceOPCode::SELECT_PROTOCOL
+					"\"d\": {"
+						"\"protocol\": \"udp\","
+						"\"data\": {"
+							"\"address\": \""; protocol += iPAddress           ; protocol += "\","
+							"\"port\": "     ; protocol += std::to_string(port); protocol +=   ","
+							"\"mode\": \"xsalsa20_poly1305\""
+						"}"
+					"}"
+				"}";
+			origin->send(protocol, &connection);
+			}
+			state = static_cast<State>(state | State::OPEN);
+			break;
+		case SESSION_DESCRIPTION:
+			origin->onError(ERROR_NOTE, "testing VOICE SESSION_DESCRIPTION");
+
+			{
+			std::vector<std::string> stringArray = json::getArray(&json::getValue(d->c_str(), "secret_key"));
+			const unsigned int stringArraySize = stringArray.size();
+			for (unsigned int i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
+				if (stringArray[i] != "")
+					secretKey[i] = std::stoul(stringArray[i]) & 0xFF;
+			}
+			}
+			state = static_cast<State>(state | State::AUDIO_ENABLED);
+			break;
+		case RESUMED:
+			origin->onError(ERROR_NOTE, "testing VOICE RESUMED");
+			break;
+		case HEARTBEAT_ACK:
+			origin->onError(ERROR_NOTE, "testing VOICE HEARTBEAT_ACK");
+			break;
+		default:
+			origin->onError(ERROR_NOTE, "testing VOICE default");
+			break;
+		}
+	}
+
+	//void BaseDiscordClient::VoiceConnection::initialize() {
+
+	//	origin->onError(ERROR_NOTE, "testing VOICE initialize");
+
+	//	//send identity
+	//	std::string identity;
+	//	/*The number 116 comes from the number of letters in this string + 1:
+	//		{"op": 0,"d": {"server_id": "18446744073709551615",
+	//		"user_id": "18446744073709551615","session_id": "","token": ""}}
+	//	*/
+	//	identity.reserve(116 + sessionID.length() + origin->token->length()); //remember to change this number when editing identity
+	//	identity +=
+	//		"{"
+	//			"\"op\": 0,"
+	//			"\"d\": {"
+	//				"\"server_id\": \"" ; identity += serverID          ; identity += "\","
+	//				"\"user_id\": \""   ; identity += origin->getID()   ; identity += "\","
+	//				"\"session_id\": \""; identity += sessionID         ; identity += "\","
+	//				"\"token\": \""     ; identity += origin->getToken(); identity += "\""
+	//			"}"
+	//		"}";
+	//	origin->send(identity, &connection);
+	//}
+
+#endif
 
 	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());

@@ -38,7 +38,7 @@ namespace SleepyDiscord {
 
 	Message::Message(const std::string * rawJson) : Message(json::getValues(rawJson->c_str(), fields)) {}
 
-	bool Message::startsWith(std::string test) {
+	bool Message::startsWith(const std::string& test) {
 		return content.compare(0, test.length(), test) == 0;
 	}
 

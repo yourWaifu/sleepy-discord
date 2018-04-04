@@ -49,7 +49,7 @@ namespace SleepyDiscord {
 		Message(const std::vector<std::string> values);
 		Message(const std::string * rawJson);
 		using DiscordObject::DiscordObject;
-		bool startsWith(std::string test);
+		bool startsWith(const std::string& test);
 		int length();
 		bool isMentioned(Snowflake<User> ID);
 		bool isMentioned(User& _user);

@@ -9,11 +9,17 @@ namespace SleepyDiscord {
 		operator const Response&() { return *this; }
 	};
 
-	template<ErrorCode successCode>
 	struct BooleanResponse : public StandardResponse {
-		using StandardResponse::StandardResponse;
-		operator bool() {
-			return statusCode == successCode;
+	private:
+		typedef std::function<bool(const Response* response)> BooleanFunction;
+		BooleanFunction lambdaFunction;
+	public:
+		BooleanResponse(const Response& response,
+			BooleanFunction lambda = [](const Response* response) { return !response->error(); }
+		) :
+			StandardResponse(response), lambdaFunction(lambda) {}
+		operator bool() const {
+			return lambdaFunction(this);
 		}
 	};
 	

@@ -29,7 +29,7 @@ namespace SleepyDiscord {
 		Ready(const std::vector<std::string> values);
 		int v;	//gateway protocol version
 		User user;
-		std::vector<DMChannel> privateChannels;
+		std::vector<Channel> privateChannels;
 		//std::vector<UnavailableServer> servers;
 		std::string sessionID;
 		std::vector<std::string> trace;

@@ -1,14 +1,18 @@
 #pragma once
 #include "discord_object_interface.h"
 #include "snowflake.h"
+#include "channel.h"
 
 namespace SleepyDiscord {
 	//forward declearion
 	struct Server;
-	class Channel;
+	struct Channel;
 	struct User;
 
 	struct VoiceState : public DiscordObject {
+		VoiceState() {}
+		VoiceState(const std::string * rawJson);
+		VoiceState(const std::vector<std::string> values);
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
 		Snowflake<User> userID;
@@ -18,6 +22,8 @@ namespace SleepyDiscord {
 		bool selfDeaf;
 		bool selfMute;
 		bool suppress;
+	private:
+		const static std::initializer_list<const char*const> fields;
 	};
 
 	/*

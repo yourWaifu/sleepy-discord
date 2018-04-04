@@ -34,8 +34,8 @@ namespace SleepyDiscord {
 		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), "{\"content\": \"" + newMessage + "\"}");
 	}
 
-	bool BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
-		return request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID })).statusCode == NO_CONTENT;
+	BooleanResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+		return request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }));
 	}
 
 	bool BaseDiscordClient::bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs) {
@@ -299,7 +299,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::pruneMembers(Snowflake<Server> serverID, const unsigned int numOfDays) {
 		if (numOfDays == 0) return;
-		request(Post, path("guilds/{guild.id}/prune", { serverID }), "{\"days\":" + numOfDays + '}');
+		request(Post, path("guilds/{guild.id}/prune", { serverID }), "{\"days\":" + std::to_string(numOfDays) + '}');
 	}
 
 	ArrayResponse<VoiceRegion> BaseDiscordClient::getVoiceRegions() {
@@ -378,11 +378,11 @@ namespace SleepyDiscord {
 		return request(Delete, path("users/@me/guilds/{guild.id}", { serverID })).statusCode == NO_CONTENT;
 	}
 
-	ArrayResponse<DMChannel> BaseDiscordClient::getDirectMessageChannels() {
+	ArrayResponse<Channel> BaseDiscordClient::getDirectMessageChannels() {
 		return request(Get, "users/@me/channels");
 	}
 
-	ObjectResponse<DMChannel> BaseDiscordClient::createDirectMessageChannel(std::string recipientID) {
+	ObjectResponse<Channel> BaseDiscordClient::createDirectMessageChannel(std::string recipientID) {
 		return request(Post, "users/@me/channels", json::createJSON({ { "recipient_id", recipientID } }));
 	}
 

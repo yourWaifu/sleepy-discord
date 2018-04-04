@@ -23,11 +23,10 @@ namespace SleepyDiscord {
 		start(token, numOfThreads);
 	}
 
-	bool UWebSocketsDiscordClient::connect(const std::string & uri) {
+	bool UWebSocketsDiscordClient::connect(const std::string & uri, GenericMessageReceiver* messageProcessor, WebsocketConnection* connection) {
 		isConnectionBad = false;
 		hub.connect(uri, nullptr);
-		if (isConnectionBad) return false;
-		return true;
+		return !isConnectionBad;
 	}
 
 	void UWebSocketsDiscordClient::run() {
@@ -51,11 +50,11 @@ namespace SleepyDiscord {
 		thread = std::thread([this]() { hub.run(); });
 	}
 
-	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason) {
+	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection) {
 		theClient->close();
 	}
 
-	void UWebSocketsDiscordClient::send(std::string message) {
+	void UWebSocketsDiscordClient::send(std::string message, WebsocketConnection* connection) {
 		theClient->send(message.c_str());
 	}
 

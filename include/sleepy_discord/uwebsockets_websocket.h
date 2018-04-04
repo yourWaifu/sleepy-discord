@@ -5,6 +5,7 @@
 #include "client.h"
 
 namespace SleepyDiscord {
+	typedef uWS::WebSocket<uWS::CLIENT>* WebsocketConnection;
 
 	class UWebSocketsDiscordClient : public BaseDiscordClient {
 	public:
@@ -17,9 +18,9 @@ namespace SleepyDiscord {
 #include "standard_config_header.h"
 	private:
 		uWS::Hub hub;
-		bool connect(const std::string & uri);
-		void disconnect(unsigned int code, const std::string reason);
-		void send(std::string message);
+		bool connect(const std::string & uri, GenericMessageReceiver* messageProcessor, WebsocketConnection* connection);
+		void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection);
+		void send(std::string message, WebsocketConnection* connection);
 		void runAsync();
 		uWS::WebSocket<uWS::CLIENT>* theClient;
 		std::thread thread;

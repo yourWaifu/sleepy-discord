@@ -22,12 +22,8 @@
 #include "error.h"
 #include "session.h"
 #include "common_return_types.h"
-
-/*
-
-remember to make function perimeters const
-
-*/
+#include "udp_client.h"
+#include "websocket_connection.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
@@ -38,8 +34,16 @@ namespace SleepyDiscord {
 		Timer() {}
 		Timer(StopTimerFunction stopTimer) : implStop(stopTimer) {}
 		inline void stop() const { implStop(); }
+		inline bool isValid() const { return implStop != nullptr; }
 	private:
 		StopTimerFunction implStop;
+	};
+
+	class GenericMessageReceiver {
+	public:
+		virtual void initialize() {}                          //called when ready to recevie messages
+		virtual void processMessage(std::string message) = 0; //called when recevicing a message
+		WebsocketConnection connection;
 	};
 
 	//template <
@@ -47,7 +51,7 @@ namespace SleepyDiscord {
 	//	class WebsocketClient  = SleepyDiscord::WebsocketClient,
 	//	class UDPClient        = SleepyDiscord::UDPClient
 	//>
-	class BaseDiscordClient /*: public WebsocketClient*/ {
+	class BaseDiscordClient : public GenericMessageReceiver {
 	public:
 		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
@@ -78,7 +82,7 @@ namespace SleepyDiscord {
 		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);                //to do test this
 		void                         removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID);                                              //to do test this
 		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
-		bool                         deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID);
+		BooleanResponse              deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID);
 		bool                         bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs);
 		/*allow is a bitwise value of all allowed permissions
 		deny is a bitwise value of all deisallowed permissions
@@ -95,10 +99,10 @@ namespace SleepyDiscord {
 		void                         removeRecipient         (Snowflake<Channel> channelID, Snowflake<User> userID);
 		//IntelliSense Help
 		/*functions with more then one name to make life easy for users that use IntelliSense*/
-		inline bool                  deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction(channelID, messageID, emoji); }
-		inline void                  deleteAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID) { removeAllReactions(channelID, messageID); }
-		inline bool                  deleteChannelPermission (Snowflake<Channel> channelID, std::string ID) { return removeChannelPermission(channelID, ID); }
-		inline void                  deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User> userID) { removeRecipient(channelID, userID); }
+		inline bool                  deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction         (channelID, messageID, emoji); }
+		inline void                  deleteAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                   ) {        removeAllReactions     (channelID, messageID       ); }
+		inline bool                  deleteChannelPermission (Snowflake<Channel> channelID, std::string               ID                   ) { return removeChannelPermission(channelID,        ID       ); }
+		inline void                  deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    userID                   ) {        removeRecipient        (channelID,    userID       ); }
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
 
@@ -108,7 +112,7 @@ namespace SleepyDiscord {
 		//edit Server		//ask discord api server about what the default values should be
 		ObjectResponse<Server      > deleteServer            (Snowflake<Server> serverID);                                                                           //to do test this
 		ArrayResponse <Channel     > GetServerChannels       (Snowflake<Server> serverID);                                                        //to do test this
-		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name);	                                                  //to do test this
+		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name);                                                      //to do test this
 		ArrayResponse <Channel     > editChannelPositions    (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions);         //to do test this
 		ObjectResponse<ServerMember> getMember               (Snowflake<Server> serverID, Snowflake<User> userID);                                                   //to do test this
 		ArrayResponse <ServerMember> listMembers             (Snowflake<Server> serverID, uint16_t limit = 0, std::string after = "");             //to do test this
@@ -151,8 +155,8 @@ namespace SleepyDiscord {
 		//User editCurrentUser();		//needs Avatar data thing?
 		ArrayResponse <Server>     getServers                ();
 		bool                       leaveServer               (Snowflake<Server> serverID);                                                                            //to do test this
-		ArrayResponse <DMChannel > getDirectMessageChannels  ();
-		ObjectResponse<DMChannel > createDirectMessageChannel(std::string recipientID);
+		ArrayResponse <Channel   > getDirectMessageChannels  ();
+		ObjectResponse<Channel   > createDirectMessageChannel(std::string recipientID);
 		//ObjectResponse<DMChannel > createGroupDirectMessageChannel(std:vector<std::string> accessTokens, )   what is a dict???
 		ArrayResponse <Connection> getUserConnections        ();
 
@@ -178,6 +182,7 @@ namespace SleepyDiscord {
 		const bool isReady() { return ready; }
 		const bool isBot() { return bot; }
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
+		const Snowflake<User> getID() { return userID; }
 		void quit();	//public function for diconnecting
 		virtual void run();
 
@@ -195,6 +200,55 @@ namespace SleepyDiscord {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
 		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
+
+#ifdef SLEEPY_VOICE_ENABLED
+		//voice functions
+		//This class exist to do compile time checks
+		struct VoiceAddress;
+		enum VoiceMode {
+			normal = 0     ,
+			mute   = 1 << 0,
+			deafen = 1 << 1
+		};
+
+		struct UserData {};
+
+		struct VoiceContext {
+			friend BaseDiscordClient;
+		public:
+			inline Snowflake<Channel> getChannelID() {
+				return channelID;
+			}
+			inline Snowflake<Server> getServerID() {
+				return serverID;
+			}
+
+			inline bool operator==(const VoiceContext& right) {
+				return this == &right;
+			}
+
+		private:
+			VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID) :
+				channelID(_channelID), serverID(_serverID) { }
+
+			Snowflake<Channel> channelID;
+			Snowflake<Server> serverID;
+			std::string sessionID = "";
+			std::string endpoint = "";
+			std::string token; //the same token used to log in?
+		};
+
+		struct AudioTransmissionDetails {
+			VoiceContext&              context;
+			bool&                      isEncodedAudio;
+			const std::size_t          proposedLength;          //the length the library wants
+			const std::size_t          amountSentSinceLastTime;
+			std::shared_ptr<UserData>  userData;                //NOTE: this can be nullptr
+		};
+
+		void connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
+
+#endif
 	protected:
 		/* list of events
 		READY
@@ -234,49 +288,49 @@ namespace SleepyDiscord {
 		MESSAGE_REACTION_REMOVE
 		MESSAGE_REACTION_REMOVE_ALL
 		*/
-		virtual void onReady             (std::string* jsonMessage);
-		virtual void onResumed           (std::string* jsonMessage);
-		virtual void onDeleteServer      (std::string* jsonMessage);
-		virtual void onEditServer        (std::string* jsonMessage);
-		virtual void onBan               (std::string* jsonMessage);
-		virtual void onUnban             (std::string* jsonMessage);
-		virtual void onMember            (std::string* jsonMessage);
-		virtual void onRemoveMember      (std::string* jsonMessage);
-		virtual void onDeleteMember      (std::string* jsonMessage);
-		virtual void onEditMember        (std::string* jsonMessage);
-		virtual void onRole              (std::string* jsonMessage);
-		virtual void onDeleteRole        (std::string* jsonMessage);
-		virtual void onEditRole          (std::string* jsonMessage);
-		virtual void onEditEmojis        (std::string* jsonMessage);
-		virtual void onMemberChunk       (std::string* jsonMessage);
-		virtual void onDeleteChannel     (std::string* jsonMessage);
-		virtual void onEditChannel       (std::string* jsonMessage);
-		virtual void onPinMessages       (std::string* jsonMessage);
-		virtual void onPresenceUpdate    (std::string* jsonMessage);
-		virtual void onEditUser          (std::string* jsonMessage);
-		virtual void onEditUserNote      (std::string* jsonMessage);
-		virtual void onEditUserSettings  (std::string* jsonMessage);
-		virtual void onEditVoiceState    (std::string* jsonMessage);
-		virtual void onTyping            (std::string* jsonMessage);
-		virtual void onDeleteMessage     (std::string* jsonMessage);
-		virtual void onEditMessage       (std::string* jsonMessage);
-		virtual void onBulkDelete        (std::string* jsonMessage);
-		virtual void onEditVoiceServer   (std::string* jsonMessage);
-		virtual void onServerSync        (std::string* jsonMessage);
-		virtual void onRelationship      (std::string* jsonMessage);
-		virtual void onRemoveRelationship(std::string* jsonMessage);
-		virtual void onDeleteRelationship(std::string* jsonMessage);
-		virtual void onReaction          (std::string* jsonMessage);
-		virtual void onRemoveReaction    (std::string* jsonMessage);
-		virtual void onDeleteReaction    (std::string* jsonMessage);
-		virtual void onRemoveAllReaction (std::string* jsonMessage);
-		virtual void onDeleteAllReaction (std::string* jsonMessage);
-		virtual void onMessage           (Message message         );
-		virtual void onEditedMessage     (std::string* jsonMessage);
-		virtual void onServer            (Server server           );
-		virtual void onChannel           (std::string* jsonMessage);
-		virtual void onEditedRole        (std::string* jsonMessage);
-		virtual void onDispatch          (std::string* jsonMessage);
+		virtual void onReady             (Ready        readyData    );
+		virtual void onResumed           (std::string* jsonMessage  );
+		virtual void onDeleteServer      (std::string* jsonMessage  );
+		virtual void onEditServer        (std::string* jsonMessage  );
+		virtual void onBan               (std::string* jsonMessage  );
+		virtual void onUnban             (std::string* jsonMessage  );
+		virtual void onMember            (std::string* jsonMessage  );
+		virtual void onRemoveMember      (std::string* jsonMessage  );
+		virtual void onDeleteMember      (std::string* jsonMessage  );
+		virtual void onEditMember        (std::string* jsonMessage  );
+		virtual void onRole              (std::string* jsonMessage  );
+		virtual void onDeleteRole        (std::string* jsonMessage  );
+		virtual void onEditRole          (std::string* jsonMessage  );
+		virtual void onEditEmojis        (std::string* jsonMessage  );
+		virtual void onMemberChunk       (std::string* jsonMessage  );
+		virtual void onDeleteChannel     (std::string* jsonMessage  );
+		virtual void onEditChannel       (std::string* jsonMessage  );
+		virtual void onPinMessages       (std::string* jsonMessage  );
+		virtual void onPresenceUpdate    (std::string* jsonMessage  );
+		virtual void onEditUser          (std::string* jsonMessage  );
+		virtual void onEditUserNote      (std::string* jsonMessage  );
+		virtual void onEditUserSettings  (std::string* jsonMessage  );
+		virtual void onEditVoiceState    (VoiceState state          );
+		virtual void onTyping            (std::string* jsonMessage  );
+		virtual void onDeleteMessage     (std::string* jsonMessage  );
+		virtual void onEditMessage       (std::string* jsonMessage  );
+		virtual void onBulkDelete        (std::string* jsonMessage  );
+		virtual void onEditVoiceServer   (Snowflake<Server> serverID);
+		virtual void onServerSync        (std::string* jsonMessage  );
+		virtual void onRelationship      (std::string* jsonMessage  );
+		virtual void onRemoveRelationship(std::string* jsonMessage  );
+		virtual void onDeleteRelationship(std::string* jsonMessage  );
+		virtual void onReaction          (std::string* jsonMessage  );
+		virtual void onRemoveReaction    (std::string* jsonMessage  );
+		virtual void onDeleteReaction    (std::string* jsonMessage  );
+		virtual void onRemoveAllReaction (std::string* jsonMessage  );
+		virtual void onDeleteAllReaction (std::string* jsonMessage  );
+		virtual void onMessage           (Message message           );
+		virtual void onEditedMessage     (std::string* jsonMessage  );
+		virtual void onServer            (Server server             );
+		virtual void onChannel           (std::string* jsonMessage  );
+		virtual void onEditedRole        (std::string* jsonMessage  );
+		virtual void onDispatch          (std::string* jsonMessage  );
 
 		//websocket stuff
 		virtual void onHeartbeat();
@@ -299,12 +353,23 @@ namespace SleepyDiscord {
 		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
-		virtual bool connect(const std::string & uri) { return false; }
-		virtual void send(std::string message) {}
-		virtual void disconnect(unsigned int code, const std::string reason) {}
+		virtual bool connect(
+			const std::string & uri,                   //IN
+			GenericMessageReceiver* messageProcessor,  //IN  When a message is receved, this will process it
+			WebsocketConnection* connection            //OUT data needed in order to send a message
+		) { return false; }
+		virtual void send(std::string message, WebsocketConnection* connection) {}
+		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection) {}
+		//the next 2 functions are part of BaseDiscordClient because VoiceConnection is a private nested class
+		inline void processMessage(GenericMessageReceiver* messageProcessor, std::string message) const {
+			messageProcessor->processMessage(message);
+		}
+		inline void initialize(GenericMessageReceiver* messageProcessor) const {
+			messageProcessor->initialize();
+		}
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
-		
+
 	private:
 		int heartbeatInterval = 0;
 		int64_t lastHeartbeat = 0;
@@ -312,18 +377,18 @@ namespace SleepyDiscord {
 		bool wasHeartbeatAcked = true;
 
 		enum OPCode {
-			DISPATCH              = 0,		//dispatches an event
-			HEARTHBEAT            = 1,		//used for ping checking
-			IDENTIFY              = 2,		//used for client handshake
-			STATUS_UPDATE         = 3,		//used to update the client status
-			VOICE_STATE_UPDATE    = 4,	 	//used to join / move / leave voice channels
-			VOICE_SERVER_PING     = 5,	 	//used for voice ping checking
-			RESUME                = 6,		//used to resume a closed connection
-			RECONNECT             = 7,		//used to tell clients to reconnect to the gateway
-			REQUEST_GUILD_MEMBERS = 8,		//used to request guild members
-			INVALID_SESSION       = 9,		//used to notify client they have an invalid session id
-			HELLO                 = 10,		//sent immediately after connecting, contains heartbeat and server debug information
-			HEARTBEAT_ACK         = 11,		//sent immediately following a client heartbeat that was received
+			DISPATCH              = 0,  //dispatches an event
+			HEARTHBEAT            = 1,  //used for ping checking
+			IDENTIFY              = 2,  //used for client handshake
+			STATUS_UPDATE         = 3,  //used to update the client status
+			VOICE_STATE_UPDATE    = 4,  //used to join / move / leave voice channels
+			VOICE_SERVER_PING     = 5,  //used for voice ping checking
+			RESUME                = 6,  //used to resume a closed connection
+			RECONNECT             = 7,  //used to tell clients to reconnect to the gateway
+			REQUEST_GUILD_MEMBERS = 8,  //used to request guild members
+			INVALID_SESSION       = 9,  //used to notify client they have an invalid session id
+			HELLO                 = 10, //sent immediately after connecting, contains heartbeat and server debug information
+			HEARTBEAT_ACK         = 11, //sent immediately following a client heartbeat that was received
 		};
 
 #ifndef SLEEPY_ONE_THREAD
@@ -332,11 +397,13 @@ namespace SleepyDiscord {
 #endif
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
-		std::string sessionID;
+		std::string sessionID;	//TODO: replace this with a Ready object
+		Snowflake<User> userID;
 		void getTheGateway();
 		std::string theGateway;
 		bool ready;
 		bool bot;
+		//WebsocketConnection connection;
 		void sendIdentity();
 		void sendResume();
 		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form
@@ -353,7 +420,189 @@ namespace SleepyDiscord {
 
 		//for endpoint functions
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
+
+#ifdef SLEEPY_VOICE_ENABLED
+		//
+		//voice
+		//
+
+		//I'm not sure if it's really a good idea for this to be a nested class
+		class VoiceConnection : public UDPClient, public GenericMessageReceiver {
+		public:
+			//to do move consrucdors to cpp files
+			VoiceConnection(BaseDiscordClient* client, const VoiceContext _context) :
+				origin(client), context(_context), state(State::NOT_CONNECTED) {
+			}
+
+			VoiceConnection(const VoiceConnection &c) :	//you shouldn't copy a VoiceConnection
+				origin(c.origin), context(c.context) {
+			} //but if you need to, the above should be all you need when comparing two connections
+
+			~VoiceConnection() {
+			}
+
+			struct AudioData {
+			};
+
+			inline const bool isReady() {
+				return state & State::ABLE;
+			}
+
+			void disconnect() {
+				if (state & State::CONNECTED)
+					origin->disconnect(1000, "", &connection);
+				if (heart.isValid())
+					heart.stop(); //Kill
+				state = static_cast<State>(state & ~State::CONNECTED);
+			}
+
+#ifndef NONEXISTENT_OPUS
+			//bool enableEncoding() {
+			//	//init opus
+			//	encoder = opus_encoder_create(
+			//		/*Sampling rate(Hz)*/48000,
+			//		/*Channels*/         2,
+			//		/*Mode*/             OPUS_APPLICATION_VOIP,
+			//		&opusError);
+			//	if (opusError) {//error check
+			//		return;
+			//	}
+			//	//opusError = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
+			//	//if (opusError) {
+			//	//	int a;
+			//	//}
+
+			//	//init sodium
+			//	if (sodium_init() < 0)
+			//		return;
+			//}
+#endif // !NONEXISTENT_OPUS
+
+			void processMessage(std::string message);
+			//void initialize();
+
+			inline void setData(const std::shared_ptr<UserData>& data) {
+				userData = data;
+			}
+
+			std::shared_ptr<UserData> getData() {
+				return userData;
+			}
+
+		private:
+			enum VoiceOPCode {
+				IDENTIFY            = 0,  //client begin a voice websocket connection
+				SELECT_PROTOCOL     = 1,  //client select the voice protocol
+				READY               = 2,  //server complete the websocket handshake
+				HEARTBEAT           = 3,  //client keep the websocket connection alive
+				SESSION_DESCRIPTION = 4,  //server describe the session
+				SPEAKING            = 5,  //both   indicate which users are speaking
+				HEARTBEAT_ACK       = 6,  //server sent immediately following a received client heartbeat
+				RESUME              = 7,  //client resume a connection
+				HELLO               = 8,  //server the continuous interval in milliseconds after which the client should send a heartbeat
+				RESUMED             = 9,  //server acknowledge Resume
+				CLIENT_DISCONNECT   = 13  //server a client has disconnected from the voice channel
+			};
+			
+			enum State : uint8_t {
+				NOT_CONNECTED = 0 << 0,
+				CONNECTED     = 1 << 0,
+				OPEN          = 1 << 1,
+				AUDIO_ENABLED = 1 << 2,
+
+				CAN_ENCODE    = 1 << 6,
+				CAN_DECODE    = 1 << 7,
+
+				ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
+			};
+
+			int heartbeatInterval = 0;
+			unsigned int sSRC;
+			uint16_t port;
+			BaseDiscordClient* origin;
+			Timer heart;
+			State state;
+			std::shared_ptr<UserData> userData;
+			const VoiceContext context;
+
+#define SECRET_KEY_SIZE 32
+			unsigned char secretKey[SECRET_KEY_SIZE];
+
+			void heartbeat() {
+
+				origin->onError(ERROR_NOTE, "testing VOICE heartbeat");
+
+				//timestamp int
+				const uint64_t bitMask52 = 0x1FFFFFFFFFFFFF;
+				const uint64_t currentTime = static_cast<uint16_t>(origin->getEpochTimeMillisecond());
+				const std::string nonce = std::to_string(bitMask52 & currentTime);
+				/*The number 17 comes from the number of letters in this string + 1:
+				{"op": 3, "d": }
+				*/
+				std::string heartbeat;
+				heartbeat.reserve(17 + nonce.length());
+				heartbeat += 
+					"{"
+						"\"op\": 3, "
+						"\"d\": "; heartbeat += nonce; heartbeat += 
+					'}';
+				origin->send(heartbeat, &connection);
+
+				heart = origin->schedule([this]() {
+					this->heartbeat();
+				}, heartbeatInterval);
+			}
+
+			//int sendAudio(audio data, bool isEncodedData = false) {
+			//	//sorry for all this c code, we are interacting with c libraries
+			//	variable encoded audio data = audio data;
+			//	if(state & State::ABLE != State::ABLE) return -1;
+
+			//	if(!isEncodedData)
+			//		if (state & CAN_ENCODE)
+			//			opus_encode(state, data, frameSize, data length,
+			//				encoded audio data, encoded audio data length);
+			//		else if(enableEncoding() < 0)
+			//			return -3;
+			//	
+			//	const unsigned char header[12] = { 
+			//		0x80,
+			//		0x78,
+			//		(s          >> 8) & 0xff,
+			//		(s              ) & 0xff,
+			//		(timestamp >> 24) & 0xff,
+			//		(timestamp >> 16) & 0xff,
+			//		(timestamp >>  8) & 0xff,
+			//		(timestamp      ) & 0xff,
+			//		(sSRC      >> 24) & 0xff,
+			//		(sSRC      >> 16) & 0xff,
+			//		(sSRC      >>  8) & 0xff,
+			//		(sSRC           ) & 0xff,
+			//	};
+			//	
+			//	unsigned char nonce[24];
+			//	std::memcpy(nonce     , header, (sizeof nonce) - 12);
+			//	set::memset(nonce + 12,      0, (sizeof nonce) - 12);
+			//	
+			//	unsigned char* encryptedEncodedAudioData;
+			//	crypto_secretbox_easy(encryptedEncodedAudioData,
+			//	encodedAudioData, encodedAudioData.length(), nonce, secret_key);
+
+			//	UDPClient::send(header + encryptedEncodedAudioData);
+			//}
+		};
+		std::list<VoiceConnection> voiceConnections;
+		std::forward_list<VoiceContext> waitingVoiceContexts;
+		void connectToVoiceIfReady(VoiceContext& context);
+#endif
 	};
+
+	//inline BaseDiscordClient::AssignmentType operator|(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
+	//	return static_cast<BaseDiscordClient::AssignmentType>(static_cast<char>(left) | static_cast<char>(right));
+	//}
+	//inline BaseDiscordClient::AssignmentType operator&(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
+	//	return static_cast<BaseDiscordClient::AssignmentType>(static_cast<char>(left) & static_cast<char>(right));
+	//}
 
 	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
 	  don't want to do yourself. I plan on somehow merging this with the baseClient

@@ -52,11 +52,11 @@ void JSON_parseUTF16(const char *source, char *_target, size_t * position, size_
 	}
 }
 
-void JSON_skipString(const char * JSONstring, std::size_t *position) {
+void JSON_skipString(const char * JSONstring, size_t *position) {
 	while (JSONstring[++*position] != '"') if (JSONstring[*position] == '\\')++*position;
 }
 
-size_t JSON_measureAndSkipString(const char * JSONstring, std::size_t *position) {
+size_t JSON_measureAndSkipString(const char * JSONstring, size_t *position) {
 	const size_t startPosition = *position;
 	JSON_skipString(JSONstring, position);
 	return *position - startPosition;

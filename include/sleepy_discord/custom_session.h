@@ -3,11 +3,12 @@
 #include "http.h"
 
 namespace SleepyDiscord {
-	typedef GenericSession* (*const CustomInit)();
+	typedef GenericSession* (*const CustomInit)();  //keep compatibility with old code
+	typedef CustomInit CustomInitSession;
 
 	class CustomSession : public GenericSession {
 	public:
-		static CustomInit init;
+		static CustomInitSession init;
 		CustomSession() : session(init()) {}
 		inline void setUrl(const std::string& url) { session->setUrl(url); }
 		inline void setBody(const std::string* jsonParamters) { session->setBody(jsonParamters); }

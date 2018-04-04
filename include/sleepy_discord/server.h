@@ -17,7 +17,7 @@ namespace SleepyDiscord {
 		std::string name;
 		std::string icon;
 		std::string splash;
-		std::string ownerID;
+		Snowflake<User> ownerID;
 		std::string region;
 		std::string AFKchannelID;
 		int afk_timeout;

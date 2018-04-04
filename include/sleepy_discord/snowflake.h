@@ -32,7 +32,7 @@ namespace SleepyDiscord {
 			return raw.c_str() != right;
 		}
 
-		operator const std::string&() { return raw; }
+		inline operator const std::string&() const { return raw; }
 
 		std::chrono::time_point<std::chrono::steady_clock> timestamp() {
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)

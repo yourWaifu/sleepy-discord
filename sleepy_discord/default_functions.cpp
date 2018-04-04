@@ -1,7 +1,7 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	void BaseDiscordClient::onReady(std::string* jsonMessage) {
+	void BaseDiscordClient::onReady(Ready readyData) {
 
 	}
 
@@ -89,7 +89,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceState(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditVoiceState(VoiceState state) {
 
 	}
 
@@ -109,7 +109,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceServer(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditVoiceServer(Snowflake<Server> serverID) {
 
 	}
 
