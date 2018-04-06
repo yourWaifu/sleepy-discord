@@ -38,6 +38,7 @@ namespace SleepyDiscord {
 #ifndef SLEEPY_ONE_THREAD
 		if (clock_thread.joinable()) clock_thread.join();
 #endif
+		if (heart.isValid()) heart.stop();
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, const std::string _url, const std::string jsonParameters/*,
@@ -186,6 +187,7 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::quit() {
+		if (heart.isValid()) heart.stop(); //stop heartbeating
 		disconnectWebsocket(1000);
 		onQuit();
 	}
@@ -463,7 +465,7 @@ namespace SleepyDiscord {
 		time_t currentTime = getEpochTimeMillisecond();
 		time_t nextHeartbest;
 		if (currentTime <= (nextHeartbest = lastHeartbeat + heartbeatInterval)) {
-			schedule(&BaseDiscordClient::heartbeat, nextHeartbest - currentTime);
+			heart = schedule(&BaseDiscordClient::heartbeat, nextHeartbest - currentTime);
 			return;
 		}
 
@@ -475,7 +477,7 @@ namespace SleepyDiscord {
 		lastHeartbeat = currentTime;
 		sendHeartbeat();
 
-		schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
+		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
 	}
 
 	void BaseDiscordClient::sendHeartbeat() {

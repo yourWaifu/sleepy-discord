@@ -375,6 +375,7 @@ namespace SleepyDiscord {
 		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
+		Timer heart;
 
 		enum OPCode {
 			DISPATCH              = 0,  //dispatches an event
