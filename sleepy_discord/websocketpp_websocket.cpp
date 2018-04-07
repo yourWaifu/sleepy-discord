@@ -102,7 +102,8 @@ namespace SleepyDiscord {
 		unsigned int code,
 		const std::string reason,
 		WebsocketConnection* connection) {
-		this_client.close(*connection, code, reason);
+		if (!connection->expired())
+			this_client.close(*connection, code, reason);
 	}
 
 	void WebsocketppWebsocketClient::onClose(_client * client, websocketpp::connection_hdl handle) {
