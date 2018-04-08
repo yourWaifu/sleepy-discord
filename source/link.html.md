@@ -110,7 +110,7 @@ Once that's all done, [move over to the last final step.](#now-its-time-to-compi
 
 ```shell
 cd ./examples/hello/
-g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistant -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto example0.cpp -o example.out
+g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
 ```
 
 This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.
@@ -125,9 +125,9 @@ To link the Sleepy Discord with g++, you'll need to add some options (Or whateve
 | ``-std=c++11`` | ``-std=c++11``               | Lets you compile c++11 code, you can change this to something higher then 11 if you like. |
 | ``-I``         | ``-I/path/to/includes``      | Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure ``include/sleepy_discord/IncludeNonexistant`` is last. |
 | ``-L``         | ``-L/path/to/library/files`` | Tells the compiler where to look for lib files |
+|                | ``example.cpp``              | The files you want to compile. NOTE: these should before any ``-l`` |
 | ``-l``         | ``-llib``                    | Tells the compiler which libraries to link with |
 | ``-D``         | ``-DSomeVariable``           | Defines preprocessor variable |
-|                | ``example.cpp``              | The files you want to compile |
 | ``-o``         | ``-o example.out``           | The output file |
 
 Once that's all done, [move over to the last final step.](#now-its-time-to-compile)
@@ -156,4 +156,10 @@ int main() {
 }
 ```
 
-And now you should be able to build without any errors. If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.
+And now you should be able to build without any errors.
+
+<aside class="notice">
+Remember to change ``token``` to your token if you want to run the code.
+</aside>
+
+If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.
