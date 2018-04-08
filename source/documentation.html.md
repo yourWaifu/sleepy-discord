@@ -38,15 +38,15 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 [Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h)
 
-# DiscordClient Functions
+## Functions
 
-## deleteChannel
+### deleteChannel
 
 ```cpp 
 Channel deleteChannel(Snowflake<Channel> channelID);
 ```
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -54,10 +54,10 @@ Channel deleteChannel(Snowflake<Channel> channelID);
   </tbody>
 </table>
 
-### Return value
+#### Return value
 The channel was just deleted
 
-## sendMessage
+### sendMessage
 
  ```cpp 
 ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, bool tts = false);
@@ -87,10 +87,10 @@ Hello
 Post a message to a channel.
 
 <aside class="note">
-If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, use ``\\\\`` for escapes.
+If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, use ``\\\\`` for escapes. For example, ``\\\\"`` for quotations marks.
 </aside>
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -102,15 +102,15 @@ If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, 
   </tbody>
 </table>
 
-### Return value
+#### Return value
 The Message you just sent as a Message object
 
-### Other Details
+#### Other Details
 [Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#create-message)
 
-## addReaction
+### addReaction
 
  ```cpp 
 bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
@@ -133,7 +133,7 @@ int main() {
 
 Adds reaction to a message.
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
     <tr>
@@ -156,15 +156,15 @@ Adds reaction to a message.
   </tbody>
 </table>
 
-### Return value
+#### Return value
 true on success, otherwise false
 
-### Other Details
+#### Other Details
 [Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#create-reaction)
 
-## editMessage
+### editMessage
 
 ```cpp 
 Message editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
@@ -173,7 +173,7 @@ Message editMessage(Message message, std::string newMessage);
 
 Edits an existing Message
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -187,10 +187,10 @@ Edits an existing Message
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns the message you just edited
 
-## pinMessage
+### pinMessage
 
 ```cpp 
 bool pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
@@ -198,7 +198,7 @@ bool pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 
 Puts a message into the Pinned Messages of a channel
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -208,10 +208,10 @@ Puts a message into the Pinned Messages of a channel
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## unpinMessage
+### unpinMessage
 
 ```cpp 
 bool unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
@@ -219,7 +219,7 @@ bool unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 
 Removes a message from the Pinned Messages in a channel
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -229,10 +229,10 @@ Removes a message from the Pinned Messages in a channel
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## deleteMessage
+### deleteMessage
 
 ```cpp 
 bool deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
@@ -240,7 +240,7 @@ bool deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 
 Deletes a message
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
@@ -250,10 +250,10 @@ Deletes a message
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## editNickname
+### editNickname
 
 ```cpp 
 bool editNickname(Snowflake<Server> serverID, std::string newNickname);
@@ -261,7 +261,7 @@ bool editNickname(Snowflake<Server> serverID, std::string newNickname);
 
 Changes the name that is displayed on a server
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>serverID</strong></td>
@@ -271,10 +271,10 @@ Changes the name that is displayed on a server
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## addRole
+### addRole
 
 ```cpp 
 bool addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
@@ -282,7 +282,7 @@ bool addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role>
 
 Gives a member a role on a server 
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>serverID</strong></td>
@@ -294,10 +294,10 @@ Gives a member a role on a server
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## removeRole
+### removeRole
 
 ```cpp 
 bool removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
@@ -305,7 +305,7 @@ bool removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Ro
 
 Takes away a role from a member on a server
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>serverID</strong></td>
@@ -317,10 +317,10 @@ Takes away a role from a member on a server
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## kickMember
+### kickMember
 
 ```cpp 
 bool kickMember(Snowflake<Server> serverID, Snowflake<User> userID);
@@ -328,7 +328,7 @@ bool kickMember(Snowflake<Server> serverID, Snowflake<User> userID);
 
 Removes a member from a server
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>serverID</strong></td>
@@ -338,10 +338,10 @@ Removes a member from a server
   </tbody>
 </table>
 
-### Return value
+#### Return value
 Returns ``true`` on success
 
-## updateStatus
+### updateStatus
 
 ```cpp 
 void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
@@ -349,7 +349,7 @@ void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
 
 Updates the bot's status
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>gameName</strong></td>
@@ -359,7 +359,7 @@ Updates the bot's status
   </tbody>
 </table>
 
-## isReady
+### isReady
 
 ```cpp 
 const bool isReady();
@@ -367,10 +367,10 @@ const bool isReady();
 
 Tell you if the Ready event has ocurred or not
 
-### Return value
+#### Return value
 ``true`` if the ready event ocurred
 
-## quit
+### quit
 
 ```cpp 
 void quit();
@@ -378,7 +378,7 @@ void quit();
 
 Lets you disconnect from discord and stops the client
 
-## run
+### run
 
 ```cpp 
 virtual void run();
@@ -386,7 +386,7 @@ virtual void run();
 
 For more information, check out [custom websockets](#custom-websockets)
 
-## request
+### request
 <aside class="warning">
 Please do not use unless you have a good reason.
 </aside>
@@ -398,14 +398,14 @@ Response request(const RequestMethod method, const std::string url, const std::i
 
 Used to make a request to Discord. For more information, see [Session](#session).
 
-## path
+### path
 ```cpp
 const std::string path(const char* source, ...);
 ```
 
 Usually used with the request function. This creates a path by putting together the url and the parameters.
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>source</strong></td>
@@ -419,20 +419,20 @@ Usually used with the request function. This creates a path by putting together 
 Any parameter that's not a std::string will cause issues. If you are using a hard coded string, like ``"this"``, make sure it's a std::string.
 </aside>
 
-### Return value
+#### Return value
 The url with all ``{``, ``}``, and in between replaced with the parameters.
 
-# DiscordClient Events
+## Events
 
 Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.
 
-## onReady
+### onReady
 
 ```cpp
 virtual void onReady(std::string* jsonMessage);
 ```
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>milliseconds</strong></td>
@@ -440,7 +440,7 @@ virtual void onReady(std::string* jsonMessage);
   </tbody>
 </table>
 
-## onMessage
+### onMessage
 
 ```cpp
 virtual void onMessage(SleepyDiscord::Message message);
@@ -476,7 +476,7 @@ Hello Sleepy Flower Girl
 
 Called when the Client receives a new message.
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>message</strong></td>
@@ -484,7 +484,7 @@ Called when the Client receives a new message.
   </tbody>
 </table>
 
-## onQuit
+### onQuit
 
 ```cpp
 virtual void onQuit();
@@ -492,7 +492,7 @@ virtual void onQuit();
 
 Happens when the client is quitting and after disconnecting from Discord
 
-## schedule
+### schedule
 
 ```cpp
 virtual Timer schedule(TimedTask                 code   , const time_t millisecondsTilDueTime);
@@ -509,13 +509,13 @@ schedule([this, channel]() {
 
 Creates a timer that will execute a function after the timer expires. Based on JavaScript's setTimeout()
 
-### Timer
+#### Timer
 Stores needed timer function. However, this does not store the function will be called when times up.
 
-### TimedTask
+#### TimedTask
 Stores function that will be called when times up
 
-### AssignmentType
+#### AssignmentType
 
 ```cpp
 enum AssignmentType : bool {
@@ -526,7 +526,7 @@ enum AssignmentType : bool {
 
 Changes what ``milliseconds`` represents in milliseconds
 
-###Parameters
+#### Parameters
 <table>
 	<tbody>
 		<tr><td><strong>code</strong></td>
@@ -540,11 +540,11 @@ Changes what ``milliseconds`` represents in milliseconds
 	</tbody>
 </table>
 
-###Return
+#### Return
 
 See Timer above.
 
-## sleep
+### sleep
 
 ```cpp
 virtual void sleep(const unsigned int milliseconds);
@@ -554,7 +554,7 @@ virtual void sleep(const unsigned int milliseconds);
 Deprecated, use schedule instead
 </aside>
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>milliseconds</strong></td>
@@ -564,7 +564,7 @@ Deprecated, use schedule instead
 
 Called when the client needs to wait a bit
 
-## onError
+### onError
 
 ```cpp
 virtual void onError(ErrorCode errorCode, const std::string errorMessage);
@@ -572,7 +572,7 @@ virtual void onError(ErrorCode errorCode, const std::string errorMessage);
 
 Happens when an error is detected
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>errorCode</strong></td>
@@ -587,6 +587,12 @@ Happens when an error is detected
 Objects used to represent things from Discord, these include things like messages, users, server, etc.
 
 ## Snowflake
+
+```cpp
+template <typename DiscordObject>
+struct Snowflake {
+```
+
 Most Discord Objects have ids, these ids have the type called Snowflake. Snowflakes are 64 bit unsigned ints, currently Sleepy Discord stores them as strings. This is because Discord sends and receives Snowflakes as strings, because unsigned 64 bit integer support is not something every language has. By passing snowflakes as a string, you can guarantee that the receiving language will not try to change it. For example, languages like PHP stores all numbers as doubles or 64 bit floats. In theory, the json standard supports 53 bit signed integers.
 
 ### Structure
@@ -609,7 +615,29 @@ Most Discord Objects have ids, these ids have the type called Snowflake. Snowfla
 ### But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?
 That's a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you cannot send Snowflakes as integers to Discord, as that will give you an error.
 
-# Message
+### Comparison Operators
+
+```cpp
+inline bool operator==(const Snowflake& right);
+inline bool operator==(const char* right);
+
+inline bool operator!=(const Snowflake& right);
+inline bool operator!=(const char* right);
+```
+
+#### Return value
+``true`` when comparison is true, otherwise ``false``
+
+### operator const std::string&
+
+```cpp
+operator const std::string&();
+```
+
+#### Return value
+Returns the snowflake as a string of numbers.
+
+## Message
 
 ```cpp
 struct Message : public DiscordObject {
@@ -617,7 +645,7 @@ struct Message : public DiscordObject {
 
 An object that represents a message from Discord. Also very similar to [the message object from the API](https://discordapp.com/developers/docs/resources/channel#message-object)
 
-## (constructor)
+### (constructor)
 ```cpp
 Message(const std::string * rawJson);
 Message(BaseDiscordClient* client, std::string channelID, std::string message, bool tts = false);
@@ -625,12 +653,12 @@ Message(BaseDiscordClient* client, std::string channelID, std::string message, b
 
 Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
 
-## startsWith
+### startsWith
 ```cpp
 bool startsWith(char* test);
 ```
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>test</strong></td>
@@ -638,26 +666,26 @@ bool startsWith(char* test);
   </tbody>
 </table>
 
-### Return value
+#### Return value
 ``true`` when the message starts with the given string
 
-## length
+### length
 
 ```cpp
 int length();
 ```
 
-### Return value
+#### Return value
 The content length of the message
 
-## isMentioned
+### isMentioned
 
 ```cpp
 bool isMentioned(const std::string id);
 bool isMentioned(User& _user);
 ```
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>id</strong></td>
@@ -667,16 +695,16 @@ bool isMentioned(User& _user);
   </tbody>
 </table>
 
-### Return value
+#### Return value
 ``true`` if the user was mentioned
 
-## send
+### send
 
 ```cpp
 Message send(BaseDiscordClient * client);
 ```
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>client</strong></td>
@@ -684,10 +712,10 @@ Message send(BaseDiscordClient * client);
   </tbody>
 </table>
 
-### Return value
+#### Return value
 The Message you just sent as a Message object
 
-## reply
+### reply
 
 ```cpp
 Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
@@ -695,7 +723,7 @@ Message reply(BaseDiscordClient * client, std::string message, bool tts = false)
 
 sends a message to same channel that the parent message is on
 
-### Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>client</strong></td>
@@ -707,17 +735,17 @@ sends a message to same channel that the parent message is on
   </tbody>
 </table>
 
-### Return value
+#### Return value
 The Message you just sent as a Message object
 
-## operator==
+### Comparison Operator
 ```cpp
 bool operator==(const std::string& message);
 ```
 
 Compares the ids of two messages
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>message</strong></td>
@@ -725,10 +753,10 @@ Compares the ids of two messages
   </tbody>
 </table>
 
-### Return value
+#### Return value
 ``true`` when the ids of the two messages are the same
 
-# User
+## User
 ```cpp
 struct User : public DiscordObject {
   ~User();
@@ -738,7 +766,7 @@ struct User : public DiscordObject {
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
 
-## operator==
+### Comparison Operator
 
 ```cpp
 bool operator==(const User& rightUser);
@@ -746,7 +774,7 @@ bool operator==(const User& rightUser);
 
 Compares the id of two Users
 
-###Parameters
+#### Parameters
 <table>
   <tbody>
       <tr><td><strong>rightUser</strong></td>
@@ -754,42 +782,8 @@ Compares the id of two Users
   </tbody>
 </table>
 
-### Return value
+#### Return value
 ``true`` when the two Users have the same id
-
-# Custom Session
-
-```cpp
-class CustomSession : public GenericSession {
-```
-
-Sessions are used for http requests, it's essentially a wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. [To learn more about Sessions, click here.](#session)
-
-###Member types
-<table>
-  <tbody>
-      <tr><td><strong>CustomInit</strong></td>
-        <td>A function pointer to a function that returns a new Session</td></tr>
-  </tbody>
-</table>
-
-## (constructor)
-
-```cpp
-static CustomInit init;
-CustomSession() : session(init()) {}
-```
-
-> This how the CustomSession constructor calls your custom Session.
-
-```cpp
-class mySession : public SleepyDiscord::GenericSession{
-	...  //imagine a filled out Session class
-}
-SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };	//init the custom session
-```
-
-The constructor of the CustomSession class calls init to get a pointer to a new Session.
 
 # Session
 
@@ -809,103 +803,15 @@ Session is a class that wraps any http library, for now the library only support
 
 Declared in ``http.h``
 
-###Member types
+#### Member types
 <table>
   <tbody>
-      <tr><td><strong>Response</strong></td>
+      <tr><td><strong><a href="#response">Response</a></strong></td>
         <td>When you make a request, it sends back a response. This holds the response from the request.</td></tr>
       <tr><td><strong>Part</strong></td>
         <td>Used for multipart requests, is stores the name and file or value</td></tr>
   </tbody>
 </table>
-
-## setUrl
-
-```cpp
-virtual void setUrl(const std::string& url) = 0;
-```
-
-## setBody
-
-```cpp
-virtual void setBody(const std::string* jsonParameters) = 0;
-```
-
-###Parameters
-<table>
-  <tbody>
-      <tr><td><strong>jsonParameters</strong></td>
-        <td>The body of the Session, usually a json</td></tr>
-  </tbody>
-</table>
-
-## setHeader
-
-```cpp
-virtual void setHeader(const std::vector<SleepyDiscord::HeaderPair>& header) = 0;
-```
-
-###Parameters
-<table>
-  <tbody>
-      <tr><td><strong>header</strong></td>
-        <td>A vector of stuff in the header</td></tr>
-  </tbody>
-</table>
-
-### HeaderPair
-Represents one line of the header
-<table>
-  <tbody>
-      <tr><td><strong>name</strong></td>
-        <td>The name of the value, or the left of the header field</td></tr>
-      <tr><td><strong>value</strong></td>
-        <td>The value, or the right of the header field</td></tr>
-  </tbody>
-</table>
-
-## setMultipart
-
-```cpp
-virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
-```
-
-## Request Methods
-
-Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method. [Here's a useful wikipedia about them.](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
-
-### Return value
-[The response](#response)
-
-## Post
-
-```cpp
-virtual Response Post() = 0;
-```
-
-## Patch
-
-```cpp
-virtual Response Patch() = 0;
-```
-
-## Delete
-
-```cpp
-virtual Response Delete() = 0;
-```
-
-## Get
-
-```cpp
-virtual Response Get() = 0;
-```
-
-## Put
-
-```cpp
-virtual Response Put() = 0;
-```
 
 ## Response
 
@@ -923,11 +829,137 @@ When you make a request, a response is returned. The Response struct stores the 
 Response is a separate part of Session
 </aside>
 
+## Functions
+
+### setUrl
+
+```cpp
+virtual void setUrl(const std::string& url) = 0;
+```
+
+### setBody
+
+```cpp
+virtual void setBody(const std::string* jsonParameters) = 0;
+```
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>jsonParameters</strong></td>
+        <td>The body of the Session, usually a json</td></tr>
+  </tbody>
+</table>
+
+### setHeader
+
+```cpp
+virtual void setHeader(const std::vector<SleepyDiscord::HeaderPair>& header) = 0;
+```
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>header</strong></td>
+        <td>A vector of stuff in the header</td></tr>
+  </tbody>
+</table>
+
+#### HeaderPair
+Represents one line of the header
+<table>
+  <tbody>
+      <tr><td><strong>name</strong></td>
+        <td>The name of the value, or the left of the header field</td></tr>
+      <tr><td><strong>value</strong></td>
+        <td>The value, or the right of the header field</td></tr>
+  </tbody>
+</table>
+
+### setMultipart
+
+```cpp
+virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
+```
+
+### Request Methods
+
+Everything else in the Session class makes the request, and returns the response from the request. However each one uses a different request method. [Here's a useful wikipedia about them.](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
+
+#### Return value
+[The response](#response)
+
+#### Post
+
+```cpp
+virtual Response Post() = 0;
+```
+
+#### Patch
+
+```cpp
+virtual Response Patch() = 0;
+```
+
+#### Delete
+
+```cpp
+virtual Response Delete() = 0;
+```
+
+#### Get
+
+```cpp
+virtual Response Get() = 0;
+```
+
+#### Put
+
+```cpp
+virtual Response Put() = 0;
+```
+
+## Custom Session
+
+```cpp
+class CustomSession : public GenericSession {
+```
+
+Sessions are used for http requests, it's essentially a wrapper for any http library for Sleepy Discord. CustomSession is wrapper for a wrapper of http requests and responses. [To learn more about Sessions, click here.](#session)
+
+#### Member types
+<table>
+  <tbody>
+      <tr><td><strong>CustomInit</strong></td>
+        <td>A function pointer to a function that returns a new Session</td></tr>
+  </tbody>
+</table>
+
+### (constructor)
+
+```cpp
+static CustomInit init;
+CustomSession() : session(init()) {}
+```
+
+> This how the CustomSession constructor calls your custom Session.
+
+```cpp
+class mySession : public SleepyDiscord::GenericSession{
+	...  //imagine a filled out Session class
+}
+SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };	//init the custom session
+```
+
+The constructor of the CustomSession class calls init to get a pointer to a new Session.
+
 # Custom Websockets
 
 Without websockets, Discord can't get anything in real time, because http only does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord's websockets are customizable. Right now, there isn't a special class for websockets, it's part of the ``BaseDiscordClient`` class.
 
-## run
+## Functions
+
+### run
 
 ```cpp
 virtual void run();
@@ -939,7 +971,7 @@ A function called by the user to run the websocket client when there's 2 or less
 All functions <b>below</b> should be specified as private
 </aside>
 
-## connect
+### connect
 
 ```cpp
 virtual bool connect(const std::string & uri) { return false; }
@@ -947,31 +979,31 @@ virtual bool connect(const std::string & uri) { return false; }
 
 Called when Sleepy Discord wants to connect.
 
-### Return value
+#### Return value
 True on a successful connection.
 
-## disconnect
+### disconnect
 ```cpp
 virtual void disconnect(unsigned int code, const std::string reason) {}
 ```
 
 The function that Sleepy Discord uses to disconnect
 
-## send
+### send
 ```cpp
-void send(std::string message);
+virtual void send(std::string message);
 ```
 
 A function used for sending things like heartbeats and status updates
 
-## runAsync
+### runAsync
 ```cpp
 virtual void runAsync();
 ```
 
 Runs the websocket client on another thread. This is the function that Sleepy Discord calls when it's told to run on 3 or more threads. Generally, this function should just make a new thread and call run on the new thread.
 
-## SLEEPY LOCK CLIENT FUNCTIONS
+<h2 id="sleepy_lock_client_functions">SLEEPY_<wbr>LOCK_<wbr>CLIENT_<wbr>FUNCTIONS</h2>
 
 ```cpp
 class WebSocketDiscordClient : public BaseDiscordClient {
@@ -986,7 +1018,7 @@ A macro that is a must for any Discord Clients that will be used by others, that
 
 Sleepy Discord uses some preprocessor directives such as ``#define`` and ``#ifdef``. This is so that Sleepy Discord can be compiled in many different situations. If you are having trouble compiling Sleepy Discord, these might help, but make sure you know what they do because they will disable or add features.
 
-<h2>SLEEPY_<wbr>ONE_<wbr>THREAD</h2>
+<h2 id="sleepy_one_thread">SLEEPY_<wbr>ONE_<wbr>THREAD</h2>
 
 ```make
 SLEEPY_ONE_THREAD
@@ -994,16 +1026,15 @@ SLEEPY_ONE_THREAD
 ```
 Disables anything that has to do with threads, because threads or ``std::threads`` don't work on everything. Currently there's no way to add in thread support of your own device yet.
 
-<h2>SLEEPY_<wbr>CUSTOM_<wbr>SESSION</h2>
+<h2 id="sleepy_custom_session">SLEEPY_<wbr>CUSTOM_<wbr>SESSION</h2>
 
 ```make
 SLEEPY_CUSTOM_SESSION
 -DSLEEPY_CUSTOM_SESSION
 ```
-Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#CustomSession)
+Makes Sleepy Discord use the CustomSession Class for sessions, This allows you to use any http library you like to use. [Click here for info on the CustomSession Class](#custom-session)
 
-## SLEEPY USE HARD CODED GATEWAY
-<h2>SLEEPY_<wbr>USE_<wbr>HARD_<wbr>CODED_<wbr>GATEWAY</h2>
+<h2 id="sleepy_use_hard_coded_gateway">SLEEPY_<wbr>USE_<wbr>HARD_<wbr>CODED_<wbr>GATEWAY</h2>
 
 ```make
 SLEEPY_USE_HARD_CODED_GATEWAY
