@@ -11,7 +11,7 @@ override FLAGS    := $(DFLAGS) $(FLAGS)
 all: ${TARGET}.o ar
 
 $(TARGET).o: 
-	$(CXX) $(FLAGS) $(SOURCE)/*.cpp $(foreach dir, $(INCLUDE), -I $(dir))
+	$(CXX) $(FLAGS) $(SOURCE)/*.cpp $(SOURCE)/*.c $(foreach dir, $(INCLUDE), -I $(dir))
 
 ar:
 	$(AR) $(OUTPUT) *.o
