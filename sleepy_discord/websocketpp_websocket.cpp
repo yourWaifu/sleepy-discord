@@ -60,7 +60,7 @@ namespace SleepyDiscord {
 	}
 
 	Timer WebsocketppDiscordClient::schedule(std::function<void()> code, const time_t milliseconds) {
-		auto& timer = this_client.set_timer(
+		auto timer = this_client.set_timer(
 			milliseconds,
 			websocketpp::lib::bind(&handleTimers, websocketpp::lib::placeholders::_1, code)
 		);
