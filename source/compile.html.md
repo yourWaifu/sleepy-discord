@@ -106,7 +106,7 @@ There's only two options:
 * [Make](#make)
 
 ###Visual Studio
-Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build solution. And you're done.
+Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you're done.
 
 <aside>
 For now, compiling for x64 doesn't work just yet.
