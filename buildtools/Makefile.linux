@@ -1,10 +1,7 @@
          CXX       = g++ #compiler
          AR        = ar rv
-         DFLAGS    = -Wall -c
-         DCXXFLAGS = -std=c++11
+         DFLAGS    = -Wall -c -std=c++11
 override FLAGS    := $(DFLAGS) $(FLAGS)
-override CXXFLAGS := $(FLAGS) $(DCXXFLAGS) $(CXXFLAGS)
-override CFLAGS   := $(FLAGS) $(CFLAGS)
          SOURCE    = ../sleepy_discord
          INCLUDE   = ../include/sleepy_discord ../include/sleepy_discord/IncludeNonexistent ../deps/include
          TARGET    = libsleepy_discord
@@ -14,8 +11,7 @@ override CFLAGS   := $(FLAGS) $(CFLAGS)
 all: ${TARGET}.o ar
 
 $(TARGET).o: 
-	$(CXX) $(CXXFLAGS) $(SOURCE)/*.cpp $(foreach dir, $(INCLUDE), -I $(dir))
-	$(CXX) $(CFLAGS)   $(SOURCE)/*.c   $(foreach dir, $(INCLUDE), -I $(dir)) #needed for some compilers
+	$(CXX) $(FLAGS) $(SOURCE)/*.cpp $(foreach dir, $(INCLUDE), -I $(dir))
 
 ar:
 	$(AR) $(OUTPUT) *.o
