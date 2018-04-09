@@ -38,7 +38,7 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 [Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h)
 
-## Functions
+<h2 id="discordclient-functions">Functions</h2>
 
 ### deleteChannel
 
@@ -378,7 +378,7 @@ void quit();
 
 Lets you disconnect from discord and stops the client
 
-### run
+<h3 id="discordclient-run">run</h3>
 
 ```cpp 
 virtual void run();
@@ -615,7 +615,7 @@ Most Discord Objects have ids, these ids have the type called Snowflake. Snowfla
 ### But if C++ has support for unsigned 64 bit integer, then why does Sleepy Discord store them as strings?
 That's a good question. The fact that they are given to the client as strings and send to Discord as a string, is the main reason why. However, the disadvantages are that the strings take up more memory then 64 bits, and that you will need to convert them to an int if you want to so some math operations with them. However, you cannot send Snowflakes as integers to Discord, as that will give you an error.
 
-### Comparison Operators
+<h3 id="snowflake-comparison-operators">operator==, !=</h3>
 
 ```cpp
 inline bool operator==(const Snowflake& right);
@@ -645,7 +645,7 @@ struct Message : public DiscordObject {
 
 An object that represents a message from Discord. Also very similar to [the message object from the API](https://discordapp.com/developers/docs/resources/channel#message-object)
 
-### (constructor)
+<h3 id="message-constructor">(constructor)</h3>
 ```cpp
 Message(const std::string * rawJson);
 Message(BaseDiscordClient* client, std::string channelID, std::string message, bool tts = false);
@@ -738,7 +738,7 @@ sends a message to same channel that the parent message is on
 #### Return value
 The Message you just sent as a Message object
 
-### Comparison Operator
+<h3 id="message-comparison-operators">operator==</h3>
 ```cpp
 bool operator==(const std::string& message);
 ```
@@ -766,7 +766,7 @@ struct User : public DiscordObject {
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
 
-### Comparison Operator
+<h3 id="user-comparison-operators">operator==</h3> 
 
 ```cpp
 bool operator==(const User& rightUser);
@@ -935,7 +935,7 @@ Sessions are used for http requests, it's essentially a wrapper for any http lib
   </tbody>
 </table>
 
-### (constructor)
+<h3 id="custom-session-constructor">(constructor)</h3>
 
 ```cpp
 static CustomInit init;
@@ -957,9 +957,9 @@ The constructor of the CustomSession class calls init to get a pointer to a new 
 
 Without websockets, Discord can't get anything in real time, because http only does things after a request. Think of it as the difference between active and passive. Just like CustomSession, Sleepy Discord's websockets are customizable. Right now, there isn't a special class for websockets, it's part of the ``BaseDiscordClient`` class.
 
-## Functions
+<h2 id="custom-websockets-functions">Functions</h2>
 
-### run
+<h3 id="custom-websockets-run">run</h3>
 
 ```cpp
 virtual void run();
@@ -989,7 +989,7 @@ virtual void disconnect(unsigned int code, const std::string reason) {}
 
 The function that Sleepy Discord uses to disconnect
 
-### send
+<h3 id="custom-websockets-send">send</h3>
 ```cpp
 virtual void send(std::string message);
 ```
