@@ -342,7 +342,7 @@ These steps are optional, and are here just in case you need them.
 
 <h1 id="g">G++</h1>
 <pre class="highlight shell tab-shell"><code><span class="nb">cd</span> ./examples/hello/
-g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistant -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto example0.cpp -o example.out
+g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
 </code></pre>
 <p>This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.</p>
 
@@ -375,6 +375,11 @@ g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../de
 <td>Tells the compiler where to look for lib files</td>
 </tr>
 <tr>
+<td></td>
+<td><code class="prettyprint">example.cpp</code></td>
+<td>The files you want to compile. NOTE: these should before any <code class="prettyprint">-l</code></td>
+</tr>
+<tr>
 <td><code class="prettyprint">-l</code></td>
 <td><code class="prettyprint">-llib</code></td>
 <td>Tells the compiler which libraries to link with</td>
@@ -383,11 +388,6 @@ g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../de
 <td><code class="prettyprint">-D</code></td>
 <td><code class="prettyprint">-DSomeVariable</code></td>
 <td>Defines preprocessor variable</td>
-</tr>
-<tr>
-<td></td>
-<td><code class="prettyprint">example.cpp</code></td>
-<td>The files you want to compile</td>
 </tr>
 <tr>
 <td><code class="prettyprint">-o</code></td>
@@ -421,7 +421,13 @@ g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../de
     <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre>
-<p>And now you should be able to build without any errors. If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.</p>
+<p>And now you should be able to build without any errors.</p>
+
+<aside class="notice">
+Remember to change &ldquo;token&rdquo;` to your token if you want to run the code.
+</aside>
+
+<p>If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.</p>
 
       </div>
       <div class="dark-box">
