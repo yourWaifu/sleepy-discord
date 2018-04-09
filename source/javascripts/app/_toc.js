@@ -34,7 +34,12 @@
     });
 
     $(".page-wrapper").click(closeToc);
-    $(".tocify-item").click(closeToc);
+    $(".tocify-item").click(function(event) {
+      if($(event.target).parent().next().attr("class") != "tocify-subheader" ||
+         $(event.target).parent().attr("class") == "tocify-item tocify-hover tocify-focus"
+      )
+        closeToc();
+    });
   };
 
   // Hack to make already open sections to start opened,
