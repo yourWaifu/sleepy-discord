@@ -1,4 +1,5 @@
 #include "asio_udp.h"
+#ifndef NONEXISTENT_ASIO
 
 namespace SleepyDiscord {
 	ASIOUDPClient::ASIOUDPClient() :
@@ -21,3 +22,5 @@ namespace SleepyDiscord {
 		return std::vector<uint8_t>(buffer, buffer + uDPSocket.receive_from(asio::buffer(buffer, 256), asio::ip::udp::endpoint(asio::ip::udp::v4(), port)));
 	}
 };
+
+#endif

@@ -18,7 +18,7 @@
 #else
 	#include "websocketpp_connection.h"
 	#ifdef NONEXISTENT_WEBSOCKETPP
-		#include "uwebsockets_connection.h"
+		//#include "uwebsockets_connection.h"
 		#ifdef NONEXISTENT_UWEBSOCKETS
 
 			//last resort
