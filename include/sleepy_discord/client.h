@@ -340,6 +340,7 @@ namespace SleepyDiscord {
 		virtual void onResume();
 
 		virtual void onQuit();
+		virtual void onRestart() {}
 		virtual void onResponse(Response response);
 		virtual void sleep(const unsigned int milliseconds);  //Deprecated, use schedule instead
 		virtual void fileRead(const char* path, std::string*const file);
@@ -407,7 +408,7 @@ namespace SleepyDiscord {
 		//WebsocketConnection connection;
 		void sendIdentity();
 		void sendResume();
-		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form
+		void restart();
 		void reconnect(const unsigned int status = 1000);
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited

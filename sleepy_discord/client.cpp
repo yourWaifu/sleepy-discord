@@ -283,12 +283,11 @@ namespace SleepyDiscord {
 		onResume();
 	}
 
-//	bool BaseDiscordClient::restart() {
-//#ifndef SLEEPY_ONE_THREAD
-//		if (!ready) clock_thread = std::thread(&BaseDiscordClient::runClock_thread, this);
-//#endif
-//		return connect(theGateway);
-//	}
+	void BaseDiscordClient::restart() {
+		quit();
+		connect(theGateway, this, &connection);
+		onRestart();
+	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
 		if (status != 1000) {         //check for a deliberate reconnect
