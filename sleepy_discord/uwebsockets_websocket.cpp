@@ -10,10 +10,10 @@ namespace SleepyDiscord {
 	UWebSocketsDiscordClient::UWebSocketsDiscordClient(const std::string token, const char numOfThreads) :
 		maxNumOfThreads(numOfThreads) {
 		hub.onConnection([=](uWS::WebSocket<uWS::CLIENT>* ws, uWS::HttpRequest req) {
-			theClient = ws;
+			WebsocketConnection* connection = static_cast<WebsocketConnection*>(ws->getUserData());
+			connection = &ws;
 		});
 		hub.onMessage([=](uWS::WebSocket<uWS::CLIENT>* ws, char * message, size_t length, uWS::OpCode opCode) {
-			theClient = ws;
 			processMessage(message);
 		});
 		hub.onError([=](void *user) {
@@ -25,7 +25,7 @@ namespace SleepyDiscord {
 
 	bool UWebSocketsDiscordClient::connect(const std::string & uri, GenericMessageReceiver* messageProcessor, WebsocketConnection* connection) {
 		isConnectionBad = false;
-		hub.connect(uri, nullptr);
+		hub.connect(uri, connection);
 		return !isConnectionBad;
 	}
 
@@ -51,11 +51,11 @@ namespace SleepyDiscord {
 	}
 
 	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection) {
-		theClient->close();
+		(*connection)->close();
 	}
 
 	void UWebSocketsDiscordClient::send(std::string message, WebsocketConnection* connection) {
-		theClient->send(message.c_str());
+		(*connection)->send(message.c_str());
 	}
 
 #include "standard_config.h"

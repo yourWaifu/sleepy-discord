@@ -209,6 +209,12 @@
       <Filter>websocket\websocketpp</Filter>
     </ClInclude>
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_connection.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h">
+      <Filter>websocket\uwebsocket</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />

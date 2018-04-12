@@ -22,7 +22,6 @@ namespace SleepyDiscord {
 		void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection);
 		void send(std::string message, WebsocketConnection* connection);
 		void runAsync();
-		uWS::WebSocket<uWS::CLIENT>* theClient;
 		std::thread thread;
 		const char maxNumOfThreads;
 		bool isConnectionBad;

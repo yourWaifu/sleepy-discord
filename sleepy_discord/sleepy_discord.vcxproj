@@ -860,6 +860,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
     <ClInclude Include="..\include\sleepy_discord\cpr_session.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_session.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\gateway.h" />
@@ -887,6 +888,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\udp.h" />
     <ClInclude Include="..\include\sleepy_discord\udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\user.h" />
+    <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h" />
     <ClInclude Include="..\include\sleepy_discord\voice.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h" />
