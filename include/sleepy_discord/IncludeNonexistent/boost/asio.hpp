@@ -1,2 +1,2 @@
 #pragma once
-#define NONEXISTENT_ASIO
+#define NONEXISTENT_BOOST_ASIO

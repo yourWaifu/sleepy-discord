@@ -9,10 +9,10 @@
 
 #include <asio.hpp>
 #ifdef NONEXISTENT_ASIO
-#undef NONEXISTENT_ASIO
 #undef ASIO_STANDALONE
 #include <boost/asio.hpp>
-#ifndef NONEXISTENT_ASIO
+#ifndef NONEXISTENT_BOOST_ASIO
+#undef NONEXISTENT_ASIO
 namespace asio = boost::asio;
 #endif
 #endif
