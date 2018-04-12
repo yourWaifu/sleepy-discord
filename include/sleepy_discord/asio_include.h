@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
 #include <winsock2.h>
-#else
+#elif defined(unix) || defined(__unix__) || defined(__unix)
 #include <netinet/in.h>
 #endif
 
@@ -12,4 +12,7 @@
 #undef NONEXISTENT_ASIO
 #undef ASIO_STANDALONE
 #include <boost/asio.hpp>
+#ifndef NONEXISTENT_ASIO
+namespace asio = boost::asio;
+#endif
 #endif

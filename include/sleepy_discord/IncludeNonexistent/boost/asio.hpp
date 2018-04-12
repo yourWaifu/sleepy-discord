@@ -1,2 +1,2 @@
 #pragma once
-#include "asio.hpp"
+#define NONEXISTENT_ASIO
