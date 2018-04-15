@@ -4,8 +4,8 @@ JSON_parseUTF16 wasn't made by me, I copied it and made some changes to make it 
 here's the orginal code. http://llvm.org/svn/llvm-project/llvm/trunk/include/llvm/Support/ConvertUTF.h
 http://llvm.org/svn/llvm-project/llvm/trunk/lib/Support/ConvertUTF.c
 */
-void JSON_parseUTF16(const char *source, char *_target, unsigned int * position, unsigned int * targetPosition) {
-	unsigned int val = 0;
+void JSON_parseUTF16(const char *source, char *_target, size_t * position, size_t * targetPosition) {
+	size_t val = 0;
 	const char *sourceStart = source + *position;
 	char *targetStart = _target + *targetPosition;
 	char c;
@@ -52,24 +52,24 @@ void JSON_parseUTF16(const char *source, char *_target, unsigned int * position,
 	}
 }
 
-void JSON_skipString(const char * JSONstring, unsigned int *position) {
+void JSON_skipString(const char * JSONstring, std::size_t *position) {
 	while (JSONstring[++*position] != '"') if (JSONstring[*position] == '\\')++*position;
 }
 
-unsigned int JSON_measureAndSkipString(const char * JSONstring, unsigned int *position) {
-	const unsigned int startPosition = *position;
+size_t JSON_measureAndSkipString(const char * JSONstring, std::size_t *position) {
+	const size_t startPosition = *position;
 	JSON_skipString(JSONstring, position);
 	return *position - startPosition;
 }
 
-unsigned int JSON_measureString(const char * JSONstring, const unsigned int *_position) {
-	const unsigned int startPosition = *_position;
-	unsigned int position = startPosition;
+size_t JSON_measureString(const char * JSONstring, const size_t *_position) {
+	const size_t startPosition = *_position;
+	size_t position = startPosition;
 	JSON_skipString(JSONstring, &position);
 	return position - startPosition;
 }
 
-void JSON_skipArray(const char * JSONstring, unsigned int *position) {
+void JSON_skipArray(const char * JSONstring, size_t *position) {
 	while (JSONstring[++*position] != ']') {
 		switch (JSONstring[*position]) {
 		case '"': JSON_skipString(JSONstring, position); break;
@@ -80,7 +80,7 @@ void JSON_skipArray(const char * JSONstring, unsigned int *position) {
 	}
 }
 
-void JSON_skipObject(const char * JSONstring, unsigned int *position) {
+void JSON_skipObject(const char * JSONstring, size_t *position) {
 	while (JSONstring[++*position] != '}') {
 		if (JSONstring[*position] == '"') {
 			JSON_skipString(JSONstring, position);
@@ -111,37 +111,37 @@ void JSON_skipObject(const char * JSONstring, unsigned int *position) {
 	}
 }
 
-unsigned int JSON_measureAndSkipObject(const char * JSONstring, unsigned int *position) {
-	const unsigned int startPosition = *position;
+size_t JSON_measureAndSkipObject(const char * JSONstring, size_t *position) {
+	const size_t startPosition = *position;
 	if (JSONstring[*position] == '{') JSON_skipObject(JSONstring, position);
 	else JSON_skipArray(JSONstring, position);
 	return *position - startPosition;
 }
 
-unsigned int JSON_measureObject(const char * JSONstring, const unsigned int *position) {
-	unsigned int startPosition = *position;
+size_t JSON_measureObject(const char * JSONstring, const size_t *position) {
+	size_t startPosition = *position;
 	return JSON_measureAndSkipObject(JSONstring, &startPosition);
 }
 
-void JSON_find(const unsigned int numberOfNames, const char* source, JSON_findMuitipleStruct* values) {
+void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitipleStruct* values) {
 	if (*source != '{') return;
 
-	unsigned int sourceLength = strlen(source);
-	unsigned int smallestNameLength = -1;	//-1 is the largest unsigned int
-	for (unsigned int i = 0; i < numberOfNames; i++) {
+	size_t sourceLength = strlen(source);
+	size_t smallestNameLength = -1;	//-1 is the largest size_t
+	for (size_t i = 0; i < numberOfNames; i++) {
 		if (values[i].nameLength < smallestNameLength)
 			smallestNameLength = values[i].nameLength;
 	}
-	unsigned int numOfMissingValues = numberOfNames;
+	size_t numOfMissingValues = numberOfNames;
 
 	if (sourceLength < smallestNameLength) {
 		return; //we don't need this but it could save us some time
 	}
-	for (unsigned int position = 1; position < sourceLength; ++position) {
+	for (size_t position = 1; position < sourceLength; ++position) {
 		switch (source[position]) {
 		case '"': {
 			bool found = false;				//if one of the names is the same as the string then this is true
-			unsigned int index = 0;	//index to the variable name in names that was found
+			size_t index = 0;	//index to the variable name in names that was found
 			for (; index < numberOfNames; index++) {
 				//check that it hasn't been found
 				if (values[index].namePosition == 0 &&
@@ -168,7 +168,7 @@ void JSON_find(const unsigned int numberOfNames, const char* source, JSON_findMu
 							case 'f': values[index].valueLength = 5; break;
 							case '-': case '0': case '1': case '2': case '3': case '4':         //for numbers, loop til the end of the number
 							case '5': case '6': case '7': case '8': case '9': {
-								int start = position;
+								size_t start = position;
 								for (bool loop = true; loop;) {
 									switch (source[++position]) {
 									case '-': case '0': case '1': case '2': case '3': case '4':
@@ -201,7 +201,7 @@ void JSON_find(const unsigned int numberOfNames, const char* source, JSON_findMu
 	}
 }
 
-unsigned int JSON_find1(const char * name, const char * source) {
+size_t JSON_find1(const char * name, const char * source) {
 	JSON_findMuitipleStruct value = { name, 0, strlen(name), 0 };
 	JSON_find(1, source, &value);
 	return value.namePosition;

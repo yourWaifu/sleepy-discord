@@ -7,6 +7,7 @@
 
 #include <websocketpp/config/asio_client.hpp>
 #ifndef NONEXISTENT_WEBSOCKETPP
+#include <chrono>
 //#include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
@@ -21,7 +22,9 @@ namespace SleepyDiscord {
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
 		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
 		~WebsocketppDiscordClient();
+
 		void run();
+		Timer schedule(std::function<void()> code, const time_t milliseconds);
 	protected:
 #include "standard_config_header.h"
 	private:

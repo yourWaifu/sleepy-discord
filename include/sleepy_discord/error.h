@@ -28,11 +28,16 @@ namespace SleepyDiscord {
 		NOT_AUTHENTICATED       = 4003, //You sent us a payload prior to identifying.
 		AUTHENTICATION_FAILED   = 4004, //The account token sent with your identify payload is incorrect.
 		ALREADY_AUTHENTICATED   = 4005, //You sent more than one identify payload.Don't do that!
+		SESSION_NO_LONGER_VALID = 4006, //Your session is no longer valid.
 		INVALID_SEQ             = 4007, //The sequence sent when resuming the session was invalid.Reconnect and start a new session.
 		RATE_LIMITED            = 4008, //Woah nelly!You're sending payloads to us too quickly. Slow it down!
 		SESSION_TIMEOUT         = 4009, //Your session timed out.Reconnect and start a new one.
 		INVALID_SHARD           = 4010, //You sent us an invalid shard when identifying.
 		SHARDING_REQUIRED       = 4011, //The session would have handled too many guilds - you are required to shard your connection in order to connect.
+		UNKNOWN_PROTOCOL        = 4012, //We didn't recognize the protocol you sent.
+		DISCONNECTED            = 4014, //Oh no! You've been disconnected! Try resuming.
+		VOICE_SERVER_CRASHED    = 4015, //The server crashed. Our bad! Try resuming.
+		UNKNOWN_ENCRYPTION_MODE = 4016, //We didn't recognize your encryption.
 
 		//Sleepy Errors
 		CONNECT_FAILED = 5000, //Failed to connect to the Discord api after 4 trys

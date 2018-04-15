@@ -4,14 +4,14 @@
 namespace SleepyDiscord { namespace json {
 	std::vector<std::string> getValues(const char* source, std::initializer_list<const char *const> const &names) {
 		if (*source == 0) return std::vector<std::string>{};
-		const unsigned int numOfValues = names.size();
+		const size_t numOfValues = names.size();
 		std::vector<JSON_findMuitipleStruct>values(numOfValues);
-		unsigned int ii = -1;
+		size_t ii = -1;
 		for (const char *const name : names)
 			values[++ii] = { name, 0, strlen(name), 0 };
 		JSON_find(numOfValues, source, &values[0]);
 		std::vector<std::string> targets(numOfValues);
-		for (unsigned int i = 0; i < numOfValues; i++) {
+		for (size_t i = 0; i < numOfValues; i++) {
 			if (0 < values[i].namePosition) {
 				targets[i].assign(source + values[i].namePosition, values[i].valueLength);
 			}
@@ -30,9 +30,9 @@ namespace SleepyDiscord { namespace json {
 		if (source[0] != '[' || source[1] == ']') return std::vector<std::string>();
 
 		//get size of array and change size of target array
-		const unsigned int sourceLength = _source->size();
-		unsigned int arraySize = 0;
-		unsigned int position = 1;
+		const size_t sourceLength = _source->size();
+		size_t arraySize = 0;
+		size_t position = 1;
 		for (; position < sourceLength; position++) {
 			switch (source[position]) {
 			case '"': JSON_skipString(source, &position); break;
@@ -57,15 +57,15 @@ namespace SleepyDiscord { namespace json {
 
 		//fill the vector with variables
 		position = 1;
-		for (unsigned int index = 0; index < arraySize && position < sourceLength; position++) {	//variables should be the same type, right?
+		for (size_t index = 0; index < arraySize && position < sourceLength; position++) {	//variables should be the same type, right?
 			switch (source[position]) {
 			case '"': {
-				const unsigned int size = JSON_measureString(source, &position) - 1;	//the -1 removes the "
+				const size_t size = JSON_measureString(source, &position) - 1;	//the -1 removes the "
 				target[index++] = std::string(source + position + 1, size);
 				position += size + 1;	//the +1 should skip the "
 			} break;	//This should make a string, and the +1 and -1 removes the two "
 			case '{': {
-				const unsigned int size = JSON_measureObject(source, &position) + 1;	//the +1 adds a }
+				const size_t size = JSON_measureObject(source, &position) + 1;	//the +1 adds a }
 				target[index++] = std::string(source + position, size);
 				position += size;
 			} break;

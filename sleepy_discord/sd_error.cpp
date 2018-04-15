@@ -65,18 +65,23 @@ namespace SleepyDiscord {
 		case 90001: onError(code, "Reaction Blocked"                                                                                               ); break;
 
 		//Disconnections
-		case UNKNOWN_ERROR        : onError(code, "unknown error - We're not sure what went wrong. Try reconnecting?"                                                                  ); break;
-		case UNKNOWN_OPCODE       : onError(code, "unknown opcode - You sent an invalid Gateway OP Code. Don't do that!"                                                               ); break;
-		case DECODE_ERROR         : onError(code, "decode error - You sent an invalid payload to us. Don't do that!"                                                                   ); break;
-		case NOT_AUTHENTICATED    : onError(code, "not authenticated - You sent us a payload prior to identifying."                                                                    ); break;
-		case AUTHENTICATION_FAILED: onError(code, "authentication failed - The account token sent with your identify payload is incorrect."                                            ); break;
-		case ALREADY_AUTHENTICATED: onError(code, "already authenticated - You sent more than one identify payload. Don't do that!"                                                    ); break;
-		case INVALID_SEQ          : onError(code, "invalid seq - The sequence sent when resuming the session was invalid. Reconnect and start a new session."                          ); break;
-		case RATE_LIMITED         : onError(code, "rate limited - Woah nelly!You're sending payloads to us too quickly. Slow it down!"                                                 ); break;
-		case SESSION_TIMEOUT      : onError(code, "session timeout - Your session timed out.Reconnect and start a new one."                                                            ); break;
-		case INVALID_SHARD        : onError(code, "invalid shard - You sent us an invalid shard when identifying."                                                                     ); break;
-		case SHARDING_REQUIRED    : onError(code, "sharding required - The session would have handled too many guilds - you are required to shard your connection in order to connect."); break;
-		
+		case UNKNOWN_ERROR          : onError(code, "unknown error - We're not sure what went wrong. Try reconnecting?"                                                                  ); break;
+		case UNKNOWN_OPCODE         : onError(code, "unknown opcode - You sent an invalid Gateway OP Code. Don't do that!"                                                               ); break;
+		case DECODE_ERROR           : onError(code, "decode error - You sent an invalid payload to us. Don't do that!"                                                                   ); break;
+		case NOT_AUTHENTICATED      : onError(code, "not authenticated - You sent us a payload prior to identifying."                                                                    ); break;
+		case AUTHENTICATION_FAILED  : onError(code, "authentication failed - The account token sent with your identify payload is incorrect."                                            ); break;
+		case ALREADY_AUTHENTICATED  : onError(code, "already authenticated - You sent more than one identify payload. Don't do that!"                                                    ); break;
+		case SESSION_NO_LONGER_VALID: onError(code, "Your session is no longer valid."                                                                                                   ); break;
+		case INVALID_SEQ            : onError(code, "invalid seq - The sequence sent when resuming the session was invalid. Reconnect and start a new session."                          ); break;
+		case RATE_LIMITED           : onError(code, "rate limited - Woah nelly!You're sending payloads to us too quickly. Slow it down!"                                                 ); break;
+		case SESSION_TIMEOUT        : onError(code, "session timeout - Your session timed out.Reconnect and start a new one."                                                            ); break;
+		case INVALID_SHARD          : onError(code, "invalid shard - You sent us an invalid shard when identifying."                                                                     ); break;
+		case SHARDING_REQUIRED      : onError(code, "sharding required - The session would have handled too many guilds - you are required to shard your connection in order to connect."); break;
+		case UNKNOWN_PROTOCOL       : onError(code, "We didn't recognize the protocol you sent."                                                                                         ); break;
+		case DISCONNECTED           : onError(code, "Oh no! You've been disconnected! Try resuming."                                                                                     ); break;
+		case VOICE_SERVER_CRASHED   : onError(code, "The server crashed. Our bad! Try resuming."                                                                                         ); break;
+		case UNKNOWN_ENCRYPTION_MODE: onError(code, "We didn't recognize your encryption."                                                                                               ); break;
+
 		//Sleepy Errors
 		case CONNECT_FAILED: onError(code, "Failed to connect to the Discord api after 4 trys"                ); break;
 		case EVENT_UNKNOWN : onError(code, "Unexpected or unknown event occurred"                             ); break;

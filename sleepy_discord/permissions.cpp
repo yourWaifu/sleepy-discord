@@ -12,8 +12,8 @@ namespace SleepyDiscord {
 		hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
 		position   (                        std::stol (values[index(fields, "position"   )]) ),
 		permissions(static_cast<Permission>(std::stoll(values[index(fields, "permissions")]))),
-		managed    (                        std::stol (values[index(fields, "managed"    )]) ),
-		mantionable(                        std::stol (values[index(fields, "mentionable")]) )
+		managed    (                        getBool   (values[index(fields, "managed"    )]) ),
+		mantionable(                        getBool   (values[index(fields, "mentionable")]) )
 	{}
 
 	const std::initializer_list<const char*const> Role::fields = {
