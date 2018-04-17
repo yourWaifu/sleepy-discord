@@ -13,4 +13,4 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/sleepy_discord/*.c*"
 add_library(sleepy-discord STATIC "${SOURCE_FILES}")
 
 #include the files as sleepy discord uses them itself
-target_include_directories(sleepy-discord PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/sleepy_discord/" "${CMAKE_CURRENT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent/")
+target_include_directories(sleepy-discord PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/sleepy_discord/" "cpr/include/" "websocketpp/" "${CMAKE_CURRENT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent/")
