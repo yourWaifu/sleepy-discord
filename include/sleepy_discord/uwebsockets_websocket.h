@@ -2,11 +2,11 @@
 #include <uWS/uWS.h>
 #ifndef NONEXISTENT_UWEBSOCKETS
 #include <thread>
+#define SLEEPY_UWEBSOCKETS 563146 //random number that's only used once in the code
+#define SLEEPY_LOCK_EXISTENT_TO SLEEPY_UWEBSOCKETS //stops the compiler from defining things from other libraries
 #include "client.h"
 
 namespace SleepyDiscord {
-	typedef uWS::WebSocket<uWS::CLIENT>* WebsocketConnection;
-
 	class UWebSocketsDiscordClient : public BaseDiscordClient {
 	public:
 		UWebSocketsDiscordClient() : maxNumOfThreads(0) {}
@@ -30,4 +30,6 @@ namespace SleepyDiscord {
 
 	typedef UWebSocketsDiscordClient DiscordClient;
 }
+#undef SLEEPY_UWEBSOCKETS
+#undef SLEEPY_LOCK_TO_UWEBSOCKETS
 #endif
