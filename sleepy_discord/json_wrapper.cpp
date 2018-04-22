@@ -57,7 +57,7 @@ namespace SleepyDiscord { namespace json {
 
 		//fill the vector with variables
 		position = 1;
-		for (size_t index = 0; index < arraySize && position < sourceLength; position++) {	//variables should be the same type, right?
+		for (size_t index = 0; index < arraySize && position < sourceLength; ++position) {	//variables should be the same type, right?
 			switch (source[position]) {
 			case '"': {
 				const size_t size = JSON_measureString(source, &position) - 1;	//the -1 removes the "
@@ -68,6 +68,22 @@ namespace SleepyDiscord { namespace json {
 				const size_t size = JSON_measureObject(source, &position) + 1;	//the +1 adds a }
 				target[index++] = std::string(source + position, size);
 				position += size;
+			} break;
+			case '-': case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9': {
+				const size_t oldPosition = position;
+				for (bool loop = true; loop && position < sourceLength;) {
+					++position;
+					switch (source[position]) {
+						case '-': case '0': case '1': case '2': case '3': case '4':
+						case '5': case '6': case '7': case '8': case '9':
+							break;
+						default:
+							loop = false;
+					}
+				}
+				const size_t size = position - oldPosition;
+				target[index++] = std::string(source + oldPosition, size);
 			} break;
 			}
 		}
