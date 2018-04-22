@@ -14,10 +14,6 @@
 	#include <cstring>
 #endif
 
-#ifdef SLEEPY_VOICE_ENABLED
-	#include <sodium.h>
-#endif
-
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
 		ready = false;
@@ -170,14 +166,20 @@ namespace SleepyDiscord {
 		return path;
 	}
 
-	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince) {
+	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {
+		std::string statusString[] = {
+			"online", "dnd", "idle", "invisible", "offline"
+		};
+
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
 			{ "d", json::createJSON({
 				{"idle_since", idleSince != 0 ? json::UInteger(idleSince) : "null"},
 				{"game", gameName != "" ? json::createJSON({
 					{"name", json::string(gameName)}
-				}) : "null"}
+				}) : "null"},
+				{ "status", SleepyDiscord::json::string(statusString[status]) },
+				{ "afk", SleepyDiscord::json::boolean(afk) }
 			})}
 		}));
 	}
@@ -378,12 +380,12 @@ namespace SleepyDiscord {
 #ifdef SLEEPY_VOICE_ENABLED
 				if (!waitingVoiceContexts.empty()) {
 					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&state](const VoiceContext& w) { 
-						return state.channelID == w.channelID && w.sessionID == "";
+						[&state](const VoiceContext* w) { 
+						return state.channelID == w->channelID && w->sessionID == "";
 					});
 					if (iterator != waitingVoiceContexts.end()) {
 						onError(ERROR_NOTE, "testing VOICE_STATE_UPDATE");
-						VoiceContext& context = *iterator;
+						VoiceContext& context = **iterator;
 						context.sessionID = state.sessionID;
 						connectToVoiceIfReady(context);
 					}
@@ -405,12 +407,12 @@ namespace SleepyDiscord {
 #ifdef SLEEPY_VOICE_ENABLED
 				if (!waitingVoiceContexts.empty()) {
 					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&serverID](const VoiceContext& w) {
-						return serverID == w.serverID && w.endpoint == "";
+						[&serverID](const VoiceContext* w) {
+						return serverID == w->serverID && w->endpoint == "";
 					});
 					if (iterator != waitingVoiceContexts.end()) {
 						onError(ERROR_NOTE, "testing VOICE_SERVER_UPDATE");
-						VoiceContext& context = *iterator;
+						VoiceContext& context = **iterator;
 						context.token    = values[index(fields, "token"   )];
 						context.endpoint = values[index(fields, "endpoint")];
 						connectToVoiceIfReady(context);
@@ -481,7 +483,15 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::sendHeartbeat() {
 		std::string str = std::to_string(lastSReceived);
-		sendL("{\"op\":1,\"d\":" + str + "}");
+		std::string heartbeat;
+		//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
+		heartbeat.reserve(18 + str.length());
+		heartbeat += 
+			"{"
+				"\"op\":1,"
+				"\"d\":"; heartbeat += str; heartbeat +=
+			"}";
+		sendL(heartbeat);
 		wasHeartbeatAcked = false;
 		onHeartbeat();
 	}
@@ -492,7 +502,7 @@ namespace SleepyDiscord {
 
 #ifdef SLEEPY_VOICE_ENABLED
 
-	void BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
+	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
 
 		onError(ERROR_NOTE, "testing connectToVoiceChannel");
 
@@ -521,7 +531,9 @@ namespace SleepyDiscord {
 		  function at case VOICE_STATE_UPDATE and voiceServerUpdate
 		  */
 		
-		waitingVoiceContexts.push_front({ channel, server });
+		voiceContexts.push_front({ channel, server });
+		waitingVoiceContexts.push_front(&voiceContexts.front());
+		return voiceContexts.front();
 	}
 
 	void BaseDiscordClient::connectToVoiceIfReady(VoiceContext& context) {
@@ -543,143 +555,14 @@ namespace SleepyDiscord {
 		endpoint += "/?v=3";
 
 		//Add a new connection to the list of connections
-		voiceConnections.push_back({ this, context });
+		voiceConnections.emplace_front( this, context );
 		VoiceConnection& voiceConnection = voiceConnections.back();
 
 		connect(endpoint, &voiceConnection, &voiceConnection.connection);
 
 		//remove from wait list
-		waitingVoiceContexts.remove(context);
+		waitingVoiceContexts.remove(&context);
 	}
-
-	void BaseDiscordClient::VoiceConnection::processMessage(std::string message) {
-
-		origin->onError(ERROR_NOTE, "testing VOICE processMessage");
-
-		//to do there is reused code here, plase place them into functions
-		std::vector<std::string> values = json::getValues(message.c_str(),
-			{ "op", "d" });
-		VoiceOPCode op = static_cast<VoiceOPCode>(std::stoi(values[0]));
-		std::string *d = &values[1];
-		switch (op) {
-		case HELLO: {
-			origin->onError(ERROR_NOTE, "testing VOICE HELLO");
-
-			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
-			std::string identity;
-			/*The number 116 comes from the number of letters in this string + 1:
-				{"op": 0,"d": {"server_id": "18446744073709551615",
-				"user_id": "18446744073709551615","session_id": "","token": ""}}
-			*/
-			//remember to change the number below when editing identity
-			identity.reserve(116 + context.sessionID.length() + origin->token->length());
-			identity +=
-				"{"
-					"\"op\": 0," //VoiceOPCode::IDENTIFY
-					"\"d\": {"
-						"\"server_id\": \"" ; identity += context.serverID ; identity += "\","
-						"\"user_id\": \""   ; identity += origin->getID()  ; identity += "\","
-						"\"session_id\": \""; identity += context.sessionID; identity += "\","
-						"\"token\": \""     ; identity += context.token    ; identity += "\""
-					"}"
-				"}";
-			origin->send(identity, &connection);
-			}
-			state = static_cast<State>(state | CONNECTED);
-			break;
-		case READY: {
-			origin->onError(ERROR_NOTE, "testing VOICE READY");
-
-			std::vector<std::string> values = json::getValues(d->c_str(),
-			{ "ssrc", "port" });
-			sSRC = std::stoul(values[0]);
-			port = static_cast<uint16_t>(std::stoul(values[1]));
-			//start heartbeating
-			heartbeat();
-			//connect to UDP
-			//IP Discovery
-			unsigned char packet[70] = { 0 };
-			packet[0] = (sSRC >> 24) & 0xff;
-			packet[1] = (sSRC >> 16) & 0xff;
-			packet[2] = (sSRC >>  8) & 0xff;
-			packet[3] = (sSRC      ) & 0xff;
-			UDPClient::send(context.endpoint, port, packet, 70);
-			const std::vector<uint8_t> iPDiscovery = UDPClient::receive(context.endpoint, port); //note: receive blocks and is not async
-			std::vector<uint8_t>::const_iterator iPStart = std::find_if(iPDiscovery.begin(), iPDiscovery.end(),
-				[](uint8_t x) { return x & 0x60; }); //find start of string. 0x60 is a bitmask that should filter out non-letters
-			const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0)); //find may not be needed
-			//send Select Protocol Payload
-			std::string protocol;
-			/*The number 101 comes from the number of letters in this string + 1:
-				{"op": 1,"d": {"protocol": "udp","data": {
-				"address": "","port": 65535,
-				"mode": "xsalsa20_poly1305"}}}
-			*/
-			protocol.reserve(101 + iPAddress.length());
-			protocol +=
-				"{"
-					"\"op\": 1," //VoiceOPCode::SELECT_PROTOCOL
-					"\"d\": {"
-						"\"protocol\": \"udp\","
-						"\"data\": {"
-							"\"address\": \""; protocol += iPAddress           ; protocol += "\","
-							"\"port\": "     ; protocol += std::to_string(port); protocol +=   ","
-							"\"mode\": \"xsalsa20_poly1305\""
-						"}"
-					"}"
-				"}";
-			origin->send(protocol, &connection);
-			}
-			state = static_cast<State>(state | State::OPEN);
-			break;
-		case SESSION_DESCRIPTION:
-			origin->onError(ERROR_NOTE, "testing VOICE SESSION_DESCRIPTION");
-
-			{
-			std::vector<std::string> stringArray = json::getArray(&json::getValue(d->c_str(), "secret_key"));
-			const unsigned int stringArraySize = stringArray.size();
-			for (unsigned int i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
-				if (stringArray[i] != "")
-					secretKey[i] = std::stoul(stringArray[i]) & 0xFF;
-			}
-			}
-			state = static_cast<State>(state | State::AUDIO_ENABLED);
-			break;
-		case RESUMED:
-			origin->onError(ERROR_NOTE, "testing VOICE RESUMED");
-			break;
-		case HEARTBEAT_ACK:
-			origin->onError(ERROR_NOTE, "testing VOICE HEARTBEAT_ACK");
-			break;
-		default:
-			origin->onError(ERROR_NOTE, "testing VOICE default");
-			break;
-		}
-	}
-
-	//void BaseDiscordClient::VoiceConnection::initialize() {
-
-	//	origin->onError(ERROR_NOTE, "testing VOICE initialize");
-
-	//	//send identity
-	//	std::string identity;
-	//	/*The number 116 comes from the number of letters in this string + 1:
-	//		{"op": 0,"d": {"server_id": "18446744073709551615",
-	//		"user_id": "18446744073709551615","session_id": "","token": ""}}
-	//	*/
-	//	identity.reserve(116 + sessionID.length() + origin->token->length()); //remember to change this number when editing identity
-	//	identity +=
-	//		"{"
-	//			"\"op\": 0,"
-	//			"\"d\": {"
-	//				"\"server_id\": \"" ; identity += serverID          ; identity += "\","
-	//				"\"user_id\": \""   ; identity += origin->getID()   ; identity += "\","
-	//				"\"session_id\": \""; identity += sessionID         ; identity += "\","
-	//				"\"token\": \""     ; identity += origin->getToken(); identity += "\""
-	//			"}"
-	//		"}";
-	//	origin->send(identity, &connection);
-	//}
 
 #endif
 

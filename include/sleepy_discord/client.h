@@ -22,29 +22,15 @@
 #include "error.h"
 #include "session.h"
 #include "common_return_types.h"
-#include "udp_client.h"
-#include "websocket_connection.h"
+#include "message_receiver.h"
+#include "timer.h"
+
+#ifdef SLEEPY_VOICE_ENABLED
+	#include "voice_connection.h"
+#endif
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
-
-	struct Timer {
-	public:
-		typedef std::function<void()> StopTimerFunction;
-		Timer() {}
-		Timer(StopTimerFunction stopTimer) : implStop(stopTimer) {}
-		inline void stop() const { implStop(); }
-		inline bool isValid() const { return implStop != nullptr; }
-	private:
-		StopTimerFunction implStop;
-	};
-
-	class GenericMessageReceiver {
-	public:
-		virtual void initialize() {}                          //called when ready to recevie messages
-		virtual void processMessage(std::string message) = 0; //called when recevicing a message
-		WebsocketConnection connection;                       //maybe this should be set to protected?
-	};
 
 	//template <
 	//	class Session          = SleepyDiscord::Session        ,
@@ -176,7 +162,7 @@ namespace SleepyDiscord {
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
 
 		//websocket functions
-		void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
+		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
@@ -202,53 +188,27 @@ namespace SleepyDiscord {
 		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
 
 #ifdef SLEEPY_VOICE_ENABLED
-		//voice functions
-		//This class exist to do compile time checks
-		struct VoiceAddress;
+		//
+		//voice
+		//
+
+		friend VoiceConnection;
+
 		enum VoiceMode {
-			normal = 0     ,
-			mute   = 1 << 0,
+			normal = 0,
+			mute = 1 << 0,
 			deafen = 1 << 1
 		};
 
-		struct UserData {};
-
-		struct VoiceContext {
-			friend BaseDiscordClient;
-		public:
-			inline Snowflake<Channel> getChannelID() {
-				return channelID;
-			}
-			inline Snowflake<Server> getServerID() {
-				return serverID;
-			}
-
-			inline bool operator==(const VoiceContext& right) {
-				return this == &right;
-			}
-
-		private:
-			VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID) :
-				channelID(_channelID), serverID(_serverID) { }
-
-			Snowflake<Channel> channelID;
-			Snowflake<Server> serverID;
-			std::string sessionID = "";
-			std::string endpoint = "";
-			std::string token; //the same token used to log in?
-		};
-
-		struct AudioTransmissionDetails {
-			VoiceContext&              context;
-			bool&                      isEncodedAudio;
-			const std::size_t          proposedLength;          //the length the library wants
-			const std::size_t          amountSentSinceLastTime;
-			std::shared_ptr<UserData>  userData;                //NOTE: this can be nullptr
-		};
-
-		void connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
+		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
 
 #endif
+		//Modes
+		enum Mode : char {
+			USER_CONTROLED_THREADS = 1,
+			USE_RUN_THREAD = 3
+		};
+
 	protected:
 		/* list of events
 		READY
@@ -427,174 +387,9 @@ namespace SleepyDiscord {
 		//
 		//voice
 		//
-
-		//I'm not sure if it's really a good idea for this to be a nested class
-		class VoiceConnection : public UDPClient, public GenericMessageReceiver {
-		public:
-			//to do move consrucdors to cpp files
-			VoiceConnection(BaseDiscordClient* client, const VoiceContext _context) :
-				origin(client), context(_context), state(State::NOT_CONNECTED) {
-			}
-
-			VoiceConnection(const VoiceConnection &c) :	//you shouldn't copy a VoiceConnection
-				origin(c.origin), context(c.context) {
-			} //but if you need to, the above should be all you need when comparing two connections
-
-			~VoiceConnection() {
-			}
-
-			struct AudioData {
-			};
-
-			inline const bool isReady() {
-				return state & State::ABLE;
-			}
-
-			void disconnect() {
-				if (state & State::CONNECTED)
-					origin->disconnect(1000, "", &connection);
-				if (heart.isValid())
-					heart.stop(); //Kill
-				state = static_cast<State>(state & ~State::CONNECTED);
-			}
-
-#ifndef NONEXISTENT_OPUS
-			//bool enableEncoding() {
-			//	//init opus
-			//	encoder = opus_encoder_create(
-			//		/*Sampling rate(Hz)*/48000,
-			//		/*Channels*/         2,
-			//		/*Mode*/             OPUS_APPLICATION_VOIP,
-			//		&opusError);
-			//	if (opusError) {//error check
-			//		return;
-			//	}
-			//	//opusError = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
-			//	//if (opusError) {
-			//	//	int a;
-			//	//}
-
-			//	//init sodium
-			//	if (sodium_init() < 0)
-			//		return;
-			//}
-#endif // !NONEXISTENT_OPUS
-
-			void processMessage(std::string message);
-			//void initialize();
-
-			inline void setData(const std::shared_ptr<UserData>& data) {
-				userData = data;
-			}
-
-			std::shared_ptr<UserData> getData() {
-				return userData;
-			}
-
-		private:
-			enum VoiceOPCode {
-				IDENTIFY            = 0,  //client begin a voice websocket connection
-				SELECT_PROTOCOL     = 1,  //client select the voice protocol
-				READY               = 2,  //server complete the websocket handshake
-				HEARTBEAT           = 3,  //client keep the websocket connection alive
-				SESSION_DESCRIPTION = 4,  //server describe the session
-				SPEAKING            = 5,  //both   indicate which users are speaking
-				HEARTBEAT_ACK       = 6,  //server sent immediately following a received client heartbeat
-				RESUME              = 7,  //client resume a connection
-				HELLO               = 8,  //server the continuous interval in milliseconds after which the client should send a heartbeat
-				RESUMED             = 9,  //server acknowledge Resume
-				CLIENT_DISCONNECT   = 13  //server a client has disconnected from the voice channel
-			};
-			
-			enum State : uint8_t {
-				NOT_CONNECTED = 0 << 0,
-				CONNECTED     = 1 << 0,
-				OPEN          = 1 << 1,
-				AUDIO_ENABLED = 1 << 2,
-
-				CAN_ENCODE    = 1 << 6,
-				CAN_DECODE    = 1 << 7,
-
-				ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
-			};
-
-			int heartbeatInterval = 0;
-			unsigned int sSRC;
-			uint16_t port;
-			BaseDiscordClient* origin;
-			Timer heart;
-			State state;
-			std::shared_ptr<UserData> userData;
-			const VoiceContext context;
-
-#define SECRET_KEY_SIZE 32
-			unsigned char secretKey[SECRET_KEY_SIZE];
-
-			void heartbeat() {
-
-				origin->onError(ERROR_NOTE, "testing VOICE heartbeat");
-
-				//timestamp int
-				const uint64_t bitMask52 = 0x1FFFFFFFFFFFFF;
-				const uint64_t currentTime = static_cast<uint16_t>(origin->getEpochTimeMillisecond());
-				const std::string nonce = std::to_string(bitMask52 & currentTime);
-				/*The number 17 comes from the number of letters in this string + 1:
-				{"op": 3, "d": }
-				*/
-				std::string heartbeat;
-				heartbeat.reserve(17 + nonce.length());
-				heartbeat += 
-					"{"
-						"\"op\": 3, "
-						"\"d\": "; heartbeat += nonce; heartbeat += 
-					'}';
-				origin->send(heartbeat, &connection);
-
-				heart = origin->schedule([this]() {
-					this->heartbeat();
-				}, heartbeatInterval);
-			}
-
-			//int sendAudio(audio data, bool isEncodedData = false) {
-			//	//sorry for all this c code, we are interacting with c libraries
-			//	variable encoded audio data = audio data;
-			//	if(state & State::ABLE != State::ABLE) return -1;
-
-			//	if(!isEncodedData)
-			//		if (state & CAN_ENCODE)
-			//			opus_encode(state, data, frameSize, data length,
-			//				encoded audio data, encoded audio data length);
-			//		else if(enableEncoding() < 0)
-			//			return -3;
-			//	
-			//	const unsigned char header[12] = { 
-			//		0x80,
-			//		0x78,
-			//		(s          >> 8) & 0xff,
-			//		(s              ) & 0xff,
-			//		(timestamp >> 24) & 0xff,
-			//		(timestamp >> 16) & 0xff,
-			//		(timestamp >>  8) & 0xff,
-			//		(timestamp      ) & 0xff,
-			//		(sSRC      >> 24) & 0xff,
-			//		(sSRC      >> 16) & 0xff,
-			//		(sSRC      >>  8) & 0xff,
-			//		(sSRC           ) & 0xff,
-			//	};
-			//	
-			//	unsigned char nonce[24];
-			//	std::memcpy(nonce     , header, (sizeof nonce) - 12);
-			//	set::memset(nonce + 12,      0, (sizeof nonce) - 12);
-			//	
-			//	unsigned char* encryptedEncodedAudioData;
-			//	crypto_secretbox_easy(encryptedEncodedAudioData,
-			//	encodedAudioData, encodedAudioData.length(), nonce, secret_key);
-
-			//	UDPClient::send(header + encryptedEncodedAudioData);
-			//}
-		};
 		std::list<VoiceConnection> voiceConnections;
-		std::forward_list<VoiceContext> waitingVoiceContexts;
+		std::forward_list<VoiceContext> voiceContexts;
+		std::forward_list<VoiceContext*> waitingVoiceContexts;
 		void connectToVoiceIfReady(VoiceContext& context);
 #endif
 	};

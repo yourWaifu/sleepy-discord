@@ -828,6 +828,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
+    <ClCompile Include="..\include\sleepy_discord\voice_connection.cpp" />
     <ClCompile Include="asignments_client.cpp" />
     <ClCompile Include="asio_udp.cpp" />
     <ClCompile Include="attachment.cpp" />
@@ -838,7 +839,6 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="discord_object_interface.cpp" />
     <ClCompile Include="embed.cpp" />
     <ClCompile Include="endpoints.cpp" />
-    <ClCompile Include="experimental.cpp" />
     <ClCompile Include="gateway.cpp" />
     <ClCompile Include="http.cpp" />
     <ClCompile Include="invite.cpp" />
@@ -864,6 +864,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\custom_session.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\gateway.h" />
+    <ClInclude Include="..\include\sleepy_discord\message_receiver.h" />
     <ClInclude Include="..\include\sleepy_discord\http.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\boost\asio.hpp" />
@@ -876,7 +877,6 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\discord_object_interface.h" />
     <ClInclude Include="..\include\sleepy_discord\embed.h" />
     <ClInclude Include="..\include\sleepy_discord\error.h" />
-    <ClInclude Include="..\include\sleepy_discord\experimental.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\uWS\uWS.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\websocketpp\config\asio_client.hpp" />
     <ClInclude Include="..\include\sleepy_discord\invite.h" />
@@ -885,12 +885,14 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\permissions.h" />
     <ClInclude Include="..\include\sleepy_discord\server.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
+    <ClInclude Include="..\include\sleepy_discord\timer.h" />
     <ClInclude Include="..\include\sleepy_discord\udp.h" />
     <ClInclude Include="..\include\sleepy_discord\udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\user.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h" />
     <ClInclude Include="..\include\sleepy_discord\voice.h" />
+    <ClInclude Include="..\include\sleepy_discord\voice_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h" />
     <ClInclude Include="..\include\sleepy_discord\websocket.h" />
     <ClInclude Include="..\include\sleepy_discord\websocketpp_common.h" />

@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="client.cpp" />
     <ClCompile Include="default_functions.cpp" />
-    <ClCompile Include="experimental.cpp" />
     <ClCompile Include="json.c" />
     <ClCompile Include="json_wrapper.cpp" />
     <ClCompile Include="sd_error.cpp" />
@@ -99,11 +98,11 @@
     <ClCompile Include="asio_udp.cpp">
       <Filter>udp\asio</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\sleepy_discord\voice_connection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
-    <ClInclude Include="..\include\sleepy_discord\experimental.h" />
     <ClInclude Include="..\include\sleepy_discord\json.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h">
@@ -215,6 +214,11 @@
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h">
       <Filter>websocket\uwebsocket</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\voice_connection.h" />
+    <ClInclude Include="..\include\sleepy_discord\message_receiver.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
