@@ -98,28 +98,6 @@ namespace SleepyDiscord {
 			startSpeaking();
 		}
 
-#ifndef NONEXISTENT_OPUS
-		//bool enableEncoding() {
-		//	//init opus
-		//	encoder = opus_encoder_create(
-		//		/*Sampling rate(Hz)*/48000,
-		//		/*Channels*/         2,
-		//		/*Mode*/             OPUS_APPLICATION_VOIP,
-		//		&opusError);
-		//	if (opusError) {//error check
-		//		return;
-		//	}
-		//	//opusError = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
-		//	//if (opusError) {
-		//	//	int a;
-		//	//}
-
-		//	//init sodium
-		//	if (sodium_init() < 0)
-		//		return;
-		//}
-#endif // !NONEXISTENT_OPUS
-
 	private:
 		friend BaseDiscordClient;
 
