@@ -66,11 +66,11 @@ namespace SleepyDiscord {
 		return client->sendMessage(channelID, message, tts);
 	}
 
-	bool Message::operator==(const Message& right) {
+	bool Message::operator==(const Message& right) const {
 		return ID == right.ID;
 	}
 
-	bool Message::operator!=(const Message & right) {
+	bool Message::operator!=(const Message & right) const {
 		return ID != right.ID;
 	}
 
