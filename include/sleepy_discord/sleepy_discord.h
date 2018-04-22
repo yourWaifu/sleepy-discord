@@ -1,5 +1,5 @@
 #pragma once
-#ifndef SLEEPY_AUTO_SELECT_CLIENT
+#ifdef SLEEPY_DISABLE_AUTO_SELECT_CLIENT
 #include "client.h"
 #else
 #include "websocketpp_websocket.h"
@@ -7,6 +7,7 @@
 #include "uwebsockets_websocket.h"
 #ifdef NONEXISTENT_UWEBSOCKETS
 #include "client.h"
+typedef BaseDiscordClient DiscordClient;
 #endif
 #endif
 #endif
