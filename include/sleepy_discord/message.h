@@ -56,8 +56,8 @@ namespace SleepyDiscord {
 		Message send(BaseDiscordClient * client);
 		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
 		//bool operator==(const std::string& rawJson);
-		bool operator==(const Message& right);
-		bool operator!=(const Message& right);
+		bool operator==(const Message& right) const;
+		bool operator!=(const Message& right) const;
 
 		Snowflake<Message> ID;
 		Snowflake<Channel> channelID;

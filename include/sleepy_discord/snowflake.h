@@ -25,11 +25,11 @@ namespace SleepyDiscord {
 		}
 
 		inline bool operator==(const char* right) const {
-			return raw.c_str() == right;
+			return raw == right;
 		}
 
 		inline bool operator!=(const char* right) const {
-			return raw.c_str() != right;
+			return raw != right;
 		}
 
 		inline operator const std::string&() const { return raw; }
