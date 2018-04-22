@@ -41,7 +41,7 @@ namespace SleepyDiscord {
 	public:
 		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
-		~BaseDiscordClient();
+		virtual ~BaseDiscordClient();
 
 		Response request(const RequestMethod method, const std::string url, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
