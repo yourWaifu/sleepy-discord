@@ -181,10 +181,12 @@ namespace SleepyDiscord {
 	}
 
 	ArrayResponse<ServerMember> BaseDiscordClient::listMembers(Snowflake<Server> serverID, uint16_t limit, std::string after) {
-		return request(Get, path("guilds/{guild.id}/members", { serverID }), json::createJSON({
-			{ "limit", json::optionalUInteger(limit) },
-			{ "after", json::string(after) }
-		}));
+		//Todo better Query String Params support
+		std::string limitParm = limit != 0 ? "?limit=" + std::to_string(limit) : "";
+		std::string afterParm = after != "" ? "after=" + after : "";
+		if (afterParm != "" && limitParm != "") limitParm += '&';
+		else if (afterParm != "" && limitParm == "") limitParm += '?';
+		return request(Get, path("guilds/{guild.id}/members{limit}{after}", { serverID, limitParm, afterParm }));
 	}
 
 	ObjectResponse<ServerMember> BaseDiscordClient::addMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string accesToken, std::string nick, std::vector<Role> roles, bool mute, bool deaf) {
