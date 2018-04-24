@@ -828,7 +828,6 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
     <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
-    <ClCompile Include="..\include\sleepy_discord\voice_connection.cpp" />
     <ClCompile Include="asignments_client.cpp" />
     <ClCompile Include="asio_udp.cpp" />
     <ClCompile Include="attachment.cpp" />
@@ -851,6 +850,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="user.cpp" />
     <ClCompile Include="uwebsockets_websocket.cpp" />
     <ClCompile Include="voice.cpp" />
+    <ClCompile Include="voice_connection.cpp" />
     <ClCompile Include="webhook.cpp" />
     <ClCompile Include="websocketpp_websocket.cpp" />
     <ClInclude Include="..\include\sleepy_discord\asio_include.h" />

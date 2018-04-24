@@ -98,7 +98,7 @@
     <ClCompile Include="asio_udp.cpp">
       <Filter>udp\asio</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\sleepy_discord\voice_connection.cpp" />
+    <ClCompile Include="voice_connection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
