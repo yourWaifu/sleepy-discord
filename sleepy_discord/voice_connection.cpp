@@ -206,25 +206,25 @@ namespace SleepyDiscord {
 
 		AudioTransmissionDetails details(
 			context, 
-			static_cast<std::size_t>(48000 * 2 * .02),
+			static_cast<std::size_t>(48000 * 2 * .020),
 			samplesSentLastTime
 		);
 
 		//send the audio data
 		switch (audioSource->type) {
 		case AUDIO_VECTOR:
-		case AUDIO_VECTOR_U16: {
+		case AUDIO_VECTOR_S16: {
 			auto audioVectorSource = &static_cast<AudioSource<AUDIO_VECTOR>&>(*audioSource);
 			std::vector<int16_t> audioData = audioVectorSource->read(details);
 			int16_t* audioBuffer = audioData.data();
 			speak(audioBuffer, audioData.size());
 		} break;
 		case AUDIO_POINTER:
-		case AUDIO_POINTER_U16: {
-			auto audioVectorSource = static_cast<AudioSource<AUDIO_POINTER>&>(*audioSource);
+		case AUDIO_POINTER_S16: {
+			auto audioVectorSource = &static_cast<AudioSource<AUDIO_POINTER>&>(*audioSource);
 			int16_t * audioData = nullptr;
-			std::size_t length;
-			audioVectorSource.read(details, audioData, length);
+			std::size_t length = 0;
+			audioVectorSource->read(details, audioData, length);
 			speak(audioData, length);
 		} break;
 		default:
@@ -233,6 +233,8 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {
+		samplesSentLastTime = 0;
+		const time_t startTime = origin->getEpochTimeMillisecond();
 		//This is only called in speak() so already checked that we can still send audio data
 
 		//stop sending data when there's no data
@@ -264,9 +266,15 @@ namespace SleepyDiscord {
 		}
 
 		//schedule next send
+		const time_t interval = static_cast<time_t>(
+			(static_cast<float>(frameSize) / (48000.0f)) * 1000.0f
+		);
+		const time_t nextTime = startTime + interval;
+		const time_t delay = nextTime - origin->getEpochTimeMillisecond();
+
 		origin->schedule([this]() {
 			this->speak();
-		}, 20); //I think 20 is the frame length
+		}, 0 < delay ? delay : 0); //I think 20 is the frame length
 	}
 
 	void VoiceConnection::sendAudioData(

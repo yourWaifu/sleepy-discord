@@ -55,9 +55,9 @@ namespace SleepyDiscord {
 	enum AudioSourceType {
 		AUDIO_BASE_TYPE,
 		AUDIO_VECTOR,
-		AUDIO_VECTOR_U16,
+		AUDIO_VECTOR_S16,
 		AUDIO_POINTER,
-		AUDIO_POINTER_U16
+		AUDIO_POINTER_S16
 	};
 
 	struct BaseAudioSource {
@@ -86,16 +86,14 @@ namespace SleepyDiscord {
 
 		void disconnect();
 
-		template<class AudioSource, class... Types>
-		void startSpeaking(Types&&... arguments) {
-			audioSource = std::unique_ptr<AudioSource>(new AudioSource(std::forward<Types>(arguments)...));
+		void startSpeaking(BaseAudioSource* source) {
+			audioSource = std::unique_ptr<BaseAudioSource>(source);
 			startSpeaking();
 		}
 
-		template<class AudioSource>
-		void startSpeaking(AudioSource* source) {
-			audioSource = std::unique_ptr<AudioSource>(source);
-			startSpeaking();
+		template<class AudioSource, class... Types>
+		inline void startSpeaking(Types&&... arguments) {
+			startSpeaking(new AudioSource(std::forward<Types>(arguments)...));
 		}
 
 	private:
@@ -190,7 +188,7 @@ namespace SleepyDiscord {
 
 	template<>
 	struct AudioSource<AUDIO_VECTOR> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_VECTOR_U16) {}
+		AudioSource() : BaseAudioSource(AUDIO_VECTOR_S16) {}
 		virtual std::vector<int16_t> read(AudioTransmissionDetails& details) {
 			return std::vector<int16_t>();
 		};
@@ -198,7 +196,7 @@ namespace SleepyDiscord {
 
 	template<>
 	struct AudioSource<AUDIO_POINTER> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_POINTER_U16) {}
+		AudioSource() : BaseAudioSource(AUDIO_POINTER_S16) {}
 		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
 	};
 }
