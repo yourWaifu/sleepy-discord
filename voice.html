@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>How to use voice with Sleepy Discord</title>
+    <title>Voice with Sleepy Discord</title>
     <link rel="icon" href="images/title-icon.png" type="image/png">
     <meta property="og:title" content="Sleepy Discord">
     <meta name="description" content="C++ library for Discord">
@@ -248,9 +248,7 @@
       <div class="content">
         <p><a href="documentation.html">⮌ Go back to documentation</a></p>
 
-<h1 id="create-applications-with-voice-with-sleepy-discord">Create Applications with Voice with Sleepy Discord</h1>
-
-<p>Sleepy Discord can allow applications to use voice channels. This allows for things such as music players or whatever you came up with that can take advantage of Discord&rsquo;s voice chat.</p>
+<h1 id="creating-applications-with-voice-with-sleepy-discord">Creating Applications with Voice with Sleepy Discord</h1>
 
 <h2 id="connect-to-a-voice-channel">Connect to a Voice Channel</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="n">myClient</span><span class="o">-&gt;</span><span class="n">connectToVoiceChannel</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"serverID"</span><span class="p">);</span>
@@ -371,6 +369,12 @@ Don&rsquo;t worry about calling read, the library will instead call <code class=
 <aside class="note">
 The sizes of audio buffers should 960. Which is .02 seconds of 48kHz stereo audio.
 </aside>
+
+<h4 id="related-articles">Related Articles</h4>
+
+<p><a href="documentation.html#audiosource">AudioSource</a></p>
+
+<p><a href="http://manual.audacityteam.org/man/digital_audio.html">Digital Audio Fundamentals</a></p>
 
 <h3 id="speak">Speak</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="c1">//In your VoiceEventHandler
