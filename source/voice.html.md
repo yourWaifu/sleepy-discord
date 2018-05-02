@@ -30,7 +30,9 @@ There are a few ways to connect to a voice channel but the first example, callin
 
 #### Related Articles
 [BaseDiscordClient::connectToVoiceChannel](documentation.html#connecttovoicechannel)
+
 [VoiceContext](documentation.html#voicecontext)
+
 [BaseDiscordClient::createContext](documentation.html#createContext)
 
 ## Event Handling
@@ -58,8 +60,11 @@ One useful event being the [BaseVoiceEventHandler::onReady]() event. This is cal
 
 #### Related Articles
 [BaseVoiceEventHandler](documentation.html#basevoiceeventhandler)
+
 [BaseVoiceEventHandler::onReady]()
+
 [VoiceContext::setVoiceHandler](documentation.html#setvoicehandler)
+
 [VoiceConnection](documentation.html#voiceconnection)
 
 ## Linking the needed libraries
@@ -122,6 +127,7 @@ In the ``read`` function, you'll be given a ``SleepyDiscord::AudioTransmissionDe
 Don't worry about calling read, the library will instead call ``read`` when audio data is needed while sending audio.
 
 > You can also send Opus encoded audio instead of PMC audio
+
 ```cpp
 struct Music : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER> {
 	constexpr inline bool isOpusEncoded() { return true; }
@@ -152,6 +158,7 @@ To start speaking, call [VoiceConnection::startSpeaking](documentation.html#star
 
 #### Related Articles 
 [AudioSource](documentation.html#audiosource)
+
 [VoiceConnection::startSpeaking](documentation.html#startspeaking)
 
 ## Receiving Audio
