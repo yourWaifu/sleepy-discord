@@ -260,9 +260,11 @@
 
 <h4 id="related-articles">Related Articles</h4>
 
-<p><a href="documentation.html#connecttovoicechannel">BaseDiscordClient::connectToVoiceChannel</a>
-<a href="documentation.html#voicecontext">VoiceContext</a>
-<a href="documentation.html#createContext">BaseDiscordClient::createContext</a></p>
+<p><a href="documentation.html#connecttovoicechannel">BaseDiscordClient::connectToVoiceChannel</a></p>
+
+<p><a href="documentation.html#voicecontext">VoiceContext</a></p>
+
+<p><a href="documentation.html#createContext">BaseDiscordClient::createContext</a></p>
 
 <h2 id="event-handling">Event Handling</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">VoiceEventHandler</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">BaseVoiceEventHandler</span> <span class="p">{</span>
@@ -287,10 +289,13 @@
 
 <h4 id="related-articles">Related Articles</h4>
 
-<p><a href="documentation.html#basevoiceeventhandler">BaseVoiceEventHandler</a>
-<a href="#">BaseVoiceEventHandler::onReady</a>
-<a href="documentation.html#setvoicehandler">VoiceContext::setVoiceHandler</a>
-<a href="documentation.html#voiceconnection">VoiceConnection</a></p>
+<p><a href="documentation.html#basevoiceeventhandler">BaseVoiceEventHandler</a></p>
+
+<p><a href="#">BaseVoiceEventHandler::onReady</a></p>
+
+<p><a href="documentation.html#setvoicehandler">VoiceContext::setVoiceHandler</a></p>
+
+<p><a href="documentation.html#voiceconnection">VoiceConnection</a></p>
 
 <h2 id="linking-the-needed-libraries">Linking the needed libraries</h2>
 
@@ -347,14 +352,12 @@ In the <code class="prettyprint">read</code> function, you&rsquo;ll be given a <
 Don&rsquo;t worry about calling read, the library will instead call <code class="prettyprint">read</code> when audio data is needed while sending audio.</p>
 
 <blockquote>
-<p>You can also send Opus encoded audio instead of PMC audio
-<code class="prettyprint">cpp
-struct Music : public SleepyDiscord::AudioSource&lt;SleepyDiscord::AUDIO_POINTER&gt; {
-    constexpr inline bool isOpusEncoded() { return true; }
-}
-</code></p>
+<p>You can also send Opus encoded audio instead of PMC audio</p>
 </blockquote>
-
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Music</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_POINTER</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">constexpr</span> <span class="kr">inline</span> <span class="kt">bool</span> <span class="n">isOpusEncoded</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
 <p>As of when this was written, there are two types of <a href="documentation.html#audiosource">AudioSources</a>, AUDIO_POINTER and AUDIO_VECTOR. They differ in their read function.</p>
 
 <h4 id="audio_pointer">AUDIO_POINTER</h4>
@@ -379,8 +382,9 @@ The sizes of audio buffers should 960. Which is .02 seconds of 48kHz stereo audi
 
 <h4 id="related-articles">Related Articles</h4>
 
-<p><a href="documentation.html#audiosource">AudioSource</a>
-<a href="documentation.html#startspeaking">VoiceConnection::startSpeaking</a></p>
+<p><a href="documentation.html#audiosource">AudioSource</a></p>
+
+<p><a href="documentation.html#startspeaking">VoiceConnection::startSpeaking</a></p>
 
 <h2 id="receiving-audio">Receiving Audio</h2>
 
