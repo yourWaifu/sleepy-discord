@@ -707,22 +707,6 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 </code></pre>
 <p>Creates a timer that will execute a function after the timer expires. Based on JavaScript&rsquo;s setTimeout()</p>
 
-<h4 id="timer">Timer</h4>
-
-<p>Stores needed timer function. However, this does not store the function will be called when times up.</p>
-
-<h4 id="timedtask">TimedTask</h4>
-
-<p>Stores function that will be called when times up</p>
-
-<h4 id="assignmenttype">AssignmentType</h4>
-<pre class="highlight cpp tab-cpp"><code><span class="k">enum</span> <span class="n">AssignmentType</span> <span class="o">:</span> <span class="kt">bool</span> <span class="p">{</span>
-    <span class="n">TilDueTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">EpochTime</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-<span class="p">};</span>
-</code></pre>
-<p>Changes what <code class="prettyprint">milliseconds</code> represents in milliseconds</p>
-
 <h4 id="parameters">Parameters</h4>
 
 <table>
@@ -740,7 +724,23 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <h4 id="return">Return</h4>
 
-<p>See Timer above.</p>
+<p>See Timer below.</p>
+
+<h4 id="timer">Timer</h4>
+
+<p>Stores needed timer function. However, this does not store the function will be called when times up.</p>
+
+<h4 id="timedtask">TimedTask</h4>
+
+<p>Stores function that will be called when times up</p>
+
+<h4 id="assignmenttype">AssignmentType</h4>
+<pre class="highlight cpp tab-cpp"><code><span class="k">enum</span> <span class="n">AssignmentType</span> <span class="o">:</span> <span class="kt">bool</span> <span class="p">{</span>
+    <span class="n">TilDueTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">EpochTime</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">};</span>
+</code></pre>
+<p>Changes what <code class="prettyprint">milliseconds</code> represents in milliseconds</p>
 
 <h3 id="sleep">sleep</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">sleep</span><span class="p">(</span><span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">milliseconds</span><span class="p">);</span>
