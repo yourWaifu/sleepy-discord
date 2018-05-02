@@ -509,23 +509,6 @@ schedule([this, channel]() {
 
 Creates a timer that will execute a function after the timer expires. Based on JavaScript's setTimeout()
 
-#### Timer
-Stores needed timer function. However, this does not store the function will be called when times up.
-
-#### TimedTask
-Stores function that will be called when times up
-
-#### AssignmentType
-
-```cpp
-enum AssignmentType : bool {
-	TilDueTime = 0,
-	EpochTime  = 1,
-};
-```
-
-Changes what ``milliseconds`` represents in milliseconds
-
 #### Parameters
 <table>
 	<tbody>
@@ -542,7 +525,24 @@ Changes what ``milliseconds`` represents in milliseconds
 
 #### Return
 
-See Timer above.
+See Timer below.
+
+#### Timer
+Stores needed timer function. However, this does not store the function will be called when times up.
+
+#### TimedTask
+Stores function that will be called when times up
+
+#### AssignmentType
+
+```cpp
+enum AssignmentType : bool {
+	TilDueTime = 0,
+	EpochTime  = 1,
+};
+```
+
+Changes what ``milliseconds`` represents in milliseconds
 
 ### sleep
 
