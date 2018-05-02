@@ -144,6 +144,11 @@ As of when this was written, there are two types of [AudioSources](documentation
 The sizes of audio buffers should 960. Which is .02 seconds of 48kHz stereo audio.
 </aside>
 
+#### Related Articles 
+[AudioSource](documentation.html#audiosource)
+
+[Digital Audio Fundamentals](http://manual.audacityteam.org/man/digital_audio.html)
+
 ### Speak
 ```cpp
 //In your VoiceEventHandler
@@ -154,7 +159,7 @@ void onReady(SleepyDiscord::VoiceConnection& connection) {
 
 To start speaking, call [VoiceConnection::startSpeaking](documentation.html#startspeaking) with your AudioSource as the template parameter. To stop, send a buffer with the length of zero in your AudioSource's read function. If your AudioSource has any parameters in it's constructor, you pass them to this function.
 
-#### Related Articles 
+#### Related Articles
 [AudioSource](documentation.html#audiosource)
 
 [VoiceConnection::startSpeaking](documentation.html#startspeaking)
