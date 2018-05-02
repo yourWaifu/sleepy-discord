@@ -1,5 +1,5 @@
 ---
-title: How to use voice with Sleepy Discord
+title: Voice with Sleepy Discord
 
 language_tabs:
 
@@ -12,9 +12,7 @@ search: true
 ---
 [⮌ Go back to documentation](documentation.html)
 
-# Create Applications with Voice with Sleepy Discord
-
-Sleepy Discord can allow applications to use voice channels. This allows for things such as music players or whatever you came up with that can take advantage of Discord's voice chat.
+# Creating Applications with Voice with Sleepy Discord
 
 ## Connect to a Voice Channel
 
