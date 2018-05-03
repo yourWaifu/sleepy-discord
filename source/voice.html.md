@@ -12,7 +12,7 @@ search: true
 ---
 [⮌ Go back to documentation](documentation.html)
 
-# Creating Applications with Voice with Sleepy Discord
+# Creating Applications with Voice
 
 ## Connect to a Voice Channel
 
