@@ -17,11 +17,11 @@ search: true
 ## Connect to a Voice Channel
 
 ```cpp
-myClient->connectToVoiceChannel("channelID", "serverID");
+myClient.connectToVoiceChannel("channelID", "serverID");
 ```
 
 ```cpp
-myClient->connectToVoiceChannel(myClient->createContext("channelID", "serverID", nullptr));
+myClient.connectToVoiceChannel(myClient.createVoiceContext("channelID", "serverID", nullptr));
 ```
 
 There are a few ways to connect to a voice channel but the first example, calling [BaseDiscordClient::connectToVoiceChannel](documentation.html#connecttovoicechannel) with just a ``channelID`` and ``serverID``, is the simplest.
@@ -31,7 +31,7 @@ There are a few ways to connect to a voice channel but the first example, callin
 
 [VoiceContext](documentation.html#voicecontext)
 
-[BaseDiscordClient::createContext](documentation.html#createContext)
+[BaseDiscordClient::createContext](documentation.html#createvoicecontext)
 
 ## Event Handling
 ```cpp
@@ -45,7 +45,7 @@ public:
 VoiceEventHandler voiceEventHandler;
 
 //somewhere else in your code
-SleepyDiscord::VoiceContext& context = myClient->createContext("channelID", "serverID", voiceEventHandler);
+SleepyDiscord::VoiceContext& context = myClient.createContext("channelID", "serverID", voiceEventHandler);
 //or
 context.setVoiceHandler(voiceEventHandler);
 ```
@@ -90,7 +90,7 @@ struct Music : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER> {
 	constexpr inline bool isOpusEncoded() { return false; } //optional, will be false by default
 	void read(SleepyDiscord::AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {
 		buffer = &music[progress];
-		length = (musicLength - progress) < details.proposedLength() ? details.proposedLength() : 0;
+		length = details.proposedLength() < (musicLength - progress) ? details.proposedLength() : 0;
 		progress += details.proposedLength();
 		//note: set length to 0 to stop speaking
 	}
@@ -157,7 +157,7 @@ void onReady(SleepyDiscord::VoiceConnection& connection) {
 }
 ```
 
-To start speaking, call [VoiceConnection::startSpeaking](documentation.html#startspeaking) with your AudioSource as the template parameter. To stop, send a buffer with the length of zero in your AudioSource's read function. If your AudioSource has any parameters in it's constructor, you pass them to this function.
+To start speaking, call [VoiceConnection::startSpeaking](documentation.html#startspeaking) with your AudioSource as the template parameter. To stop, send a buffer with the length of zero in your AudioSource's read function. If your AudioSource has any parameters in it's constructor, you pass them to this function. You may also use [VoiceConnection::stopSpeaking]() to stop speaking.
 
 #### Related Articles
 [AudioSource](documentation.html#audiosource)
