@@ -107,7 +107,7 @@ namespace SleepyDiscord { namespace json {
 		std::string target;
 		target.reserve(2);	//revents crash
 		for (std::string value : source) {
-			if (value != "")
+			if (!value.empty())
 				target += ',' + value;
 		}
 		target[0] = '[';

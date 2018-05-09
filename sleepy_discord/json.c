@@ -152,7 +152,7 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 					) {
 					found = true;
 					JSON_skipString(source, &position);
-					for (int loop = true; loop; ++position) {
+					for (bool loop = true; loop; ++position) {
 						switch (source[position]) {
 						case ':':
 							while (source[++position] == ' ');
