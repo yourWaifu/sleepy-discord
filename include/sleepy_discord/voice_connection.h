@@ -39,9 +39,13 @@ namespace SleepyDiscord {
 			eventHandler = &handler;
 		}
 
+		inline void setVoiceHandler(BaseVoiceEventHandler* handler) {
+			eventHandler = handler;
+		}
+
 	private:
-		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID) :
-			channelID(_channelID), serverID(_serverID), eventHandler(nullptr)
+		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID, BaseVoiceEventHandler* _eventHandler) :
+			channelID(_channelID), serverID(_serverID), eventHandler(_eventHandler)
 		{}
 
 		Snowflake<Channel> channelID;
@@ -77,8 +81,7 @@ namespace SleepyDiscord {
 
 		VoiceConnection(VoiceConnection&&) = default;
 
-		~VoiceConnection() {
-		}
+		~VoiceConnection();
 
 		inline const bool isReady() {
 			return state & State::ABLE;
@@ -120,6 +123,7 @@ namespace SleepyDiscord {
 			CONNECTED     = 1 << 0,
 			OPEN          = 1 << 1,
 			AUDIO_ENABLED = 1 << 2,
+			SENDING_AUDIO = 1 << 3,
 
 			CAN_ENCODE    = 1 << 6,
 			CAN_DECODE    = 1 << 7,
@@ -136,6 +140,8 @@ namespace SleepyDiscord {
 		int16_t numOfPacketsSent = 0;
 		std::unique_ptr<BaseAudioSource> audioSource;
 		std::size_t samplesSentLastTime = 0;
+		time_t previousTime;
+		time_t nextTime;
 		VoiceContext& context;
 #if !defined(NONEXISTENT_OPUS)
 		OpusEncoder *encoder;
@@ -148,6 +154,9 @@ namespace SleepyDiscord {
 
 		void heartbeat();
 		void startSpeaking();
+		inline void stopSpeaking() {
+			state = static_cast<State>(state & ~SENDING_AUDIO);
+		}
 		void sendSpeaking(bool isNowSpeaking);
 		void speak();
 		void speak(int16_t*& audioData, const std::size_t& length);
@@ -164,26 +173,38 @@ namespace SleepyDiscord {
 			return _context;
 		}
 
-		inline std::size_t proposedLength() {
-			return _proposedLength;
-		}
-
 		inline std::size_t amountSentSinceLastTime() {
 			return _amountSentSinceLastTime;
 		}
+
+		static inline constexpr int bitrate() {
+			return 48000;
+		}
+
+		static inline constexpr int channels() {
+			return 2;
+		}
+
+		static inline constexpr std::size_t proposedLength() {
+			return static_cast<std::size_t>(bitrate() * channels() * .020);
+		}
 	private:
 		friend VoiceConnection;
-		AudioTransmissionDetails(VoiceContext& con, const std::size_t pro, const std::size_t amo) :
-			_context(con), _proposedLength(pro), _amountSentSinceLastTime(amo) { }
+		AudioTransmissionDetails(
+			VoiceContext& con,
+			const std::size_t amo
+		) :
+			_context(con),
+			_amountSentSinceLastTime(amo)
+		{ }
 
 		VoiceContext& _context;
-		const std::size_t _proposedLength;
 		const std::size_t _amountSentSinceLastTime;
 	};
 
 	template<AudioSourceType Type>
 	struct AudioSource : public BaseAudioSource {
-		const AudioSourceType type = Type;
+		AudioSource() : BaseAudioSource(Type) {}
 	};
 
 	template<>

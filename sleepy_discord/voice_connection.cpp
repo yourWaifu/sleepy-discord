@@ -4,6 +4,11 @@
 #include "client.h"
 
 namespace SleepyDiscord {
+	VoiceConnection::~VoiceConnection() {
+		stopSpeaking();
+		disconnect();
+	}
+
 	void VoiceConnection::disconnect()  {
 		if (state & State::CONNECTED)
 			origin->disconnect(1000, "", &connection);
@@ -97,9 +102,9 @@ namespace SleepyDiscord {
 
 			{
 			std::vector<std::string> stringArray = json::getArray(&json::getValue(d->c_str(), "secret_key"));
-			const unsigned int stringArraySize = stringArray.size();
-			for (unsigned int i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
-				if (stringArray[i] != "")
+			const std::size_t stringArraySize = stringArray.size();
+			for (std::size_t i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
+				if (!stringArray[i].empty())
 					secretKey[i] = std::stoul(stringArray[i]) & 0xFF;
 			}
 			}
@@ -160,23 +165,25 @@ namespace SleepyDiscord {
 				//init opus
 				int opusError = 0;
 				encoder = opus_encoder_create(
-					/*Sampling rate(Hz)*/48000,
-					/*Channels*/         2,
+					/*Sampling rate(Hz)*/AudioTransmissionDetails::bitrate(),
+					/*Channels*/         AudioTransmissionDetails::channels(),
 					/*Mode*/             OPUS_APPLICATION_VOIP,
 					&opusError);
 				if (opusError) {//error check
 					return;
 				}
 				//opusError = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
-				if (opusError) {
-					return;
-				}
+				//if (opusError) {
+				//	return;
+				//}
 				state = static_cast<State>(state | State::CAN_ENCODE);
 			}
 #endif
 
 		//say something
 		sendSpeaking(true);
+		state = static_cast<State>(state | State::SENDING_AUDIO);
+		previousTime = nextTime = origin->getEpochTimeMillisecond();
 		speak();
 	}
 
@@ -204,11 +211,9 @@ namespace SleepyDiscord {
 		if ((state & State::ABLE) != State::ABLE)
 			return;
 
-		AudioTransmissionDetails details(
-			context, 
-			static_cast<std::size_t>(48000 * 2 * .020),
-			samplesSentLastTime
-		);
+		AudioTransmissionDetails details(context, samplesSentLastTime);
+
+		std::size_t length = 0;
 
 		//send the audio data
 		switch (audioSource->type) {
@@ -217,30 +222,46 @@ namespace SleepyDiscord {
 			auto audioVectorSource = &static_cast<AudioSource<AUDIO_VECTOR>&>(*audioSource);
 			std::vector<int16_t> audioData = audioVectorSource->read(details);
 			int16_t* audioBuffer = audioData.data();
-			speak(audioBuffer, audioData.size());
+			length = audioData.size();
+			speak(audioBuffer, length);
 		} break;
 		case AUDIO_POINTER:
 		case AUDIO_POINTER_S16: {
 			auto audioVectorSource = &static_cast<AudioSource<AUDIO_POINTER>&>(*audioSource);
 			int16_t * audioData = nullptr;
-			std::size_t length = 0;
 			audioVectorSource->read(details, audioData, length);
 			speak(audioData, length);
 		} break;
 		default:
 			break;
 		}
+
+		if ((state & SENDING_AUDIO) == 0) {
+			return sendSpeaking(false);
+		}
+
+		//schedule next send
+		const time_t interval = static_cast<time_t>(
+			(static_cast<float>(length) / static_cast<float>(
+				AudioTransmissionDetails::bitrate() * AudioTransmissionDetails::channels()
+			)) * 1000.0f
+		);
+		previousTime = nextTime;
+		nextTime += interval;
+		const time_t delay = nextTime - origin->getEpochTimeMillisecond();
+
+		origin->schedule([this]() {
+			this->speak();
+		}, 0 < delay ? delay : 0);
 	}
 
 	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {
 		samplesSentLastTime = 0;
-		const time_t startTime = origin->getEpochTimeMillisecond();
 		//This is only called in speak() so already checked that we can still send audio data
 
 		//stop sending data when there's no data
 		if (length == 0) {
-			sendSpeaking(false);
-			return;
+			return stopSpeaking();
 		}
 
 		//the >>1 cuts it in half since you are using 2 channels
@@ -251,8 +272,9 @@ namespace SleepyDiscord {
 			return;
 #else
 			//encode data
-			constexpr opus_int32 encodedAudioMaxLength = 960;
-			unsigned char encodedAudioData[encodedAudioMaxLength];
+			constexpr opus_int32 encodedAudioMaxLength =
+				AudioTransmissionDetails::proposedLength();
+			unsigned char encodedAudioData[encodedAudioMaxLength]; //11.52 kilobytes
 			opus_int32 encodedAudioLength = opus_encode(
 				encoder, audioData, frameSize,
 				encodedAudioData, encodedAudioMaxLength);
@@ -264,17 +286,6 @@ namespace SleepyDiscord {
 			//encoded data should be in uint8
 			sendAudioData(reinterpret_cast<uint8_t*&>(audioData), length, frameSize);
 		}
-
-		//schedule next send
-		const time_t interval = static_cast<time_t>(
-			(static_cast<float>(frameSize) / (48000.0f)) * 1000.0f
-		);
-		const time_t nextTime = startTime + interval;
-		const time_t delay = nextTime - origin->getEpochTimeMillisecond();
-
-		origin->schedule([this]() {
-			this->speak();
-		}, 0 < delay ? delay : 0); //I think 20 is the frame length
 	}
 
 	void VoiceConnection::sendAudioData(
