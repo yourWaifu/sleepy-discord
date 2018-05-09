@@ -200,6 +200,8 @@ namespace SleepyDiscord {
 			deafen = 1 << 1
 		};
 
+		VoiceContext& createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server = "", BaseVoiceEventHandler* eventHandler = nullptr);
+		void connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings);
 		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
 
 #endif

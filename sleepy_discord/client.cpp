@@ -502,12 +502,16 @@ namespace SleepyDiscord {
 
 #ifdef SLEEPY_VOICE_ENABLED
 
-	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
+	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server, BaseVoiceEventHandler * eventHandler) {
+		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel)->serverID;
+		voiceContexts.push_front({ channel, serverTarget, eventHandler });
+		waitingVoiceContexts.emplace_front(&voiceContexts.front());
+		return voiceContexts.front();
+	}
 
+	void BaseDiscordClient::connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings) {
 		onError(ERROR_NOTE, "testing connectToVoiceChannel");
 
-		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel)->serverID;
-		
 		std::string voiceState;
 		/*The number 131 came from the number of letters in this string:
 		  {"op": 4,"d" : {"guild_id": "18446744073709551615",
@@ -519,8 +523,8 @@ namespace SleepyDiscord {
 			"{"
 				"\"op\": 4,"
 				"\"d\": {"
-				"\"guild_id\": \""; voiceState += serverTarget; voiceState += "\","
-					"\"channel_id\""": \""; voiceState += channel; voiceState += "\","
+				"\"guild_id\": \""; voiceState += voiceContext.serverID; voiceState += "\","
+					"\"channel_id\""": \""; voiceState += voiceContext.channelID; voiceState += "\","
 					"\"self_mute\"" ": "; voiceState += settings & mute   ? "true" : "false"; voiceState += ","
 					"\"self_deaf\"" ": "; voiceState += settings & deafen ? "true" : "false"; voiceState +=
 				"}"
@@ -530,10 +534,12 @@ namespace SleepyDiscord {
 		  VOICE_SERVER_UPDATE payload. Take a look at processMessage
 		  function at case VOICE_STATE_UPDATE and voiceServerUpdate
 		  */
-		
-		voiceContexts.push_front({ channel, server });
-		waitingVoiceContexts.push_front(&voiceContexts.front());
-		return voiceContexts.front();
+	}
+
+	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
+		VoiceContext& target = createVoiceContext(channel, server);
+		connectToVoiceChannel(target, settings);
+		return target;
 	}
 
 	void BaseDiscordClient::connectToVoiceIfReady(VoiceContext& context) {
