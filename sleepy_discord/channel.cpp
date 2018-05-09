@@ -1,6 +1,8 @@
 #include "channel.h"
 
 namespace SleepyDiscord {
+	Channel::Channel() : type(CHANNEL_TYPE_NONE), position(0), isNSFW(false), bitrate(0), userLimit(0)
+	{}
 
 	Channel::Channel(const std::string * rawJSON) : Channel(json::getValues(rawJSON->c_str(), fields)) {}
 
@@ -53,6 +55,9 @@ namespace SleepyDiscord {
 	//const std::initializer_list<const char*const> DirectMessageChannel::fields = {
 	//	"id", "is_private", "recipient", "last_message_id"
 	//};
+
+	Overwrite::Overwrite() : allow(false), deny(false)
+	{}
 
 	Overwrite::Overwrite(const std::string * rawJSON) : Overwrite(json::getValues(rawJSON->c_str(), fields)) {}
 

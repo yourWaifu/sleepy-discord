@@ -2,6 +2,10 @@
 #include "json.h"
 
 namespace SleepyDiscord {
+	Role::Role() : color(0), hoist(false), position(0), permissions(NONE), managed(0),
+		mantionable(false)
+	{}
+
 	Role::Role(const std::string * rawJSON) : Role(json::getValues(rawJSON->c_str(), fields)) {}
 
 	Role::Role(const std::vector<std::string> values) :

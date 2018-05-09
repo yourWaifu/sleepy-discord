@@ -29,6 +29,9 @@ namespace SleepyDiscord {
 		return ID == rightUser.ID;
 	}
 
+	ServerUser::ServerUser() : owner(false), permissions(NONE)
+	{}
+	
 	ServerUser::ServerUser(const std::string * rawJSON) : ServerUser(json::getValues(rawJSON->c_str(), fields)) {}
 
 	ServerUser::ServerUser(const std::vector<std::string> values) :
@@ -43,6 +46,9 @@ namespace SleepyDiscord {
 	const std::initializer_list<const char*const> ServerUser::fields = {
 		"id", "name", "icon", "owner", "permissions"
 	};
+
+	Connection::Connection() : revoked(false)
+	{}
 
 	Connection::Connection(const std::string * rawJSON) : Connection(json::getValues(rawJSON->c_str(), fields)) {}
 

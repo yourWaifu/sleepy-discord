@@ -20,8 +20,8 @@ namespace SleepyDiscord {
 		"title", "type", "description", "url", "thumbnail", "provider"
 	};
 
-	EmbedThumbnail::EmbedThumbnail() {
-	}
+	EmbedThumbnail::EmbedThumbnail() : height(0), width(0)
+	{}
 
 	EmbedThumbnail::EmbedThumbnail(const std::string * rawJSON) : EmbedThumbnail(json::getValues(rawJSON->c_str(), fields)) {}
 

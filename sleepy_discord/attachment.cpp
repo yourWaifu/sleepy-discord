@@ -1,8 +1,9 @@
 #include "attachment.h"
 
 namespace SleepyDiscord {
-	Attachment::Attachment() {
-	}
+	Attachment::Attachment() :
+		size(0), height(0), width(0)
+	{}
 
 	Attachment::~Attachment() {
 	}

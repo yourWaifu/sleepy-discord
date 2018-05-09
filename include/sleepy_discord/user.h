@@ -50,7 +50,7 @@ namespace SleepyDiscord {
 	*/
 	struct ServerUser : public DiscordObject{
 	public:
-		ServerUser() {}
+		ServerUser();
 		ServerUser(const std::string * rawJSON);
 		ServerUser(const std::vector<std::string> values);
 		Snowflake<ServerUser> ID;
@@ -75,7 +75,7 @@ namespace SleepyDiscord {
 	*/
 	struct Connection : public DiscordObject {
 	public:
-		Connection() {}
+		Connection();
 		Connection(const std::string * rawJSON);
 		Connection(const std::vector<std::string> values);
 		Snowflake<Connection> ID;

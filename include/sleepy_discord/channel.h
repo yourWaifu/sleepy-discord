@@ -5,7 +5,7 @@
 
 namespace SleepyDiscord {
 	struct Overwrite : DiscordObject {
-		Overwrite() {}
+		Overwrite();
 		Overwrite(const std::string * rawJson);
 		Overwrite(const std::vector<std::string> values);
 		~Overwrite() {}
@@ -23,18 +23,19 @@ namespace SleepyDiscord {
 
 	struct Channel : DiscordObject {
 	public:
-		Channel() {}
+		Channel();
 		Channel(const std::string * rawJson);
 		Channel(const std::vector<std::string> values);
 		~Channel();
 		
 		Snowflake<Channel> ID;
 		enum ChannelType {
-			SERVER_TEXT     = 0,
-			DM              = 1,
-			SERVER_VOICE    = 2,
-			GROUP_DM        = 3,
-			SERVER_CATEGORY = 4
+			CHANNEL_TYPE_NONE = -1,
+			SERVER_TEXT       = 0,
+			DM                = 1,
+			SERVER_VOICE      = 2,
+			GROUP_DM          = 3,
+			SERVER_CATEGORY   = 4
 		} type;
 		Snowflake<Server>  serverID;             //optional,                  used in server       channels
 		int                position;             //optional,                  used in server       channels

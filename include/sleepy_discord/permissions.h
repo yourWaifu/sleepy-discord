@@ -57,7 +57,7 @@ namespace SleepyDiscord {
 	mentionable bool      whether this role is mentionable
 	*/
 	struct Role : public DiscordObject {
-		Role() {}
+		Role();
 		~Role() {}
 		Role(const std::string * rawJson);
 		Role(const std::vector<std::string> values);
