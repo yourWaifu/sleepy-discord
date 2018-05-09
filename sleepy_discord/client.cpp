@@ -189,6 +189,11 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::quit() {
+#ifdef SLEEPY_VOICE_ENABLED
+		//quit all voice connections
+		for (VoiceConnection& voiceConnection : voiceConnections)
+			voiceConnection.disconnect();
+#endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
 		disconnectWebsocket(1000);
 		onQuit();
