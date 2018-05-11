@@ -15,11 +15,11 @@ namespace SleepyDiscord {
 
 	//typedef GenericMessageReceiver MessageProcssor;
 
-	class WebsocketppWebsocketClient : public BaseDiscordClient {
+	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
-		WebsocketppWebsocketClient() : maxNumOfThreads(0) {}
-		WebsocketppWebsocketClient(const std::string token, const char numOfThreads = 3);
-		~WebsocketppWebsocketClient();
+		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
+		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
+		~WebsocketppDiscordClient();
 
 		void run();
 		Timer schedule(std::function<void()> code, const time_t milliseconds);
@@ -46,7 +46,7 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl handle;
 		const char maxNumOfThreads;
 	};
-	typedef WebsocketppWebsocketClient DiscordClient;
+	typedef WebsocketppDiscordClient DiscordClient;
 }
 #else
 #ifndef BOOST_VERSION
