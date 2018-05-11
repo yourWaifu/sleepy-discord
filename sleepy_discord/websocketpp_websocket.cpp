@@ -3,19 +3,19 @@
 
 namespace SleepyDiscord {
 
-	WebsocketppWebsocketClient::WebsocketppWebsocketClient(const std::string token, const char numOfThreads) :
+	WebsocketppDiscordClient::WebsocketppDiscordClient(const std::string token, const char numOfThreads) :
 		maxNumOfThreads(numOfThreads)
 	{
 		init();
 		start(token, numOfThreads);
 	}
 
-	WebsocketppWebsocketClient::~WebsocketppWebsocketClient() {
+	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
 		if (_thread) _thread->join();
 		else _thread.reset();
 	}
 
-	void WebsocketppWebsocketClient::init() {
+	void WebsocketppDiscordClient::init() {
 		// set up access channels to only log interesting things
 		this_client.clear_access_channels(websocketpp::log::alevel::all);
 		this_client.set_access_channels(websocketpp::log::alevel::connect);
@@ -30,7 +30,7 @@ namespace SleepyDiscord {
 		this_client.init_asio();
 	}
 
-	bool WebsocketppWebsocketClient::connect(const std::string & uri,
+	bool WebsocketppDiscordClient::connect(const std::string & uri,
 		GenericMessageReceiver* messageProcessor,
 		WebsocketConnection* connection
 	) {
@@ -43,11 +43,11 @@ namespace SleepyDiscord {
 			return false;
 		}
 		
-		con->set_open_handler(std::bind(&WebsocketppWebsocketClient::onOpen, this,
+		con->set_open_handler(std::bind(&WebsocketppDiscordClient::onOpen, this,
 			websocketpp::lib::placeholders::_1, messageProcessor
 		));
 
-		con->set_message_handler(std::bind(&WebsocketppWebsocketClient::onMessage, this,
+		con->set_message_handler(std::bind(&WebsocketppDiscordClient::onMessage, this,
 			websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2,
 			messageProcessor
 		));
@@ -59,7 +59,7 @@ namespace SleepyDiscord {
 		return true;
 	}
 
-	void WebsocketppWebsocketClient::run() {
+	void WebsocketppDiscordClient::run() {
 		this_client.run();
 	}
 
@@ -68,7 +68,7 @@ namespace SleepyDiscord {
 		else code();
 	}
 
-	Timer WebsocketppWebsocketClient::schedule(std::function<void()> code, const time_t milliseconds) {
+	Timer WebsocketppDiscordClient::schedule(std::function<void()> code, const time_t milliseconds) {
 		auto timer = this_client.set_timer(
 			milliseconds,
 			websocketpp::lib::bind(&handleTimers, websocketpp::lib::placeholders::_1, code)
@@ -78,11 +78,11 @@ namespace SleepyDiscord {
 		});
 	}
 
-	void WebsocketppWebsocketClient::runAsync() {
+	void WebsocketppDiscordClient::runAsync() {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 	}
 
-	void WebsocketppWebsocketClient::send(std::string message, WebsocketConnection* connection) {
+	void WebsocketppDiscordClient::send(std::string message, WebsocketConnection* connection) {
 		websocketpp::lib::error_code error;
 		this_client.send(*connection, message, websocketpp::frame::opcode::text, error);
 		//temp solution
@@ -91,19 +91,19 @@ namespace SleepyDiscord {
 			throw websocketpp::exception(error);
 	}
 
-	void WebsocketppWebsocketClient::onOpen(websocketpp::connection_hdl hdl,
+	void WebsocketppDiscordClient::onOpen(websocketpp::connection_hdl hdl,
 		GenericMessageReceiver * messageProcessor) {
 		initialize(messageProcessor);
 	}
 
-	void WebsocketppWebsocketClient::onMessage(
+	void WebsocketppDiscordClient::onMessage(
 		websocketpp::connection_hdl hdl,
 		websocketpp::config::asio_client::message_type::ptr msg,
 		GenericMessageReceiver* messageProcessor) {
 		processMessage(messageProcessor, msg->get_payload());
 	}
 	
-	void WebsocketppWebsocketClient::disconnect(
+	void WebsocketppDiscordClient::disconnect(
 		unsigned int code,
 		const std::string reason,
 		WebsocketConnection* connection) {
@@ -111,7 +111,7 @@ namespace SleepyDiscord {
 			this_client.close(*connection, code, reason);
 	}
 
-	void WebsocketppWebsocketClient::onClose(_client * client, websocketpp::connection_hdl handle) {
+	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {
 
 	}
 
