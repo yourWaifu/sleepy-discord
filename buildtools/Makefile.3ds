@@ -27,7 +27,7 @@ TARGET		:=	sleepy_discord
 SOURCES		:=	../sleepy_discord
 
 DATA		:=	data
-INCLUDES	:=	../sleepy_discord/IncludeNonexistent
+INCLUDES	:=	../sleepy_discord ../sleepy_discord/IncludeNonexistent
 
 #---------------------------------------------------------------------------------
 # options for code generation
