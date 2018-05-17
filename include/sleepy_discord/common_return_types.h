@@ -6,7 +6,7 @@
 namespace SleepyDiscord {
 	struct StandardResponse : Response {	//this is just used for the constructor
 		StandardResponse(const Response& response) : Response(response) {}
-		operator const Response&() { return *this; }
+		//operator const Response&() { return *this; }	//never used
 	};
 
 	struct BooleanResponse : public StandardResponse {

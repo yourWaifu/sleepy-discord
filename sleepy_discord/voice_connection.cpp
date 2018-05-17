@@ -294,6 +294,7 @@ namespace SleepyDiscord {
 		const std::size_t & length,
 		const std::size_t & frameSize
 	) {
+#ifndef NONEXISTENT_SODIUM
 		++sequence;
 		constexpr int headerSize = 12;
 
@@ -326,6 +327,7 @@ namespace SleepyDiscord {
 		UDPClient::send(audioDataPacket.data(), audioDataPacket.size());
 		samplesSentLastTime = frameSize << 1;
 		timestamp += frameSize;
+#endif
 	}
 }
 #endif
