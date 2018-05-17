@@ -74,7 +74,12 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::send(std::string message) {
-		this_client.send(handle, message, websocketpp::frame::opcode::text);
+		websocketpp::lib::error_code error;
+		this_client.send(handle, message, websocketpp::frame::opcode::text, error);
+		//temp solution
+		//Besides the library can detect bad connections by itself anyway
+		if(error && error != websocketpp::error::bad_connection)
+			throw websocketpp::exception(error);
 	}
 
 	void WebsocketppDiscordClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
