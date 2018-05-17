@@ -1,4 +1,4 @@
-#include "sleepy_discord/websocketpp_websocket.h"
+#include "sleepy_discord/sleepy_discord.h"
 
 class GameClient : public SleepyDiscord::DiscordClient {
 private:
@@ -126,6 +126,6 @@ public:
 
 int main() {
 	srand(static_cast<unsigned int>(time(0)));	//create seed to make random numbers
-	GameClient client("Your Token Goes Here", 2);
+	GameClient client("Your Token Goes Here", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.run();
 }
