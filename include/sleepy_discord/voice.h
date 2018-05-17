@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 	struct User;
 
 	struct VoiceState : public DiscordObject {
-		VoiceState() {}
+		VoiceState();
 		VoiceState(const std::string * rawJson);
 		VoiceState(const std::vector<std::string> values);
 		Snowflake<Server> serverID;
@@ -39,7 +39,7 @@ namespace SleepyDiscord {
 	custom          bool    whether this is a custom voice region (used for events/etc)
 	*/
 	struct VoiceRegion : DiscordObject {
-		VoiceRegion() {}
+		VoiceRegion();
 		VoiceRegion(const std::string * rawJson);
 		VoiceRegion(const std::vector<std::string> values);
 		Snowflake<VoiceRegion> ID;

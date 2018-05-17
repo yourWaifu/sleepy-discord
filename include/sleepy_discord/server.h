@@ -71,7 +71,7 @@ namespace SleepyDiscord {
 	mute      bool     if the user is muted
 	*/
 	struct ServerMember : public DiscordObject {
-		ServerMember() {}
+		ServerMember();
 		ServerMember(const std::string * rawJson);
 		ServerMember(const std::vector<std::string> values);
 		User user;

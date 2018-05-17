@@ -8,7 +8,7 @@ namespace SleepyDiscord {
 		"embeds", "reactions", "nonce", "pinned", "webhook_id", "type"
 	};
 
-	Message::Message() {
+	Message::Message() : tts(false), mentionEveryone(false), nonce(0), pinned(false), type(DEFAULT) {
 
 	}
 
@@ -22,11 +22,11 @@ namespace SleepyDiscord {
 		author           (                                                       &values[index(fields, "author"          )]                          ),
 		content          (                                                        values[index(fields, "content"         )]                          ),
 		timestamp        (                                                        values[index(fields, "timestamp"       )]                          ),
-		edited_timestamp (                                                        values[index(fields, "edited_timestamp")]                          ),
+		editedTimestamp  (                                                        values[index(fields, "edited_timestamp")]                          ),
 		tts              (                       getBool                        ( values[index(fields, "tts"             )]                         )),
-		mention_everyone (                       getBool                        ( values[index(fields, "mention_everyone")]                         )),
+		mentionEveryone  (                       getBool                        ( values[index(fields, "mention_everyone")]                         )),
 		mentions         (                       JSON_getArray<User>            (&values[index(fields, "mentions"        )]                         )),
-		mention_roles    (                       JSON_getArray<Snowflake<User>> ( values[index(fields, "mention_roles"   )]                         )),
+		mentionRoles     (                       JSON_getArray<Snowflake<User>> ( values[index(fields, "mention_roles"   )]                         )),
 		attachments      (                       JSON_getArray<Attachment>      (&values[index(fields, "attachments"     )]                         )),
 		embeds           (                       JSON_getArray<Embed>           (&values[index(fields, "embeds"          )]                         )),
 		reactions        (modIfElse(isSpecified, JSON_getArray<Reaction>       , &values[index(fields, "reactions"       )], std::vector<Reaction>())),
@@ -78,7 +78,7 @@ namespace SleepyDiscord {
 		"id", "name", "roles", "user", "require_colons", "managed"
 	};
 
-	SleepyDiscord::Emoji::Emoji() {
+	SleepyDiscord::Emoji::Emoji() : requireColons(false), managed(false) {
 	}
 
 	SleepyDiscord::Emoji::~Emoji() {
@@ -100,7 +100,7 @@ namespace SleepyDiscord {
 		"count", "me", "emoji"
 	};
 
-	SleepyDiscord::Reaction::Reaction() {
+	SleepyDiscord::Reaction::Reaction() : count(0), me(false) {
 	}
 
 	SleepyDiscord::Reaction::~Reaction() {

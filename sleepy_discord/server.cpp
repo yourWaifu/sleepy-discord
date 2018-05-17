@@ -54,6 +54,8 @@ namespace SleepyDiscord {
 		"enabled", "channel_id"
 	};
 
+	ServerMember::ServerMember() : deaf(false), mute(false) {}
+
 	ServerMember::ServerMember(const std::string * rawJSON) : ServerMember(json::getValues(rawJSON->c_str(), fields)) {}
 
 	ServerMember::ServerMember(const std::vector<std::string> values) :

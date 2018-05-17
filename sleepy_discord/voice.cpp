@@ -1,6 +1,8 @@
 #include "voice.h"
 
 namespace SleepyDiscord {
+	VoiceState::VoiceState() : deaf(false), mute(false), selfDeaf(false), selfMute(false),
+		suppress(false) {}
 	VoiceState::VoiceState(const std::string * rawJSON) : VoiceState(json::getValues(rawJSON->c_str(), fields)) {}
 
 	VoiceState::VoiceState(const std::vector<std::string> values) :
@@ -21,6 +23,8 @@ namespace SleepyDiscord {
 		"self_deaf", "self_mute", "suppress"
 	};
 	
+	VoiceRegion::VoiceRegion() : samplePort(0), vip(false), optimal(false), deprecated(false), custom(false) {}
+
 	VoiceRegion::VoiceRegion(const std::string * rawJSON) : VoiceRegion(json::getValues(rawJSON->c_str(), fields)) {}
 
 	VoiceRegion::VoiceRegion(const std::vector<std::string> values) :
