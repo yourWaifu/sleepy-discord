@@ -15,13 +15,6 @@ WebAssemblyDiscordClient::WebAssemblyDiscordClient(const std::string token) {
 WebAssemblyDiscordClient::~WebAssemblyDiscordClient() {
 	std::cout << "c~WebAssemblyDiscordClient" << '\n';
 	WebSocketHandle& handle = connection.get<WebSocketHandle>();
-	clientList.remove(this);
-	//for (auto c = std::begin(clientList); c != std::end(clientList); ++c) {
-	//	if ((*c)->connection.get<WebSocketHandle>() == handle) {
-	//		clientList.erase(c);  //please notice that erase needs a iterator
-	//		return;
-	//	}
-	//}
 }
 
 SleepyDiscord::Timer WebAssemblyDiscordClient::schedule(
