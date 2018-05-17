@@ -2,6 +2,8 @@
 #include <functional>
 
 namespace SleepyDiscord {
+	typedef std::function<void()> TimedTask;
+
 	struct Timer {
 	public:
 		typedef std::function<void()> StopTimerFunction;
