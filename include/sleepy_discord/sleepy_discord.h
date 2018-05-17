@@ -1,13 +1,20 @@
 #pragma once
-#ifdef SLEEPY_DISABLE_AUTO_SELECT_CLIENT
+
+#define SLEEPY_DEFINE_CUSTOM_CLIENT \
+namespace SleepyDiscord {\
+typedef BaseDiscordClient DiscordClient;\
+}
+
+#ifdef SLEEPY_CUSTOM_CLIENT
 #include "client.h"
+SLEEPY_DEFINE_CUSTOM_CLIENT
 #else
 #include "websocketpp_websocket.h"
 #ifdef NONEXISTENT_WEBSOCKETPP
 #include "uwebsockets_websocket.h"
 #ifdef NONEXISTENT_UWEBSOCKETS
 #include "client.h"
-typedef BaseDiscordClient DiscordClient;
+SLEEPY_DEFINE_CUSTOM_CLIENT
 #endif
 #endif
 #endif

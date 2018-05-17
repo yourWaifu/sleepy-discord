@@ -1,7 +1,7 @@
 //The Module is global, making it great for storing all sorts of things
 var Module = {
 	'print': function (text) { console.log(text); }
-}
+};
 
 Module.webSocketsList = [];
 Module.HTTPRequestList = [];
@@ -13,10 +13,10 @@ Module.destroyHandleFromList = function(handle, listOfHandles) {
 		listOfHandles.pop();
 		if (listOfHandles.length == 0) return;
 	}
-}
+};
 Module.toCharStar = function(source) {
 	var lengthInBytes        = lengthBytesUTF8(source) + 1;
 	var target               = _malloc(lengthInBytes);
 	stringToUTF8(source, target, lengthInBytes + 1);
 	return target;
-}
+};

@@ -32,7 +32,7 @@ namespace SleepyDiscord {
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri,
 		GenericMessageReceiver* messageProcessor,
-		WebsocketConnection* connection
+		WebsocketConnection& connection
 	) {
 		// Create a new connection to the given URI
 		websocketpp::lib::error_code ec;
@@ -52,7 +52,7 @@ namespace SleepyDiscord {
 			messageProcessor
 		));
 
-		*connection = con->get_handle();
+		connection = con->get_handle();
 		// Queue the connection. No DNS queries or network connections will be
 		// made until the io_service event loop is run.
 		this_client.connect(con);
@@ -68,7 +68,7 @@ namespace SleepyDiscord {
 		else code();
 	}
 
-	Timer WebsocketppDiscordClient::schedule(std::function<void()> code, const time_t milliseconds) {
+	Timer WebsocketppDiscordClient::schedule(TimedTask code, const time_t milliseconds) {
 		auto timer = this_client.set_timer(
 			milliseconds,
 			websocketpp::lib::bind(&handleTimers, websocketpp::lib::placeholders::_1, code)
@@ -82,9 +82,9 @@ namespace SleepyDiscord {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
 	}
 
-	void WebsocketppDiscordClient::send(std::string message, WebsocketConnection* connection) {
+	void WebsocketppDiscordClient::send(std::string message, WebsocketConnection& connection) {
 		websocketpp::lib::error_code error;
-		this_client.send(*connection, message, websocketpp::frame::opcode::text, error);
+		this_client.send(connection, message, websocketpp::frame::opcode::text, error);
 		//temp solution
 		//Besides the library can detect bad connections by itself anyway
 		if(error && error != websocketpp::error::bad_connection)
@@ -92,7 +92,7 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::onOpen(websocketpp::connection_hdl hdl,
-		GenericMessageReceiver * messageProcessor) {
+		GenericMessageReceiver* messageProcessor) {
 		initialize(messageProcessor);
 	}
 
@@ -106,9 +106,9 @@ namespace SleepyDiscord {
 	void WebsocketppDiscordClient::disconnect(
 		unsigned int code,
 		const std::string reason,
-		WebsocketConnection* connection) {
-		if (!connection->expired())
-			this_client.close(*connection, code, reason);
+		WebsocketConnection& connection) {
+		if (!connection.expired())
+			this_client.close(connection, code, reason);
 	}
 
 	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {

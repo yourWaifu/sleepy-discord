@@ -22,12 +22,14 @@ namespace SleepyDiscord {
 
 		messagesRemaining = 4;
 		getTheGateway();
-		connect(theGateway, this, &connection);
+		connect(theGateway, this, connection);
 #ifndef SLEEPY_ONE_THREAD
 		if (2 < maxNumOfThreads) runAsync();
 		maxNumOfThreadsAllowed = maxNumOfThreads;
 #endif
 	}
+
+	BaseDiscordClient::BaseDiscordClient() : maxNumOfThreadsAllowed(0), ready(false), bot(true), messagesRemaining(0) {}
 
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
@@ -292,7 +294,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::restart() {
 		quit();
-		connect(theGateway, this, &connection);
+		connect(theGateway, this, connection);
 		onRestart();
 	}
 
@@ -303,16 +305,16 @@ namespace SleepyDiscord {
 		}
 		disconnectWebsocket(status);
 		//loop unrolling
-		if (connect(theGateway, this, &connection)) return;
-		if (connect(theGateway, this, &connection)) return;
-		if (connect(theGateway, this, &connection)) return;
+		if (connect(theGateway, this, connection)) return;
+		if (connect(theGateway, this, connection)) return;
+		if (connect(theGateway, this, connection)) return;
 		getTheGateway();
-		if (connect(theGateway, this, &connection)) return;
+		if (connect(theGateway, this, connection)) return;
 		setError(CONNECT_FAILED);
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
-		disconnect(code, reason, &connection);
+		disconnect(code, reason, connection);
 		onDisconnect();
 	}
 
@@ -331,7 +333,7 @@ namespace SleepyDiscord {
 			setError(RATE_LIMITED);
 			return false;
 		}
-		send(message, &connection);
+		send(message, connection);
 		return true;
 	}
 
@@ -339,7 +341,7 @@ namespace SleepyDiscord {
 		return !key[i] ? 0 : (hash(key, i + 1) * 31) + key[i] - 'A';
 	}
 
-	void BaseDiscordClient::processMessage(std::string message) {
+	void BaseDiscordClient::processMessage(const std::string &message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d", "s", "t" });
 		int op = std::stoi(values[0]);
@@ -569,7 +571,7 @@ namespace SleepyDiscord {
 		voiceConnections.emplace_front( this, context );
 		VoiceConnection& voiceConnection = voiceConnections.back();
 
-		connect(endpoint, &voiceConnection, &voiceConnection.connection);
+		connect(endpoint, &voiceConnection, voiceConnection.connection);
 
 		//remove from wait list
 		waitingVoiceContexts.remove(&context);

@@ -1,34 +1,50 @@
+#include <list>
 #include "wasm_websocket.h"
 #include "wasm_session.h"
 
-std::vector<DiscordClient*> clientArray;
+/*This needs to have global scope, so that JS can make calls to them*/
+std::list<DiscordClient*> clientList;
+std::list<Assignment> assignmentList;
 
 WebAssemblyDiscordClient::WebAssemblyDiscordClient(const std::string token) {
 	std::cout << "cWebAssemblyDiscordClient" << '\n';
-	clientArray.push_back(this);
+	clientList.push_front(this);
 	start(token, 1);
 }
 
 WebAssemblyDiscordClient::~WebAssemblyDiscordClient() {
 	std::cout << "c~WebAssemblyDiscordClient" << '\n';
-	for (auto c = begin (clientArray); c != end (clientArray); ++c) {
-		if (c[0]->getHandle() == handle) {
-			clientArray.erase(c);
-			return;
-		}
-	}
+	WebSocketHandle& handle = connection.get<WebSocketHandle>();
+	clientList.remove(this);
+	//for (auto c = std::begin(clientList); c != std::end(clientList); ++c) {
+	//	if ((*c)->connection.get<WebSocketHandle>() == handle) {
+	//		clientList.erase(c);  //please notice that erase needs a iterator
+	//		return;
+	//	}
+	//}
 }
 
+SleepyDiscord::Timer WebAssemblyDiscordClient::schedule(
+	SleepyDiscord::TimedTask code, const time_t milliseconds
+) {
+	assignmentList.emplace_front(code);
+	Assignment& assignment = assignmentList.front();
+	assignment.jobID = setTimer(&assignment, milliseconds);
+	return SleepyDiscord::Timer([assignment]() {
+		stopTimer(assignment.jobID);
+		assignmentList.remove(assignment);
+	});
+}
+
+//insures that we call functions of the correct client
 DiscordClient* getClient(const int& handle) {
-	DiscordClient* client = nullptr;
-	for (DiscordClient* c : clientArray)  //find client with the same handle
-		if (c->getHandle() == handle) {
-			client = c;
-			break;
-		}
-	return client;
+	for (DiscordClient* c : clientList)  //find client with the same handle
+		if (c->connection.get<WebSocketHandle>() == handle)
+			return c;
+	return nullptr;
 }
 
+//see WebAssemblyDiscordClient::passMessageToClient
 extern "C" EMSCRIPTEN_KEEPALIVE void passMessageToClient(int handle, char* message) {
 	DiscordClient* client = getClient(handle);
 	if (client == nullptr) {
@@ -40,12 +56,10 @@ extern "C" EMSCRIPTEN_KEEPALIVE void passMessageToClient(int handle, char* messa
 	free(message);
 }
 
-extern "C" EMSCRIPTEN_KEEPALIVE void heartbeatClient(int handle) {
-	DiscordClient* client = getClient(handle);
-	if (client == nullptr) {
-		return;
-	}
-	client->sentHeartbeat();
+//see WebAssemblyDiscordClient::doAssignment
+extern "C" EMSCRIPTEN_KEEPALIVE void doAssignment(Assignment* assignment) {
+	assignment->task();
+	assignmentList.remove(*assignment);
 }
 
 #include "sleepy_discord/standard_config.h"

@@ -22,18 +22,18 @@ namespace SleepyDiscord {
 		~WebsocketppDiscordClient();
 
 		void run();
-		Timer schedule(std::function<void()> code, const time_t milliseconds);
+		Timer schedule(TimedTask code, const time_t milliseconds);
 	protected:
 #include "standard_config_header.h"
 	private:
 		void init();
 		bool connect(const std::string & uri,
 			GenericMessageReceiver* messageProcessor,
-			WebsocketConnection* connection
-		);
-		void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection);
+			WebsocketConnection& connection
+		) override;
+		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection);
 		void onClose(_client * client, websocketpp::connection_hdl handle);
-		void send(std::string message, WebsocketConnection* connection);
+		void send(std::string message, WebsocketConnection& connection);
 		void runAsync();
 		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);
 		void onMessage(

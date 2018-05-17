@@ -24,7 +24,7 @@ namespace SleepyDiscord {
 		void runAsync();
 		std::thread thread;
 		const char maxNumOfThreads;
-		bool isConnectionBad;
+		bool isConnectionBad = false;
 		SLEEPY_LOCK_CLIENT_FUNCTIONS
 	};
 
