@@ -1,6 +1,6 @@
 #pragma once
 #include "http.h"
-#include "json.h"
+#include "json_wrapper.h"
 #include "error.h"
 
 namespace SleepyDiscord {
