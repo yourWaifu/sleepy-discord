@@ -66,13 +66,6 @@ public:
 		processMessage(message);  //note: threads are made in JS
 	}
 	
-	/*Like passMessageToClient, because the timing logic is done in JS, JS
-	  needs to be able to tell the client class to send a heartbeat when it
-	  is time to send one                                                   */
-	inline void doAssignment() {
-		
-	}
-	
 	void run() override {
 		std::cout << "crun" << '\n';
 		std::cout << "crun end" << '\n';
