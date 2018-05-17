@@ -102,7 +102,7 @@ namespace SleepyDiscord {
 	private:
 		friend BaseDiscordClient;
 
-		void processMessage(std::string message);
+		void processMessage(const std::string &message) override;
 
 		enum VoiceOPCode {
 			IDENTIFY            = 0,  //client begin a voice websocket connection

@@ -11,13 +11,13 @@ namespace SleepyDiscord {
 
 	void VoiceConnection::disconnect()  {
 		if (state & State::CONNECTED)
-			origin->disconnect(1000, "", &connection);
+			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
 		state = static_cast<State>(state & ~State::CONNECTED);
 	}
 
-	void VoiceConnection::processMessage(std::string message) {
+	void VoiceConnection::processMessage(const std::string &message) {
 
 		origin->onError(ERROR_NOTE, "testing VOICE processMessage");
 
@@ -48,7 +48,7 @@ namespace SleepyDiscord {
 						"\"token\": \""     ; identity += context.token    ; identity += "\""
 					"}"
 				"}";
-			origin->send(identity, &connection);
+			origin->send(identity, connection);
 			}
 			state = static_cast<State>(state | CONNECTED);
 			break;
@@ -62,13 +62,14 @@ namespace SleepyDiscord {
 			//start heartbeating
 			heartbeat();
 			//connect to UDP
+			UDPClient::connect(context.endpoint, port);
 			//IP Discovery
 			unsigned char packet[70] = { 0 };
 			packet[0] = (sSRC >> 24) & 0xff;
 			packet[1] = (sSRC >> 16) & 0xff;
 			packet[2] = (sSRC >>  8) & 0xff;
 			packet[3] = (sSRC      ) & 0xff;
-			UDPClient::send(context.endpoint, port, packet, 70);
+			UDPClient::send(packet, 70);
 			const std::vector<uint8_t> iPDiscovery = UDPClient::receive(context.endpoint, port); //note: receive blocks and is not async
 			//find start of string. 0x60 is a bitmask that should filter out non-letters
 			std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 2;
@@ -93,7 +94,7 @@ namespace SleepyDiscord {
 						"}"
 					"}"
 				"}";
-			origin->send(protocol, &connection);
+			origin->send(protocol, connection);
 			}
 			state = static_cast<State>(state | State::OPEN);
 			break;
@@ -142,7 +143,7 @@ namespace SleepyDiscord {
 				"\"op\": 3, "
 				"\"d\": "; heartbeat += nonce; heartbeat += 
 			'}';
-		origin->send(heartbeat, &connection);
+		origin->send(heartbeat, connection);
 
 		heart = origin->schedule([this]() {
 			this->heartbeat();
@@ -203,7 +204,7 @@ namespace SleepyDiscord {
 					"\"ssrc\":"; speaking += ssrc; speaking +=
 				"}"
 			"}";
-		origin->send(speaking, &connection);
+		origin->send(speaking, connection);
 	}
 
 	void VoiceConnection::speak() {
@@ -322,7 +323,7 @@ namespace SleepyDiscord {
 		crypto_secretbox_easy(audioDataPacket.data() + sizeof header,
 			encodedAudioData, length, nonce, secretKey);
 
-		UDPClient::send(context.endpoint, port, audioDataPacket.data(), audioDataPacket.size());
+		UDPClient::send(audioDataPacket.data(), audioDataPacket.size());
 		samplesSentLastTime = frameSize << 1;
 		timestamp += frameSize;
 	}
