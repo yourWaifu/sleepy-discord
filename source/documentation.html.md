@@ -42,7 +42,7 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 ### deleteChannel
 
-```cpp 
+```cpp
 Channel deleteChannel(Snowflake<Channel> channelID);
 ```
 
@@ -59,7 +59,7 @@ The channel was just deleted
 
 ### sendMessage
 
- ```cpp 
+ ```cpp
 ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, bool tts = false);
 ```
 ```cpp
@@ -112,7 +112,7 @@ Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#c
 
 ### addReaction
 
- ```cpp 
+ ```cpp
 bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 ```
 ```cpp
@@ -166,7 +166,7 @@ Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#
 
 ### editMessage
 
-```cpp 
+```cpp
 Message editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
 Message editMessage(Message message, std::string newMessage);
 ```
@@ -192,7 +192,7 @@ Returns the message you just edited
 
 ### pinMessage
 
-```cpp 
+```cpp
 bool pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
@@ -213,7 +213,7 @@ Returns ``true`` on success
 
 ### unpinMessage
 
-```cpp 
+```cpp
 bool unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
@@ -234,7 +234,7 @@ Returns ``true`` on success
 
 ### deleteMessage
 
-```cpp 
+```cpp
 bool deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
@@ -255,7 +255,7 @@ Returns ``true`` on success
 
 ### editNickname
 
-```cpp 
+```cpp
 bool editNickname(Snowflake<Server> serverID, std::string newNickname);
 ```
 
@@ -276,11 +276,11 @@ Returns ``true`` on success
 
 ### addRole
 
-```cpp 
+```cpp
 bool addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
 ```
 
-Gives a member a role on a server 
+Gives a member a role on a server
 
 #### Parameters
 <table>
@@ -299,7 +299,7 @@ Returns ``true`` on success
 
 ### removeRole
 
-```cpp 
+```cpp
 bool removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
 ```
 
@@ -322,7 +322,7 @@ Returns ``true`` on success
 
 ### kickMember
 
-```cpp 
+```cpp
 bool kickMember(Snowflake<Server> serverID, Snowflake<User> userID);
 ```
 
@@ -343,7 +343,7 @@ Returns ``true`` on success
 
 ### updateStatus
 
-```cpp 
+```cpp
 void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
 ```
 
@@ -361,7 +361,7 @@ Updates the bot's status
 
 ### isReady
 
-```cpp 
+```cpp
 const bool isReady();
 ```
 
@@ -372,7 +372,7 @@ Tell you if the Ready event has ocurred or not
 
 ### quit
 
-```cpp 
+```cpp
 void quit();
 ```
 
@@ -380,7 +380,7 @@ Lets you disconnect from discord and stops the client
 
 <h3 id="discordclient-run">run</h3>
 
-```cpp 
+```cpp
 virtual void run();
 ```
 
@@ -437,6 +437,42 @@ virtual void onReady(std::string* jsonMessage);
   <tbody>
       <tr><td><strong>milliseconds</strong></td>
         <td>The amount of time to sleep for in milliseconds</td></tr>
+  </tbody>
+</table>
+
+### onServer
+```cpp
+virtual void onServer(SleepyDiscord::Server server);
+```
+```cpp
+#include <sleepy_discord>
+
+#include <iostream>
+#include <vector>
+
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+  void onServer(SleepyDiscord::Server server) {
+      serverList.push_back(server);
+      std::cout << "New server, ID: " << server.ID << std::endl;
+  }
+
+private:
+  std::vector<SleepyDiscord::Server> serverList;
+};
+
+int main() {
+  myClientClass client("token", 2);
+  client.run();
+}
+```
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>server</strong></td>
+      <td>Server object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#guild-create">GUILD_CREATE event</a></td></tr>
   </tbody>
 </table>
 
@@ -502,8 +538,8 @@ inline  Timer schedule(void (BaseDiscordClient::*code)(), const time_t milliseco
 ```cpp
 Snowflake<Channel> channel = message.channelID;
 sendMessage(channel, "Another message will be sent in 5 seconds from now.");
-schedule([this, channel]() { 
-	this->sendMessage(channel, "5 seconds has pasted"); 
+schedule([this, channel]() {
+	this->sendMessage(channel, "5 seconds has pasted");
 }, 5000);
 ```
 
@@ -766,7 +802,7 @@ struct User : public DiscordObject {
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
 
-<h3 id="user-comparison-operators">operator==</h3> 
+<h3 id="user-comparison-operators">operator==</h3>
 
 ```cpp
 bool operator==(const User& rightUser);
