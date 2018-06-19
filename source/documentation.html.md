@@ -455,7 +455,7 @@ public:
   using SleepyDiscord::DiscordClient::DiscordClient;
   void onServer(SleepyDiscord::Server server) {
       serverList.push_back(server);
-      std::cout << "New server, ID: " << server.ID << std::endl;
+      std::cout << "New server, name: " << server.name << std::endl;
   }
 
 private:
