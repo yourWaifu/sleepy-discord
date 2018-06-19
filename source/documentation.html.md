@@ -445,7 +445,7 @@ virtual void onReady(std::string* jsonMessage);
 virtual void onServer(SleepyDiscord::Server server);
 ```
 ```cpp
-#include <sleepy_discord>
+#include <sleepy_discord.h>
 
 #include <iostream>
 #include <vector>
@@ -455,7 +455,7 @@ public:
   using SleepyDiscord::DiscordClient::DiscordClient;
   void onServer(SleepyDiscord::Server server) {
       serverList.push_back(server);
-      std::cout << "New server, name: " << server.name << std::endl;
+      std::cout << "New server, name: " << server.name << "\n";
   }
 
 private:
@@ -465,6 +465,8 @@ private:
 int main() {
   myClientClass client("token", 2);
   client.run();
+
+  return 0;
 }
 ```
 
@@ -473,6 +475,37 @@ int main() {
   <tbody>
     <tr><td><strong>server</strong></td>
       <td>Server object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#guild-create">GUILD_CREATE event</a></td></tr>
+  </tbody>
+</table>
+
+### onBan
+```cpp
+virtual void onBan(std::string *jsonMessage);
+```
+```cpp
+#include <sleepy_discord.h>
+
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+  void onBan(std::string \*jsonMessage) {
+    std::cout << "New ban, json data: " << \*jsonMessage << "\n";
+  }
+};
+
+int main() {
+  myClientClass client("token", 2);
+  client.run();
+
+  return 0;
+}
+```
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
   </tbody>
 </table>
 
