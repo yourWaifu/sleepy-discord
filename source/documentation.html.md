@@ -488,8 +488,8 @@ virtual void onBan(std::string *jsonMessage);
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
-  void onBan(std::string \*jsonMessage) {
-    std::cout << "New ban, json data: " << \*jsonMessage << "\n";
+  void onBan(std::string *jsonMessage) {
+    std::cout << "New ban, json data: " << *jsonMessage << "\n";
   }
 };
 
