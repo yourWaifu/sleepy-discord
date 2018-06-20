@@ -166,7 +166,7 @@ If you did get an error, then check that you followed the instructions correctly
 
 #Common Issues
 
-##‘SSL_R_SHORT_READ’ was not declared in this scope
+### ‘SSL_R_SHORT_READ’ was not declared in this scope
 ```shell
 error: ‘SSL_R_SHORT_READ’ was not declared in this scope
 if (ERR_GET_REASON(ec.value()) == SSL_R_SHORT_READ) {

@@ -1056,8 +1056,9 @@ myClient.connectToVoiceChannel(context);
 
 Represents the information needed to connect to a voice channel, such as the channelID and serverID.
 
-## BaseVoiceEventHandler
+## Base<wbr>Voice<wbr>Event<wbr>Handler
 
+```cpp
 class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
 public:
 	VoiceEventHandler() {}
@@ -1066,6 +1067,7 @@ public:
 	}
 }
 VoiceEventHandler voiceEventHandler;
+```
 
 Class with virtual functions for handling events related to voice.
 
