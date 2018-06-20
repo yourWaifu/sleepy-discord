@@ -42,8 +42,8 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 ### deleteChannel
 
-```cpp
-Channel deleteChannel(Snowflake<Channel> channelID);
+```cpp 
+ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
 ```
 
 #### Parameters
@@ -166,9 +166,9 @@ Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#
 
 ### editMessage
 
-```cpp
-Message editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
-Message editMessage(Message message, std::string newMessage);
+```cpp 
+ObjectResponse<Message> editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
+ObjectResponse<Message> editMessage(Message message, std::string newMessage);
 ```
 
 Edits an existing Message
@@ -429,14 +429,14 @@ Events are functions that can be overridden that are called when an event such a
 ### onReady
 
 ```cpp
-virtual void onReady(std::string* jsonMessage);
+virtual void onReady(Ready readyData);
 ```
 
 #### Parameters
 <table>
   <tbody>
-      <tr><td><strong>milliseconds</strong></td>
-        <td>The amount of time to sleep for in milliseconds</td></tr>
+      <tr><td><strong>readyData</strong></td>
+        <td>contains things such as user, and privateChannels</td></tr>
   </tbody>
 </table>
 
@@ -854,6 +854,52 @@ Compares the id of two Users
 #### Return value
 ``true`` when the two Users have the same id
 
+# Voice
+[For a step by step guild on using voice, go to here](voice.html).
+[](TO DO Add examples for voice)
+
+## VoiceContext
+
+```cpp
+SleepyDiscord::VoiceContext& context = myClient.createContext("channelID", "serverID");
+myClient.connectToVoiceChannel(context);
+```
+
+Represents the information needed to connect to a voice channel, such as the channelID and serverID.
+
+## BaseVoiceEventHandler
+
+class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
+public:
+	VoiceEventHandler() {}
+	void onReady(SleepyDiscord::VoiceConnection& connection) {
+		connection.getDiscordClient().sendMessage("Connected to a voice channel");
+	}
+}
+VoiceEventHandler voiceEventHandler;
+
+Class with virtual functions for handling events related to voice.
+
+### Events
+
+All events will give you a reference to the VoiceConnection.
+
+### onReady
+
+### onEndSpeaking
+
+### onHeartbeat
+
+### onHeartbeatAck
+
+## VoiceConnection
+
+Class that connects to the voice channel and used for sending and receiving audio from the voice channel. The Discord client will create this for you. You get one from your VoiceEventHandler.
+
+## AudioSources
+
+Class representing the data that will be sent when speaking. When speaking, VoiceConnection will call AudioSource::read and use the audio data gotten from that call and send it to Discord's voice server.
+
 # Session
 
 ```cpp
@@ -897,6 +943,97 @@ When you make a request, a response is returned. The Response struct stores the 
 <aside class="note">
 Response is a separate part of Session
 </aside>
+
+There are a few class derived from Response as you can see below.
+
+### StandardResponse
+
+```cpp
+struct StandardResponse : Response {
+```
+
+Used as a base for classes that are derived from Response.
+
+### BooleanResponse
+
+```cpp
+template<class BooleanFunction = StandardBooleanResponseFunction>
+struct BooleanResponse : public StandardResponse {
+```
+
+```cpp
+BooleanResponse<> response = deleteMessage("channelID", "messageID");
+bool wasSuccessful = response;
+//you may also do this
+wasSuccessful = deleteMessage("channelID", "messageID");
+```
+
+Can implicitly convert from Response to bool.
+
+#### Template Parameters
+<table>
+  <tbody>
+      <tr><td><strong>BooleanFunction</strong></td>
+        <td>Class that acts like a function using the function call operator overload to convert a ``const Response&`` into a ``bool``</td></tr>
+  </tbody>
+</table>
+
+#### Resps
+
+```cpp
+BooleanResponse<EmptyResp>
+```
+
+Resps, short for Responses, BooleanFunctions for status codes that are used to signal success. This should allow you see the response that Discord returns with added features.
+
+### ObjectResponse
+
+```cpp
+template<class Type>
+struct ObjectResponse : public StandardResponse {
+```
+
+```cpp
+ObjectResponse<Message> response = sentMessage("channelID", "Hello");
+Message message1 = response;
+//you may also do this
+Message message2 = sentMessage("channelID", "Hello again");
+```
+
+Can implicitly convert from Response into Type.
+
+#### Template Parameters
+<table>
+  <tbody>
+      <tr><td><strong>Type</strong></td>
+        <td>Class with a constructor with the parameter list that can take in just a Response*</td></tr>
+  </tbody>
+</table>
+
+#### cast
+```cpp
+Type cast();
+```
+
+```cpp
+std::string sentMessage = sendMessage.cast().content;
+```
+
+returns Type from Response.
+
+### ArrayResponse
+
+```cpp
+template <class Type>
+using ArrayResponse = 
+```
+
+```cpp
+ArrayResponse<Message> response = getMessages("channelID", na, "");
+std::vector<Message> messages = response;
+```
+
+Can implicitly convert from Response into a Container of Type objects.
 
 ## Functions
 
@@ -1082,6 +1219,8 @@ private:
 ```
 
 A macro that is a must for any Discord Clients that will be used by others, that may include you. It specifies functions that a normal user should not touch as private.
+
+# Custom UDP
 
 # Preprocessor Directives
 
