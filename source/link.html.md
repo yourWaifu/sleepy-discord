@@ -162,4 +162,14 @@ And now you should be able to build without any errors.
 Remember to change ``token``` to your token if you want to run the code.
 </aside>
 
-If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.
+If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors look below, search issues or post an issue on the github repository.
+
+#Common Issues
+
+##‘SSL_R_SHORT_READ’ was not declared in this scope
+```shell
+error: ‘SSL_R_SHORT_READ’ was not declared in this scope
+if (ERR_GET_REASON(ec.value()) == SSL_R_SHORT_READ) {
+                                  ^~~~~~~~~~~~~~~~
+```
+[Check out issue #77](https://github.com/yourWaifu/sleepy-discord/issues/77)

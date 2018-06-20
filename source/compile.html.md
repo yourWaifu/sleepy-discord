@@ -17,11 +17,6 @@ search: true
 The first step to using Sleepy Discord
 </aside>
 
-##Requirements
-
-- Visual Studio (recommended)
-- Python 3.6.3 (optional - setup script)
-
 ##Downloading Sleepy Discord
 
 [Just click here to download.](https://github.com/NoNamer64/sleepy-discord/zipball/master)
@@ -54,8 +49,6 @@ It's important to understand the requirements needed to run this library. You ca
 For people developing things for platforms outside of the main 3 operating systems, please make sure to use libraries are compatible with what you are developing for. You may use whatever you like thanks to custom.
 </aside>
 [](TODO add links to all and how to for the custom stuff)
-
-
 
 ##Automated setting up libraries
 ```powershell
@@ -135,7 +128,7 @@ There's only two options:
 * [Make](#make)
 
 ###Visual Studio
-Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you're done.
+Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you've compiled Sleepy Discord. [Go to the next step.](#the-next-step)
 
 <aside>
 For now, compiling for x64 doesn't work just yet.
@@ -155,7 +148,13 @@ Don't forget to change the configuration to ``Release`` if you don't want the de
 cd buildtools/
 make -f Makefile.linux
 ```
-Call those commands in your shell, and you're done. It should compile a file called libsleepy_discord.a.
+Call those commands in your shell, and you're done. It should compile a file called libsleepy_discord.a. After that, [go to the next step.](#the-next-step)
+
+##Common Issues
+
+### cannot open input file 'libcurl_a.lib'
+
+It looks like you don't have libcurl_a.lib. This guide only touches on compiling Sleepy Discord. However, you'll need it once we start linking Sleepy Discord to your code. So, [go to the next step,](link.html) which should be about linking.
 
 ##The Next Step
 Now that you have a compiled Sleepy Discord, head over to [How to Link](link.html) to link it to a new or existing project.
