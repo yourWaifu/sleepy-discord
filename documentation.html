@@ -556,7 +556,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
   <tbody>
       <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove</td></tr>
-      <tr><td><strong>memberID</strong></td>
+      <tr><td><strong>userID</strong></td>
         <td>The id of the user that you want to remove</td></tr>
   </tbody>
 </table>
@@ -564,6 +564,118 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h4 id="return-value">Return value</h4>
 
 <p>Returns <code class="prettyprint">true</code> on success</p>
+
+<h4 id="banmember">banMember</h4>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">banMember</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">userID</span><span class="p">);</span>
+</code></pre>
+<p>Bans a member from a server</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server with the user you want to ban</td></tr>
+    <tr><td><strong>userID</strong></td>
+      <td>The id of the user that you want to ban</td></tr>
+  </tbody>
+</table>
+
+<h3 id="getserver">getServer</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">getServer</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">);</span>
+</code></pre>
+<p>Get a server object from a ServerID</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server you want to get</td></tr>
+  </tbody>
+</table>
+
+<h4 id="return-value">Return value</h4>
+
+<p>Return a <code class="prettyprint">Server</code> object</p>
+
+<h3 id="getchannel">getChannel</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">getChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">);</span>
+</code></pre>
+<p>Get a channel object from a channelID</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>channelID</strong></td>
+      <td>The id of the channel you want to get</td></tr>
+  </tbody>
+</table>
+
+<h4 id="return-value">Return value</h4>
+
+<p>Return a <code class="prettyprint">Channel</code> object</p>
+
+<h3 id="editchannel">editChannel</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">editChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">topic</span> <span class="o">=</span> <span class="s">""</span><span class="p">);</span>
+</code></pre>
+<p>Edit the channel name and topic and return a Channel object of that channel</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>channelID</strong></td>
+      <td>The id of the channel you want to edit</td></tr>
+    <tr><td><strong>name</strong></td>
+      <td>The new name for the channel</td></tr>
+    <tr><td><strong>topic</strong></td>
+      <td>The new topic for the channel</td></tr>
+  </tbody>
+</table>
+
+<h4 id="return-value">Return value</h4>
+
+<p>Return a <code class="prettyprint">Channel</code> object</p>
+
+<h3 id="editchannelname">editChannelName</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">editChannelName</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">);</span>
+</code></pre>
+<p>Edit the channel name and return a Channel object of that channel</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>channelID</td>
+      <td>The id of the channel you want to edit</td></tr>
+    <tr><td><strong>name</td>
+      <td>The new name of the channel</td></tr>
+  </tbody>
+</table>
+
+<h4 id="return-value">Return value</h4>
+
+<p>Return a <code class="prettyprint">Channel</code> object</p>
+
+<h3 id="deletechannel">deleteChannel</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">);</span>
+</code></pre>
+<p>Delete a channel and return a Channel object of that channel</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>channelID</td>
+      <td>The id of the channel you want to delete</td></tr>
+  </tbody>
+</table>
+
+<h4 id="return-value">Return value</h4>
+
+<p>Return a <code class="prettyprint">Channel</code> object</p>
 
 <h3 id="updatestatus">updateStatus</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">updateStatus</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">gameName</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">idleSince</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
@@ -676,6 +788,8 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre>
+<p>Called when a guild is created/join the client</p>
+
 <h4 id="parameters">Parameters</h4>
 
 <table>
@@ -692,8 +806,8 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
   <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">onBan</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New ban, json data: "</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">jsonMessage</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">onBan</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New ban, json data: "</span> <span class="o">&lt;&lt;</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
   <span class="p">}</span>
 <span class="p">};</span>
 
@@ -704,6 +818,38 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre>
+<p>Called when a member is banned from a server</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
+  </tbody>
+</table>
+
+<h3 id="onunban">onUnban</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onUnban</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span><span class="p">);</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord.h&gt;
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">onUnban</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New Unban, json data: "</span> <span class="o">&lt;&lt;</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<p>Called when an user is unbaned from the server</p>
+
 <h4 id="parameters">Parameters</h4>
 
 <table>
@@ -730,6 +876,7 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre>
 <blockquote>
@@ -750,6 +897,36 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
   <tbody>
       <tr><td><strong>message</strong></td>
         <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/resources/channel#message-object">MESSAGE_CREATE event</a></td></tr>
+  </tbody>
+</table>
+
+<h3 id="oneditmessage">onEditMessage</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onEditMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span><span class="p">);</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord.h&gt;
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">onEditMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New edit message, json data: "</span> <span class="o">&lt;&lt;</span> <span class="err">\</span><span class="o">*</span><span class="n">jsonMessage</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<p>Called when a user edit a message</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
   </tbody>
 </table>
 
@@ -1307,6 +1484,8 @@ All functions <b>below</b> should be specified as private
 <span class="p">};</span>
 </code></pre>
 <p>A macro that is a must for any Discord Clients that will be used by others, that may include you. It specifies functions that a normal user should not touch as private.</p>
+
+<h1 id="custom-udp">Custom UDP</h1>
 
 <h1 id="preprocessor-directives">Preprocessor Directives</h1>
 

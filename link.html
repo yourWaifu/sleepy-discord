@@ -427,7 +427,16 @@ g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../de
 Remember to change &ldquo;token&rdquo;` to your token if you want to run the code.
 </aside>
 
-<p>If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors, post an issue on the github repository.</p>
+<p>If you did get an error, then check that you followed the instructions correctly. And, if you are still getting errors look below, search issues or post an issue on the github repository.</p>
+
+<h1 id="common-issues">Common Issues</h1>
+
+<h2 id="ssl_r_short_read-was-not-declared-in-this-scope">‘SSL_R_SHORT_READ’ was not declared in this scope</h2>
+<pre class="highlight shell tab-shell"><code>error: ‘SSL_R_SHORT_READ’ was not declared <span class="k">in </span>this scope
+<span class="k">if</span> <span class="o">(</span>ERR_GET_REASON<span class="o">(</span>ec.value<span class="o">())</span> <span class="o">==</span> SSL_R_SHORT_READ<span class="o">)</span> <span class="o">{</span>
+                                  ^~~~~~~~~~~~~~~~
+</code></pre>
+<p><a href="https://github.com/yourWaifu/sleepy-discord/issues/77">Check out issue #77</a></p>
 
       </div>
       <div class="dark-box">
