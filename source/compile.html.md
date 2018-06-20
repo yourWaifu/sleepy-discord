@@ -28,6 +28,35 @@ The first step to using Sleepy Discord
 
 Then unzip it by extracting the files out of the zip file.
 
+##Preparing
+It's important to understand the requirements needed to run this library. You can use this library without any dependencies, but it's easier with dependencies. To help you decide on the dependencies to use with this library, here are a list of options and other important details you will need to know when making your choice.
+
+###Features
+|Feature|Example|Requirements|
+|-------|-----------|------------|
+|REST API|Send a message using a request|HTTP Secure|
+|Gateway|Receiving a message at any time|Websockets Secure|
+|Voice|Talk in a voice channel|Websockets Secure, UDP, libOpus, and libsodium|
+
+###Libraries/Options
+|Option|Description|Dependencies|
+|------|-----------|------------|
+|Websocket++|A websocket library|OpenSSL and ASIO|
+|uWebsockets|A websocket library|OpenSSL, zlib, and libuv or ASIO (both optional on Linux)|
+|Custom Websockets|Define how Websockets will handled|None|
+|CPR|A HTTP library|libCURL|
+|Custom Session Class|Define how HTTP request will be handled|None|
+|ASIO|Networking library, used for UDP|None|
+|Custom UDP|Define how UDP request will be handled|None|
+|libOpus|A audio encoder and decoder library|None|
+|libsodium|An encryption library|None|
+<aside>
+For people developing things for platforms outside of the main 3 operating systems, please make sure to use libraries are compatible with what you are developing for. You may use whatever you like thanks to custom.
+</aside>
+[](TODO add links to all and how to for the custom stuff)
+
+
+
 ##Automated setting up libraries
 ```powershell
 PS C:\> python -v
