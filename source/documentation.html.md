@@ -359,6 +359,25 @@ Bans a member from a server
   </tbody>
 </table>
 
+### getServer
+
+```cpp
+ObjectResponse<Server> getServer(Snowflake<Server> serverID);
+```
+
+Get a server object from a ServerID
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server you want to get</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Server`` object
+
 ### updateStatus
 
 ```cpp
