@@ -275,7 +275,7 @@
 <h2 id="discordclient-functions">Functions</h2>
 
 <h3 id="deletechannel">deleteChannel</h3>
-<pre class="highlight cpp tab-cpp"><code><span class="n">Channel</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">deleteChannel</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">);</span>
 </code></pre>
 <h4 id="parameters">Parameters</h4>
 
@@ -397,8 +397,8 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <p>Uses <a href="https://discordapp.com/developers/docs/resources/channel#create-reaction">Create Reaction</a></p>
 
 <h3 id="editmessage">editMessage</h3>
-<pre class="highlight cpp tab-cpp"><code><span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
-<span class="n">Message</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channelID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messageID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
+<span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">editMessage</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newMessage</span><span class="p">);</span>
 </code></pre>
 <p>Edits an existing Message</p>
 
@@ -504,7 +504,7 @@ If you want to send a new line, use &ldquo;\\n&rdquo;. Normal escape chars do no
 <h3 id="addrole">addRole</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="n">addRole</span><span class="p">(</span><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">userID</span><span class="p">,</span> <span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Role</span><span class="o">&gt;</span> <span class="n">roleID</span><span class="p">);</span>
 </code></pre>
-<p>Gives a member a role on a server </p>
+<p>Gives a member a role on a server</p>
 
 <h4 id="parameters">Parameters</h4>
 
@@ -639,14 +639,77 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <p>Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.</p>
 
 <h3 id="onready">onReady</h3>
-<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">Ready</span> <span class="n">readyData</span><span class="p">);</span>
 </code></pre>
 <h4 id="parameters">Parameters</h4>
 
 <table>
   <tbody>
-      <tr><td><strong>milliseconds</strong></td>
-        <td>The amount of time to sleep for in milliseconds</td></tr>
+      <tr><td><strong>readyData</strong></td>
+        <td>contains things such as user, and privateChannels</td></tr>
+  </tbody>
+</table>
+
+<h3 id="onserver">onServer</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onServer</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Server</span> <span class="n">server</span><span class="p">);</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord.h&gt;
+</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">onServer</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Server</span> <span class="n">server</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">serverList</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">server</span><span class="p">);</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New server, name: "</span> <span class="o">&lt;&lt;</span> <span class="n">server</span><span class="p">.</span><span class="n">name</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Server</span><span class="o">&gt;</span> <span class="n">serverList</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>server</strong></td>
+      <td>Server object with all the info from the <a href="https://discordapp.com/developers/docs/topics/gateway#guild-create">GUILD_CREATE event</a></td></tr>
+  </tbody>
+</table>
+
+<h3 id="onban">onBan</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onBan</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">jsonMessage</span><span class="p">);</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="cp">#include &lt;sleepy_discord.h&gt;
+</span>
+<span class="k">class</span> <span class="nc">myClientClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="k">using</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">DiscordClient</span><span class="o">::</span><span class="n">DiscordClient</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">onBan</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">jsonMessage</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"New ban, json data: "</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">jsonMessage</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">myClientClass</span> <span class="n">client</span><span class="p">(</span><span class="s">"token"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">client</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
   </tbody>
 </table>
 
@@ -701,8 +764,8 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <span class="kr">inline</span>  <span class="n">Timer</span> <span class="n">schedule</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="n">BaseDiscordClient</span><span class="o">::*</span><span class="n">code</span><span class="p">)(),</span> <span class="k">const</span> <span class="kt">time_t</span> <span class="n">milliseconds</span><span class="p">,</span> <span class="n">AssignmentType</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">TilDueTime</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">Snowflake</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">message</span><span class="p">.</span><span class="n">channelID</span><span class="p">;</span>
 <span class="n">sendMessage</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="s">"Another message will be sent in 5 seconds from now."</span><span class="p">);</span>
-<span class="n">schedule</span><span class="p">([</span><span class="k">this</span><span class="p">,</span> <span class="n">channel</span><span class="p">]()</span> <span class="p">{</span> 
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="s">"5 seconds has pasted"</span><span class="p">);</span> 
+<span class="n">schedule</span><span class="p">([</span><span class="k">this</span><span class="p">,</span> <span class="n">channel</span><span class="p">]()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="s">"5 seconds has pasted"</span><span class="p">);</span>
 <span class="p">},</span> <span class="mi">5000</span><span class="p">);</span>
 </code></pre>
 <p>Creates a timer that will execute a function after the timer expires. Based on JavaScript&rsquo;s setTimeout()</p>
@@ -944,7 +1007,7 @@ Deprecated, use schedule instead
 </code></pre>
 <p>Based on <a href="https://discordapp.com/developers/docs/resources/user#user-object">the object with the same name from the api</a></p>
 
-<h3 id="user-comparison-operators">operator==</h3> 
+<h3 id="user-comparison-operators">operator==</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">User</span><span class="o">&amp;</span> <span class="n">rightUser</span><span class="p">);</span>
 </code></pre>
 <p>Compares the id of two Users</p>
@@ -961,6 +1024,50 @@ Deprecated, use schedule instead
 <h4 id="return-value">Return value</h4>
 
 <p><code class="prettyprint">true</code> when the two Users have the same id</p>
+
+<h1 id="voice">Voice</h1>
+
+<p><a href="voice.html">For a step by step guild on using voice, go to here</a>.
+<a href="TO%20DO%20Add%20examples%20for%20voice"></a></p>
+
+<h2 id="voicecontext">VoiceContext</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">VoiceContext</span><span class="o">&amp;</span> <span class="n">context</span> <span class="o">=</span> <span class="n">myClient</span><span class="p">.</span><span class="n">createContext</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"serverID"</span><span class="p">);</span>
+<span class="n">myClient</span><span class="p">.</span><span class="n">connectToVoiceChannel</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+</code></pre>
+<p>Represents the information needed to connect to a voice channel, such as the channelID and serverID.</p>
+
+<h2 id="basevoiceeventhandler">BaseVoiceEventHandler</h2>
+
+<p>class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
+public:
+    VoiceEventHandler() {}
+    void onReady(SleepyDiscord::VoiceConnection&amp; connection) {
+        connection.getDiscordClient().sendMessage(&quot;Connected to a voice channel&rdquo;);
+    }
+}
+VoiceEventHandler voiceEventHandler;</p>
+
+<p>Class with virtual functions for handling events related to voice.</p>
+
+<h3 id="events">Events</h3>
+
+<p>All events will give you a reference to the VoiceConnection.</p>
+
+<h3 id="onready">onReady</h3>
+
+<h3 id="onendspeaking">onEndSpeaking</h3>
+
+<h3 id="onheartbeat">onHeartbeat</h3>
+
+<h3 id="onheartbeatack">onHeartbeatAck</h3>
+
+<h2 id="voiceconnection">VoiceConnection</h2>
+
+<p>Class that connects to the voice channel and used for sending and receiving audio from the voice channel. The Discord client will create this for you. You get one from your VoiceEventHandler.</p>
+
+<h2 id="audiosources">AudioSources</h2>
+
+<p>Class representing the data that will be sent when speaking. When speaking, VoiceConnection will call AudioSource::read and use the audio data gotten from that call and send it to Discord&rsquo;s voice server.</p>
 
 <h1 id="session">Session</h1>
 <pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">GenericSession</span> <span class="p">{</span>
@@ -994,6 +1101,70 @@ Deprecated, use schedule instead
 <aside class="note">
 Response is a separate part of Session
 </aside>
+
+<p>There are a few class derived from Response as you can see below.</p>
+
+<h3 id="standardresponse">StandardResponse</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">StandardResponse</span> <span class="o">:</span> <span class="n">Response</span> <span class="p">{</span>
+</code></pre>
+<p>Used as a base for classes that are derived from Response.</p>
+
+<h3 id="booleanresponse">BooleanResponse</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">BooleanFunction</span> <span class="o">=</span> <span class="n">StandardBooleanResponseFunction</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">BooleanResponse</span> <span class="o">:</span> <span class="k">public</span> <span class="n">StandardResponse</span> <span class="p">{</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">BooleanResponse</span><span class="o">&lt;&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">deleteMessage</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"messageID"</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="n">wasSuccessful</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+<span class="c1">//you may also do this
+</span><span class="n">wasSuccessful</span> <span class="o">=</span> <span class="n">deleteMessage</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"messageID"</span><span class="p">);</span>
+</code></pre>
+<p>Can implicitly convert from Response to bool.</p>
+
+<h4 id="template-parameters">Template Parameters</h4>
+
+<table>
+  <tbody>
+      <tr><td><strong>BooleanFunction</strong></td>
+        <td>Class that acts like a function using the function call operator overload to convert a &ldquo;const Response&&rdquo; into a &ldquo;bool&rdquo;</td></tr>
+  </tbody>
+</table>
+
+<h4 id="resps">Resps</h4>
+<pre class="highlight cpp tab-cpp"><code><span class="n">BooleanResponse</span><span class="o">&lt;</span><span class="n">EmptyResp</span><span class="o">&gt;</span>
+</code></pre>
+<p>Resps, short for Responses, BooleanFunctions for status codes that are used to signal success. This should allow you see the response that Discord returns with added features.</p>
+
+<h3 id="objectresponse">ObjectResponse</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">ObjectResponse</span> <span class="o">:</span> <span class="k">public</span> <span class="n">StandardResponse</span> <span class="p">{</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">ObjectResponse</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">sentMessage</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"Hello"</span><span class="p">);</span>
+<span class="n">Message</span> <span class="n">message1</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+<span class="c1">//you may also do this
+</span><span class="n">Message</span> <span class="n">message2</span> <span class="o">=</span> <span class="n">sentMessage</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"Hello again"</span><span class="p">);</span>
+</code></pre>
+<p>Can implicitly convert from Response into Type.</p>
+
+<h4 id="template-parameters">Template Parameters</h4>
+
+<table>
+  <tbody>
+      <tr><td><strong>Type</strong></td>
+        <td>Class with a constructor with the parameter list that can take in just a Response*</td></tr>
+  </tbody>
+</table>
+
+<h4 id="cast">cast</h4>
+<pre class="highlight cpp tab-cpp"><code><span class="n">Type</span> <span class="n">cast</span><span class="p">();</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">sentMessage</span> <span class="o">=</span> <span class="n">sendMessage</span><span class="p">.</span><span class="n">cast</span><span class="p">().</span><span class="n">content</span><span class="p">;</span>
+</code></pre>
+<p>returns Type from Response.</p>
+
+<h3 id="arrayresponse">ArrayResponse</h3>
+<pre class="highlight cpp tab-cpp"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="o">&gt;</span>
+<span class="k">using</span> <span class="n">ArrayResponse</span> <span class="o">=</span> 
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">ArrayResponse</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">getMessages</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="n">na</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+</code></pre>
+<p>Can implicitly convert from Response into a Container of Type objects.</p>
 
 <h2 id="functions">Functions</h2>
 

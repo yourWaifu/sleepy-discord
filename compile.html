@@ -267,6 +267,98 @@ The first step to using Sleepy Discord
 
 <p>Then unzip it by extracting the files out of the zip file.</p>
 
+<h2 id="preparing">Preparing</h2>
+
+<p>It&rsquo;s important to understand the requirements needed to run this library. You can use this library without any dependencies, but it&rsquo;s easier with dependencies. To help you decide on the dependencies to use with this library, here are a list of options and other important details you will need to know when making your choice.</p>
+
+<h3 id="features">Features</h3>
+
+<table><thead>
+<tr>
+<th>Feature</th>
+<th>Example</th>
+<th>Requirements</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>REST API</td>
+<td>Send a message using a request</td>
+<td>HTTP Secure</td>
+</tr>
+<tr>
+<td>Gateway</td>
+<td>Receiving a message at any time</td>
+<td>Websockets Secure</td>
+</tr>
+<tr>
+<td>Voice</td>
+<td>Talk in a voice channel</td>
+<td>Websockets Secure, UDP, libOpus, and libsodium</td>
+</tr>
+</tbody></table>
+
+<h3 id="libraries-options">Libraries/Options</h3>
+
+<table><thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Dependencies</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Websocket++</td>
+<td>A websocket library</td>
+<td>OpenSSL and ASIO</td>
+</tr>
+<tr>
+<td>uWebsockets</td>
+<td>A websocket library</td>
+<td>OpenSSL, zlib, and libuv or ASIO (both optional on Linux)</td>
+</tr>
+<tr>
+<td>Custom Websockets</td>
+<td>Define how Websockets will handled</td>
+<td>None</td>
+</tr>
+<tr>
+<td>CPR</td>
+<td>A HTTP library</td>
+<td>libCURL</td>
+</tr>
+<tr>
+<td>Custom Session Class</td>
+<td>Define how HTTP request will be handled</td>
+<td>None</td>
+</tr>
+<tr>
+<td>ASIO</td>
+<td>Networking library, used for UDP</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Custom UDP</td>
+<td>Define how UDP request will be handled</td>
+<td>None</td>
+</tr>
+<tr>
+<td>libOpus</td>
+<td>A audio encoder and decoder library</td>
+<td>None</td>
+</tr>
+<tr>
+<td>libsodium</td>
+<td>An encryption library</td>
+<td>None</td>
+</tr>
+</tbody></table>
+
+<aside>
+For people developing things for platforms outside of the main 3 operating systems, please make sure to use libraries are compatible with what you are developing for. You may use whatever you like thanks to custom.
+</aside>
+
+<p><a href="TODO%20add%20links%20to%20all%20and%20how%20to%20for%20the%20custom%20stuff"></a></p>
+
 <h2 id="automated-setting-up-libraries">Automated setting up libraries</h2>
 <pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\&gt;</span> python -v
 Python 3.6.3 <span class="o">(</span>v3.6.3:2c5fed8, Oct  3 2017, 17:26:49<span class="o">)</span> <span class="o">[</span>MSC v.1900 32 bit <span class="o">(</span>Intel<span class="o">)]</span> on win32
