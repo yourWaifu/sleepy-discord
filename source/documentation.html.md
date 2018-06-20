@@ -378,6 +378,87 @@ Get a server object from a ServerID
 #### Return value
 Return a ``Server`` object
 
+### getChannel
+
+```cpp
+ObjectResponse<Channel> getChannel(Snowflake<Channel> channelID);
+```
+
+Get a channel object from a channelID
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>channelID</strong></td>
+      <td>The id of the channel you want to get</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Channel`` object
+
+### editChannel
+
+```cpp
+ObjectResponse<Channel> editChannel(Snowflake<Channel> channelID, std::string name = "", std::string topic = "");
+```
+
+Edit the channel name and topic and return a Channel object of that channel
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>channelID</strong></td>
+      <td>The id of the channel you want to edit</td></tr>
+    <tr><td><strong>name</strong></td>
+      <td>The new name for the channel</td></tr>
+    <tr><td><strong>topic</strong></td>
+      <td>The new topic for the channel</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Channel`` object
+
+
+### editChannelName
+```cpp
+ObjectResponse<Channel> editChannelName(Snowflake<Channel> channelID, std::string name);
+```
+
+Edit the channel name and return a Channel object of that channel
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>channelID</td>
+      <td>The id of the channel you want to edit</td></tr>
+    <tr><td><strong>name</td>
+      <td>The new name of the channel</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Channel`` object
+
+### deleteChannel
+```cpp
+ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
+```
+
+Delete a channel and return a Channel object of that channel
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>channelID</td>
+      <td>The id of the channel you want to delete</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Channel`` object
+
 ### updateStatus
 
 ```cpp
