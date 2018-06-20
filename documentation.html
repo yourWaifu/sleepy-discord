@@ -1213,17 +1213,16 @@ Deprecated, use schedule instead
 </code></pre>
 <p>Represents the information needed to connect to a voice channel, such as the channelID and serverID.</p>
 
-<h2 id="basevoiceeventhandler">BaseVoiceEventHandler</h2>
-
-<p>class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
-public:
-    VoiceEventHandler() {}
-    void onReady(SleepyDiscord::VoiceConnection&amp; connection) {
-        connection.getDiscordClient().sendMessage(&quot;Connected to a voice channel&rdquo;);
-    }
-}
-VoiceEventHandler voiceEventHandler;</p>
-
+<h2 id="basevoiceeventhandler">Base<wbr>Voice<wbr>Event<wbr>Handler</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">VoiceEventHandler</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">BaseVoiceEventHandler</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">VoiceEventHandler</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">VoiceConnection</span><span class="o">&amp;</span> <span class="n">connection</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">connection</span><span class="p">.</span><span class="n">getDiscordClient</span><span class="p">().</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">"Connected to a voice channel"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">VoiceEventHandler</span> <span class="n">voiceEventHandler</span><span class="p">;</span>
+</code></pre>
 <p>Class with virtual functions for handling events related to voice.</p>
 
 <h3 id="events">Events</h3>
@@ -1301,7 +1300,7 @@ Response is a separate part of Session
 <table>
   <tbody>
       <tr><td><strong>BooleanFunction</strong></td>
-        <td>Class that acts like a function using the function call operator overload to convert a &ldquo;const Response&&rdquo; into a &ldquo;bool&rdquo;</td></tr>
+        <td>Class that acts like a function using the function call operator overload to convert a ``const Response&&rdquo; into a &ldquo;bool&rdquo;</td></tr>
   </tbody>
 </table>
 
