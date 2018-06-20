@@ -333,13 +333,31 @@ Removes a member from a server
   <tbody>
       <tr><td><strong>serverID</strong></td>
         <td>The id of the server with the user you want to remove</td></tr>
-      <tr><td><strong>memberID</strong></td>
+      <tr><td><strong>userID</strong></td>
         <td>The id of the user that you want to remove</td></tr>
   </tbody>
 </table>
 
 #### Return value
 Returns ``true`` on success
+
+#### banMember
+
+```cpp
+bool banMember(Snowflake<Server> serverID, Snowflake<User> userID);
+```
+
+Bans a member from a server
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server with the user you want to ban</td></tr>
+    <tr><td><strong>userID</strong></td>
+      <td>The id of the user that you want to ban</td></tr>
+  </tbody>
+</table>
 
 ### updateStatus
 
@@ -470,6 +488,8 @@ int main() {
 }
 ```
 
+Called when a guild is created/join the client
+
 #### Parameters
 <table>
   <tbody>
@@ -488,8 +508,8 @@ virtual void onBan(std::string *jsonMessage);
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
-  void onBan(std::string *jsonMessage) {
-    std::cout << "New ban, json data: " << *jsonMessage << "\n";
+  void onBan(std::string \*jsonMessage) {
+    std::cout << "New ban, json data: " << \*jsonMessage << "\n";
   }
 };
 
@@ -500,6 +520,41 @@ int main() {
   return 0;
 }
 ```
+
+Called when a member is banned from a server
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
+  </tbody>
+</table>
+
+### onUnban
+```cpp
+virtual void onUnban(std::string \*jsonMessage);
+```
+```cpp
+#include <sleepy_discord.h>
+
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+  void onUnban(std::string \*jsonMessage) {
+    std::cout << "New Unban, json data: " << \*jsonMessage << "\n";
+  }
+};
+
+int main() {
+  myClientClass client("token", 2);
+  client.run();
+
+  return 0;
+}
+```
+
+Called when an user is unbaned from the server
 
 #### Parameters
 <table>
@@ -530,6 +585,7 @@ public:
 
 int main() {
 	myClientClass client("token", 2);
+  client.run();
 }
 ```
 >Input: Message received
@@ -550,6 +606,39 @@ Called when the Client receives a new message.
   <tbody>
       <tr><td><strong>message</strong></td>
         <td>Message object with all the info from the <a href="https://discordapp.com/developers/docs/resources/channel#message-object">MESSAGE_CREATE event</a></td></tr>
+  </tbody>
+</table>
+
+### onEditMessage
+```cpp
+virtual void onEditMessage(std::string \*jsonMessage);
+```
+```cpp
+#include <sleepy_discord.h>
+
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+  void onEditMessage(std::string \*jsonMessage) {
+    std::cout << "New edit message, json data: " << \*jsonMessage << "\n";
+  }
+};
+
+int main() {
+  myClientClass client("token", 2);
+  client.run();
+
+  return 0;
+}
+```
+
+Called when a user edit a message
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>jsonMessage</strong></td>
+    <td>This is the raw data for the event, this should be changed when a proper object is implemented </td>
   </tbody>
 </table>
 
