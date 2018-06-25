@@ -426,7 +426,7 @@ namespace SleepyDiscord {
 		}
 
 		if (!wasHeartbeatAcked) {
-			reconnect(1006);
+			reconnect(1001);
 			return;
 		}
 
