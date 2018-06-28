@@ -13,7 +13,24 @@ namespace SleepyDiscord {
 		disconnect();
 	}
 
-	void VoiceConnection::disconnect()  {
+	void VoiceConnection::disconnect() {
+		std::string update;
+		/*The number 103 comes from the number of letters in this string + 1:
+		{"op":4,"d":{"guild_id":"18446744073709551615","channel_id":null,"self_mute":false,"self_deaf":false}}
+		*/
+		update.reserve(103);
+		update +=
+			"{"
+				"\"op\":4,"
+				"\"d\":{"
+					"\"guild_id\":\""; update += context.serverID; update += "\","
+					"\"channel_id\":null,"
+					"\"self_mute\":false,"
+					"\"self_deaf\":false"
+				"}"
+			"}";
+		origin->send(update, origin->connection);
+
 		if (state & State::CONNECTED)
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
