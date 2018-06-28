@@ -7,15 +7,18 @@ namespace SleepyDiscord {
 	class ASIOUDPClient : public GenericUDPClient {
 	public:
 		ASIOUDPClient();
-	protected:
-		virtual bool         connect(const std::string& to  , const uint16_t port                                            ) override;
-		virtual bool         send   (                                              const uint8_t* buffer, size_t bufferLength) override;
-		std::vector<uint8_t> receive(const std::string& from, const uint16_t port                                            ) override;
+		bool connect(const std::string& to  , const uint16_t port) override;
+		void send(
+			const uint8_t* buffer,
+			size_t bufferLength,
+			SendHandler handler = []() {}
+		) override;
+		void receive(ReceiveHandler handler) override;
 	private:
 		asio::io_service iOService;
 		asio::ip::udp::socket uDPSocket;
 		asio::ip::udp::resolver resolver;
-		asio::ip::udp::endpoint dest;
+		asio::ip::udp::endpoint endpoint;
 	};
 
 	typedef ASIOUDPClient UDPClient;

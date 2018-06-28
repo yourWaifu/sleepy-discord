@@ -52,7 +52,7 @@ namespace SleepyDiscord {
 		Snowflake<Server> serverID;
 		std::string sessionID = "";
 		std::string endpoint = "";
-		std::string token; //the same token used to log in?
+		std::string token;
 		BaseVoiceEventHandler* eventHandler;
 	};
 
@@ -72,8 +72,7 @@ namespace SleepyDiscord {
 		virtual ~BaseAudioSource() {}
 	};
 
-	//I'm not sure if it's really a good idea for this to be a nested class
-	class VoiceConnection : public UDPClient, public GenericMessageReceiver {
+	class VoiceConnection : public GenericMessageReceiver {
 	public:
 		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
 			origin(client), context(_context) {
@@ -131,6 +130,7 @@ namespace SleepyDiscord {
 			ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
 		};
 
+		UDPClient UDP;
 		int heartbeatInterval = 0;
 		uint32_t sSRC;
 		uint16_t port;

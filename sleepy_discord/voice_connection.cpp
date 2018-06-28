@@ -62,39 +62,40 @@ namespace SleepyDiscord {
 			//start heartbeating
 			heartbeat();
 			//connect to UDP
-			UDPClient::connect(context.endpoint, port);
+			UDP.connect(context.endpoint, port);
 			//IP Discovery
 			unsigned char packet[70] = { 0 };
 			packet[0] = (sSRC >> 24) & 0xff;
 			packet[1] = (sSRC >> 16) & 0xff;
 			packet[2] = (sSRC >>  8) & 0xff;
 			packet[3] = (sSRC      ) & 0xff;
-			UDPClient::send(packet, 70);
-			const std::vector<uint8_t> iPDiscovery = UDPClient::receive(context.endpoint, port); //note: receive blocks and is not async
-			//find start of string. 0x60 is a bitmask that should filter out non-letters
-			std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 2;
-			const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0)); //find may not be needed
-			//send Select Protocol Payload
-			std::string protocol;
-			/*The number 101 comes from the number of letters in this string + 1:
-				{"op": 1,"d": {"protocol": "udp","data": {
-				"address": "","port": 65535,
-				"mode": "xsalsa20_poly1305"}}}
-			*/
-			protocol.reserve(101 + iPAddress.length());
-			protocol +=
-				"{"
-					"\"op\": 1," //VoiceOPCode::SELECT_PROTOCOL
-					"\"d\": {"
-						"\"protocol\": \"udp\","
-						"\"data\": {"
-							"\"address\": \""; protocol += iPAddress           ; protocol += "\","
-							"\"port\": "     ; protocol += std::to_string(port); protocol +=   ","
-							"\"mode\": \"xsalsa20_poly1305\""
+			UDP.send(packet, 70);
+			UDP.receive([&](const std::vector<uint8_t>& iPDiscovery) {
+				//find start of string. 0x60 is a bitmask that should filter out non-letters
+				std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 2;
+				const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0));
+				//send Select Protocol Payload
+				std::string protocol;
+				/*The number 101 comes from the number of letters in this string + 1:
+					{"op": 1,"d": {"protocol": "udp","data": {
+					"address": "","port": 65535,
+					"mode": "xsalsa20_poly1305"}}}
+				*/
+				protocol.reserve(101 + iPAddress.length());
+				protocol +=
+					"{"
+						"\"op\": 1," //VoiceOPCode::SELECT_PROTOCOL
+						"\"d\": {"
+							"\"protocol\": \"udp\","
+							"\"data\": {"
+								"\"address\": \""; protocol += iPAddress           ; protocol += "\","
+								"\"port\": "     ; protocol += std::to_string(port); protocol +=   ","
+								"\"mode\": \"xsalsa20_poly1305\""
+							"}"
 						"}"
-					"}"
-				"}";
-			origin->send(protocol, connection);
+					"}";
+				origin->send(protocol, connection);
+			});
 			}
 			state = static_cast<State>(state | State::OPEN);
 			break;
@@ -324,7 +325,7 @@ namespace SleepyDiscord {
 		crypto_secretbox_easy(audioDataPacket.data() + sizeof header,
 			encodedAudioData, length, nonce, secretKey);
 
-		UDPClient::send(audioDataPacket.data(), audioDataPacket.size());
+		UDP.send(audioDataPacket.data(), audioDataPacket.size());
 		samplesSentLastTime = frameSize << 1;
 		timestamp += frameSize;
 #endif

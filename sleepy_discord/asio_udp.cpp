@@ -10,28 +10,40 @@ namespace SleepyDiscord {
 	}
 
 	bool ASIOUDPClient::connect(const std::string & to, const uint16_t port) {
-		dest = *resolver.resolve({ asio::ip::udp::v4(), to, std::to_string(port) });
+		endpoint = *resolver.resolve({ asio::ip::udp::v4(), to, std::to_string(port) });
 		return true;
 	}
 
 	void handle_send(
 		const std::error_code& /*error*/,
-		std::size_t /*bytes_transferred*/) {
+		std::size_t /*bytes_transferred*/,
+		GenericUDPClient::SendHandler handler
+	) {
+		handler();
 	}
 
-	bool ASIOUDPClient::send(const uint8_t * buffer, size_t bufferLength) {
-		uDPSocket.async_send_to(asio::buffer(buffer, bufferLength), dest,
-			std::bind(&handle_send, std::placeholders::_1, std::placeholders::_2)
+	void ASIOUDPClient::send(
+		const uint8_t* buffer,
+		size_t bufferLength,
+		SendHandler handler
+	) {
+		uDPSocket.async_send_to(asio::buffer(buffer, bufferLength), endpoint,
+			std::bind(&handle_send, std::placeholders::_1, std::placeholders::_2, handler)
 		);
-		return true;
 	}
 
-	std::vector<uint8_t> ASIOUDPClient::receive(const std::string & from, const uint16_t port) {
-		//to do maybe remove magic number 256
-		uint8_t buffer[256];
-		asio::ip::udp::endpoint sender(asio::ip::udp::v4(), port);
-		std::size_t btyesReceived = uDPSocket.receive_from(asio::buffer(buffer, 256), sender, 0);
-		return std::vector<uint8_t>(buffer, buffer + btyesReceived);
+	void handle_receive(
+		const std::error_code& /*error*/,
+		std::size_t /*bytes_transferred*/
+	) {
+
+	}
+
+	void ASIOUDPClient::receive(ReceiveHandler handler) {
+		constexpr std::size_t bufferSize = 1 << 16;
+		uint8_t buffer[bufferSize];
+		std::size_t btyesReceived = uDPSocket.receive_from(asio::buffer(buffer, bufferSize), endpoint, 0);
+		handler(std::vector<uint8_t>(buffer, buffer + btyesReceived));
 	}
 };
 
