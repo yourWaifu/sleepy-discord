@@ -53,4 +53,22 @@ namespace SleepyDiscord {
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
+
+	/*
+	Voice Server Update Event Fields
+	Field     Type       Description
+	token     string     voice connection token
+	guild_id  snowflake  the guild this voice server update is for
+	endpoint  string     the voice server host
+	*/
+	struct VoiceServerUpdate : DiscordObject {
+		VoiceServerUpdate();
+		VoiceServerUpdate(const std::string * rawJson);
+		VoiceServerUpdate(const std::vector<std::string> values);
+		std::string token;
+		Snowflake<Server> serverID;
+		std::string endpoint;
+	private:
+		const static std::initializer_list<const char*const> fields;
+	};
 }

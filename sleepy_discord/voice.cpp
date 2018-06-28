@@ -43,4 +43,19 @@ namespace SleepyDiscord {
 		"id", "name", "sample_hostname", "sample_port" , "vip", "optimal",
 		"deprecated", "custom"
 	};
+
+	const std::initializer_list<const char*const> VoiceServerUpdate::fields = {
+		"token", "guild_id", "endpoint"
+	};
+
+	VoiceServerUpdate::VoiceServerUpdate() {}
+
+	VoiceServerUpdate::VoiceServerUpdate(const std::string * rawJSON) : VoiceServerUpdate(json::getValues(rawJSON->c_str(), fields)) {}
+
+	VoiceServerUpdate::VoiceServerUpdate(const std::vector<std::string> values) :
+		//variable value              felid
+		token   (values[index(fields, "token"   )]),
+		serverID(values[index(fields, "guild_id")]),
+		endpoint(values[index(fields, "endpoint")])
+	{}
 }

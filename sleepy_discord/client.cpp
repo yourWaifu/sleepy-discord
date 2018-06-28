@@ -391,7 +391,6 @@ namespace SleepyDiscord {
 						return state.channelID == w->channelID && w->sessionID == "";
 					});
 					if (iterator != waitingVoiceContexts.end()) {
-						onError(ERROR_NOTE, "testing VOICE_STATE_UPDATE");
 						VoiceContext& context = **iterator;
 						context.sessionID = state.sessionID;
 						connectToVoiceIfReady(context);
@@ -406,27 +405,22 @@ namespace SleepyDiscord {
 			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
 			case hash("MESSAGE_DELETE_BULK"        ): onBulkDelete        (d); break;
 			case hash("VOICE_SERVER_UPDATE"        ): {
-				const std::initializer_list<const char* const> fields({
-				"token", "guild_id", "endpoint"
-				});
-				const std::vector<std::string> values = json::getValues(d->c_str(), fields);
-				Snowflake<Server> serverID = values[index(fields, "guild_id")];
+				VoiceServerUpdate voiceServer(d);
 #ifdef SLEEPY_VOICE_ENABLED
 				if (!waitingVoiceContexts.empty()) {
 					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&serverID](const VoiceContext* w) {
-						return serverID == w->serverID && w->endpoint == "";
+						[&voiceServer](const VoiceContext* w) {
+						return voiceServer.serverID == w->serverID && w->endpoint == "";
 					});
 					if (iterator != waitingVoiceContexts.end()) {
-						onError(ERROR_NOTE, "testing VOICE_SERVER_UPDATE");
 						VoiceContext& context = **iterator;
-						context.token    = values[index(fields, "token"   )];
-						context.endpoint = values[index(fields, "endpoint")];
+						context.token    = voiceServer.token;
+						context.endpoint = voiceServer.endpoint;
 						connectToVoiceIfReady(context);
 					}
 				}
 #endif
-				onEditVoiceServer(serverID);
+				onEditVoiceServer(voiceServer);
 				} break;
 			case hash("GUILD_SYNC"                 ): onServerSync        (d); break;
 			case hash("RELATIONSHIP_ADD"           ): onRelationship      (d); break;
@@ -452,8 +446,7 @@ namespace SleepyDiscord {
 			break;
 		case INVALID_SESSION:
 			if (d[0][0] == 't') {
-				sleep(2500);
-				sendResume();
+				schedule(&BaseDiscordClient::sendResume, 2500);
 			} else {
 				sessionID = "";
 				sendIdentity();
@@ -517,8 +510,6 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings) {
-		onError(ERROR_NOTE, "testing connectToVoiceChannel");
-
 		std::string voiceState;
 		/*The number 131 came from the number of letters in this string:
 		  {"op": 4,"d" : {"guild_id": "18446744073709551615",
@@ -530,7 +521,7 @@ namespace SleepyDiscord {
 			"{"
 				"\"op\": 4,"
 				"\"d\": {"
-				"\"guild_id\": \""; voiceState += voiceContext.serverID; voiceState += "\","
+					"\"guild_id\": \""; voiceState += voiceContext.serverID; voiceState += "\","
 					"\"channel_id\""": \""; voiceState += voiceContext.channelID; voiceState += "\","
 					"\"self_mute\"" ": "; voiceState += settings & mute   ? "true" : "false"; voiceState += ","
 					"\"self_deaf\"" ": "; voiceState += settings & deafen ? "true" : "false"; voiceState +=
@@ -553,8 +544,6 @@ namespace SleepyDiscord {
 		if (context.endpoint == "" || context.sessionID == "") //check that we are ready
 			return;
 
-		onError(ERROR_NOTE, "testing connetToVoiceIfReady ready");
-		
 		//remove the port numbers at the end of the endpoint string
 		std::string& givenEndpoint = context.endpoint;
 		givenEndpoint = givenEndpoint.substr(0, givenEndpoint.find(':'));

@@ -109,7 +109,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceServer(Snowflake<Server> serverID) {
+	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate voiceServerUpdate) {
 
 	}
 
