@@ -272,7 +272,6 @@ namespace SleepyDiscord {
 		virtual void onDeleteMessage     (std::string* jsonMessage  );
 		virtual void onEditMessage       (std::string* jsonMessage  );
 		virtual void onBulkDelete        (std::string* jsonMessage  );
-		virtual void onEditVoiceServer   (Snowflake<Server> serverID);
 		virtual void onServerSync        (std::string* jsonMessage  );
 		virtual void onRelationship      (std::string* jsonMessage  );
 		virtual void onRemoveRelationship(std::string* jsonMessage  );
@@ -288,6 +287,7 @@ namespace SleepyDiscord {
 		virtual void onChannel           (std::string* jsonMessage  );
 		virtual void onEditedRole        (std::string* jsonMessage  );
 		virtual void onDispatch          (std::string* jsonMessage  );
+		virtual void onEditVoiceServer   (VoiceServerUpdate update);
 
 		//websocket stuff
 		virtual void onHeartbeat();
