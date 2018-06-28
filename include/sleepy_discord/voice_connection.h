@@ -16,8 +16,11 @@ namespace SleepyDiscord {
 
 	class BaseVoiceEventHandler {
 	public:
-		//to do add more events
+
 		virtual void onReady(VoiceConnection&) {}
+		virtual void onEndSpeaking(VoiceConnection&) {}
+		virtual void onHeartbeat(VoiceConnection&) {}
+		virtual void onHeartbeatAck(VoiceConnection&) {}
 	};
 
 	struct VoiceContext {
@@ -59,9 +62,7 @@ namespace SleepyDiscord {
 	enum AudioSourceType {
 		AUDIO_BASE_TYPE,
 		AUDIO_VECTOR,
-		AUDIO_VECTOR_S16,
 		AUDIO_POINTER,
-		AUDIO_POINTER_S16
 	};
 
 	struct BaseAudioSource {
@@ -74,10 +75,7 @@ namespace SleepyDiscord {
 
 	class VoiceConnection : public GenericMessageReceiver {
 	public:
-		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-			origin(client), context(_context) {
-		}
-
+		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context);
 		VoiceConnection(VoiceConnection&&) = default;
 
 		~VoiceConnection();
@@ -88,14 +86,30 @@ namespace SleepyDiscord {
 
 		void disconnect();
 
-		void startSpeaking(BaseAudioSource* source) {
+		inline void setAudioSource(BaseAudioSource*& source) {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
+		}
+
+		inline BaseAudioSource*const& getAudioSource() {
+			return audioSource.get();
+		}
+
+		//=== startSpeaking functions ===
+
+		void startSpeaking();
+
+		inline void startSpeaking(BaseAudioSource* source) {
+			setAudioSource(source);
 			startSpeaking();
 		}
 
 		template<class AudioSource, class... Types>
 		inline void startSpeaking(Types&&... arguments) {
 			startSpeaking(new AudioSource(std::forward<Types>(arguments)...));
+		}
+
+		inline BaseDiscordClient& getDiscordClient() {
+			return *origin;
 		}
 
 	private:
@@ -153,7 +167,6 @@ namespace SleepyDiscord {
 		unsigned char secretKey[SECRET_KEY_SIZE];
 
 		void heartbeat();
-		void startSpeaking();
 		inline void stopSpeaking() {
 			state = static_cast<State>(state & ~SENDING_AUDIO);
 		}
@@ -209,7 +222,7 @@ namespace SleepyDiscord {
 
 	template<>
 	struct AudioSource<AUDIO_VECTOR> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_VECTOR_S16) {}
+		AudioSource() : BaseAudioSource(AUDIO_VECTOR) {}
 		virtual std::vector<int16_t> read(AudioTransmissionDetails& details) {
 			return std::vector<int16_t>();
 		};
@@ -217,7 +230,7 @@ namespace SleepyDiscord {
 
 	template<>
 	struct AudioSource<AUDIO_POINTER> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_POINTER_S16) {}
+		AudioSource() : BaseAudioSource(AUDIO_POINTER) {}
 		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
 	};
 }

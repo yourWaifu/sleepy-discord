@@ -4,6 +4,10 @@
 #include "client.h"
 
 namespace SleepyDiscord {
+	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
+		origin(client), context(_context), UDP() {
+	}
+
 	VoiceConnection::~VoiceConnection() {
 		stopSpeaking();
 		disconnect();
@@ -18,18 +22,12 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processMessage(const std::string &message) {
-
-		origin->onError(ERROR_NOTE, "testing VOICE processMessage");
-
-		//to do there is reused code here, plase place them into functions
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d" });
 		VoiceOPCode op = static_cast<VoiceOPCode>(std::stoi(values[0]));
 		std::string *d = &values[1];
 		switch (op) {
 		case HELLO: {
-			origin->onError(ERROR_NOTE, "testing VOICE HELLO");
-
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
 			std::string identity;
 			/*The number 116 comes from the number of letters in this string + 1:
@@ -53,8 +51,6 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | CONNECTED);
 			break;
 		case READY: {
-			origin->onError(ERROR_NOTE, "testing VOICE READY");
-
 			std::vector<std::string> values = json::getValues(d->c_str(),
 			{ "ssrc", "port" });
 			sSRC = std::stoul(values[0]);
@@ -99,10 +95,7 @@ namespace SleepyDiscord {
 			}
 			state = static_cast<State>(state | State::OPEN);
 			break;
-		case SESSION_DESCRIPTION:
-			origin->onError(ERROR_NOTE, "testing VOICE SESSION_DESCRIPTION");
-
-			{
+		case SESSION_DESCRIPTION: {
 			std::vector<std::string> stringArray = json::getArray(&json::getValue(d->c_str(), "secret_key"));
 			const std::size_t stringArraySize = stringArray.size();
 			for (std::size_t i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
@@ -115,21 +108,16 @@ namespace SleepyDiscord {
 				context.eventHandler->onReady(*this);
 			break;
 		case RESUMED:
-			origin->onError(ERROR_NOTE, "testing VOICE RESUMED");
 			break;
 		case HEARTBEAT_ACK:
-			origin->onError(ERROR_NOTE, "testing VOICE HEARTBEAT_ACK");
+			context.eventHandler->onHeartbeatAck(*this);
 			break;
 		default:
-			origin->onError(ERROR_NOTE, "testing VOICE default");
 			break;
 		}
 	}
 
 	void VoiceConnection::heartbeat() {
-
-		origin->onError(ERROR_NOTE, "testing VOICE heartbeat");
-
 		//timestamp int
 		const uint64_t bitMask52 = 0x1FFFFFFFFFFFFF;
 		const uint64_t currentTime = static_cast<uint16_t>(origin->getEpochTimeMillisecond());
@@ -145,6 +133,8 @@ namespace SleepyDiscord {
 				"\"d\": "; heartbeat += nonce; heartbeat += 
 			'}';
 		origin->send(heartbeat, connection);
+
+		context.eventHandler->onHeartbeat(*this);
 
 		heart = origin->schedule([this]() {
 			this->heartbeat();
@@ -219,16 +209,14 @@ namespace SleepyDiscord {
 
 		//send the audio data
 		switch (audioSource->type) {
-		case AUDIO_VECTOR:
-		case AUDIO_VECTOR_S16: {
+		case AUDIO_VECTOR: {
 			auto audioVectorSource = &static_cast<AudioSource<AUDIO_VECTOR>&>(*audioSource);
 			std::vector<int16_t> audioData = audioVectorSource->read(details);
 			int16_t* audioBuffer = audioData.data();
 			length = audioData.size();
 			speak(audioBuffer, length);
 		} break;
-		case AUDIO_POINTER:
-		case AUDIO_POINTER_S16: {
+		case AUDIO_POINTER: {
 			auto audioVectorSource = &static_cast<AudioSource<AUDIO_POINTER>&>(*audioSource);
 			int16_t * audioData = nullptr;
 			audioVectorSource->read(details, audioData, length);
@@ -239,7 +227,9 @@ namespace SleepyDiscord {
 		}
 
 		if ((state & SENDING_AUDIO) == 0) {
-			return sendSpeaking(false);
+			sendSpeaking(false);
+			context.eventHandler->onEndSpeaking(*this);
+			return;
 		}
 
 		//schedule next send
