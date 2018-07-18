@@ -4,14 +4,14 @@
 namespace SleepyDiscord {
 
 	WebsocketppDiscordClient::WebsocketppDiscordClient(const std::string token, const char numOfThreads) :
-		maxNumOfThreads(numOfThreads)
+		maxNumOfThreads(numOfThreads), _thread(nullptr)
 	{
 		init();
 		start(token, numOfThreads);
 	}
 
 	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
-		if (_thread) _thread->join();
+		if (_thread->joinable()) _thread->join();
 		else _thread.reset();
 	}
 
