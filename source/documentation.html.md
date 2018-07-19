@@ -24,7 +24,7 @@ Hello there, if you are looking for some help on using the Sleepy Discord Librar
     </tr>
     <tr>
       <td><a href="link.html">How To Link Sleepy Discord</a></td>
-      <td><a herf="voice.html">Creating Applications with Voice</a></td>
+      <td><a href="voice.html">Creating Applications with Voice</a></td>
     </tr>
     <tr>
       <td><a href="breaking changes.html">Breaking Changes</a></td>
