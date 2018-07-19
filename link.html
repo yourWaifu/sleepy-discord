@@ -438,6 +438,12 @@ Remember to change &ldquo;token&rdquo;` to your token if you want to run the cod
 </code></pre>
 <p><a href="https://github.com/yourWaifu/sleepy-discord/issues/77">Check out issue #77</a></p>
 
+<h3 id="sleepydiscord-is-not-a-class-or-namespace">SleepyDiscord is not a class or namespace</h3>
+
+<p>Generally happens when you are missing websocket++ or uWebSockets. Take a look at the top, #include &ldquo;sleepy_discord/&lt;LIBRARY&gt;_websocket.h&rdquo;. Check that you have the library inside <code class="prettyprint">deps/include</code>. if they are missing, try using the setup script again.</p>
+
+<p>If not, take a look your project&rsquo;s include directories in the project properties. Take note of the config that&rsquo;s being edited (At the top of the project properties or right below the title bar, see where it says Configuration?) and the order of the directories. Make sure <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code> is last on the list. 2nd make sure the paths actually go to the correct directories.</p>
+
       </div>
       <div class="dark-box">
       </div>
