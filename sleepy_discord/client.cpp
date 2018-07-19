@@ -31,9 +31,6 @@ namespace SleepyDiscord {
 
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
-#ifndef SLEEPY_ONE_THREAD
-		if (clock_thread.joinable()) clock_thread.join();
-#endif
 		if (heart.isValid()) heart.stop();
 	}
 
@@ -112,23 +109,15 @@ namespace SleepyDiscord {
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				//get timezone offset
-				const std::time_t time = std::time(nullptr);
+				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
 #if defined(_WIN32) || defined(_WIN64)
-				std::tm localTM;
 				std::tm gmTM;
-				std::tm*const local = &localTM;
-				std::tm*const gm    = &gmTM;
-				localtime_s(local, &time);
-				gmtime_s   (gm   , &time);
+				std::tm*const resetGM = &gmTM;
+				gmtime_s(resetGM, &reset);
 #else
-				std::tm* local = std::localtime(&time);
-				std::tm* gm    = std::gmtime   (&time);
+				std::tm* resetGM = std::gmtime(&reset);
 #endif
-				const time_t offset     = std::mktime(local) - std::mktime(gm);
-				const time_t reset      = std::stoi(response.header["X-RateLimit-Reset"]);
-				const time_t now        = mktime(&date) + offset;
-				const time_t resetDelta = reset - now;
+				const time_t resetDelta = std::mktime(resetGM) - std::mktime(&date);
 				nextRetry               = (resetDelta * 1000) + getEpochTimeMillisecond();
 				isRateLimited           = true;
 				setError(TOO_MANY_REQUESTS);  //todo make this a warning
