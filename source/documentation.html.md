@@ -13,7 +13,7 @@ search: true
 
 # A Warm Welcome
 
-Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can alway find me on the Discord API server. If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
+Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can alway find me on the [Discord API server](https://discord.gg/discord-api). If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
 
 # Topics
 <table>
@@ -24,6 +24,10 @@ Hello there, if you are looking for some help on using the Sleepy Discord Librar
     </tr>
     <tr>
       <td><a href="link.html">How To Link Sleepy Discord</a></td>
+      <td><a herf="voice.html">Creating Applications with Voice</a></td>
+    </tr>
+    <tr>
+      <td><a href="breaking changes.html">Breaking Changes</a></td>
       <td><a>  </a></td>
     </tr>
   </tbody>

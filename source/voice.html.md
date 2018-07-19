@@ -71,9 +71,15 @@ You'll need those if you want to send or receive audio.
 
 ### Sodium
 
+Instructions on [libsodium's website](https://download.libsodium.org/doc/installation/)
+
 ### Opus
 
+Download the source from [opus's website](https://opus-codec.org/downloads/). It will contain instructions for compiling with make. You can also compile using Visual Studio from the files inside win32.
+
 ### A UDP library
+
+Two options, using a custom one or you may instead use ASIO, which you should already have if you are using Websockets++ or uWebSockets.
 
 ## Sending Audio
 

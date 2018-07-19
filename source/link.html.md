@@ -173,3 +173,8 @@ if (ERR_GET_REASON(ec.value()) == SSL_R_SHORT_READ) {
                                   ^~~~~~~~~~~~~~~~
 ```
 [Check out issue #77](https://github.com/yourWaifu/sleepy-discord/issues/77)
+
+### SleepyDiscord is not a class or namespace
+Generally happens when you are missing websocket++ or uWebSockets. Take a look at the top, #include "sleepy_discord/&lt;LIBRARY&gt;_websocket.h". Check that you have the library inside ``deps/include``. if they are missing, try using the setup script again.
+
+If not, take a look your project's include directories in the project properties. Take note of the config that's being edited (At the top of the project properties or right below the title bar, see where it says Configuration?) and the order of the directories. Make sure ``\include\sleepy_discord\IncludeNonexistent`` is last on the list. 2nd make sure the paths actually go to the correct directories.

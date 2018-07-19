@@ -28,10 +28,6 @@ Updating the library may stop your code from compiling correctly or behave diffe
  	 * ``BaseDiscordClient::onReady`` now uses a ``Ready`` object
 	 * ``BaseDiscordClient::onEditVoiceState`` now uses ``VoiceState``
 	 * ``BaseDiscordClient::onEditVoiceServer`` now uses ````
-
-<!--The others-->
-
- * ``BaseDiscordClient::listMembers`` now actually works
  * ``SLEEPY_AUTO_SELECT_CLIENT`` has be removed and is now on by default when using ``#include "sleepy_discord/sleepy_discord.h"``
  * Using numbers in the Discord Client constructor is now deprecated
 	* Instead use ``USER_CONTROLED_THREADS`` or ``USE_RUN_THREAD``
