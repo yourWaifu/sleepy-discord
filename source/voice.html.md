@@ -14,6 +14,10 @@ search: true
 
 # Creating Applications with Voice
 
+<aside class="note">
+Voice support is in the develop branch
+</aside>
+
 ## Connect to a Voice Channel
 
 ```cpp
