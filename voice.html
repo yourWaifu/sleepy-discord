@@ -250,6 +250,10 @@
 
 <h1 id="creating-applications-with-voice">Creating Applications with Voice</h1>
 
+<aside class="note">
+Voice support is in the develop branch
+</aside>
+
 <h2 id="connect-to-a-voice-channel">Connect to a Voice Channel</h2>
 <pre class="highlight cpp tab-cpp"><code><span class="n">myClient</span><span class="p">.</span><span class="n">connectToVoiceChannel</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"serverID"</span><span class="p">);</span>
 </code></pre><pre class="highlight cpp tab-cpp"><code><span class="n">myClient</span><span class="p">.</span><span class="n">connectToVoiceChannel</span><span class="p">(</span><span class="n">myClient</span><span class="p">.</span><span class="n">createVoiceContext</span><span class="p">(</span><span class="s">"channelID"</span><span class="p">,</span> <span class="s">"serverID"</span><span class="p">,</span> <span class="nb">nullptr</span><span class="p">));</span>
