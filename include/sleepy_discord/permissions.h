@@ -1,12 +1,18 @@
 #pragma once
 #include <string>
+#include <algorithm>
 #include "discord_object_interface.h"
 #include "snowflake.h"
 
 //source: discord api docs | /topics/Permissions.md | Nov 16
 
 namespace SleepyDiscord {
-	enum Permission {
+	struct ServerMember;
+	struct Server;
+	struct Overwrite;
+	struct Channel;
+
+	enum Permission : int64_t {
 		CREATE_INSTANT_INVITE = 0x00000001, //Allows creation of instant invites
 		KICK_MEMBERS    /**/  = 0x00000002, //Allows kicking members
 		BAN_MEMBERS     /**/  = 0x00000004, //Allows banning members
@@ -37,11 +43,34 @@ namespace SleepyDiscord {
 		//              /**/ These permissions require the owner account to use two-factor authentication when used on a guild that has server-wide 2FA enabled.
 
 		NONE                  = 0x000000000, //this permission doens't exist, I made it up
+		ALL                   = 0xFFFFFFFFF,
 	};
 	
-	inline Permission operator|(Permission a, Permission b) {
-		return static_cast<Permission>(static_cast<int>(a) | static_cast<int>(b));
+	inline constexpr Permission toPermission(const int64_t& permission) {
+		return static_cast<Permission>(permission);
 	}
+
+	inline constexpr Permission operator|(const Permission& a, const Permission& b) {
+		return static_cast<Permission>(static_cast<int64_t>(a) | static_cast<int64_t>(b));
+	}
+
+	inline constexpr Permission operator&(const Permission& a, const Permission& b) {
+		return static_cast<Permission>(static_cast<int64_t>(a) & static_cast<int64_t>(b));
+	}
+
+	inline constexpr Permission operator^(const Permission& a, const Permission& b) {
+		return static_cast<Permission>(static_cast<int64_t>(a) ^ static_cast<int64_t>(b));
+	}
+	
+	inline constexpr bool hasPremission(const Permission& target, const Permission& permission) {
+		return (target & permission) == permission;
+	}
+
+	Permission getBasePermissions(const Server& server, const ServerMember& member);
+	void handleOverwrite(Permission& target, const Permission& allow, const Permission& deny);
+	void handleOverwrite(Permission& target, const Overwrite& overwrite);
+	Permission overwritePermissions(const Permission basePermissions, const Server& server, const ServerMember& member, const Channel& channel);
+	Permission getPermissions(const Server& server, const ServerMember& member, const Channel& channel);
 
 	/*
 	Role Structure
@@ -69,6 +98,10 @@ namespace SleepyDiscord {
 		Permission permissions;
 		bool managed;
 		bool mantionable;
+
+		inline bool operator==(Role& right) {
+			return ID == right.ID;
+		}
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};

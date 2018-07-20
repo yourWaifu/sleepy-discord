@@ -12,7 +12,7 @@ namespace SleepyDiscord {
 		type                 (static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
 		serverID             (                                values[index(fields, "guild_id"             )]  ),
 		position             (toInt                         ( values[index(fields, "position"             )]) ),
-		permissionOverwrites (Overwrite                     (&values[index(fields, "permission_overwrites")]) ),
+		permissionOverwrites (modIfElse(isSpecified, JSON_getArray<Overwrite>, values[index(fields, "permission_overwrites" )], std::vector<Overwrite>())),
 		name                 (                                values[index(fields, "name"                 )]  ),
 		topic                (                                values[index(fields, "topic"                )]  ),
 		isNSFW               (getBool                       ( values[index(fields, "nsfw"                 )]) ),
@@ -56,7 +56,7 @@ namespace SleepyDiscord {
 	//	"id", "is_private", "recipient", "last_message_id"
 	//};
 
-	Overwrite::Overwrite() : allow(false), deny(false)
+	Overwrite::Overwrite() : allow(Permission::NONE), deny(Permission::NONE)
 	{}
 
 	Overwrite::Overwrite(const std::string * rawJSON) : Overwrite(json::getValues(rawJSON->c_str(), fields)) {}
@@ -65,8 +65,8 @@ namespace SleepyDiscord {
 		//variable modifier value              felid
 		ID    (      values[index(fields, "id"   )] ),
 		type  (      values[index(fields, "type" )] ),
-		allow (toInt(values[index(fields, "allow")])),
-		deny  (toInt(values[index(fields, "deny" )]))
+		allow (toPermission(toLongLong(values[index(fields, "allow")]))),
+		deny  (toPermission(toLongLong(values[index(fields, "deny" )])))
 	{}
 	const std::initializer_list<const char*const> Overwrite::fields = {
 		"id", "type", "allow", "deny"
