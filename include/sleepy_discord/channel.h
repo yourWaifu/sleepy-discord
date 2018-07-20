@@ -33,8 +33,6 @@ namespace SleepyDiscord {
 		Channel(const std::vector<std::string> values);
 		~Channel();
 		Snowflake<Channel> ID;
-		Snowflake<Server> serverID;
-		std::string name;
 		enum ChannelType {
 			SERVER_TEXT     = 0,
 			DM              = 1,
