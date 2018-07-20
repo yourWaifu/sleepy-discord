@@ -51,7 +51,7 @@ namespace SleepyDiscord {
 		}
 
 		template<template<class...> class Container, typename a>
-		inline auto findObject(const Container<DiscordObject, a>& objects) {
+		inline auto findObject(const Container<DiscordObject, a>& objects) -> decltype(objects.begin()) {
 			return findObject(objects.begin(), objects.end());
 		}
 
