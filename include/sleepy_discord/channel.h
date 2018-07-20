@@ -6,7 +6,7 @@
 
 namespace SleepyDiscord {
 	struct Overwrite : DiscordObject {
-		Overwrite() {}
+		Overwrite();
 		Overwrite(const std::string * rawJson);
 		Overwrite(const std::vector<std::string> values);
 		~Overwrite() {}

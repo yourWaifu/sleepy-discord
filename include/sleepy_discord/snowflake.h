@@ -27,14 +27,14 @@ namespace SleepyDiscord {
 		}
 
 		inline bool operator==(const char* right) const {
-			return raw.c_str() == right;
+			return raw == right;
 		}
 
 		inline bool operator!=(const char* right) const {
-			return raw.c_str() != right;
+			return raw != right;
 		}
 
-		operator const std::string&() { return raw; }
+		inline operator const std::string&() const { return raw; }
 
 		std::chrono::time_point<std::chrono::steady_clock> timestamp() {
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
