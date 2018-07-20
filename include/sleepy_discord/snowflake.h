@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <chrono>
+#include <algorithm>
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 #include <stdexcept>
 #endif
