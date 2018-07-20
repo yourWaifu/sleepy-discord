@@ -3,19 +3,25 @@
 namespace SleepyDiscord {
 	Channel::Channel(const std::string * rawJSON) : Channel(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Channel::Channel(const std::vector<std::string> values) :
-		//felid                modifier                        value
-		ID                   (                                 values[index(fields, "id"                   )]  ),
-		serverID             (                                 values[index(fields, "guild_id"             )]  ),
-		name                 (                                 values[index(fields, "name"                 )]  ),
-		type                 ( static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
-		position             ( toInt                         ( values[index(fields, "position"             )]) ),
-		isPrivate            ( getBool                       ( values[index(fields, "is_private"           )]) ),
-		//permissionOverwrites ( Overwrite                     (&values[index(fields, "permission_overwrites")]) ),
-		topic                (                                 values[index(fields, "topic"                )]  ),
-		lastMessageID       (                                 values[index(fields, "last_message_id"      )]  ),
-		bitrate              ( toInt                         ( values[index(fields, "bitrate"              )]) ),
-		userLimit            ( toInt                         ( values[index(fields, "user_limit"           )]) )
+	Channel::Channel(const std::vector<std::string> values) : 
+		//felid                modifier                       value
+		ID                   (                                values[index(fields, "id"                   )]  ),
+		type                 (static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
+		serverID             (                                values[index(fields, "guild_id"             )]  ),
+		position             (toInt                         ( values[index(fields, "position"             )]) ),
+		permissionOverwrites (modIfElse(isSpecified, JSON_getArray<Overwrite>, values[index(fields, "permission_overwrites" )], std::vector<Overwrite>())),
+		name                 (                                values[index(fields, "name"                 )]  ),
+		topic                (                                values[index(fields, "topic"                )]  ),
+		isNSFW               (getBool                       ( values[index(fields, "nsfw"                 )]) ),
+		lastMessageID        (                                values[index(fields, "last_message_id"      )]  ),
+		bitrate              (toInt                         ( values[index(fields, "bitrate"              )]) ),
+		userLimit            (toInt                         ( values[index(fields, "user_limit"           )]) ),
+		//recipients
+		icon                 (                                values[index(fields, "icon"                 )]  ),
+		ownerID              (                                values[index(fields, "owner_id"             )]  ),
+		//applicationID
+		parentID             (                                values[index(fields, "parent_id"            )]  ),
+		lastPinTimestamp     (                                values[index(fields, "last_pin_timestamp"   )]  )
 	{}
 
 	const std::initializer_list<const char*const> Channel::fields = {
@@ -45,14 +51,17 @@ namespace SleepyDiscord {
 		"id", "is_private", "recipient", "last_message_id"
 	};
 
+	Overwrite::Overwrite() : allow(Permission::NONE), deny(Permission::NONE)
+	{}
+
 	Overwrite::Overwrite(const std::string * rawJSON) : Overwrite(json::getValues(rawJSON->c_str(), fields)) {}
 
 	Overwrite::Overwrite(const std::vector<std::string> values) :
 		//variable modifier value              felid
 		ID    (      values[index(fields, "id"   )] ),
 		type  (      values[index(fields, "type" )] ),
-		allow (toInt(values[index(fields, "allow")])),
-		deny  (toInt(values[index(fields, "deny" )]))
+		allow (toPermission(toLongLong(values[index(fields, "allow")]))),
+		deny  (toPermission(toLongLong(values[index(fields, "deny" )])))
 	{}
 	const std::initializer_list<const char*const> Overwrite::fields = {
 		"id", "type", "allow", "deny"

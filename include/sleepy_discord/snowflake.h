@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <chrono>
+#include <algorithm>
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 #include <stdexcept>
 #endif
@@ -15,6 +16,7 @@ namespace SleepyDiscord {
 		Snowflake(const char                    * snow     ) : raw( snow     ) {}
 		Snowflake(const DiscordObject           & object   ) : Snowflake(object. ID) {}
 		Snowflake(const DiscordObject           * object   ) : Snowflake(object->ID) {}
+		Snowflake(const int64_t                   number   ) : Snowflake(std::to_string(number)) {}
 
 		inline bool operator==(const Snowflake& right) const {
 			return raw == right.raw;
@@ -39,6 +41,18 @@ namespace SleepyDiscord {
 			if (raw == "") throw std::invalid_argument("invalid snow in Snowflake");
 #endif
 			return std::chrono::time_point<std::chrono::steady_clock>(std::chrono::milliseconds((std::stoll(raw) >> 22) + discordEpoch));
+		}
+
+		template<class iterator>
+		inline iterator findObject(iterator begin, iterator end) {
+			return std::find_if(begin, end, [&](const DiscordObject& object) {
+				return *this == object.ID;
+			});
+		}
+
+		template<template<class...> class Container, typename a>
+		inline auto findObject(const Container<DiscordObject, a>& objects) -> decltype(objects.begin()) {
+			return findObject(objects.begin(), objects.end());
 		}
 
 	private:
