@@ -26,7 +26,7 @@ namespace SleepyDiscord {
 
 	const std::initializer_list<const char*const> Channel::fields = {
 		"id", "guild_id", "name", "type", "position", "is_private",
-		/*"permission_overwrites",*/ "topic", "last_message_id", "bitrate", "user_limit"
+		"permission_overwrites", "topic", "last_message_id", "bitrate", "user_limit"
 	};
 
 	Channel::~Channel() {
