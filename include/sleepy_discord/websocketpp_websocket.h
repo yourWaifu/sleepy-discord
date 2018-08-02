@@ -32,7 +32,10 @@ namespace SleepyDiscord {
 			WebsocketConnection& connection
 		) override;
 		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection);
-		void onClose(_client * client, websocketpp::connection_hdl handle);
+		void onClose(
+			websocketpp::connection_hdl handle,
+			GenericMessageReceiver* messageProcessor
+		);
 		void send(std::string message, WebsocketConnection& connection);
 		void runAsync();
 		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);

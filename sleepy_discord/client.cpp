@@ -448,6 +448,32 @@ namespace SleepyDiscord {
 		}
 	}
 
+	void BaseDiscordClient::processCloseCode(const int16_t code) {
+		setError(code);
+
+		switch (code) {
+		//Just reconnect
+		case UNKNOWN_ERROR:
+		case INVALID_SEQ:
+		case RATE_LIMITED:
+		case SESSION_TIMEOUT:
+			reconnect();
+			break;
+
+		//Might be Unrecoveralbe
+		//We may need to stop to prevent a restart loop.
+		case UNKNOWN_OPCODE:
+		case DECODE_ERROR:
+		case NOT_AUTHENTICATED:
+		case AUTHENTICATION_FAILED:
+		case ALREADY_AUTHENTICATED:
+		case INVALID_SHARD:
+		case SHARDING_REQUIRED:
+		default:
+			break;
+		}
+	}
+
 	void BaseDiscordClient::heartbeat() {
 		if (heartbeatInterval <= 0) return; //sanity test
 		
@@ -553,6 +579,16 @@ namespace SleepyDiscord {
 
 		//remove from wait list
 		waitingVoiceContexts.remove(&context);
+	}
+
+	void BaseDiscordClient::removeVoiceConnectionAndContext(VoiceConnection & connection) {
+		const VoiceContext& context = connection.getContext();
+		voiceConnections.remove_if(
+			[&connection](VoiceConnection& right) {
+				return connection == right;
+			}
+		);
+		voiceContexts.remove(context);
 	}
 
 #endif

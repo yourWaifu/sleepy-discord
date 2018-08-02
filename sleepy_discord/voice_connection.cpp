@@ -5,15 +5,15 @@
 
 namespace SleepyDiscord {
 	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-		origin(client), context(_context), UDP() {
-	}
+		origin(client), context(_context), UDP(), sSRC(0), port(0), previousTime(0),
+		nextTime(0), encoder(nullptr), secretKey()
+	{}
 
 	VoiceConnection::~VoiceConnection() {
-		stopSpeaking();
-		disconnect();
 	}
 
 	void VoiceConnection::disconnect() {
+		stopSpeaking();
 		std::string update;
 		/*The number 103 comes from the number of letters in this string + 1:
 		{"op":4,"d":{"guild_id":"18446744073709551615","channel_id":null,"self_mute":false,"self_deaf":false}}
@@ -132,6 +132,10 @@ namespace SleepyDiscord {
 		default:
 			break;
 		}
+	}
+
+	void VoiceConnection::processCloseCode(const int16_t code) {
+		getDiscordClient().removeVoiceConnectionAndContext(*this);
 	}
 
 	void VoiceConnection::heartbeat() {

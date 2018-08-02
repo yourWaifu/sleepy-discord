@@ -307,6 +307,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(const std::string &message) override;
+		void processCloseCode(const int16_t code) override;
 		void heartbeat();
 		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }
@@ -389,6 +390,7 @@ namespace SleepyDiscord {
 		std::forward_list<VoiceContext> voiceContexts;
 		std::forward_list<VoiceContext*> waitingVoiceContexts;
 		void connectToVoiceIfReady(VoiceContext& context);
+		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif
 	};
 

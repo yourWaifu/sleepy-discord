@@ -80,6 +80,10 @@ namespace SleepyDiscord {
 
 		~VoiceConnection();
 
+		inline bool operator==(const VoiceConnection& right) {
+			return this == &right;
+		}
+
 		inline const bool isReady() {
 			return state & State::ABLE;
 		}
