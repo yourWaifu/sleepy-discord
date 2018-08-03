@@ -416,6 +416,7 @@ namespace SleepyDiscord {
 		case INVALID_SEQ:
 		case RATE_LIMITED:
 		case SESSION_TIMEOUT:
+		default:
 			reconnect();
 			break;
 
@@ -425,7 +426,6 @@ namespace SleepyDiscord {
 		case AUTHENTICATION_FAILED:
 		case INVALID_SHARD:
 		case SHARDING_REQUIRED:
-		default:
 			break;
 		}
 	}
