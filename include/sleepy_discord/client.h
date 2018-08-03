@@ -296,6 +296,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(std::string message);
+		void processCloseCode(const int16_t code);
 		void heartbeat();
 		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }

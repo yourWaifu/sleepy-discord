@@ -30,6 +30,9 @@ namespace SleepyDiscord {
 		this_client.init_asio();
 
 		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+		
+		this_client.set_close_handler(std::bind(&WebsocketppDiscordClient::onClose, this,
+			websocketpp::lib::placeholders::_1));
 	}
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri) {
@@ -90,8 +93,11 @@ namespace SleepyDiscord {
 		this_client.close(handle, code, reason);
 	}
 
-	void WebsocketppDiscordClient::onClose(_client * client, websocketpp::connection_hdl handle) {
-
+	void WebsocketppDiscordClient::onClose(websocketpp::connection_hdl handle) {
+		_client::connection_ptr con = this_client.get_con_from_hdl(handle);
+		const int16_t closeCode = con->get_remote_close_code();
+		std::cout << "Close " << closeCode << ' ' << con->get_remote_close_reason() << '\n'; 
+		processCloseCode(closeCode);
 	}
 
 #include "standard_config.h"
