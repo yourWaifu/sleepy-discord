@@ -841,7 +841,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="gateway.cpp" />
     <ClCompile Include="http.cpp" />
     <ClCompile Include="invite.cpp" />
-    <ClCompile Include="json.c" />
+    <ClCompile Include="json.cpp" />
     <ClCompile Include="json_wrapper.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="permissions.cpp" />
