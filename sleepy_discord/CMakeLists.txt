@@ -29,7 +29,6 @@ target_include_directories(sleepy-discord
 	PUBLIC
 		${PROJECT_SOURCE_DIR}/include
 		${PROJECT_SOURCE_DIR}/deps/include
-		${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord
 )
@@ -45,7 +44,7 @@ if(USE_CPR)
 endif()
 
 if(USE_WEBSOCKETPP)
-	target_include_directories(sleepy-discord PUBLIC ${WEBSOCKETPP_ROOT})
+	target_include_directories(sleepy-discord PUBLIC ${websocketpp_SOURCE_DIR})
 	target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
 endif()
 
@@ -55,5 +54,5 @@ endif()
 
 target_include_directories(sleepy-discord
 	PUBLIC
-	${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
+		${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
 )

@@ -17,6 +17,8 @@ endif()
 # Find and Download libraries
 include(buildtools/cmake/DownloadProject.cmake)
 if(USE_CPR)
+	#to do install libssl-dev
+
 	download_project(
 		PROJ           cpr
 		GIT_REPOSITORY https://github.com/whoshuu/cpr.git
