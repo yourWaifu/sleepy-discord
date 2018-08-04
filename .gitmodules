@@ -1,6 +1,0 @@
-[submodule "cpr"]
-	path = deps/cpr
-	url = https://github.com/whoshuu/cpr
-[submodule "websocketpp"]
-	path = deps/websocketpp
-	url = https://github.com/oneechanhax/websocketpp

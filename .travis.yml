@@ -16,4 +16,5 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
-- make -f Makefile.linux CXX=g++-5
+- cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+- make

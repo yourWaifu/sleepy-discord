@@ -263,4 +263,6 @@ ModelManifest.xml
 *.opendb
 
 #my files
+/deps/
+/thirdparty/
 /discord token.txt
