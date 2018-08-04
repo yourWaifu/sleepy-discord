@@ -52,3 +52,8 @@ endif()
 if(USE_ASIO)
 	target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
 endif()
+
+target_include_directories(sleepy-discord
+	PUBLIC
+	${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
+)
