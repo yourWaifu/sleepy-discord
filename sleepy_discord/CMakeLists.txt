@@ -27,8 +27,9 @@ add_library(sleepy-discord
 
 target_include_directories(sleepy-discord
 	PUBLIC
-		${PROJECT_SOURCE_DIR}/include/sleepy_discord
+		${PROJECT_SOURCE_DIR}/include
 	PRIVATE
+		${PROJECT_SOURCE_DIR}/include/sleepy_discord
 		${PROJECT_SOURCE_DIR}/deps/include
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
 )
