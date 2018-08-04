@@ -36,6 +36,8 @@ target_include_directories(sleepy-discord
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 11)
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
 
+target_compile_features(sleepy-discord PUBLIC cxx_std_11)
+
 target_compile_options(sleepy-discord PUBLIC -Wall)
 
 if(USE_CPR)
