@@ -3,6 +3,7 @@
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#define _WEBSOCKETPP_CPP11_THREAD_
 #endif // !BOOST_VERSION
 
 #include <websocketpp/config/asio_client.hpp>
