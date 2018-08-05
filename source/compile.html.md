@@ -50,7 +50,35 @@ For people developing things for platforms outside of the main 3 operating syste
 </aside>
 [](TODO add links to all and how to for the custom stuff)
 
-##Automated setting up libraries
+#Getting Setup
+
+There's few options for getting setup to compile
+
+[CMake](#cmake)
+
+[Python Setup Scirpt](#python-setup-script)
+
+##CMake
+```powershell
+mkdir build
+cd build
+cmake ..
+make
+```
+
+To use CMake, you'll obviously need CMake. You can download it from [their website](https://cmake.org/download/) or from your package manager. You might also run the issue about ssl, This can be simply fixed by downloading libssl-dev from your package manager. If you plan on also linking, you may want to skip to [How to Link](link.html#cmake) as cmake can handle setup, compile and link. 
+
+### List of Options
+|Option|Variable|Default value|Supported|
+|------|--------|-------------|---------|
+|Websocket++|USE_WEBSOCKETPP|ON|YES|
+|uWebsockets|USE_UWEBSOCKETS|OFF|NO|
+|CPR|USE_CPR|ON|YES|
+|ASIO|USE_ASIO|OFF but ON when USE_WEBSOCKETPP is ON|YES|
+|libOpus|USE_LIBOPUS|OFF|NO|
+|libsodium|USE_LIBSODIUM|OFF|NO|
+
+##Python setup script
 ```powershell
 PS C:\> python -v
 Python 3.6.3 (v3.6.3:2c5fed8, Oct  3 2017, 17:26:49) [MSC v.1900 32 bit (Intel)] on win32
@@ -73,7 +101,7 @@ What libraries do you want to use?
 ```
 Run the script ``setup.py`` by double clicking the py file, or call ``.\setup.py`` in the command line. Then just follow the instructions on screen. Once that's done go to [Compiling Sleepy Discord](#compiling-sleepy-discord).
 
-##Manual setting up libraries
+##Manual setup
 ###Downloading CPR
 <aside class="notice">
 You may skip this step, if you are planning on using your own http library
@@ -119,7 +147,7 @@ Once one of those two options are done, move all the .h files in openssl\include
 ![alt text](images/cininclude.png)
 </pre>
 
-##Compiling Sleepy Discord
+#Compiling Sleepy Discord
 <u>
 There's only two options:
 </u>
@@ -127,7 +155,7 @@ There's only two options:
 * [Visual Studio](#visual-studio)
 * [Make](#make)
 
-###Visual Studio
+##Visual Studio
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you've compiled Sleepy Discord. [Go to the next step.](#the-next-step)
 
 <aside>
@@ -143,7 +171,7 @@ Then do the same thing for the Target Name to get the name of the file.
 Don't forget to change the configuration to ``Release`` if you don't want the debug version.
 </aside>
 
-###Make
+##Make
 ```shell
 cd buildtools/
 make -f Makefile.linux
