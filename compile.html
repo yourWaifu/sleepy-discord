@@ -352,7 +352,71 @@ For people developing things for platforms outside of the main 3 operating syste
 
 <p><a href="TODO%20add%20links%20to%20all%20and%20how%20to%20for%20the%20custom%20stuff"></a></p>
 
-<h2 id="automated-setting-up-libraries">Automated setting up libraries</h2>
+<h1 id="getting-setup">Getting Setup</h1>
+
+<p>There&rsquo;s few options for getting setup to compile</p>
+
+<p><a href="#cmake">CMake</a></p>
+
+<p><a href="#python-setup-script">Python Setup Scirpt</a></p>
+
+<h2 id="cmake">CMake</h2>
+<pre class="highlight powershell tab-powershell"><code>mkdir build
+<span class="nb">cd </span>build
+cmake ..
+make
+</code></pre>
+<p>To use CMake, you&rsquo;ll obviously need CMake. You can download it from <a href="https://cmake.org/download/">their website</a> or from your package manager. You might also run the issue about ssl, This can be simply fixed by downloading libssl-dev from your package manager. If you plan on also linking, you may want to skip to <a href="link.html#cmake">How to Link</a> as cmake can handle setup, compile and link. </p>
+
+<h3 id="list-of-options">List of Options</h3>
+
+<table><thead>
+<tr>
+<th>Option</th>
+<th>Variable</th>
+<th>Default value</th>
+<th>Supported</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Websocket++</td>
+<td>USE_WEBSOCKETPP</td>
+<td>ON</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>uWebsockets</td>
+<td>USE_UWEBSOCKETS</td>
+<td>OFF</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>CPR</td>
+<td>USE_CPR</td>
+<td>ON</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>ASIO</td>
+<td>USE_ASIO</td>
+<td>OFF but ON when USE_WEBSOCKETPP is ON</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>libOpus</td>
+<td>USE_LIBOPUS</td>
+<td>OFF</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>libsodium</td>
+<td>USE_LIBSODIUM</td>
+<td>OFF</td>
+<td>NO</td>
+</tr>
+</tbody></table>
+
+<h2 id="python-setup-script">Python setup script</h2>
 <pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\&gt;</span> python -v
 Python 3.6.3 <span class="o">(</span>v3.6.3:2c5fed8, Oct  3 2017, 17:26:49<span class="o">)</span> <span class="o">[</span>MSC v.1900 32 bit <span class="o">(</span>Intel<span class="o">)]</span> on win32
 <span class="gp">&gt;&gt;&gt; </span>quit<span class="o">()</span>
@@ -372,7 +436,7 @@ What libraries <span class="k">do </span>you want to use?
 </code></pre>
 <p>Run the script <code class="prettyprint">setup.py</code> by double clicking the py file, or call <code class="prettyprint">.\setup.py</code> in the command line. Then just follow the instructions on screen. Once that&rsquo;s done go to <a href="#compiling-sleepy-discord">Compiling Sleepy Discord</a>.</p>
 
-<h2 id="manual-setting-up-libraries">Manual setting up libraries</h2>
+<h2 id="manual-setup">Manual setup</h2>
 
 <h3 id="downloading-cpr">Downloading CPR</h3>
 
@@ -426,7 +490,7 @@ Sleepy Discord uses version 1.10.8, and does not work with 1.10.6. <a href="http
 <img src="images/cininclude.png" alt="alt text" />
 </pre></p>
 
-<h2 id="compiling-sleepy-discord">Compiling Sleepy Discord</h2>
+<h1 id="compiling-sleepy-discord">Compiling Sleepy Discord</h1>
 
 <p><u>
 There&rsquo;s only two options:
@@ -437,7 +501,7 @@ There&rsquo;s only two options:
 <li><a href="#make">Make</a></li>
 </ul>
 
-<h3 id="visual-studio">Visual Studio</h3>
+<h2 id="visual-studio">Visual Studio</h2>
 
 <p>Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you&rsquo;ve compiled Sleepy Discord. <a href="#the-next-step">Go to the next step.</a></p>
 
@@ -456,7 +520,7 @@ Then do the same thing for the Target Name to get the name of the file.
 Don&rsquo;t forget to change the configuration to &ldquo;Release&rdquo; if you don&rsquo;t want the debug version.
 </aside>
 
-<h3 id="make">Make</h3>
+<h2 id="make">Make</h2>
 <pre class="highlight shell tab-shell"><code><span class="nb">cd </span>buildtools/
 make -f Makefile.linux
 </code></pre>

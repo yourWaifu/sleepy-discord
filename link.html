@@ -254,6 +254,12 @@
 I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a compiled binary
 </aside>
 
+<p><a href="#visual-studio">Visual Studio</a></p>
+
+<p><a href="#g">G++</a></p>
+
+<p><a href="#cmake">CMake</a></p>
+
 <h1 id="visual-studio">Visual Studio</h1>
 
 <h2 id="preparing">Preparing</h2>
@@ -281,13 +287,15 @@ nmake /f Makefile.vc <span class="nv">mode</span><span class="o">=</span>static 
 Alt+F7 also works if you have only one project in your solution.
 </aside>
 
+<p><strong>Step 3:</strong> Look at the top of the properties window, see where it says Configuration and Platform. Set both to All.</p>
+
 <h2 id="include-directories">Include Directories</h2>
 
-<p><strong>Step 3:</strong> On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
+<p><strong>Step 4:</strong> On the left, go to VC++ Directories. Click on Include Directories and then click on the arrow on the right, and then click <code class="prettyprint">Edit...</code></p>
 
 <p><img src="images/lvcdir.png" alt="alt text" /></p>
 
-<p><strong>Step 4:</strong> Click on the white empty box at the top, and then click on the 3 dots on the right.</p>
+<p><strong>Step 5:</strong> Click on the white empty box at the top, and then click on the 3 dots on the right.</p>
 
 <blockquote>
 <p>The box of Include Directories should look something like this, but with the full path</p>
@@ -297,7 +305,7 @@ Alt+F7 also works if you have only one project in your solution.
 <span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\i</span>nclude
 <span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\i</span>nclude<span class="se">\s</span>leepy_discord<span class="se">\I</span>ncludeNonexistent
 </code></pre>
-<p><strong>Step 5:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code>. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code> needs to be last. This is so that we don&rsquo;t get &ldquo;any include files not found&rdquo; errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
+<p><strong>Step 6:</strong> Select the folder containing the folder <code class="prettyprint">sleepy_discord</code>, and do the same for the dependencies(<code class="prettyprint">deps</code>), include dependencies (<code class="prettyprint">deps/include</code>), and the <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code>. Also, it is important to note that the order of these folders matter. The compiler will look at the first path first, and and the 2nd one next, so <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code> needs to be last. This is so that we don&rsquo;t get &ldquo;any include files not found&rdquo; errors. Anyway, once done, click OK. These folders will be the folders that Visual C++ will look into to find header files for Sleepy_Discord.</p>
 
 <h2 id="library-directories">Library Directories</h2>
 
@@ -307,11 +315,11 @@ Alt+F7 also works if you have only one project in your solution.
 <pre class="highlight shell"><code><span class="k">$(</span>projectdir<span class="k">)$(</span>Configuration<span class="k">)</span>
 <span class="k">$(</span>projectdir<span class="k">)</span>..<span class="se">\d</span>eps<span class="se">\l</span>ib
 </code></pre>
-<p><strong>Step 6:</strong> Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
+<p><strong>Step 7:</strong> Do the same thing for Library Directories, add the folder with Sleepy_Discord and all it&rsquo;s needed libraries. This tells Visual C++ to search for library files in these folders</p>
 
 <h2 id="add-dependencies">Add Dependencies</h2>
 
-<p><strong>Step 7:</strong> To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
+<p><strong>Step 8:</strong> To tell Visual C++ to link these library, click on the arrow to the left of Linker, and go to Input. Click on Additional Dependencies, and then click on the arrow on the right, and then click Edit&hellip;</p>
 
 <p><img src="images/ladddeps.png" alt="alt text" /></p>
 
@@ -324,7 +332,7 @@ libcryptoMT.lib
 libsslMT.lib
 crypt32.lib
 </code></pre>
-<p><strong>Step 8:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
+<p><strong>Step 9:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
 
 <h2 id="preprocessor-definitions">Preprocessor Definitions</h2>
 
@@ -332,9 +340,9 @@ crypt32.lib
 These steps are optional, and are here just in case you need them.
 </aside>
 
-<p><strong>Step 9:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
+<p><strong>Step 10:</strong> Click the arrow to the left of C/C++, and go to Preprocessor. Click on Preprocessor Definitions, and then click Edit&hellip;</p>
 
-<p><strong>Step 10:</strong> On the text box at the top add whatever preprocessor definitions, you need. You don&rsquo;t need any to link Sleepy Discord. This is here just in case, you need it.</p>
+<p><strong>Step 11:</strong> On the text box at the top add whatever preprocessor definitions, you need. You don&rsquo;t need any to link Sleepy Discord. This is here just in case, you need it.</p>
 
 <h2 id="build">Build</h2>
 
@@ -398,6 +406,18 @@ g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../de
 
 <p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
 
+<h1 id="cmake">CMake</h1>
+<pre class="highlight cmake tab-cmake"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 3.6<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span>example<span class="p">)</span>
+
+<span class="nb">add_subdirectory</span><span class="p">(</span>sleepy-discord<span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span>hello source.cpp<span class="p">)</span>
+
+<span class="nb">target_link_libraries</span><span class="p">(</span>hello sleepy-discord<span class="p">)</span>
+</code></pre>
+<p>To link Sleepy Discord using CMake, simply add two lines of cmake code to your CMakeList.txt, <code class="prettyprint">add_subdirectory(sleepy-discord)</code> and <code class="prettyprint">target_link_libraries(hello sleepy-discord)</code>.</p>
+
 <h1 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h1>
 
 <blockquote>
@@ -443,6 +463,18 @@ Remember to change &ldquo;token&rdquo;` to your token if you want to run the cod
 <p>Generally happens when you are missing websocket++ or uWebSockets. Take a look at the top, #include &ldquo;sleepy_discord/&lt;LIBRARY&gt;_websocket.h&rdquo;. Check that you have the library inside <code class="prettyprint">deps/include</code>. if they are missing, try using the setup script again.</p>
 
 <p>If not, take a look your project&rsquo;s include directories in the project properties. Take note of the config that&rsquo;s being edited (At the top of the project properties or right below the title bar, see where it says Configuration?) and the order of the directories. Make sure <code class="prettyprint">\include\sleepy_discord\IncludeNonexistent</code> is last on the list. 2nd make sure the paths actually go to the correct directories.</p>
+
+<h3 id="cannot-open-file-sleepy_discord-lib">Cannot open file &lsquo;sleepy_discord.lib&rsquo;</h3>
+
+<p>Try looking for <code class="prettyprint">sleepy_discord.lib</code>, it&rsquo;s likely in <code class="prettyprint">sleepy_discord/(Whatever configuration you used)</code> and add that to your list of library directories. If <code class="prettyprint">sleepy_discord.lib</code> isn&rsquo;t inside there, then <a href="compile.html">compile Sleepy Discord</a>.</p>
+
+<h3 id="cannot-open-file-libcurl_a-lib">cannot open file &lsquo;libcurl_a.lib&rsquo;</h3>
+
+<p>It looks like you needed libcurl and <a href="#preparing">skipped the preparing step</a>.</p>
+
+<h3 id="could-not-get-the-gateway">Could not get the gateway</h3>
+
+<p>There&rsquo;s a few reasons this might happen. For one, it could mean that you aren&rsquo;t connect to the internet, and if that&rsquo;s the case then connect to the internet. 2nd, if you are using CMake, it could be that something went wrong. To fix this, delete the CMakeCache.txt file and try running CMake again. 3rd, If none of those work, it could be an issue with ssl. As a last resort, You can use the <code class="prettyprint">SLEEPY_USE_HARD_CODED_GATEWAY</code> Preprocessor.</p>
 
       </div>
       <div class="dark-box">
