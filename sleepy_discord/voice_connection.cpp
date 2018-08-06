@@ -6,7 +6,11 @@
 namespace SleepyDiscord {
 	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
 		origin(client), context(_context), UDP(), sSRC(0), port(0), previousTime(0),
-		nextTime(0), encoder(nullptr), secretKey()
+		nextTime(0),
+#if !defined(NONEXISTENT_OPUS)
+		encoder(nullptr),
+#endif
+		secretKey()
 	{}
 
 	VoiceConnection::~VoiceConnection() {
