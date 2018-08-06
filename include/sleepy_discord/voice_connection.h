@@ -88,8 +88,6 @@ namespace SleepyDiscord {
 			return state & State::ABLE;
 		}
 
-		void disconnect();
-
 		inline void setAudioSource(BaseAudioSource*& source) {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
 		}
