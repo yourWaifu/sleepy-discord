@@ -116,10 +116,23 @@ namespace SleepyDiscord {
 			return *origin;
 		}
 
+		inline BaseDiscordClient& getOrigin() {
+			return getDiscordClient();
+		}
+
+		inline VoiceContext& getContext() {
+			return context;
+		}
+
+		void speak(int16_t*& audioData, const std::size_t& length);
+
+		void disconnect();
+
 	private:
 		friend BaseDiscordClient;
 
 		void processMessage(const std::string &message) override;
+		void processCloseCode(const int16_t code) override;
 
 		enum VoiceOPCode {
 			IDENTIFY            = 0,  //client begin a voice websocket connection
@@ -176,7 +189,6 @@ namespace SleepyDiscord {
 		}
 		void sendSpeaking(bool isNowSpeaking);
 		void speak();
-		void speak(int16_t*& audioData, const std::size_t& length);
 		void sendAudioData(
 			uint8_t*& encodedAudioData,
 			const std::size_t & length,
