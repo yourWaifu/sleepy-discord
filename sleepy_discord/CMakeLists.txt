@@ -45,13 +45,37 @@ if(USE_CPR)
 	target_link_libraries(sleepy-discord PUBLIC ${CPR_LIBRARIES})
 endif()
 
+if(USE_ASIO)
+	target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
+endif()
+
 if(USE_WEBSOCKETPP)
 	target_include_directories(sleepy-discord PUBLIC ${websocketpp_SOURCE_DIR})
 	target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
 endif()
 
-if(USE_ASIO)
-	target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
+if(USE_UWEBSOCKETS)
+	find_library(LIB_UWS uWS
+		PATHS ${uwebsockets_SOURCE_DIR}/lib
+	)
+	target_include_directories(sleepy-discord PUBLIC ${uwebsockets_SOURCE_DIR}/include)
+	target_link_libraries(sleepy-discord ${LIB_UWS})
+endif()
+
+if(USE_LIBOPUS)
+	find_library(LIB_OPUS opus
+		PATHS ${opus_SOURCE_DIR} ${opus_SOURCE_DIR}/.lib
+	)
+	target_include_directories(sleepy-discord PUBLIC ${opus_SOURCE_DIR}/include)
+	target_link_libraries(sleepy-discord ${LIB_OPUS})
+endif()
+
+if(USE_LIBSODIUM)
+	find_library(LIB_SODIUM sodium
+		PATHS ${opus_SOURCE_DIR}/libsodium ${opus_SOURCE_DIR}/libsodium/.lib
+	)
+	target_include_directories(sleepy-discord PUBLIC ${opus_SOURCE_DIR}/include)
+	target_link_libraries(sleepy-discord ${LIB_SODIUM})
 endif()
 
 target_include_directories(sleepy-discord

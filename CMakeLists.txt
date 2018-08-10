@@ -10,11 +10,17 @@ option(USE_ASIO                      "Use ASIO network and I/O library (Used for
 option(USE_LIBOPUS                   "Use Opus audio codec library"                         OFF)
 option(USE_LIBSODIUM                 "Use libsodium cryptography library"                   OFF)
 
+#set variables based on other variables
 if(BUILD_EXAMPLES)
 	set(BUILD_SLEEPY_DISCORD_EXAMPLES ON)
 endif()
 
+if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
+	set(USE_ASIO ON)
+endif()
+
 # Find and Download libraries
+include(ExternalProject)
 include(buildtools/cmake/DownloadProject.cmake)
 if(USE_CPR)
 	#to do install libssl-dev
@@ -30,6 +36,16 @@ if(USE_CPR)
 	add_subdirectory(deps/cpr)
 endif()
 
+if(USE_ASIO)
+	download_project(
+		PROJ           asio
+		GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+		GIT_TAG        master
+		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
+		UPDATE_DISCONNECTED 1
+	)
+endif()
+
 if(USE_WEBSOCKETPP)
 	download_project(
 		PROJ           websocketpp
@@ -39,19 +55,47 @@ if(USE_WEBSOCKETPP)
 		UPDATE_DISCONNECTED 1
 	)
 
-	set(USE_ASIO ON)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
 	add_subdirectory(deps/websocketpp)
 endif()
 
-if(USE_ASIO)
+if(USE_UWEBSOCKETS)
+	#to do install zlib
 	download_project(
-		PROJ           asio
-		GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+		PROJ           uwebsockets
+		GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
 		GIT_TAG        master
-		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
+		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
 		UPDATE_DISCONNECTED 1
+		BUILD_COMMAND  ${MAKE}
+	)
+endif()
+
+if(USE_LIBOPUS)
+	#needs libtool
+	download_project(
+		PROJ           opus
+		GIT_REPOSITORY https://git.xiph.org/opus.git
+		GIT_TAG        master
+		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
+		UPDATE_DISCONNECTED 1
+		PATCH_COMMAND  ${PROJECT_SOURCE_DIR}/deps/opus/autogen.sh
+		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/deps/opus/configure
+		BUILD_COMMAND  ${MAKE}
+	)
+endif()
+
+if(USE_LIBSODIUM)
+	download_project(
+		PROJ           libsodium
+		GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
+		GIT_TAG        master
+		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
+		UPDATE_DISCONNECTED 1
+		PATCH_COMMAND     ${PROJECT_SOURCE_DIR}/deps/libsodium/autogen.sh
+		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/deps/libsodium/configure
+		BUILD_COMMAND  ${MAKE}
 	)
 endif()
 
