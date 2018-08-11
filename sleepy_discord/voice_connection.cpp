@@ -42,6 +42,27 @@ namespace SleepyDiscord {
 		state = static_cast<State>(state & ~State::CONNECTED);
 	}
 
+	void VoiceConnection::initialize() {
+		if (state == NOT_CONNECTED)
+			return;
+
+		std::string resume;
+		/*The number 77 comes from the number of letters in this string + 1:
+		{"op":7,"d":{"server_id":"18446744073709551615","session_id":"","token":""}}
+		*/
+		resume.reserve(77 + context.sessionID.length() + context.token.length());
+		resume +=
+			"{"
+				"\"op\":7," //RESUME
+				"\"d\":{"
+					"\"server_id\":\"" ; resume += context.serverID ; resume += "\","
+					"\"session_id\":\""; resume += context.sessionID; resume += "\","
+					"\"token\":\""     ; resume += context.token    ; resume += "\""
+				"}"
+			"}";
+		origin->send(resume, origin->connection);
+	}
+
 	void VoiceConnection::processMessage(const std::string &message) {
 		std::vector<std::string> values = json::getValues(message.c_str(),
 			{ "op", "d" });
@@ -50,13 +71,18 @@ namespace SleepyDiscord {
 		switch (op) {
 		case HELLO: {
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+
+			//Don't sent a identity during resumes
+			if (state & OPEN)
+				break;
+
 			std::string identity;
 			/*The number 116 comes from the number of letters in this string + 1:
 				{"op": 0,"d": {"server_id": "18446744073709551615",
 				"user_id": "18446744073709551615","session_id": "","token": ""}}
 			*/
 			//remember to change the number below when editing identity
-			identity.reserve(116 + context.sessionID.length() + origin->token->length());
+			identity.reserve(116 + context.sessionID.length() + context.token.length());
 			identity +=
 				"{"
 					"\"op\": 0," //VoiceOPCode::IDENTIFY

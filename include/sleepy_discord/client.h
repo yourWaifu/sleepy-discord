@@ -205,6 +205,28 @@ namespace SleepyDiscord {
 		VoiceContext& createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server = "", BaseVoiceEventHandler* eventHandler = nullptr);
 		void connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings);
 		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
+		inline void disconnectVoiceConnection(VoiceConnection & connection) {
+			connection.disconnect();
+		}
+		
+		template<class Function>
+		void disconnectVoiceConnection_if(Function function) {
+			auto i = std::find_if(voiceConnections.begin(), voiceConnections.end(), function);
+			if (i != voiceConnections.end())
+				disconnectVoiceConnection(*i);
+		}
+
+		inline void disconnectVoiceContext(VoiceContext & context) {
+			disconnectVoiceConnection_if([&context](VoiceConnection& connection) {
+				return connection.getContext() == context;
+			});
+		}
+
+		inline void disconnectFromVoiceChannel(Snowflake<Channel>& channelID) {
+			disconnectVoiceConnection_if([&channelID](VoiceConnection& connection) {
+				return connection.getContext().getChannelID() == channelID;
+			});
+		}
 
 #endif
 

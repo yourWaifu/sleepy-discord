@@ -132,6 +132,7 @@ namespace SleepyDiscord {
 	private:
 		friend BaseDiscordClient;
 
+		void initialize() override;
 		void processMessage(const std::string &message) override;
 		void processCloseCode(const int16_t code) override;
 
@@ -163,7 +164,7 @@ namespace SleepyDiscord {
 		};
 
 		UDPClient UDP;
-		int heartbeatInterval = 0;
+		time_t heartbeatInterval = 0;
 		uint32_t sSRC;
 		uint16_t port;
 		BaseDiscordClient* origin;
