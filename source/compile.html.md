@@ -54,9 +54,9 @@ For people developing things for platforms outside of the main 3 operating syste
 
 There's few options for getting setup to compile
 
-[CMake](#cmake)
-
-[Python Setup Scirpt](#python-setup-script)
+* [CMake](#cmake)
+* [Python Setup Scirpt](#python-setup-script)
+* [Manual (last resort)](#manual-setup)
 
 ##CMake
 ```powershell
@@ -152,8 +152,15 @@ Once one of those two options are done, move all the .h files in openssl\include
 There's only two options:
 </u>
 
-* [Visual Studio](#visual-studio)
 * [Make](#make)
+* [Visual Studio](#visual-studio)
+
+##Make
+```shell
+cd buildtools/
+make -f Makefile.linux
+```
+Call those commands in your shell, and you're done. It should compile a file called libsleepy_discord.a. After that, [go to the next step.](#the-next-step)
 
 ##Visual Studio
 Open the sleepy_discord folder and find the sleepy_discord.vcxproj file. Open sleepy_discord.vcxproj with Visual Studio, of course. At the top, there a toolbar, click build and then build sleepy_discord. And you've compiled Sleepy Discord. [Go to the next step.](#the-next-step)
@@ -170,13 +177,6 @@ Then do the same thing for the Target Name to get the name of the file.
 <aside class="success">
 Don't forget to change the configuration to ``Release`` if you don't want the debug version.
 </aside>
-
-##Make
-```shell
-cd buildtools/
-make -f Makefile.linux
-```
-Call those commands in your shell, and you're done. It should compile a file called libsleepy_discord.a. After that, [go to the next step.](#the-next-step)
 
 ##Common Issues
 

@@ -551,9 +551,10 @@ Events are functions that can be overridden that are called when an event such a
 ### onReady
 
 ```cpp
-virtual void onReady(Ready readyData);
+virtual void onReady(std::string* jsonMessage);
 ```
 
+[](
 #### Parameters
 <table>
   <tbody>
@@ -561,6 +562,7 @@ virtual void onReady(Ready readyData);
         <td>contains things such as user, and privateChannels</td></tr>
   </tbody>
 </table>
+)
 
 ### onServer
 ```cpp

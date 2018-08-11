@@ -18,11 +18,49 @@ search: true
 I'm going to assume that you have compiled Sleepy Discord or aquired a compiled binary
 </aside>
 
-[Visual Studio](#visual-studio)
+* [CMake](#cmake)
+* [G++](#g)
+* [Visual Studio](#visual-studio)
 
-[G++](#g)
+#CMake
+```cmake
+cmake_minimum_required (VERSION 3.6)
+project(example)
 
-[CMake](#cmake)
+add_subdirectory(sleepy-discord)
+
+add_executable(hello source.cpp)
+
+target_link_libraries(hello sleepy-discord)
+```
+
+To link Sleepy Discord using CMake, simply add two lines of cmake code to your CMakeList.txt, ``add_subdirectory(sleepy-discord)`` and ``target_link_libraries(hello sleepy-discord)``.
+
+#G++
+
+```shell
+cd ./examples/hello/
+g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
+```
+
+This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.
+
+**Preparing:** Before we start, we need the needed libraries. This depends on the libraries that you'll be using with Sleepy Discord. For example, to use CPR, you need the a compiled version of CPR (or maybe you could use CMake to that for you since that's what they recommend you to do, I guess) and libcurl. Another example is to use Websocket++, you'll need, you guessed it, the openSSL library files.
+
+##Helpful Chart
+To link the Sleepy Discord with g++, you'll need to add some options (Or whatever they are called). The helpful chart below should help breakdown what all the options in the example are for.
+
+| Option         | Example                      | Reason |
+|----------------|------------------------------|--------|
+| ``-std=c++11`` | ``-std=c++11``               | Lets you compile c++11 code, you can change this to something higher then 11 if you like. |
+| ``-I``         | ``-I/path/to/includes``      | Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure ``include/sleepy_discord/IncludeNonexistant`` is last. |
+| ``-L``         | ``-L/path/to/library/files`` | Tells the compiler where to look for lib files |
+|                | ``example.cpp``              | The files you want to compile. NOTE: these should before any ``-l`` |
+| ``-l``         | ``-llib``                    | Tells the compiler which libraries to link with |
+| ``-D``         | ``-DSomeVariable``           | Defines preprocessor variable |
+| ``-o``         | ``-o example.out``           | The output file |
+
+Once that's all done, [move over to the last final step.](#now-its-time-to-compile)
 
 #Visual Studio
 
@@ -97,6 +135,8 @@ libcurl_a.lib
 libcryptoMT.lib
 libsslMT.lib
 crypt32.lib
+wldap32.lib
+Normaliz.lib
 ```
 
 **Step 9:** On the text box at the top add ``sleepy_discord.lib`` then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you're done, remember to click OK.
@@ -113,46 +153,6 @@ These steps are optional, and are here just in case you need them.
 
 ##Build
 Once that's all done, [move over to the last final step.](#now-its-time-to-compile)
-
-#G++
-
-```shell
-cd ./examples/hello/
-g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
-```
-
-This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.
-
-**Preparing:** Before we start, we need the needed libraries. This depends on the libraries that you'll be using with Sleepy Discord. For example, to use CPR, you need the a compiled version of CPR (or maybe you could use CMake to that for you since that's what they recommend you to do, I guess) and libcurl. Another example is to use Websocket++, you'll need, you guessed it, the openSSL library files.
-
-##Helpful Chart
-To link the Sleepy Discord with g++, you'll need to add some options (Or whatever they are called). The helpful chart below should help breakdown what all the options in the example are for.
-
-| Option         | Example                      | Reason |
-|----------------|------------------------------|--------|
-| ``-std=c++11`` | ``-std=c++11``               | Lets you compile c++11 code, you can change this to something higher then 11 if you like. |
-| ``-I``         | ``-I/path/to/includes``      | Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure ``include/sleepy_discord/IncludeNonexistant`` is last. |
-| ``-L``         | ``-L/path/to/library/files`` | Tells the compiler where to look for lib files |
-|                | ``example.cpp``              | The files you want to compile. NOTE: these should before any ``-l`` |
-| ``-l``         | ``-llib``                    | Tells the compiler which libraries to link with |
-| ``-D``         | ``-DSomeVariable``           | Defines preprocessor variable |
-| ``-o``         | ``-o example.out``           | The output file |
-
-Once that's all done, [move over to the last final step.](#now-its-time-to-compile)
-
-#CMake
-```cmake
-cmake_minimum_required (VERSION 3.6)
-project(example)
-
-add_subdirectory(sleepy-discord)
-
-add_executable(hello source.cpp)
-
-target_link_libraries(hello sleepy-discord)
-```
-
-To link Sleepy Discord using CMake, simply add two lines of cmake code to your CMakeList.txt, ``add_subdirectory(sleepy-discord)`` and ``target_link_libraries(hello sleepy-discord)``.
 
 #Now, It's Time to Compile
 
@@ -209,3 +209,10 @@ It looks like you needed libcurl and [skipped the preparing step](#preparing).
 
 ### Could not get the gateway
 There's a few reasons this might happen. For one, it could mean that you aren't connect to the internet, and if that's the case then connect to the internet. 2nd, if you are using CMake, it could be that something went wrong. To fix this, delete the CMakeCache.txt file and try running CMake again. 3rd, If none of those work, it could be an issue with ssl. As a last resort, You can use the ``SLEEPY_USE_HARD_CODED_GATEWAY`` Preprocessor.
+
+### unresolved external symbol __imp__ldap_init
+According to [the Windows Docs](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/api/winldap/nf-winldap-ldap_init), this symbol is defined in ``Wldap32.lib``. So linking ``Wldap32.lib`` should fix this issue.
+
+### unresolved external symbol __imp__IdnToAscii
+
+According to [the Windows Docs](https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-idntounicode), this symbol is defined in ``Normaliz.lib``. So linking ``Normaliz.lib`` should fix this issue.
