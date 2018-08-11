@@ -554,16 +554,6 @@ Events are functions that can be overridden that are called when an event such a
 virtual void onReady(std::string* jsonMessage);
 ```
 
-[](
-#### Parameters
-<table>
-  <tbody>
-      <tr><td><strong>readyData</strong></td>
-        <td>contains things such as user, and privateChannels</td></tr>
-  </tbody>
-</table>
-)
-
 ### onServer
 ```cpp
 virtual void onServer(SleepyDiscord::Server server);
