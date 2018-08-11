@@ -81,7 +81,7 @@ namespace SleepyDiscord {
 		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context);
 		VoiceConnection(VoiceConnection&&) = default;
 
-		~VoiceConnection();
+		~VoiceConnection() = default;
 
 		inline bool operator==(const VoiceConnection& right) {
 			return this == &right;
@@ -242,15 +242,18 @@ namespace SleepyDiscord {
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,
 			std::size_t& length
-		) {}
+		) = 0;
 	};
 
 	template<class Container>
 	struct AudioSource : public BasicAudioSourceForContainers {
+	public:
 		AudioSource() : BasicAudioSourceForContainers() {}
 		virtual Container read(AudioTransmissionDetails& details) {
 			return Container();
 		};
+	private:
+		friend VoiceConnection;
 		void speak(
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,

@@ -13,9 +13,6 @@ namespace SleepyDiscord {
 		secretKey()
 	{}
 
-	VoiceConnection::~VoiceConnection() {
-	}
-
 	void VoiceConnection::disconnect() {
 		stopSpeaking();
 		std::string update;
