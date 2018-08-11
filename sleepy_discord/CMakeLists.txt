@@ -1,5 +1,6 @@
 add_library(sleepy-discord
 	asignments_client.cpp
+	asio_udp.cpp
 	attachment.cpp
 	channel.cpp
 	client.cpp
@@ -8,7 +9,6 @@ add_library(sleepy-discord
 	discord_object_interface.cpp
 	embed.cpp
 	endpoints.cpp
-	experimental.cpp
 	gateway.cpp
 	http.cpp
 	invite.cpp
@@ -21,6 +21,7 @@ add_library(sleepy-discord
 	user.cpp
 	uwebsockets_websocket.cpp
 	voice.cpp
+	voice_connection.cpp
 	webhook.cpp
 	websocketpp_websocket.cpp
 )
