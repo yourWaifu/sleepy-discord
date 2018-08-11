@@ -233,22 +233,13 @@ namespace SleepyDiscord {
 		std::size_t length = 0;
 
 		//send the audio data
-		switch (audioSource->type) {
-		case AUDIO_VECTOR: {
-			auto audioVectorSource = &static_cast<AudioSource<AUDIO_VECTOR>&>(*audioSource);
-			std::vector<int16_t> audioData = audioVectorSource->read(details);
-			int16_t* audioBuffer = audioData.data();
-			length = audioData.size();
+		if (audioSource->type == AUDIO_CONTAINER) {
+			auto audioVectorSource = &static_cast<BasicAudioSourceForContainers&>(*audioSource);
+			audioVectorSource->speak(*this, details, length);
+		} else {
+			int16_t * audioBuffer = nullptr;
+			audioSource->read(details, audioBuffer, length);
 			speak(audioBuffer, length);
-		} break;
-		case AUDIO_POINTER: {
-			auto audioVectorSource = &static_cast<AudioSource<AUDIO_POINTER>&>(*audioSource);
-			int16_t * audioData = nullptr;
-			audioVectorSource->read(details, audioData, length);
-			speak(audioData, length);
-		} break;
-		default:
-			break;
 		}
 
 		if ((state & SENDING_AUDIO) == 0) {
@@ -279,6 +270,8 @@ namespace SleepyDiscord {
 		//stop sending data when there's no data
 		if (length == 0) {
 			return stopSpeaking();
+		} else if ((state & SENDING_AUDIO) == 0) {
+			return;
 		}
 
 		//the >>1 cuts it in half since you are using 2 channels

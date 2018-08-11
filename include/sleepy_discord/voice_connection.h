@@ -61,9 +61,10 @@ namespace SleepyDiscord {
 
 	enum AudioSourceType {
 		AUDIO_BASE_TYPE,
-		AUDIO_VECTOR,
-		AUDIO_POINTER,
+		AUDIO_CONTAINER,
 	};
+
+	struct AudioTransmissionDetails;
 
 	struct BaseAudioSource {
 		BaseAudioSource() : type(AUDIO_BASE_TYPE) {}
@@ -71,6 +72,8 @@ namespace SleepyDiscord {
 		virtual inline bool isOpusEncoded() { return false; }
 		const AudioSourceType type;
 		virtual ~BaseAudioSource() {}
+		//This function below is here in case the user uses this class
+		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
 	};
 
 	class VoiceConnection : public GenericMessageReceiver {
@@ -229,22 +232,34 @@ namespace SleepyDiscord {
 		const std::size_t _amountSentSinceLastTime;
 	};
 
-	template<AudioSourceType Type>
-	struct AudioSource : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(Type) {}
+	struct BasicAudioSourceForContainers : public BaseAudioSource {
+		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
+		void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) override {}
+		virtual void speak(
+			VoiceConnection& connection,
+			AudioTransmissionDetails& details,
+			std::size_t& length
+		) {}
 	};
 
-	template<>
-	struct AudioSource<AUDIO_VECTOR> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_VECTOR) {}
-		virtual std::vector<int16_t> read(AudioTransmissionDetails& details) {
-			return std::vector<int16_t>();
+	template<class Container>
+	struct AudioSource : public BasicAudioSourceForContainers {
+		AudioSource() : BasicAudioSourceForContainers() {}
+		virtual Container read(AudioTransmissionDetails& details) {
+			return Container();
 		};
+		void speak(
+			VoiceConnection& connection,
+			AudioTransmissionDetails& details,
+			std::size_t& length
+		) override {
+			Container audioData = read(details);
+			int16_t* audioBuffer = audioData.data();
+			length = audioData.size();
+			connection.speak(audioBuffer, length);
+		}
 	};
 
-	template<>
-	struct AudioSource<AUDIO_POINTER> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_POINTER) {}
-		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
-	};
+	using AudioPointerSource = BaseAudioSource;
+	using AudioVectorSource = AudioSource<std::vector<int16_t>>;
 }
