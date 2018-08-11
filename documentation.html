@@ -755,8 +755,10 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
 <p>Events are functions that can be overridden that are called when an event such as receiving a message occur. For example, the function onMessage is an event.</p>
 
 <h3 id="onready">onReady</h3>
-<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">Ready</span> <span class="n">readyData</span><span class="p">);</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onReady</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">jsonMessage</span><span class="p">);</span>
 </code></pre>
+<p>[](</p>
+
 <h4 id="parameters">Parameters</h4>
 
 <table>
@@ -765,6 +767,8 @@ Any parameter that&rsquo;s not a std::string will cause issues. If you are using
         <td>contains things such as user, and privateChannels</td></tr>
   </tbody>
 </table>
+
+<p>)</p>
 
 <h3 id="onserver">onServer</h3>
 <pre class="highlight cpp tab-cpp"><code><span class="k">virtual</span> <span class="kt">void</span> <span class="n">onServer</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Server</span> <span class="n">server</span><span class="p">);</span>

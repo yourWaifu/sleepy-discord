@@ -320,8 +320,8 @@ Voice support is in the develop branch
 <p>Once connected to a voice server with all needed library linked, we can begin sending Audio to over to Discord. To do this, create a <a href="documentation.html#audiosource">AudioSource</a>, and then call <a href="documentation.html#startspeaking">VoiceConnection::startSpeaking</a>.</p>
 
 <h3 id="audio-sources">Audio Sources</h3>
-<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Music</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_POINTER</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="n">Music</span><span class="p">()</span> <span class="o">:</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_POINTER</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">{</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Music</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSourcePointer</span> <span class="p">{</span>
+    <span class="n">Music</span><span class="p">()</span> <span class="o">:</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSourcePointer</span><span class="p">()</span> <span class="p">{</span>
         <span class="n">File</span> <span class="n">musicFile</span><span class="p">(</span><span class="s">"music.raw"</span><span class="p">);</span>
         <span class="n">musicLength</span> <span class="o">=</span> <span class="n">musicFile</span><span class="p">.</span><span class="n">getSize</span><span class="p">()</span> <span class="o">/</span> <span class="k">sizeof</span> <span class="kt">int16_t</span><span class="p">;</span>
         <span class="n">music</span> <span class="o">=</span> <span class="n">musicFile</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span><span class="p">();</span>
@@ -337,8 +337,8 @@ Voice support is in the develop branch
     <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span> <span class="n">music</span><span class="p">;</span>
     <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">musicLength</span><span class="p">;</span>
 <span class="p">};</span>
-</code></pre><pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">SquareWave</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_VECTOR</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="n">SquareWave</span><span class="p">()</span> <span class="o">:</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_VECTOR</span><span class="o">&gt;</span><span class="p">(),</span> <span class="n">sampleOffset</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre><pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">SquareWave</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSourceVector</span> <span class="p">{</span>
+    <span class="n">SquareWave</span><span class="p">()</span> <span class="o">:</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSourceVector</span><span class="p">(),</span> <span class="n">sampleOffset</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
     <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span> <span class="n">read</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioTransmissionDetails</span><span class="o">&amp;</span> <span class="n">details</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int16_t</span><span class="o">&gt;</span> <span class="n">target</span><span class="p">(</span><span class="n">details</span><span class="p">.</span><span class="n">proposedLength</span><span class="p">());</span>
         <span class="k">for</span> <span class="p">(</span><span class="kt">int16_t</span><span class="o">&amp;</span> <span class="n">sample</span> <span class="o">:</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
@@ -362,17 +362,17 @@ Don&rsquo;t worry about calling read, the library will instead call <code class=
 <blockquote>
 <p>You can also send Opus encoded audio instead of PMC audio</p>
 </blockquote>
-<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Music</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSource</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AUDIO_POINTER</span><span class="o">&gt;</span> <span class="p">{</span>
+<pre class="highlight cpp tab-cpp"><code><span class="k">struct</span> <span class="n">Music</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">AudioSourcePointer</span> <span class="p">{</span>
     <span class="k">constexpr</span> <span class="kr">inline</span> <span class="kt">bool</span> <span class="n">isOpusEncoded</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">}</span>
 </code></pre>
-<p>As of when this was written, there are two types of <a href="documentation.html#audiosource">AudioSources</a>, AUDIO_POINTER and AUDIO_VECTOR. They differ in their read function.</p>
+<p>As of when this was written, there are two types of <a href="documentation.html#audiosource">AudioSources</a>, pointer and vector. They differ in their read function.</p>
 
-<h4 id="audio_pointer">AUDIO_POINTER</h4>
+<h4 id="audiosourcepointer">AudioSourcePointer</h4>
 
 <p><code class="prettyprint">read</code> points a pointer to a buffer of audio data and sets the length.</p>
 
-<h4 id="audio_vector">AUDIO_VECTOR</h4>
+<h4 id="audiosourcevector">AudioSourceVector</h4>
 
 <p><code class="prettyprint">read</code> returns a vector of audio data</p>
 
@@ -403,6 +403,13 @@ The sizes of audio buffers should 960. Which is .02 seconds of 48kHz stereo audi
 <h2 id="receiving-audio">Receiving Audio</h2>
 
 <p>Not implemented yet.</p>
+
+<h2 id="disconnecting">Disconnecting</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="nf">onEndSpeaking</span><span class="p">(</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">VoiceConnection</span><span class="o">&amp;</span> <span class="n">connection</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">connection</span><span class="p">.</span><span class="n">disconnect</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
+<p>There are a few ways to disconnect, the simplest being calling <code class="prettyprint">VoiceConnection::disconnect</code>. You can also disconnect with a VoiceContext or channelID by using <code class="prettyprint">BaseDiscordClient::disconnectVoiceContext</code> or <code class="prettyprint">BaseDiscordClient:disconnectFromVoiceChannel</code>.</p>
 
       </div>
       <div class="dark-box">

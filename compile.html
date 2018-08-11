@@ -356,9 +356,11 @@ For people developing things for platforms outside of the main 3 operating syste
 
 <p>There&rsquo;s few options for getting setup to compile</p>
 
-<p><a href="#cmake">CMake</a></p>
-
-<p><a href="#python-setup-script">Python Setup Scirpt</a></p>
+<ul>
+<li><a href="#cmake">CMake</a></li>
+<li><a href="#python-setup-script">Python Setup Scirpt</a></li>
+<li><a href="#manual-setup">Manual (last resort)</a></li>
+</ul>
 
 <h2 id="cmake">CMake</h2>
 <pre class="highlight powershell tab-powershell"><code>mkdir build
@@ -375,44 +377,37 @@ make
 <th>Option</th>
 <th>Variable</th>
 <th>Default value</th>
-<th>Supported</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>Websocket++</td>
 <td>USE_WEBSOCKETPP</td>
 <td>ON</td>
-<td>YES</td>
 </tr>
 <tr>
 <td>uWebsockets</td>
 <td>USE_UWEBSOCKETS</td>
 <td>OFF</td>
-<td>NO</td>
 </tr>
 <tr>
 <td>CPR</td>
 <td>USE_CPR</td>
 <td>ON</td>
-<td>YES</td>
 </tr>
 <tr>
 <td>ASIO</td>
 <td>USE_ASIO</td>
 <td>OFF but ON when USE_WEBSOCKETPP is ON</td>
-<td>YES</td>
 </tr>
 <tr>
 <td>libOpus</td>
 <td>USE_LIBOPUS</td>
 <td>OFF</td>
-<td>NO</td>
 </tr>
 <tr>
 <td>libsodium</td>
 <td>USE_LIBSODIUM</td>
 <td>OFF</td>
-<td>NO</td>
 </tr>
 </tbody></table>
 
@@ -497,9 +492,15 @@ There&rsquo;s only two options:
 </u></p>
 
 <ul>
-<li><a href="#visual-studio">Visual Studio</a></li>
 <li><a href="#make">Make</a></li>
+<li><a href="#visual-studio">Visual Studio</a></li>
 </ul>
+
+<h2 id="make">Make</h2>
+<pre class="highlight shell tab-shell"><code><span class="nb">cd </span>buildtools/
+make -f Makefile.linux
+</code></pre>
+<p>Call those commands in your shell, and you&rsquo;re done. It should compile a file called libsleepy_discord.a. After that, <a href="#the-next-step">go to the next step.</a></p>
 
 <h2 id="visual-studio">Visual Studio</h2>
 
@@ -519,12 +520,6 @@ Then do the same thing for the Target Name to get the name of the file.
 <aside class="success">
 Don&rsquo;t forget to change the configuration to &ldquo;Release&rdquo; if you don&rsquo;t want the debug version.
 </aside>
-
-<h2 id="make">Make</h2>
-<pre class="highlight shell tab-shell"><code><span class="nb">cd </span>buildtools/
-make -f Makefile.linux
-</code></pre>
-<p>Call those commands in your shell, and you&rsquo;re done. It should compile a file called libsleepy_discord.a. After that, <a href="#the-next-step">go to the next step.</a></p>
 
 <h2 id="common-issues">Common Issues</h2>
 

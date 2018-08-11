@@ -254,11 +254,81 @@
 I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a compiled binary
 </aside>
 
-<p><a href="#visual-studio">Visual Studio</a></p>
+<ul>
+<li><a href="#cmake">CMake</a></li>
+<li><a href="#g">G++</a></li>
+<li><a href="#visual-studio">Visual Studio</a></li>
+</ul>
 
-<p><a href="#g">G++</a></p>
+<h1 id="cmake">CMake</h1>
+<pre class="highlight cmake tab-cmake"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 3.6<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span>example<span class="p">)</span>
 
-<p><a href="#cmake">CMake</a></p>
+<span class="nb">add_subdirectory</span><span class="p">(</span>sleepy-discord<span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span>hello source.cpp<span class="p">)</span>
+
+<span class="nb">target_link_libraries</span><span class="p">(</span>hello sleepy-discord<span class="p">)</span>
+</code></pre>
+<p>To link Sleepy Discord using CMake, simply add two lines of cmake code to your CMakeList.txt, <code class="prettyprint">add_subdirectory(sleepy-discord)</code> and <code class="prettyprint">target_link_libraries(hello sleepy-discord)</code>.</p>
+
+<h1 id="g">G++</h1>
+<pre class="highlight shell tab-shell"><code><span class="nb">cd</span> ./examples/hello/
+g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
+</code></pre>
+<p>This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.</p>
+
+<p><strong>Preparing:</strong> Before we start, we need the needed libraries. This depends on the libraries that you&rsquo;ll be using with Sleepy Discord. For example, to use CPR, you need the a compiled version of CPR (or maybe you could use CMake to that for you since that&rsquo;s what they recommend you to do, I guess) and libcurl. Another example is to use Websocket++, you&rsquo;ll need, you guessed it, the openSSL library files.</p>
+
+<h2 id="helpful-chart">Helpful Chart</h2>
+
+<p>To link the Sleepy Discord with g++, you&rsquo;ll need to add some options (Or whatever they are called). The helpful chart below should help breakdown what all the options in the example are for.</p>
+
+<table><thead>
+<tr>
+<th>Option</th>
+<th>Example</th>
+<th>Reason</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">-std=c++11</code></td>
+<td><code class="prettyprint">-std=c++11</code></td>
+<td>Lets you compile c++11 code, you can change this to something higher then 11 if you like.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-I</code></td>
+<td><code class="prettyprint">-I/path/to/includes</code></td>
+<td>Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure <code class="prettyprint">include/sleepy_discord/IncludeNonexistant</code> is last.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-L</code></td>
+<td><code class="prettyprint">-L/path/to/library/files</code></td>
+<td>Tells the compiler where to look for lib files</td>
+</tr>
+<tr>
+<td></td>
+<td><code class="prettyprint">example.cpp</code></td>
+<td>The files you want to compile. NOTE: these should before any <code class="prettyprint">-l</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">-l</code></td>
+<td><code class="prettyprint">-llib</code></td>
+<td>Tells the compiler which libraries to link with</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-D</code></td>
+<td><code class="prettyprint">-DSomeVariable</code></td>
+<td>Defines preprocessor variable</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-o</code></td>
+<td><code class="prettyprint">-o example.out</code></td>
+<td>The output file</td>
+</tr>
+</tbody></table>
+
+<p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
 
 <h1 id="visual-studio">Visual Studio</h1>
 
@@ -331,6 +401,8 @@ libcurl_a.lib
 libcryptoMT.lib
 libsslMT.lib
 crypt32.lib
+wldap32.lib
+Normaliz.lib
 </code></pre>
 <p><strong>Step 9:</strong> On the text box at the top add <code class="prettyprint">sleepy_discord.lib</code> then add all the other needed library files you also need. The librarys you will need to link to will depend on your deps/lib folder, system, platform, and configuration. Also, each library file is separated by a new line. Once you&rsquo;re done, remember to click OK.</p>
 
@@ -347,76 +419,6 @@ These steps are optional, and are here just in case you need them.
 <h2 id="build">Build</h2>
 
 <p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
-
-<h1 id="g">G++</h1>
-<pre class="highlight shell tab-shell"><code><span class="nb">cd</span> ./examples/hello/
-g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
-</code></pre>
-<p>This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.</p>
-
-<p><strong>Preparing:</strong> Before we start, we need the needed libraries. This depends on the libraries that you&rsquo;ll be using with Sleepy Discord. For example, to use CPR, you need the a compiled version of CPR (or maybe you could use CMake to that for you since that&rsquo;s what they recommend you to do, I guess) and libcurl. Another example is to use Websocket++, you&rsquo;ll need, you guessed it, the openSSL library files.</p>
-
-<h2 id="helpful-chart">Helpful Chart</h2>
-
-<p>To link the Sleepy Discord with g++, you&rsquo;ll need to add some options (Or whatever they are called). The helpful chart below should help breakdown what all the options in the example are for.</p>
-
-<table><thead>
-<tr>
-<th>Option</th>
-<th>Example</th>
-<th>Reason</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><code class="prettyprint">-std=c++11</code></td>
-<td><code class="prettyprint">-std=c++11</code></td>
-<td>Lets you compile c++11 code, you can change this to something higher then 11 if you like.</td>
-</tr>
-<tr>
-<td><code class="prettyprint">-I</code></td>
-<td><code class="prettyprint">-I/path/to/includes</code></td>
-<td>Tells the compiler where to look for header files and other files to include. IMPORTANT NOTE: Order matters, make sure <code class="prettyprint">include/sleepy_discord/IncludeNonexistant</code> is last.</td>
-</tr>
-<tr>
-<td><code class="prettyprint">-L</code></td>
-<td><code class="prettyprint">-L/path/to/library/files</code></td>
-<td>Tells the compiler where to look for lib files</td>
-</tr>
-<tr>
-<td></td>
-<td><code class="prettyprint">example.cpp</code></td>
-<td>The files you want to compile. NOTE: these should before any <code class="prettyprint">-l</code></td>
-</tr>
-<tr>
-<td><code class="prettyprint">-l</code></td>
-<td><code class="prettyprint">-llib</code></td>
-<td>Tells the compiler which libraries to link with</td>
-</tr>
-<tr>
-<td><code class="prettyprint">-D</code></td>
-<td><code class="prettyprint">-DSomeVariable</code></td>
-<td>Defines preprocessor variable</td>
-</tr>
-<tr>
-<td><code class="prettyprint">-o</code></td>
-<td><code class="prettyprint">-o example.out</code></td>
-<td>The output file</td>
-</tr>
-</tbody></table>
-
-<p>Once that&rsquo;s all done, <a href="#now-its-time-to-compile">move over to the last final step.</a></p>
-
-<h1 id="cmake">CMake</h1>
-<pre class="highlight cmake tab-cmake"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 3.6<span class="p">)</span>
-<span class="nb">project</span><span class="p">(</span>example<span class="p">)</span>
-
-<span class="nb">add_subdirectory</span><span class="p">(</span>sleepy-discord<span class="p">)</span>
-
-<span class="nb">add_executable</span><span class="p">(</span>hello source.cpp<span class="p">)</span>
-
-<span class="nb">target_link_libraries</span><span class="p">(</span>hello sleepy-discord<span class="p">)</span>
-</code></pre>
-<p>To link Sleepy Discord using CMake, simply add two lines of cmake code to your CMakeList.txt, <code class="prettyprint">add_subdirectory(sleepy-discord)</code> and <code class="prettyprint">target_link_libraries(hello sleepy-discord)</code>.</p>
 
 <h1 id="now-its-time-to-compile">Now, It&rsquo;s Time to Compile</h1>
 
@@ -475,6 +477,14 @@ Remember to change &ldquo;token&rdquo;` to your token if you want to run the cod
 <h3 id="could-not-get-the-gateway">Could not get the gateway</h3>
 
 <p>There&rsquo;s a few reasons this might happen. For one, it could mean that you aren&rsquo;t connect to the internet, and if that&rsquo;s the case then connect to the internet. 2nd, if you are using CMake, it could be that something went wrong. To fix this, delete the CMakeCache.txt file and try running CMake again. 3rd, If none of those work, it could be an issue with ssl. As a last resort, You can use the <code class="prettyprint">SLEEPY_USE_HARD_CODED_GATEWAY</code> Preprocessor.</p>
+
+<h3 id="unresolved-external-symbol-impldap_init">unresolved external symbol <strong>imp</strong>ldap_init</h3>
+
+<p>According to <a href="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/api/winldap/nf-winldap-ldap_init">the Windows Docs</a>, this symbol is defined in <code class="prettyprint">Wldap32.lib</code>. So linking <code class="prettyprint">Wldap32.lib</code> should fix this issue.</p>
+
+<h3 id="unresolved-external-symbol-impidntoascii">unresolved external symbol <strong>imp</strong>IdnToAscii</h3>
+
+<p>According to <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-idntounicode">the Windows Docs</a>, this symbol is defined in <code class="prettyprint">Normaliz.lib</code>. So linking <code class="prettyprint">Normaliz.lib</code> should fix this issue.</p>
 
       </div>
       <div class="dark-box">
