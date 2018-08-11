@@ -7,18 +7,17 @@
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 #include "client.h"
+#include "websocketpp_connection.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
-	typedef websocketpp::connection_hdl WebsocketConnection;
-
 	//typedef GenericMessageReceiver MessageProcssor;
 
 	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
+		WebsocketppDiscordClient(const std::string token, const char numOfThreads = SleepyDiscord::USER_CONTROLED_THREADS);
 		~WebsocketppDiscordClient();
 
 		void run();
@@ -36,6 +35,7 @@ namespace SleepyDiscord {
 			websocketpp::connection_hdl handle,
 			GenericMessageReceiver* messageProcessor
 		);
+		void onFail(websocketpp::connection_hdl handle, GenericMessageReceiver* messageProcessor);
 		void send(std::string message, WebsocketConnection& connection);
 		void runAsync();
 		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);

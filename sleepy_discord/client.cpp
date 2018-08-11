@@ -15,21 +15,22 @@
 #endif
 
 namespace SleepyDiscord {
-	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads) {
+	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads, int _shardID, int _shardCount) {
 		ready = false;
+		quiting = false;
 		bot = true;
 		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
+		setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
 		getTheGateway();
 		connect(theGateway, this, connection);
 #ifndef SLEEPY_ONE_THREAD
-		if (2 < maxNumOfThreads) runAsync();
-		maxNumOfThreadsAllowed = maxNumOfThreads;
+		if (USE_RUN_THREAD <= maxNumOfThreads) runAsync();
 #endif
 	}
 
-	BaseDiscordClient::BaseDiscordClient() : maxNumOfThreadsAllowed(0), ready(false), bot(true), messagesRemaining(0) {}
+	BaseDiscordClient::BaseDiscordClient() : ready(false), quiting(false), bot(true), messagesRemaining(0), shardID(0), shardCount(0) {}
 
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
@@ -179,15 +180,9 @@ namespace SleepyDiscord {
 		while (!ready) sleep(1000);
 	}
 
-	void BaseDiscordClient::quit() {
-#ifdef SLEEPY_VOICE_ENABLED
-		//quit all voice connections
-		for (VoiceConnection& voiceConnection : voiceConnections)
-			voiceConnection.disconnect();
-#endif
-		if (heart.isValid()) heart.stop(); //stop heartbeating
-		disconnectWebsocket(1000);
-		onQuit();
+	void BaseDiscordClient::setShardID(int _shardID, int _shardCount) {
+		shardID = _shardID;
+		shardCount = _shardCount;
 	}
 
 	void BaseDiscordClient::getTheGateway() {
@@ -197,7 +192,10 @@ namespace SleepyDiscord {
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
 		Response a = session.Get();	//todo change this back to a post
-		if (!a.text.length()) return setError(GATEWAY_FAILED);	//error check
+		if (!a.text.length()) {	//error check
+			quit(false, true);
+			return setError(GATEWAY_FAILED);
+		}
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
 			if (a.text[position] == '"')
@@ -250,16 +248,27 @@ namespace SleepyDiscord {
 		"{"
 			"\"op\":2,"
 			"\"d\":{"
-			"\"token\":\""; identity += getToken(); identity += "\","
-			"\"properties\":{"
-				"\"$os\":\""; identity += os; identity += "\","
-				"\"$browser\":\"Sleepy_Discord\","
-				"\"$device\":\"Sleepy_Discord\","
-				"\"$referrer\":\"\","
-				"\"$referring_domain\":\"\""
-			"},"
-			"\"compress\":false,"
-			"\"large_threshold\":250"
+				"\"token\":\""; identity += getToken(); identity += "\","
+				"\"properties\":{"
+					"\"$os\":\""; identity += os; identity += "\","
+					"\"$browser\":\"Sleepy_Discord\","
+					"\"$device\":\"Sleepy_Discord\","
+					"\"$referrer\":\"\","
+					"\"$referring_domain\":\"\""
+				"},"
+				"\"compress\":false,";
+		if (shardCount != 0 && shardID <= shardCount) {
+			identity +=
+				"\"shard\":[";
+			identity +=	
+					std::to_string(shardID); identity += ",";
+			identity +=
+					std::to_string(shardCount);
+			identity +=
+				"],";
+		}
+		identity +=
+				"\"large_threshold\":250"
 			"}"
 		"}";
 		sendL(identity);
@@ -281,8 +290,22 @@ namespace SleepyDiscord {
 		onResume();
 	}
 
+	void BaseDiscordClient::quit(bool isRestarting, bool isDisconnected) {
+		if (!isRestarting)
+			quiting = true;
+
+#ifdef SLEEPY_VOICE_ENABLED
+		//quit all voice connections
+		for (VoiceConnection& voiceConnection : voiceConnections)
+			voiceConnection.disconnect();
+#endif
+		if (heart.isValid()) heart.stop(); //stop heartbeating
+		if (!isDisconnected) disconnectWebsocket(1000);
+		if (quiting) onQuit();
+	}
+
 	void BaseDiscordClient::restart() {
-		quit();
+		quit(true);
 		connect(theGateway, this, connection);
 		onRestart();
 	}
@@ -453,29 +476,36 @@ namespace SleepyDiscord {
 
 		switch (code) {
 		//Just reconnect
+		case 1006:
 		case UNKNOWN_ERROR:
-		case INVALID_SEQ:
-		case RATE_LIMITED:
-		case SESSION_TIMEOUT:
-			reconnect();
-			break;
-
-		//Might be Unrecoveralbe
-		//We may need to stop to prevent a restart loop.
 		case UNKNOWN_OPCODE:
 		case DECODE_ERROR:
 		case NOT_AUTHENTICATED:
-		case AUTHENTICATION_FAILED:
 		case ALREADY_AUTHENTICATED:
-		case INVALID_SHARD:
-		case SHARDING_REQUIRED:
+		case INVALID_SEQ:
+		case RATE_LIMITED:
+		case SESSION_TIMEOUT:
 		default:
 			break;
+
+		case 1000:
+			if (!isQuiting())
+				break;
+			//else fall through
+
+		//Might be Unrecoveralbe
+		//We may need to stop to prevent a restart loop.
+		case AUTHENTICATION_FAILED:
+		case INVALID_SHARD:
+		case SHARDING_REQUIRED:
+			return quit(false, true);
+			break;
 		}
+		reconnect(1001);
 	}
 
 	void BaseDiscordClient::heartbeat() {
-		if (heartbeatInterval <= 0) return; //sanity test
+		if (heartbeatInterval <= 0 || isQuiting()) return; //sanity test
 		
 		//if time and timer are out of sync, trust time
 		time_t currentTime = getEpochTimeMillisecond();
@@ -487,11 +517,11 @@ namespace SleepyDiscord {
 
 		if (!wasHeartbeatAcked) {
 			reconnect(1001);
-			return;
+		} else {
+			sendHeartbeat();
 		}
 
 		lastHeartbeat = currentTime;
-		sendHeartbeat();
 
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
 	}

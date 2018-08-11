@@ -20,7 +20,8 @@ namespace SleepyDiscord {
 		MANAGE_CHANNELS /**/  = 0x00000010, //Allows management and editing of channels
 		MANAGE_GUILD    /**/  = 0x00000020, //Allows management and editing of the guild
 		ADD_REACTIONS         = 0x00000040, //Allows for the addition of reactions to messages
-		READ_MESSAGES         = 0x00000400, //Allows reading messages in a channel.The channel will not appear for users without this permission
+		VIEW_AUDIT_LOG        = 0x00000080, //Allows for viewing of audit logs
+		VIEW_CHANNEL          = 0x00000400, //Allows guild members to view a channel
 		SEND_MESSAGES         = 0x00000800, //Allows for sending messages in a channel.
 		SEND_TTS_MESSAGES     = 0x00001000, //Allows for sending of /tts messages
 		MANAGE_MESSAGES /**/  = 0x00002000, //Allows for deletion of other users messages
@@ -35,6 +36,7 @@ namespace SleepyDiscord {
 		DEAFEN_MEMBERS        = 0x00800000, //Allows for deafening of members in a voice channel
 		MOVE_MEMBERS          = 0x01000000, //Allows for moving of members between voice channels
 		USE_VAD               = 0x02000000, //Allows for using voice - activity - detection in a voice channel
+		PRIORITY_SPEAKER      = 0x00000100, //Allows for using priority speaker in a voice channel
 		CHANGE_NICKNAME       = 0x04000000, //Allows for modification of own nickname
 		MANAGE_NICKNAMES      = 0x08000000, //Allows for modification of other users nicknames
 		MANAGE_ROLES    /**/  = 0x10000000, //Allows management and editing of roles
@@ -44,6 +46,8 @@ namespace SleepyDiscord {
 
 		NONE                  = 0x000000000, //this permission doens't exist, I made it up
 		ALL                   = 0xFFFFFFFFF,
+
+		READ_MESSAGES = VIEW_CHANNEL,
 	};
 	
 	inline constexpr Permission toPermission(const int64_t& permission) {
