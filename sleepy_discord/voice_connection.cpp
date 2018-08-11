@@ -1,6 +1,6 @@
+#include "voice_connection.h"
 #ifdef SLEEPY_VOICE_ENABLED
 #include <sodium.h>
-#include "voice_connection.h"
 #include "client.h"
 
 namespace SleepyDiscord {
@@ -362,4 +362,8 @@ namespace SleepyDiscord {
 #endif
 	}
 }
+#else
+void SleepyDiscord::VoiceConnection::initialize() {}
+void SleepyDiscord::processMessage(const std::string &message) {}
+void SleepyDiscord::processCloseCode(const int16_t code) {}
 #endif
