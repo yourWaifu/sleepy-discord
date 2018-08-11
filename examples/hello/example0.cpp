@@ -10,6 +10,6 @@ public:
 };
 
 int main() {
-	myClientClass client("token", SleepyDiscord::BaseDiscordClient::USER_CONTROLED_THREADS);
+	myClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.run();
 }
