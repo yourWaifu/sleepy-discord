@@ -91,8 +91,8 @@ Once connected to a voice server with all needed library linked, we can begin se
 
 ### Audio Sources
 ```cpp
-struct Music : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER> {
-	Music() : SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER>() {
+struct Music : public SleepyDiscord::AudioSourcePointer {
+	Music() : SleepyDiscord::AudioSourcePointer() {
 		File musicFile("music.raw");
 		musicLength = musicFile.getSize() / sizeof int16_t;
 		music = musicFile.get<int16_t>();
@@ -111,8 +111,8 @@ struct Music : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER> {
 ```
 
 ```cpp
-struct SquareWave : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_VECTOR> {
-	SquareWave() : SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_VECTOR>(), sampleOffset(0) {}
+struct SquareWave : public SleepyDiscord::AudioSourceVector {
+	SquareWave() : SleepyDiscord::AudioSourceVector(), sampleOffset(0) {}
 	std::vector<int16_t> read(SleepyDiscord::AudioTransmissionDetails& details) {
 		std::vector<int16_t> target(details.proposedLength());
 		for (int16_t& sample : target) {
@@ -137,17 +137,17 @@ Don't worry about calling read, the library will instead call ``read`` when audi
 > You can also send Opus encoded audio instead of PMC audio
 
 ```cpp
-struct Music : public SleepyDiscord::AudioSource<SleepyDiscord::AUDIO_POINTER> {
+struct Music : public SleepyDiscord::AudioSourcePointer {
 	constexpr inline bool isOpusEncoded() { return true; }
 }
 ```
 
-As of when this was written, there are two types of [AudioSources](documentation.html#audiosource), AUDIO_POINTER and AUDIO_VECTOR. They differ in their read function.
+As of when this was written, there are two types of [AudioSources](documentation.html#audiosource), pointer and vector. They differ in their read function.
 
-#### AUDIO_POINTER
+#### AudioSourcePointer
 ``read`` points a pointer to a buffer of audio data and sets the length.
 
-#### AUDIO_VECTOR
+#### AudioSourceVector
 ``read`` returns a vector of audio data
 
 <aside class="note">
@@ -176,3 +176,12 @@ To start speaking, call [VoiceConnection::startSpeaking](documentation.html#star
 
 ## Receiving Audio
 Not implemented yet.
+
+## Disconnecting
+```cpp
+void onEndSpeaking(SleepyDiscord::VoiceConnection& connection) {
+	connection.disconnect();
+}
+```
+
+There are a few ways to disconnect, the simplest being calling ``VoiceConnection::disconnect``. You can also disconnect with a VoiceContext or channelID by using ``BaseDiscordClient::disconnectVoiceContext`` or ``BaseDiscordClient:disconnectFromVoiceChannel``.

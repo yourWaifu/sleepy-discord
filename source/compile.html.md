@@ -69,14 +69,14 @@ make
 To use CMake, you'll obviously need CMake. You can download it from [their website](https://cmake.org/download/) or from your package manager. You might also run the issue about ssl, This can be simply fixed by downloading libssl-dev from your package manager. If you plan on also linking, you may want to skip to [How to Link](link.html#cmake) as cmake can handle setup, compile and link. 
 
 ### List of Options
-|Option|Variable|Default value|Supported|
-|------|--------|-------------|---------|
-|Websocket++|USE_WEBSOCKETPP|ON|YES|
-|uWebsockets|USE_UWEBSOCKETS|OFF|NO|
-|CPR|USE_CPR|ON|YES|
-|ASIO|USE_ASIO|OFF but ON when USE_WEBSOCKETPP is ON|YES|
-|libOpus|USE_LIBOPUS|OFF|NO|
-|libsodium|USE_LIBSODIUM|OFF|NO|
+|Option|Variable|Default value|
+|------|--------|-------------|
+|Websocket++|USE_WEBSOCKETPP|ON|
+|uWebsockets|USE_UWEBSOCKETS|OFF|
+|CPR|USE_CPR|ON|
+|ASIO|USE_ASIO|OFF but ON when USE_WEBSOCKETPP is ON|
+|libOpus|USE_LIBOPUS|OFF|
+|libsodium|USE_LIBSODIUM|OFF|
 
 ##Python setup script
 ```powershell
