@@ -23,10 +23,7 @@
 #include "common_return_types.h"
 #include "message_receiver.h"
 #include "timer.h"
-
-#ifdef SLEEPY_VOICE_ENABLED
-	#include "voice_connection.h"
-#endif
+#include "voice_connection.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
@@ -409,13 +406,13 @@ namespace SleepyDiscord {
 		//for endpoint functions
 		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
 
-#ifdef SLEEPY_VOICE_ENABLED
 		//
 		//voice
 		//
 		std::list<VoiceConnection> voiceConnections;
 		std::forward_list<VoiceContext> voiceContexts;
 		std::forward_list<VoiceContext*> waitingVoiceContexts;
+#ifdef SLEEPY_VOICE_ENABLED
 		void connectToVoiceIfReady(VoiceContext& context);
 		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif

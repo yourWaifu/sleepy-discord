@@ -163,6 +163,10 @@ namespace SleepyDiscord {
 			ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
 		};
 
+#ifdef NONEXISTENT_OPUS
+		using OpusEncoder = void;
+#endif
+
 		UDPClient UDP;
 		time_t heartbeatInterval = 0;
 		uint32_t sSRC;
@@ -176,9 +180,7 @@ namespace SleepyDiscord {
 		time_t previousTime;
 		time_t nextTime;
 		VoiceContext& context;
-#if !defined(NONEXISTENT_OPUS)
 		OpusEncoder *encoder;
-#endif
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
 

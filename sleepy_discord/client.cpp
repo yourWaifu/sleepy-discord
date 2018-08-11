@@ -548,7 +548,7 @@ namespace SleepyDiscord {
 #ifdef SLEEPY_VOICE_ENABLED
 
 	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server, BaseVoiceEventHandler * eventHandler) {
-		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel)->serverID;
+		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel).cast().serverID;
 		voiceContexts.push_front({ channel, serverTarget, eventHandler });
 		waitingVoiceContexts.emplace_front(&voiceContexts.front());
 		return voiceContexts.front();
