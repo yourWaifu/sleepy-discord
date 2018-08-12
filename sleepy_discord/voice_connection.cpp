@@ -140,7 +140,8 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | State::OPEN);
 			break;
 		case SESSION_DESCRIPTION: {
-			std::vector<std::string> stringArray = json::getArray(&json::getValue(d->c_str(), "secret_key"));
+			const std::string value = json::getValue(d->c_str(), "secret_key");
+			std::vector<std::string> stringArray = json::getArray(&value);
 			const std::size_t stringArraySize = stringArray.size();
 			for (std::size_t i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
 				if (!stringArray[i].empty())

@@ -95,8 +95,8 @@ namespace SleepyDiscord {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
 		}
 
-		inline BaseAudioSource*const& getAudioSource() {
-			return audioSource.get();
+		inline BaseAudioSource& getAudioSource() {
+			return *(audioSource.get());
 		}
 
 		//=== startSpeaking functions ===
