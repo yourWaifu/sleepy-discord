@@ -28,11 +28,33 @@
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 
+	struct Request;
+
 	//Modes
 	enum Mode : char {
 		USER_CONTROLED_THREADS = 1,
 		USE_RUN_THREAD = 3,
 		DEFAULT_THREADS = USER_CONTROLED_THREADS
+	};
+
+	class Route {
+	public:
+		Route(const std::string route, const std::initializer_list<std::string>& _values = {});
+		Route(const char* route);
+		inline const std::string& url() {
+			return _url;
+		}
+		const std::string bucket(RequestMethod method);
+		inline operator const std::string&() {
+			return url();
+		}
+	private:
+		const std::string path;
+		std::string _url;
+		const std::initializer_list<std::string>& values;
+		//major parameters
+		Snowflake<Channel> channelID;
+		Snowflake<Server> serverID;
 	};
 
 	class BaseDiscordClient : public GenericMessageReceiver {
@@ -41,12 +63,12 @@ namespace SleepyDiscord {
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		virtual ~BaseDiscordClient();
 
-		Response request(const RequestMethod method, const std::string url, const std::string jsonParameters = ""/*,
+		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
-		Response request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters);
+		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
-		const std::string path(const char* source, std::initializer_list<std::string> values = {});
+		const Route path(const char* source, std::initializer_list<std::string> values = {});
 
 		void testFunction(std::string teststring);
 
@@ -228,6 +250,10 @@ namespace SleepyDiscord {
 #endif
 
 	protected:
+		//Rest events
+		virtual void onDepletedRequestSupply(time_t timeTilRetry, Request request);
+		virtual void onExceededRateLimit(bool global, time_t timeTilRetry, Request request);
+
 		/* list of events
 		READY
 		RESUMED
@@ -399,6 +425,9 @@ namespace SleepyDiscord {
 
 		//rate limiting
 		int8_t messagesRemaining;
+		bool isGlobalRateLimited = false;
+		time_t nextRetry = 0;
+		std::unordered_map<std::string, time_t> buckets;
 
 		//error handling
 		void setError(int errorCode);
@@ -448,6 +477,20 @@ namespace SleepyDiscord {
 		std::forward_list<Assignment> assignments;
 
 		void unschedule(const int jobID);
+	};
+
+	struct Request {
+		BaseDiscordClient& client;
+		const RequestMethod method;
+		const std::string url;
+		const std::string jsonParameters;
+		const std::initializer_list<Part> multipartParameters;
+		inline void operator()() {
+			client.request(method, url, jsonParameters, multipartParameters);
+		}
+		//inline operator std::function<void()>() {
+		//	return std::bind(&Request::operator(), this);
+		//}
 	};
 
 }

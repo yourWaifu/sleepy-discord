@@ -37,28 +37,37 @@ namespace SleepyDiscord {
 		if (heart.isValid()) heart.stop();
 	}
 
-	Response BaseDiscordClient::request(const RequestMethod method, const std::string _url, const std::string jsonParameters/*,
+	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
 		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters) {
 		//check if rate limited
-		static bool isRateLimited = false;
-		static time_t nextRetry = 0;
 		Response response;
-		if (isRateLimited) {
-			if (nextRetry <= getEpochTimeMillisecond())
-				isRateLimited = false;
-			else {
-				//Response response;
+		const time_t currentTime = getEpochTimeMillisecond();
+		if (isGlobalRateLimited) {
+			if (nextRetry <= currentTime) {
+				isGlobalRateLimited = false;
+			} else {
+				onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, { *this, method, path, jsonParameters, multipartParameters });
 				response.statusCode = TOO_MANY_REQUESTS;
 				setError(response.statusCode);
 				return response;
 			}
-		} else if (_url == "gateway") {  //getting the gateway should happen in getTheGateway
-			return { NO_CONTENT, "", {} };
+		}
+		const std::string bucket = path.bucket(method);
+		auto bucketResetTimestamp = buckets.find(bucket);
+		if (bucketResetTimestamp != buckets.end()) {
+			if (bucketResetTimestamp->second <= currentTime) {
+				buckets.erase(bucketResetTimestamp);
+			} else {
+				onExceededRateLimit(false, bucketResetTimestamp->second - currentTime, { *this, method, path, jsonParameters, multipartParameters });
+				response.statusCode = TOO_MANY_REQUESTS;
+				setError(response.statusCode);
+				return response;
+			}
 		}
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discordapp.com/api/v6/" + _url);
+			session.setUrl("https://discordapp.com/api/v6/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", "DiscordBot (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
@@ -88,9 +97,14 @@ namespace SleepyDiscord {
 			//status checking
 			switch (response.statusCode) {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
-			case TOO_MANY_REQUESTS:   //this should fall down to default
-				nextRetry = getEpochTimeMillisecond() + std::stoi(response.header["Retry-After"]);
-				isRateLimited = true;
+			case TOO_MANY_REQUESTS: {   //this should fall down to default
+				int retryAfter = std::stoi(response.header["Retry-After"]);
+				isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
+				nextRetry = getEpochTimeMillisecond() + retryAfter;
+				if (!isGlobalRateLimited)
+					buckets[bucket] = nextRetry;
+				onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters });
+			}
 			default:
 			{		//error
 				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
@@ -120,42 +134,32 @@ namespace SleepyDiscord {
 #else
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
-				const time_t resetDelta = std::mktime(resetGM) - std::mktime(&date);
-				nextRetry               = (resetDelta * 1000) + getEpochTimeMillisecond();
-				isRateLimited           = true;
-				setError(TOO_MANY_REQUESTS);  //todo make this a warning
+				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+				buckets[bucket] = resetDelta + getEpochTimeMillisecond();
+				onDepletedRequestSupply(resetDelta, { *this, method, path, jsonParameters, multipartParameters });
 			}
 		}
 		onResponse(response);
 		return response;
 	}
 
-	Response BaseDiscordClient::request(const RequestMethod method, const std::string url, const std::initializer_list<Part>& multipartParameters) {
-		return request(method, url, "", /*cpr::Parameters{},*/ multipartParameters);
+	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters) {
+		return request(method, path, "", /*cpr::Parameters{},*/ multipartParameters);
 	}/*
 
 	Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
 		return request(method, url, "", httpParameters);
 	}*/
 
-	const std::string BaseDiscordClient::path(const char * source, std::initializer_list<std::string> values) {
-		std::string path(source);
-		const char* start = path.c_str();
-		for (std::string replaceWith : values) {
-			std::size_t length = 0;
-			for (const char* c = start; length == 0; ++c) {
-				switch (*c) {
-				case '{': start = c; break;
-				case '}': length = c - start + 1; break;
-				case 0: return path;
-				default: break;
-				}
-			}
-			const std::size_t startIndex = start - path.c_str();
-			path.replace(startIndex, length, replaceWith);
-			start = path.c_str() + startIndex + replaceWith.length() - 1;
-		}
-		return path;
+	const Route BaseDiscordClient::path(const char * source, std::initializer_list<std::string> values) {
+		return Route(source, values);
+	}
+
+	void BaseDiscordClient::onDepletedRequestSupply(std::time_t timeTilRetry, Request request) {
+	}
+
+	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
+		schedule(request, timeTilRetry);
 	}
 
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {
@@ -637,5 +641,56 @@ namespace SleepyDiscord {
 			}));
 		}
 		return json::createJSONArray(params);
+	}
+
+	Route::Route(const std::string route, const std::initializer_list<std::string>& _values)
+		: path(route), values(_values)
+	{
+		if (values.size() == 0)
+			return;
+
+		constexpr char channelIDIdentifier[] = "channel.id";
+		constexpr char serverIDIdentifier[] = "guild.id";
+
+		size_t targetSize = path.length();
+		for (std::string replacement : values)
+			targetSize += replacement.length();
+		_url.reserve(targetSize);
+
+		//In the future, use string view
+
+		size_t offset = 0;
+		for (std::string replacement : values) {
+			const size_t start = path.find('{', offset);
+			const size_t end = path.find('}', start);
+
+			//the +1 and -1 removes the { and }
+			const std::string identifier = path.substr(start + 1, end - start - 1);
+
+			if (identifier == channelIDIdentifier)
+				channelID = replacement;
+			else if (identifier == serverIDIdentifier)
+				serverID = replacement;
+
+			_url += path.substr(offset, start - offset);
+			_url += replacement;
+			offset = end + 1; //the +1 removes the }
+		}
+		_url += path.substr(offset, path.length() - offset);
+
+	}
+
+	Route::Route(const char* route) : Route(route, {}) {}
+
+	const std::string Route::bucket(RequestMethod method) {
+		std::string target;
+		std::string methodString = std::to_string(method);
+		target.reserve(methodString.length() + channelID.string().length()
+			+ serverID.string().length() + path.length());
+		target += methodString;
+		target += channelID;
+		target += serverID;
+		target += path;
+		return target;
 	}
 }

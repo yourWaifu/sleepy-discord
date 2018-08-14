@@ -36,6 +36,9 @@ namespace SleepyDiscord {
 
 		inline operator const std::string&() const { return raw; }
 
+		inline const std::string& string() { return operator const std::string&(); }
+		inline const int64_t& number() const { return std::stoll(raw); }
+
 		std::chrono::time_point<std::chrono::steady_clock> timestamp() {
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 			if (raw == "") throw std::invalid_argument("invalid snow in Snowflake");
@@ -57,7 +60,7 @@ namespace SleepyDiscord {
 
 	private:
 		std::string raw;
-		static const uint64_t discordEpoch = 1420070400000;	//the first second of 2015 since epoch
+		static const time_t discordEpoch = 1420070400000;	//the first second of 2015 since epoch
 	};
 
 	template <typename DiscordOject>
