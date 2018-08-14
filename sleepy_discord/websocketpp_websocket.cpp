@@ -34,7 +34,7 @@ namespace SleepyDiscord {
 		this_client.set_close_handler(std::bind(&WebsocketppDiscordClient::onClose, this,
 			websocketpp::lib::placeholders::_1));
 
-		con->set_fail_handler(std::bind(&WebsocketppDiscordClient::onFail, this,
+		this_client.set_fail_handler(std::bind(&WebsocketppDiscordClient::onFail, this,
 			websocketpp::lib::placeholders::_1));
 	}
 
@@ -83,7 +83,7 @@ namespace SleepyDiscord {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&WebsocketppDiscordClient::run, this));
 	}
 
-	void WebsocketppDiscordClient::onFail(websocketpp::connection_hdl handle, GenericMessageReceiver* messageProcessor) {
+	void WebsocketppDiscordClient::onFail(websocketpp::connection_hdl handle) {
 		handleFailToConnect();
 	}
 
@@ -101,7 +101,7 @@ namespace SleepyDiscord {
 	void WebsocketppDiscordClient::disconnect(unsigned int code, const std::string reason) {
 		if (!handle.expired()) {
 			websocketpp::lib::error_code error;
-			this_client.close(connection, code, reason, error);
+			this_client.close(handle, code, reason, error);
 			//temp fix ignore errors
 		}
 	}
