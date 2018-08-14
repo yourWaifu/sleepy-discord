@@ -26,7 +26,7 @@ namespace SleepyDiscord {
 	struct Server;
 	struct Message;
 
-	class Channel : public DiscordObject {
+	struct Channel : public DiscordObject {
 	public:
 		Channel() {}
 		Channel(const std::string * rawJson);

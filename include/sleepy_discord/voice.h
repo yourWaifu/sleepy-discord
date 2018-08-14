@@ -5,7 +5,7 @@
 namespace SleepyDiscord {
 	//forward declearion
 	struct Server;
-	class Channel;
+	struct Channel;
 	struct User;
 
 	struct VoiceState : public DiscordObject {

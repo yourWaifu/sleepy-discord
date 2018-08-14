@@ -2,7 +2,6 @@
 #include <string>
 #ifndef SLEEPY_ONE_THREAD
 #include <thread>
-#include <condition_variable>
 #endif
 #include <memory>
 #include <unordered_map>
@@ -50,7 +49,7 @@ namespace SleepyDiscord {
 	//>
 	class BaseDiscordClient /*: public WebsocketClient*/ {
 	public:
-		BaseDiscordClient() {}
+		BaseDiscordClient();
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
@@ -177,9 +176,11 @@ namespace SleepyDiscord {
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
+		const bool isQuiting() { return quiting; }
 		const bool isBot() { return bot; }
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
-		void quit();	//public function for diconnecting
+		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
+		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
 
 		//time
@@ -300,10 +301,12 @@ namespace SleepyDiscord {
 		void heartbeat();
 		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }
-		void start(const std::string _token, const char maxNumOfThreads = 2);
+		void start(const std::string _token, const char maxNumOfThreads = 2, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(const std::string & uri) { return false; }
+		void handleFailToConnect() { schedule([=]() { reconnect(); }, 10000); }
 		virtual void send(std::string message) {}
 		virtual void disconnect(unsigned int code, const std::string reason) {}
+		void reconnect(const unsigned int status = 1000);
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
 		
@@ -329,21 +332,19 @@ namespace SleepyDiscord {
 			HEARTBEAT_ACK         = 11,		//sent immediately following a client heartbeat that was received
 		};
 
-#ifndef SLEEPY_ONE_THREAD
-		std::thread clock_thread;
-		char maxNumOfThreadsAllowed;
-#endif
-
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
 		std::string sessionID;
+		int shardID;
+		int shardCount;
 		void getTheGateway();
 		std::string theGateway;
 		bool ready;
+		bool quiting;
 		bool bot;
 		void sendIdentity();
 		void sendResume();
 		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form
-		void reconnect(const unsigned int status = 1000);
+		void quit(bool isRestarting, bool isDisconnected = false);
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited
 		int64_t nextHalfMin = 0;
@@ -361,6 +362,8 @@ namespace SleepyDiscord {
 	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
 	  don't want to do yourself. I plan on somehow merging this with the baseClient
 	  somehow
+
+	  This is here temporarily until the DiscordClient is overhauled
 	  */
 	class AssignmentBasedDiscordClient : public BaseDiscordClient {
 	public:
@@ -384,9 +387,11 @@ namespace SleepyDiscord {
 }
 
 //locks away functions that users shouldn't be using
-#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                 \
-                                     using BaseDiscordClient::processMessage; \
-                                     using BaseDiscordClient::start;          \
-                                     using BaseDiscordClient::sendHeartbeat;
+#define SLEEPY_LOCK_CLIENT_FUNCTIONS private:                                  \
+                                     using BaseDiscordClient::processMessage;  \
+                                     using BaseDiscordClient::start;           \
+                                     using BaseDiscordClient::sendHeartbeat;   \
+                                     using BaseDiscordClient::processCloseCode;\
+                                     using BaseDiscordClient::reconnect;       \
 
 //This comment stops a warning

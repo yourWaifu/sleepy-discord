@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 	}
 
 	WebsocketppDiscordClient::~WebsocketppDiscordClient() {
-		if (_thread->joinable()) _thread->join();
+		if (_thread != nullptr && _thread->joinable()) _thread->join();
 		else _thread.reset();
 	}
 
@@ -33,11 +33,15 @@ namespace SleepyDiscord {
 		
 		this_client.set_close_handler(std::bind(&WebsocketppDiscordClient::onClose, this,
 			websocketpp::lib::placeholders::_1));
+
+		con->set_fail_handler(std::bind(&WebsocketppDiscordClient::onFail, this,
+			websocketpp::lib::placeholders::_1));
 	}
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri) {
 		// Create a new connection to the given URI
 		websocketpp::lib::error_code ec;
+		// Note: there's might be a memory leak caused by get_connection
 		_client::connection_ptr con = this_client.get_connection(uri, ec);
 
 		if (ec) {
@@ -47,6 +51,7 @@ namespace SleepyDiscord {
 		// Grab a handle for this connection so we can talk to it in a thread 
 		// safe manor after the event loop starts.
 		handle = con->get_handle();
+
 		// Queue the connection. No DNS queries or network connections will be
 		// made until the io_service event loop is run.
 		this_client.connect(con);
@@ -54,7 +59,9 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::run() {
-		this_client.run();
+		do {
+			this_client.run();
+		} while (!isQuiting());
 	}
 
 	void handleTimers(const websocketpp::lib::error_code &ec, std::function<void()>& code) {
@@ -73,7 +80,11 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::runAsync() {
-		if (!_thread) _thread.reset(new websocketpp::lib::thread(&_client::run, &this_client));
+		if (!_thread) _thread.reset(new websocketpp::lib::thread(&WebsocketppDiscordClient::run, this));
+	}
+
+	void WebsocketppDiscordClient::onFail(websocketpp::connection_hdl handle, GenericMessageReceiver* messageProcessor) {
+		handleFailToConnect();
 	}
 
 	void WebsocketppDiscordClient::send(std::string message) {
@@ -81,8 +92,6 @@ namespace SleepyDiscord {
 		this_client.send(handle, message, websocketpp::frame::opcode::text, error);
 		//temp solution
 		//Besides the library can detect bad connections by itself anyway
-		if(error && error != websocketpp::error::bad_connection)
-			throw websocketpp::exception(error);
 	}
 
 	void WebsocketppDiscordClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
@@ -90,7 +99,11 @@ namespace SleepyDiscord {
 	}
 	
 	void WebsocketppDiscordClient::disconnect(unsigned int code, const std::string reason) {
-		this_client.close(handle, code, reason);
+		if (!handle.expired()) {
+			websocketpp::lib::error_code error;
+			this_client.close(connection, code, reason, error);
+			//temp fix ignore errors
+		}
 	}
 
 	void WebsocketppDiscordClient::onClose(websocketpp::connection_hdl handle) {
