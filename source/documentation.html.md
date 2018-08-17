@@ -13,7 +13,7 @@ search: true
 
 # A Warm Welcome
 
-Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can alway find me on the [Discord API server](https://discord.gg/discord-api). If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
+Hello there, if you are looking for some help on using the Sleepy Discord Library, then you came to the right place (I hope it is). If you have any questions you can ask me ( Sleepy Flower Girl ) on Discord; right now there is no official server for this library, but you can always find me on the [Discord API server](https://discord.gg/discord-api). If you like to help, you can always make a pull request for the docs or the library itself on github. Thanks!
 
 # Topics
 <table>
@@ -40,13 +40,13 @@ class DiscordClient {
 ```
 The DiscordClient class is the base class for a client that can be used to send and read messages.
 
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h)
 
 <h2 id="discordclient-functions">Functions</h2>
 
 ### deleteChannel
 
-```cpp 
+```cpp
 ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
 ```
 
@@ -61,6 +61,11 @@ ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
 #### Return value
 The channel was just deleted
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete/Close Channel](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
+
 ### sendMessage
 
  ```cpp
@@ -70,16 +75,19 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <sleepy_discord.h>
 #include <iostream>
 
-class MyClientClass : public SleepyDiscord::DiscordClient {
+class myClientClass : public SleepyDiscord::DiscordClient {
 	private:
 	void onReady() {
-		SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
+		SleepyDiscord::Message message = sendMessage("channel id", "Hello");
 		std::cout << message.content;
 	}
 }
 
 int main() {
-	MyClientClass client("token");
+	myClientClass client("token", 2);
+  client.run();
+
+  return 0;
 }
 ```
 >Output: Message sent
@@ -110,27 +118,53 @@ If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, 
 The Message you just sent as a Message object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
 
 Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#create-message)
+
+### uploadFile
+
+ ```cpp
+ObjectResponse<Message> uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message);
+```
+
+Upload a file with a message to a channel.
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel you want to upload the file to</td></tr>
+      <tr><td><strong>fileLocation</strong></td>
+        <td>The location of the file you want to upload</td></tr>
+      <tr><td><strong>message</strong></td>
+        <td>The message you want to send with the file</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+The Message you just sent as a Message object
 
 ### addReaction
 
  ```cpp
-bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
+bool addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 ```
 ```cpp
-#include <sleepy_discord>
+#include <sleepy_discord.h>
 
-class MyDiscordClient : public SleepyDiscord::DiscordClient {
+class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
-	void onReady(SleepyDiscord::Ready data) {
-		client.addReaction("channel id", "message id", "%F0%9F%98%95");
+	void onMessage(SleepyDiscord::Message message) {
+		addReaction(message.channelID, message.ID, "%F0%9F%98%95");
 	}
 }
 
 int main() {
-	SleepyDiscord::DiscordClient client("token");
+  myDiscordClient client("token", 2);
+  client.run();
+
+  return 0;
 }
 ```
 >Output: added 😕 reaction
@@ -161,16 +195,104 @@ Adds reaction to a message.
 </table>
 
 #### Return value
-true on success, otherwise false
+Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
 
 Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#create-reaction)
 
+### removeReaction
+
+ ```cpp
+bool removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, SnowFlake<User> userID = "@me");
+```
+```cpp
+#include <sleepy_discord.h>
+
+class myDiscordClient : public SleepyDiscord::DiscordClient {
+public:
+  void onMessage(SleepyDiscord::Message message) {
+		removeReaction(message.channelID, message.ID, "%F0%9F%98%95", "\@me");
+	}
+}
+
+int main() {
+  myDiscordClient client("token", 2);
+  client.run();
+
+  return 0;
+}
+```
+>Output: removed 😕 reaction
+
+Removes reaction from a message.
+
+#### Parameters
+<table>
+  <tbody>
+    <tr>
+      <td><strong>channelID</strong></td>
+      <td>The id of the channel with the message you want to remove a reaction from</td>
+    </tr>
+    <tr>
+      <td><strong>messageID</strong></td>
+      <td>The id of the message you want to remove a reaction from</td>
+    </tr>
+    <tr>
+      <td><strong>emoji</strong></td>
+      <td>The emoji you want to remove from the reaction
+        <ul>
+          <li>Use <a href="https://en.wikipedia.org/wiki/Percent-encoding">Percent Encoding</a> for Unicode Emoji</li>
+          <li>For custom emoji, use the id of the emoji (I haven't tested this myself)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>userID</strong></td>
+      <td>The id of the user that you want to remove the reaction from</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete Reaction](https://discordapp.com/developers/docs/resources/channel#delete-own-reaction)
+
+### removeAllReactions
+
+ ```cpp
+void removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID);
+```
+
+Removes all reactions from a message.
+
+#### Parameters
+<table>
+  <tbody>
+    <tr>
+      <td><strong>channelID</strong></td>
+      <td>The id of the channel with the message you want to remove all reactions from</td>
+    </tr>
+    <tr>
+      <td><strong>messageID</strong></td>
+      <td>The id of the message you want to remove all reactions from</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete All Reactions](https://discordapp.com/developers/docs/resources/channel#delete-all-reactions)
+
 ### editMessage
 
-```cpp 
+```cpp
 ObjectResponse<Message> editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
 ObjectResponse<Message> editMessage(Message message, std::string newMessage);
 ```
@@ -248,14 +370,45 @@ Deletes a message
 <table>
   <tbody>
       <tr><td><strong>channelID</strong></td>
-        <td>The id of the channel with the messages that you want to delete</td></tr>
+        <td>The id of the channel with the message that you want to delete</td></tr>
       <tr><td><strong>messageID</strong></td>
+        <td>The id of the message you want to delete</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete Message](https://discordapp.com/developers/docs/resources/channel#delete-message)
+
+### bulkDeleteMessages
+
+```cpp
+bool bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs);
+```
+
+Deletes a message
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel with the messages that you want to delete</td></tr>
+      <tr><td><strong>messageIDs</strong></td>
         <td>An array of ids of the messages you want to delete</td></tr>
   </tbody>
 </table>
 
 #### Return value
 Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Bulk Delete Messages](https://discordapp.com/developers/docs/resources/channel#bulk-delete-messages)
 
 ### editNickname
 
@@ -1222,7 +1375,7 @@ returns Type from Response.
 
 ```cpp
 template <class Type>
-using ArrayResponse = 
+using ArrayResponse =
 ```
 
 ```cpp
