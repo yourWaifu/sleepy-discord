@@ -44,28 +44,6 @@ The DiscordClient class is the base class for a client that can be used to send 
 
 <h2 id="discordclient-functions">Functions</h2>
 
-### deleteChannel
-
-```cpp
-ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
-```
-
-#### Parameters
-<table>
-  <tbody>
-      <tr><td><strong>channelID</strong></td>
-        <td>The id of the channel that you delete</td></tr>
-  </tbody>
-</table>
-
-#### Return value
-The channel was just deleted
-
-#### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
-
-Uses [Delete/Close Channel](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
-
 ### sendMessage
 
  ```cpp
@@ -145,6 +123,11 @@ Upload a file with a message to a channel.
 #### Return value
 The Message you just sent as a Message object
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#create-message)
+
 ### addReaction
 
  ```cpp
@@ -213,7 +196,7 @@ bool removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, 
 class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
   void onMessage(SleepyDiscord::Message message) {
-		removeReaction(message.channelID, message.ID, "%F0%9F%98%95", "\@me");
+		removeReaction(message.channelID, message.ID, "%F0%9F%98%95", "@me");
 	}
 }
 
@@ -269,7 +252,7 @@ Uses [Delete Reaction](https://discordapp.com/developers/docs/resources/channel#
 void removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID);
 ```
 
-Removes all reactions from a message.
+Remove all reactions from a message.
 
 #### Parameters
 <table>
@@ -289,6 +272,96 @@ Removes all reactions from a message.
 [Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
 
 Uses [Delete All Reactions](https://discordapp.com/developers/docs/resources/channel#delete-all-reactions)
+
+### getReactions
+
+ ```cpp
+ArrayResponse<Reaction> getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
+```
+
+Get an array of all users who reacted with this emoji on a message
+
+#### Parameters
+<table>
+  <tbody>
+    <tr>
+      <td><strong>channelID</strong></td>
+      <td>The id of the channel with the message you want to get all users that reacted with this emoji from</td>
+    </tr>
+    <tr>
+      <td><strong>messageID</strong></td>
+      <td>The id of the message you want to get all users that reacted with this emoji from</td>
+    </tr>
+    <tr>
+      <td><strong>emoji</strong></td>
+      <td>The reacted emoji you want to get all users from</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns an array of ``Reaction`` objects
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Reactions](https://discordapp.com/developers/docs/resources/channel#get-reactions)
+
+### getMessage
+
+```cpp
+ObjectResponse<Message> getMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID);
+```
+
+Get message from a messageID
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel with the message that you want get</td></tr>
+      <tr><td><strong>messageID</strong></td>
+        <td>The id of the message you want to get</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns a ``Message`` object from the message you requested
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Channel Message](https://discordapp.com/developers/docs/resources/channel#get-channel-message)
+
+### getMessages
+
+```cpp
+ArrayResponse<Message> getMessages(Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t _limit)
+```
+
+Get an array of messages from a channelID around, before or after a message from a messageID
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel you want to get the messages from</td></tr>
+      <tr><td><strong>when</strong></td>
+        <td>The key for the location of the messages</td></tr>
+      <tr><td><strong>messageID</strong></td>
+        <td>The id of the message you want to get messages with when</td></tr>
+      <tr><td><strong>_limit</strong></td>
+        <td>The limit for the amount of messages received</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns an array of ``Message`` objects
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Channel Messages](https://discordapp.com/developers/docs/resources/channel#get-channel-messages)
 
 ### editMessage
 
@@ -316,6 +389,11 @@ Edits an existing Message
 #### Return value
 Returns the message you just edited
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Edit Message](https://discordapp.com/developers/docs/resources/channel#edit-message)
+
 ### pinMessage
 
 ```cpp
@@ -337,6 +415,11 @@ Puts a message into the Pinned Messages of a channel
 #### Return value
 Returns ``true`` on success
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Add Pinned Channel Message](https://discordapp.com/developers/docs/resources/channel#add-pinned-channel-message)
+
 ### unpinMessage
 
 ```cpp
@@ -357,6 +440,35 @@ Removes a message from the Pinned Messages in a channel
 
 #### Return value
 Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete Pinned Channel Message](https://discordapp.com/developers/docs/resources/channel#delete-pinned-channel-message)
+
+### getPinnedMessages
+
+```cpp
+bool getPinnedMessages(Snowflake<Channel> channelID);
+```
+
+Get all pinned messages in a channel
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel where you want to get the pinned messages from</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns an array of ``Message`` objects
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Messages](https://discordapp.com/developers/docs/resources/channel#get-pinned-messages)
 
 ### deleteMessage
 
@@ -390,7 +502,7 @@ Uses [Delete Message](https://discordapp.com/developers/docs/resources/channel#d
 bool bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs);
 ```
 
-Deletes a message
+Bulk deletes messages
 
 #### Parameters
 <table>
@@ -431,6 +543,11 @@ Changes the name that is displayed on a server
 #### Return value
 Returns ``true`` on success
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Modify Current User Nick](https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick)
+
 ### addRole
 
 ```cpp
@@ -453,6 +570,11 @@ Gives a member a role on a server
 
 #### Return value
 Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Add Guild Member Role](https://discordapp.com/developers/docs/resources/guild#add-guild-member-role)
 
 ### removeRole
 
@@ -477,6 +599,11 @@ Takes away a role from a member on a server
 #### Return value
 Returns ``true`` on success
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Remove Guild Member Role](https://discordapp.com/developers/docs/resources/guild#remove-guild-member-role)
+
 ### kickMember
 
 ```cpp
@@ -498,7 +625,12 @@ Removes a member from a server
 #### Return value
 Returns ``true`` on success
 
-#### banMember
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Remove Guild Member](https://discordapp.com/developers/docs/resources/guild#remove-guild-member)
+
+### banMember
 
 ```cpp
 bool banMember(Snowflake<Server> serverID, Snowflake<User> userID);
@@ -516,13 +648,47 @@ Bans a member from a server
   </tbody>
 </table>
 
+#### Return value
+Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Create Guild Ban](https://discordapp.com/developers/docs/resources/guild#create-guild-ban)
+
+### unbanMember
+
+```cpp
+bool unbanMember(Snowflake<Server> serverID, Snowflake<User> userID);
+```
+
+Bans a member from a server
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server with the user you want to unban</td></tr>
+    <tr><td><strong>userID</strong></td>
+      <td>The id of the user that you want to unban</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns ``true`` on success
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Remove Guild Ban](https://discordapp.com/developers/docs/resources/guild#remove-guild-ban)
+
 ### getServer
 
 ```cpp
 ObjectResponse<Server> getServer(Snowflake<Server> serverID);
 ```
 
-Get a server object from a ServerID
+Get a server object from a serverID
 
 #### Parameters
 <table>
@@ -534,6 +700,11 @@ Get a server object from a ServerID
 
 #### Return value
 Return a ``Server`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Guild](https://discordapp.com/developers/docs/resources/guild#get-guild)
 
 ### getChannel
 
@@ -553,6 +724,11 @@ Get a channel object from a channelID
 
 #### Return value
 Return a ``Channel`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Channel](https://discordapp.com/developers/docs/resources/channel#get-channel)
 
 ### editChannel
 
@@ -577,6 +753,11 @@ Edit the channel name and topic and return a Channel object of that channel
 #### Return value
 Return a ``Channel`` object
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Modify Channel](https://discordapp.com/developers/docs/resources/channel#modify-channel)
+
 
 ### editChannelName
 ```cpp
@@ -598,6 +779,36 @@ Edit the channel name and return a Channel object of that channel
 #### Return value
 Return a ``Channel`` object
 
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Calls [editChannel](#editchannel)
+
+### editChannelTopic
+```cpp
+ObjectResponse<Channel> editChannelTopic(Snowflake<Channel> channelID, std::string topic);
+```
+
+Edit the channel topic and return a Channel object of that channel
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>channelID</td>
+      <td>The id of the channel you want to edit</td></tr>
+    <tr><td><strong>topic</td>
+      <td>The new topic of the channel</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Return a ``Channel`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Calls [editChannel](#editchannel)
+
 ### deleteChannel
 ```cpp
 ObjectResponse<Channel> deleteChannel(Snowflake<Channel> channelID);
@@ -614,7 +825,114 @@ Delete a channel and return a Channel object of that channel
 </table>
 
 #### Return value
-Return a ``Channel`` object
+Returns a ``Channel`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete/Close Channel](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
+
+### deleteServer
+
+```cpp
+ObjectResponse<Server> deleteServer(Snowflake<Server> serverID);
+```
+
+Delete a server from a serverID
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server you want to delete</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns a ``Server`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Delete Guild](https://discordapp.com/developers/docs/resources/guild#delete-guild)
+
+### getMember
+
+```cpp
+ObjectResponse<ServerMember> getMember(Snowflake<Server> serverID, Snowflake<User> userID);
+```
+
+Get a member for a userID in a serverID
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server you want to get the member from</td></tr>
+    <tr><td><strong>userID</strong></td>
+      <td>The id of the user you want to get the member for</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns a ``ServerMember`` object
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Get Guild Member](https://discordapp.com/developers/docs/resources/guild#get-guild-member)
+
+### getMember
+
+```cpp
+ArrayResponse<ServerMember> listMembers(Snowflake<Server> serverID, uint16_t limit, std::string after)
+```
+
+Get an array of members in a serverID
+
+#### Parameters
+<table>
+  <tbody>
+    <tr><td><strong>serverID</strong></td>
+      <td>The id of the server you want to get the members from</td></tr>
+    <tr><td><strong>limit</strong></td>
+      <td>The maximum number of members to get</td></tr>
+    <tr><td><strong>after</strong></td>
+      <td>The highest user id in the previous page</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns an array of ``ServerMember`` objects
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [List Guild Members](https://discordapp.com/developers/docs/resources/guild#list-guild-members)
+
+### sendTyping
+
+```cpp
+bool sendTyping(Snowflake<Channel> channelID);
+```
+
+Set the typing indicator for the bot, typing is stopped after a few seconds or if the [sendMessage](#sendmessage) method is called
+
+#### Parameters
+<table>
+  <tbody>
+      <tr><td><strong>channelID</strong></td>
+        <td>The id of the channel the bot is typing on</td></tr>
+  </tbody>
+</table>
+
+#### Return value
+Returns ``true`` on succes
+
+#### Other Details
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+
+Uses [Trigger Typing Indicator](https://discordapp.com/developers/docs/resources/channel#trigger-typing-indicator)
 
 ### updateStatus
 
