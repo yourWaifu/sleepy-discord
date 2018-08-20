@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 		if (m.error()) {
 			onError(ERROR_ZERO, "test");
 		}
-		if (std::vector<Channel>(GetServerChannels("error_test")).empty()) {
+		if (std::vector<Channel>(getServerChannels("error_test")).empty()) {
 			onError(ERROR_NOTE, "test");
 		}
 	}
