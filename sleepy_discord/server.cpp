@@ -57,11 +57,11 @@ namespace SleepyDiscord {
 		channels                   (modIfElse(isSpecified, JSON_getArray<Channel>,      values[index(fields, "channels"                     )], std::vector<Channel>()     ))
 	{}
 
-	std::list<ServerMember>::iterator Server::findMember(Snowflake<User> userID) {
+	std::vector<ServerMember>::iterator Server::findMember(Snowflake<User> userID) {
 		return userID.findObject(members.begin(), members.end());
 	}
 
-	std::list<Channel>::iterator Server::findChannel(Snowflake<Channel> channelID) {
+	std::vector<Channel>::iterator Server::findChannel(Snowflake<Channel> channelID) {
 		return channelID.findObject(channels.begin(), channels.end());
 	}
 

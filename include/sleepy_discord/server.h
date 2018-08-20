@@ -70,8 +70,8 @@ namespace SleepyDiscord {
 		std::vector<ServerMember> members;
 		std::vector<Channel> channels;
 
-		std::list<ServerMember>::iterator findMember(Snowflake<User> userID);
-		std::list<Channel>::iterator findChannel(Snowflake<Channel> channelID);
+		std::vector<ServerMember>::iterator findMember(Snowflake<User> userID);
+		std::vector<Channel>::iterator findChannel(Snowflake<Channel> channelID);
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
