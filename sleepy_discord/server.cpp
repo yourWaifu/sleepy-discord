@@ -15,7 +15,9 @@ namespace SleepyDiscord {
 		joinedAt(                                                   values[index(fields, "joined_at")]     ),
 		deaf    (                    getBool                       (values[index(fields, "deaf"     )]    )),
 		mute    (                    getBool                       (values[index(fields, "mute"     )]    ))
-	{}
+	{
+		Parent(user.ID);
+	}
 
 	const std::initializer_list<const char*const> ServerMember::fields = {
 		"user", "nick", "roles", "joined_at", "deaf", "mute"
@@ -33,7 +35,7 @@ namespace SleepyDiscord {
 
 	Server::Server(const std::vector<std::string> values) :
 		//variable                            condition    modifier                     value        felid                                    else
-		ID                         (                                                    values[index(fields, "id"                           )]                              ),
+		Parent                     (                                                    values[index(fields, "id"                           )]                              ),
 		name                       (                                                    values[index(fields, "name"                         )]                              ),
 		icon                       (                                                    values[index(fields, "icon"                         )]                              ),
 		splash                     (                                                    values[index(fields, "splash"                       )]                              ),
@@ -55,6 +57,14 @@ namespace SleepyDiscord {
 		channels                   (modIfElse(isSpecified, JSON_getArray<Channel>,      values[index(fields, "channels"                     )], std::vector<Channel>()     ))
 	{}
 
+	std::list<ServerMember>::iterator Server::findMember(Snowflake<User> userID) {
+		return userID.findObject(members.begin(), members.end());
+	}
+
+	std::list<Channel>::iterator Server::findChannel(Snowflake<Channel> channelID) {
+		return channelID.findObject(channels.begin(), channels.end());
+	}
+
 	const std::initializer_list<const char*const> Server::fields = {
 		"id", "name", "icon", "splash", "owner_id", "permissions", "region",
 		"afk_channel_id", "afk_timeout", "embed_enabled", "embed_channel_id",
@@ -74,5 +84,17 @@ namespace SleepyDiscord {
 
 	const std::initializer_list<const char*const> ServerEmbed::fields = {
 		"enabled", "channel_id"
+	};
+
+	UnavailableServer::UnavailableServer(const std::string * rawJSON) : UnavailableServer(json::getValues(rawJSON->c_str(), fields)) {}
+
+	UnavailableServer::UnavailableServer(const std::vector<std::string> values) :
+		//variable  modifier value               felid
+		Parent     (        values[index(fields, "id")]),
+		unavailable(getBool(values[index(fields, "unavailable")])) {
+	}
+
+	const std::initializer_list<const char*const> UnavailableServer::fields = {
+		"id", "unavailable"
 	};
 }

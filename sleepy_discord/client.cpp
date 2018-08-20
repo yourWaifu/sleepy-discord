@@ -376,11 +376,27 @@ namespace SleepyDiscord {
 				ready = true;
 				} break;
 			case hash("RESUMED"                    ): onResumed           (d); break;
-			case hash("GUILD_CREATE"               ): onServer            (d); break;
-			case hash("GUILD_DELETE"               ): onDeleteServer      (d); break;
-			case hash("GUILD_UPDATE"               ): onEditServer        (d); break;
+			case hash("GUILD_CREATE"               ): {
+				Server server(d);
+				if (serverCache)
+					serverCache->push_front(server);
+				onServer(server);
+				} break;
+			case hash("GUILD_DELETE"               ): {
+				UnavailableServer server(d);
+				if (serverCache)
+					serverCache->erase(serverCache->findServer(server));
+				onDeleteServer(d);
+				} break;
+			case hash("GUILD_UPDATE"               ): {
+				Server server(d);
+				if (serverCache)
+					*(serverCache->findServer(server)) = server;
+				onEditServer(d);
+				}break;
 			case hash("GUILD_BAN_ADD"              ): onBan               (d); break;
 			case hash("GUILD_BAN_REMOVE"           ): onUnban             (d); break;
+			case hash("GUILD_INTEGRATIONS_UPDATE"  ):                          break; //to do add this
 			case hash("GUILD_MEMBER_ADD"           ): onMember            (d); break;
 			case hash("GUILD_MEMBER_REMOVE"        ): onRemoveMember      (d);
 			                                          onDeleteMember      (d); break;
@@ -393,8 +409,9 @@ namespace SleepyDiscord {
 			case hash("CHANNEL_CREATE"             ): onChannel           (d); break;
 			case hash("CHANNEL_DELETE"             ): onDeleteChannel     (d); break;
 			case hash("CHANNEL_UPDATE"             ): onEditChannel       (d); break;
-			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessages       (d); break;
+			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d); break;
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
+			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
 			case hash("USER_NOTE_UPDATE"           ): onEditUserNote      (d); break;
 			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
@@ -646,9 +663,6 @@ namespace SleepyDiscord {
 	Route::Route(const std::string route, const std::initializer_list<std::string>& _values)
 		: path(route), values(_values)
 	{
-		if (values.size() == 0)
-			return;
-
 		constexpr char channelIDIdentifier[] = "channel.id";
 		constexpr char serverIDIdentifier[] = "guild.id";
 

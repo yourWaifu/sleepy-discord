@@ -36,10 +36,10 @@ namespace SleepyDiscord {
 
 		inline operator const std::string&() const { return raw; }
 
-		inline const std::string& string() { return operator const std::string&(); }
+		inline const std::string& string() const { return operator const std::string&(); }
 		inline const int64_t& number() const { return std::stoll(raw); }
 
-		std::chrono::time_point<std::chrono::steady_clock> timestamp() {
+		std::chrono::time_point<std::chrono::steady_clock> timestamp() const {
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 			if (raw == "") throw std::invalid_argument("invalid snow in Snowflake");
 #endif
@@ -47,14 +47,14 @@ namespace SleepyDiscord {
 		}
 
 		template<class iterator>
-		inline iterator findObject(iterator begin, iterator end) {
+		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {
-				return *this == object.ID;
+				return this->operator==(object.ID);
 			});
 		}
 
-		template<template<class...> class Container, typename a>
-		inline auto findObject(const Container<DiscordObject, a>& objects) -> decltype(objects.begin()) {
+		template<class Container>
+		inline auto findObject(const Container& objects) const -> decltype(objects.begin()) {
 			return findObject(objects.begin(), objects.end());
 		}
 

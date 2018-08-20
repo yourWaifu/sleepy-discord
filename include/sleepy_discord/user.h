@@ -18,14 +18,12 @@ namespace SleepyDiscord {
 	verified        bool        whether the email on this account has been verified	        email
 	email           string      the user's email                                            email
 	*/
-	struct User : public DiscordObject {
+	struct User : public IdentifiableDiscordObject<User> {
 	public:
 		~User();
 		User();
 		User(const std::string * rawJSON);
 		User(const std::vector<std::string> values);
-		bool operator==(const User& rightUser);
-		Snowflake<User> ID;
 		std::string username;
 		std::string discriminator;
 		std::string avatar;			//base64 encoded jpeg image
@@ -48,12 +46,11 @@ namespace SleepyDiscord {
 	owner	bool	true if the user is an owner of the guild
 	permissions	integer	bitwise of the user's enabled/disabled permissions
 	*/
-	struct ServerUser : public DiscordObject{
+	struct ServerUser : public IdentifiableDiscordObject<ServerUser> {
 	public:
 		ServerUser();
 		ServerUser(const std::string * rawJSON);
 		ServerUser(const std::vector<std::string> values);
-		Snowflake<ServerUser> ID;
 		std::string name;
 		std::string icon;
 		bool owner;
@@ -73,12 +70,11 @@ namespace SleepyDiscord {
 	revoked         bool    whether the connection is revoked
 	integrations	array   an array of partial server integrations
 	*/
-	struct Connection : public DiscordObject {
+	struct Connection : public IdentifiableDiscordObject<Connection> {
 	public:
 		Connection();
 		Connection(const std::string * rawJSON);
 		Connection(const std::vector<std::string> values);
-		Snowflake<Connection> ID;
 		std::string name;
 		std::string type;
 		bool revoked;

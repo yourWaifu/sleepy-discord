@@ -38,11 +38,10 @@ namespace SleepyDiscord {
 	deprecated      bool    whether this is a deprecated voice region (avoid switching to these)
 	custom          bool    whether this is a custom voice region (used for events/etc)
 	*/
-	struct VoiceRegion : DiscordObject {
+	struct VoiceRegion : IdentifiableDiscordObject<VoiceRegion> {
 		VoiceRegion();
 		VoiceRegion(const std::string * rawJson);
 		VoiceRegion(const std::vector<std::string> values);
-		Snowflake<VoiceRegion> ID;
 		std::string name;
 		std::string sampleHostname;
 		int samplePort;
@@ -50,6 +49,7 @@ namespace SleepyDiscord {
 		bool optimal;
 		bool deprecated;
 		bool custom;
+
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};

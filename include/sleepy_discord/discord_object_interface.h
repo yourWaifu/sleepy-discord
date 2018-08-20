@@ -1,5 +1,7 @@
 #pragma once
+#include <list>
 #include "json_wrapper.h"
+#include "snowflake.h"
 #include "error.h"
 #include "http.h"
 
@@ -92,12 +94,45 @@ namespace SleepyDiscord {
 		}
 	};
 
+	template <class Derived>
+	class IdentifiableDiscordObject : public DiscordObject {
+	public:
+		IdentifiableDiscordObject() = default;
+		IdentifiableDiscordObject(Snowflake<Derived> id) : ID(id) {}
+
+		using Parent = IdentifiableDiscordObject<Derived>;
+
+		Snowflake<Derived> ID;
+		
+		inline operator Snowflake<Derived>&() {
+			return ID;
+		}
+
+		template<class DiscordObject>
+		inline bool operator==(Snowflake<DiscordObject> right) {
+			return ID == static_cast<Snowflake<DiscordObject>>(right);
+		}
+		
+		template<class DiscordObject>
+		inline bool operator!=(Snowflake<DiscordObject> right) {
+			return ID != static_cast<Snowflake<DiscordObject>>(right);
+		}
+
+		inline bool operator==(Snowflake<Derived> right) {
+			return operator==<Derived>(right);
+		}
+
+		inline const time_t getTimestamp() {
+			return ID.timestamp();
+		}
+	};
+
 	//constexpr unsigned int index(std::initializer_list<const char *const> names, const char * name, unsigned int i = 0) {
 	//	for (const char *const n : names)
 	//		if (strcmp(n, name) != 0) ++i;
 	//		else break;
 	//	return i;
-	//}//sadly this doesn't work on c++11
+	//}//sadly this doesn't work on c++11, leaving this here for the future
 
 	template <template<class...> class Container, typename Type> //forces this be done at compile time, I think, and hope it does
 	constexpr unsigned int index(Container<Type*const> names, Type * name, unsigned int i = 0) {
@@ -112,6 +147,11 @@ namespace SleepyDiscord {
 	//somethings I need it to be a reference
 	template <class _DiscordObject>
 	inline std::vector<_DiscordObject> JSON_getArray(const std::string& _source) {
+		return json::ArrayWrapper<_DiscordObject>(_source);
+	}
+
+	template <class _DiscordObject>
+	inline std::list<_DiscordObject> JSON_getList(const std::string& _source) {
 		return json::ArrayWrapper<_DiscordObject>(_source);
 	}
 }

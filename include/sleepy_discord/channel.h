@@ -5,19 +5,14 @@
 #include "snowflake.h"
 
 namespace SleepyDiscord {
-	struct Overwrite : DiscordObject {
+	struct Overwrite : IdentifiableDiscordObject<Overwrite> {
 		Overwrite();
 		Overwrite(const std::string * rawJson);
 		Overwrite(const std::vector<std::string> values);
 		~Overwrite() {}
-		Snowflake<Overwrite> ID;
 		std::string type;
 		Permission allow;
 		Permission deny;
-
-		inline bool operator==(Overwrite& right) {
-			return ID == right.ID;
-		}
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
@@ -26,14 +21,13 @@ namespace SleepyDiscord {
 	struct Server;
 	struct Message;
 
-	struct Channel : DiscordObject {
+	struct Channel : IdentifiableDiscordObject<Channel> {
 	public:
 		Channel();
 		Channel(const std::string * rawJson);
 		Channel(const std::vector<std::string> values);
 		~Channel();
 		
-		Snowflake<Channel> ID;
 		enum ChannelType {
 			CHANNEL_TYPE_NONE = -1,
 			SERVER_TEXT       = 0,
@@ -57,10 +51,6 @@ namespace SleepyDiscord {
 		//Snowflake<>          applicationID;        //??????????????????????     used in group     DM channels
 		Snowflake<Channel>     parentID;             //optional and nullable,     used in server       channels
 		std::string            lastPinTimestamp;     //optional,                  used in         text channels
-
-		inline bool operator==(Channel& right) {
-			return ID == right.ID;
-		}
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};

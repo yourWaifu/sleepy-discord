@@ -11,13 +11,12 @@
 // <--- means to add later
 
 namespace SleepyDiscord {
-	struct Emoji : public DiscordObject {
+	struct Emoji : public IdentifiableDiscordObject<Emoji> {
 	public:
 		~Emoji();
 		Emoji();
 		Emoji(const std::string* rawJson);
 		Emoji(const std::vector<std::string> values);
-		Snowflake<Emoji> ID;
 		std::string name;
 		std::vector<Role> roles;
 		User user;	//optional
@@ -42,7 +41,7 @@ namespace SleepyDiscord {
 
 	class BaseDiscordClient;
 
-	struct Message : public DiscordObject {
+	struct Message : public IdentifiableDiscordObject<Message> {
 	public:
 		Message();
 		~Message();
@@ -50,16 +49,12 @@ namespace SleepyDiscord {
 		Message(const std::string * rawJson);
 		using DiscordObject::DiscordObject;
 		bool startsWith(const std::string& test);
-		int length();
+		std::size_t length();
 		bool isMentioned(Snowflake<User> ID);
 		bool isMentioned(User& _user);
 		Message send(BaseDiscordClient * client);
 		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
-		//bool operator==(const std::string& rawJson);
-		bool operator==(const Message& right) const;
-		bool operator!=(const Message& right) const;
 
-		Snowflake<Message> ID;
 		Snowflake<Channel> channelID;
 		User author;
 		std::string content;

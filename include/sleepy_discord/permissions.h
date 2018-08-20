@@ -89,12 +89,11 @@ namespace SleepyDiscord {
 	managed     bool      whether this role is managed by an integration
 	mentionable bool      whether this role is mentionable
 	*/
-	struct Role : public DiscordObject {
+	struct Role : public IdentifiableDiscordObject<Role> {
 		Role();
 		~Role() {}
 		Role(const std::string * rawJson);
 		Role(const std::vector<std::string> values);
-		Snowflake<Role> ID;
 		std::string name;
 		int color;		//I don't know if this should be 64 bit. ask the api server!!!
 		bool hoist;

@@ -15,7 +15,7 @@ namespace SleepyDiscord {
 
 	User::User(const std::vector<std::string> values) :
 		//variable     modifier value               felid
-		ID            (        values[index(fields, "id"           )] ),
+		Parent        (        values[index(fields, "id"           )] ),
 		username      (        values[index(fields, "username"     )] ),
 		discriminator (        values[index(fields, "discriminator")] ),
 		avatar        (        values[index(fields, "avatar"       )] ),
@@ -25,10 +25,6 @@ namespace SleepyDiscord {
 		email         (        values[index(fields, "email"        )] )
 	{}
 
-	bool User::operator==(const User& rightUser) {
-		return ID == rightUser.ID;
-	}
-
 	ServerUser::ServerUser() : owner(false), permissions(NONE)
 	{}
 	
@@ -36,7 +32,7 @@ namespace SleepyDiscord {
 
 	ServerUser::ServerUser(const std::vector<std::string> values) :
 		//variable  modifier                          value                felid
-		ID         (                                  values[index(fields, "id"         )]  ),
+		Parent     (                                  values[index(fields, "id"         )]  ),
 		name       (                                  values[index(fields, "name"       )]  ),
 		icon       (                                  values[index(fields, "icon"       )]  ),
 		owner      (getBool(                          values[index(fields, "owner"      )]) ),
@@ -54,7 +50,7 @@ namespace SleepyDiscord {
 
 	Connection::Connection(const std::vector<std::string> values) :
 		//variable modifier value            felid
-		ID     (        values[index(fields, "id"     )] ),
+		Parent (        values[index(fields, "id"     )] ),
 		name   (        values[index(fields, "name"   )] ),
 		type   (        values[index(fields, "type"   )] ),
 		revoked(getBool(values[index(fields, "revoked")]))

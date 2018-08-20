@@ -13,13 +13,12 @@ namespace SleepyDiscord {
 	name    string      name of the channel
 	type    string      'text' or 'voice'
 	*/
-	struct ChannelInvite : DiscordObject {
+	struct ChannelInvite : IdentifiableDiscordObject<ChannelInvite> {
 	public:
 		ChannelInvite();
 		~ChannelInvite();
 		ChannelInvite(const std::string * rawJson);
 		ChannelInvite(const std::vector<std::string> values);
-		Snowflake<ChannelInvite> ID;
 		std::string name;
 		std::string type;
 	private:
@@ -35,13 +34,12 @@ namespace SleepyDiscord {
 	splash  string      hash of the guild splash (or null)
 	icon    string      hash of the guild icon (or null)
 	*/
-	struct ServerInvite : DiscordObject {
+	struct ServerInvite : IdentifiableDiscordObject<ServerInvite> {
 	public:
 		ServerInvite();
 		~ServerInvite();
 		ServerInvite(const std::string * rawJson);
 		ServerInvite(const std::vector<std::string> values);
-		Snowflake<ServerInvite> ID;
 		std::string name;
 		std::string splash;
 		std::string icon;

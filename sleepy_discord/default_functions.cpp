@@ -69,7 +69,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onPinMessages(std::string * jsonMessage) {
+	void BaseDiscordClient::onPinMessage(std::string * jsonMessage) {
 
 	}
 

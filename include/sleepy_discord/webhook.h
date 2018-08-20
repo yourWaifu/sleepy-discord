@@ -16,12 +16,11 @@ namespace SleepyDiscord {
 	avatar      ?string     the default avatar of the webhook
 	token       string      the secure token of the webhook
 	*/
-	struct Webhook : public DiscordObject {
+	struct Webhook : public IdentifiableDiscordObject<Webhook> {
 	public:
 		Webhook() {}
 		Webhook(const std::string * rawJSON);
 		Webhook(const std::vector<std::string> values);
-		Snowflake<Webhook> ID;
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
 		User user;

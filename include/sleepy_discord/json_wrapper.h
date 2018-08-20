@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 #include "json.h"
 
 namespace SleepyDiscord {
@@ -9,13 +10,25 @@ namespace SleepyDiscord {
 		std::string getValue(const char* source, const char * name);
 
 		const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json);
-		const std::string createJSONArray(std::vector<std::string> source);
-		const std::string string(std::string s);
+		const std::string string(const std::string s);
 		const std::string UInteger(const uint64_t num);
 		const std::string optionalUInteger(const uint64_t num);
 		const std::string integer(const int64_t num);
 		const std::string optionalInteger(const int64_t num);
 		const std::string boolean(const bool boolean);
+
+		template<class Type>
+		const std::string createJSONArray(const std::vector<Type> source) {
+			std::string target;
+			target.reserve(2);	//revents crash
+			for (std::string value : source) {
+				if (!value.empty())
+					target += ',' + value;
+			}
+			target[0] = '[';
+			target.push_back(']');
+			return target;
+		}
 
 		struct BaseArrayWrapper {
 			virtual operator const std::string&() const = 0;
@@ -37,9 +50,9 @@ namespace SleepyDiscord {
 			template<template<class...> class Container, typename Type = TypeToConvertTo>
 			Container<Type> get() {
 				std::vector<std::string> jsonArray = Base::vectorStrings();
-				const unsigned int size = jsonArray.size();
+				const std::size_t size = jsonArray.size();
 				std::vector<std::string*> jsonPointers(size);
-				for (unsigned int i = 0; i < size; ++i)
+				for (std::size_t i = 0; i < size; ++i)
 					jsonPointers[i] = &jsonArray[i];
 				return Container<Type>(jsonPointers.begin(), jsonPointers.end());
 
@@ -51,12 +64,14 @@ namespace SleepyDiscord {
 			inline Container<std::string> getStrings() { return get<Container, std::string>(); }
 
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
+			inline std::list  <TypeToConvertTo> list()   { return get<std::list>();   }
 
 			//c arrays
 			inline TypeToConvertTo* cArray() { return &vector()[0]; }
 
 			operator std::vector<std::string>() { return Base::vectorStrings(); }
 			operator std::vector<TypeToConvertTo>() { return vector(); }
+			operator std::list<TypeToConvertTo>() { return list(); }
 		};
 
 		template<class Base>
