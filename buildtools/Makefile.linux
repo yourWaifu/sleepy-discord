@@ -1,6 +1,6 @@
          CXX       = g++ #compiler
          AR        = ar rv
-         DFLAGS    = -Wall -c -std=c++11
+         DFLAGS    = -Wall -c -std=c++11 -fPIC
 override FLAGS    := $(DFLAGS) $(FLAGS)
          SOURCE    = ../sleepy_discord
          INCLUDE   = ../include/sleepy_discord ../deps/include ../include/sleepy_discord/IncludeNonexistent

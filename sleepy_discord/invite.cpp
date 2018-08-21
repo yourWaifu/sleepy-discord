@@ -11,9 +11,9 @@ namespace SleepyDiscord {
 
 	ChannelInvite::ChannelInvite(const std::vector<std::string> values) :
 		//variable value               felid
-		ID  (values[index(fields, "id"  )]),
-		name(values[index(fields, "name")]),
-		type(values[index(fields, "type")])
+		Parent(values[index(fields, "id"  )]),
+		name  (values[index(fields, "name")]),
+		type  (values[index(fields, "type")])
 	{}
 
 	const std::initializer_list<const char*const> ChannelInvite::fields = {
@@ -30,7 +30,7 @@ namespace SleepyDiscord {
 
 	ServerInvite::ServerInvite(const std::vector<std::string> values) :
 		//variable value                 felid
-		ID    (values[index(fields, "id"    )]),
+		Parent(values[index(fields, "id"    )]),
 		name  (values[index(fields, "name"  )]),
 		splash(values[index(fields, "splash")]),
 		icon  (values[index(fields, "icon"  )])

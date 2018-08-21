@@ -3,18 +3,6 @@
 #include "vector"
 
 namespace SleepyDiscord {
-	void BaseDiscordClient::testFunction(std::string teststring) {
-		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
-		//		{"color", json::UInteger(0x1000000)}
-		//}));
-		ObjectResponse<Message> m = sendMessage("error_test", "testing");
-		if (m.error()) {
-			onError(ERROR_ZERO, "test");
-		}
-		if (std::vector<Channel>(GetServerChannels("error_test")).empty()) {
-			onError(ERROR_NOTE, "test");
-		}
-	}
 	//
 	//channel functions
 	//
@@ -101,7 +89,7 @@ namespace SleepyDiscord {
 	}
 
 	bool BaseDiscordClient::removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID) {
-		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, emoji, userID })).statusCode == NO_CONTENT;
+		return request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, emoji, userID })).statusCode == NO_CONTENT;
 	}
 
 	ArrayResponse<Reaction> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) {
@@ -112,10 +100,10 @@ namespace SleepyDiscord {
 		request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions", { channelID, messageID }));
 	}
 
-	bool BaseDiscordClient::editChannelPermissions(Snowflake<Channel> channelID, std::string ID, int allow, int deny, std::string type) {
+	bool BaseDiscordClient::editChannelPermissions(Snowflake<Channel> channelID, Snowflake<Overwrite> overwriteID, int allow, int deny, std::string type) {
 		return request(
 			Put,
-			path("channels/{channel.id}/permissions/{overwrite.id}", { channelID, ID }),
+			path("channels/{channel.id}/permissions/{overwrite.id}", { channelID, overwriteID }),
 			json::createJSON({
 				{ "allow", std::to_string(allow) },
 				{ "deny", std::to_string(deny) },
@@ -128,7 +116,7 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<Invite> BaseDiscordClient::createChannelInvite(Snowflake<Channel> channelID, const uint64_t maxAge, const uint64_t maxUses, const bool temporary, const bool unique) {
-		return request(Post, path("channels/{channel.id}/invites"), 
+		return request(Post, path("channels/{channel.id}/invites", { channelID }),
 			json::createJSON({
 				{"max_age", json::optionalUInteger(maxAge) },
 				{"max_uses", json::optionalUInteger(maxUses) },
@@ -223,7 +211,8 @@ namespace SleepyDiscord {
 		return request(Patch, path("guilds/{guild.id}/roles", { serverID }), getEditPositionString(positions));
 	}
 
-	std::string BaseDiscordClient::editRole(Snowflake<Server> serverID, Snowflake<Role> roleID, std::string name, Permission permissions, uint32_t color, int position, uint8_t hoist, uint8_t mentionable) {
+
+	std::string BaseDiscordClient::editRole(Snowflake<Server> serverID, Snowflake<Role> roleID, std::string name, Permission permissions, uint32_t color, int8_t hoist, int8_t mentionable) {
 		const std::string colorString       = color       >> 24 == 0 ? std::to_string(color      ) : "";	//if over 24 bits, do not change color
 		const std::string hoistString       = hoist       >> 1  == 0 ? json::boolean (hoist      ) : "";	//if larger then 1 bit, do change hoist
 		const std::string mentionableString = mentionable >> 1  == 0 ? json::boolean (mentionable) : "";
@@ -253,7 +242,7 @@ namespace SleepyDiscord {
 		return request(Delete, path("guilds/{guild.id}", { serverID }));
 	}
 
-	ArrayResponse<Channel> SleepyDiscord::BaseDiscordClient::GetServerChannels(Snowflake<Server> serverID) {
+	ArrayResponse<Channel> SleepyDiscord::BaseDiscordClient::getServerChannels(Snowflake<Server> serverID) {
 		return request(Get, path("guilds/{guild.id}/channels", { serverID }));
 	}
 

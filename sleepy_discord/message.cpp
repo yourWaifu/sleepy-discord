@@ -17,7 +17,7 @@ namespace SleepyDiscord {
 
 	Message::Message(std::vector<std::string> values) : 
 		//variable                  condition    modifier                         value                felid               else
-		ID               (                                                        values[index(fields, "id"              )]                          ),
+		Parent           (                                                        values[index(fields, "id"              )]                          ),
 		channelID        (                                                        values[index(fields, "channel_id"      )]                          ),
 		author           (                                                       &values[index(fields, "author"          )]                          ),
 		content          (                                                        values[index(fields, "content"         )]                          ),
@@ -38,17 +38,17 @@ namespace SleepyDiscord {
 
 	Message::Message(const std::string * rawJson) : Message(json::getValues(rawJson->c_str(), fields)) {}
 
-	bool Message::startsWith(std::string test) {
+	bool Message::startsWith(const std::string& test) {
 		return content.compare(0, test.length(), test) == 0;
 	}
 
-	int Message::length() {
+	std::size_t Message::length() {
 		return content.length();
 	}
 
 	bool Message::isMentioned(Snowflake<User> ID) {
-		unsigned int size = mentions.size();
-		for (unsigned int i = 0; i < size; i++)
+		std::size_t size = mentions.size();
+		for (std::size_t i = 0; i < size; i++)
 			if (mentions[i].ID == ID) return true;
 		return false;
 	}
@@ -66,14 +66,6 @@ namespace SleepyDiscord {
 		return client->sendMessage(channelID, message, tts);
 	}
 
-	bool Message::operator==(const Message& right) {
-		return ID == right.ID;
-	}
-
-	bool Message::operator!=(const Message & right) {
-		return ID != right.ID;
-	}
-
 	const std::initializer_list<const char*const> Emoji::fields = {
 		"id", "name", "roles", "user", "require_colons", "managed"
 	};
@@ -86,7 +78,7 @@ namespace SleepyDiscord {
 
 	Emoji::Emoji(const std::vector<std::string> values) :
 		//variable     modifier             value                     felid
-		ID           (                     values[index(fields, "id"            )] ),
+		Parent        (                     values[index(fields, "id"            )] ),
 		name          (                     values[index(fields, "name"          )] ),
 		roles         (JSON_getArray<Role>(&values[index(fields, "roles"         )])),
 		user          (                    &values[index(fields, "user"          )] ),

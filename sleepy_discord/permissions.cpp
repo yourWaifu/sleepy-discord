@@ -8,7 +8,7 @@ namespace SleepyDiscord {
 
 	Role::Role(const std::vector<std::string> values) :
 		//variable  modifier                           value                     felid
-		ID         (                                   values[index(fields, "id"         )]  ),
+		Parent     (                                   values[index(fields, "id"         )]  ),
 		name       (                                   values[index(fields, "name"       )]  ),
 		color      (                        std::stol (values[index(fields, "color"      )]) ),
 		hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
@@ -28,9 +28,6 @@ namespace SleepyDiscord {
 			return Permission::ALL;
 
 		auto everyoneRole = static_cast<Snowflake<Role>>(server.ID).findObject(server.roles);
-		//auto everyoneRole = std::find_if(server.roles.begin(), server.roles.end(), [&](const Role& role) {
-		//	return role.ID == static_cast<Snowflake<Role>>(server.ID);
-		//});
 
 		if (everyoneRole == server.roles.end())
 			return Permission::NONE;
@@ -39,9 +36,6 @@ namespace SleepyDiscord {
 
 		for (Snowflake<Role> roleID : member.roles) {
 			auto rolePermissions = roleID.findObject(server.roles);
-			//auto rolePermissions = std::find_if(server.roles.begin(), server.roles.end(), [&](const Role& role) {
-			//	return role.ID == roleID;
-			//});
 			if (rolePermissions != server.roles.end())
 				permissions = permissions | rolePermissions->permissions;
 		}

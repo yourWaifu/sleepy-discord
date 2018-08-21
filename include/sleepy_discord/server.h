@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <list>
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
@@ -18,7 +19,7 @@ namespace SleepyDiscord {
 	deaf      bool     if the user is deafened
 	mute      bool     if the user is muted
 	*/
-	struct ServerMember : public DiscordObject {
+	struct ServerMember : public IdentifiableDiscordObject<User> {
 		ServerMember();
 		ServerMember(const std::string * rawJson);
 		ServerMember(const std::vector<std::string> values);
@@ -28,16 +29,19 @@ namespace SleepyDiscord {
 		std::string joinedAt;
 		bool deaf;
 		bool mute;
+
+		operator User&() {
+			return user;
+		}
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
 
-	struct Server : public DiscordObject {
+	struct Server : public IdentifiableDiscordObject<Server> {
 		~Server();
 		Server();
 		Server(const std::string * rawJson);
 		Server(const std::vector<std::string> values);
-		Snowflake<Server> ID;
 		std::string name;
 		std::string icon;
 		std::string splash;
@@ -66,20 +70,46 @@ namespace SleepyDiscord {
 		std::vector<ServerMember> members;
 		std::vector<Channel> channels;
 
-		inline bool operator==(Server& right) {
-			return ID == right.ID;
-		}
+		std::vector<ServerMember>::iterator findMember(Snowflake<User> userID);
+		std::vector<Channel>::iterator findChannel(Snowflake<Channel> channelID);
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
 
-	struct UnavailableServer : public DiscordObject {
+	struct UnavailableServer : public IdentifiableDiscordObject<Server> {
 		UnavailableServer(const std::string * rawJson);
 		UnavailableServer(const std::vector<std::string> values);
-		Snowflake<UnavailableServer> ID;
 		bool unavailable;
 	private:
 		const static std::initializer_list<const char*const> fields;
+	};
+
+	struct ServerCache : public std::list<Server> {
+		using std::list<Server>::list;
+		ServerCache() : list() {} //for some odd reason the default constructor isn't inherited
+		ServerCache(std::list<Server> list) : std::list<Server>(list) {}
+
+		template<class Container, class Object>
+		iterator findOnetWithObject(Container Server::*list, const Snowflake<Object>& objectID) {
+			return std::find_if(begin(), end(), [&objectID, list](Server& server) {
+				auto result = objectID.findObject(server.*list);
+				return result != std::end(server.*list);
+			});
+		}
+
+		inline iterator findSeverWith(const Snowflake<Channel>& channelID) {
+			return findOnetWithObject(&Server::channels, channelID);
+		}
+
+		inline iterator findServerWith(const Snowflake<Role> roleID) {
+			return findOnetWithObject(&Server::roles, roleID);
+		}
+
+		inline iterator findServer(const Snowflake<Server> serverID) {
+			return std::find_if(begin(), end(), [&serverID](Server& server) {
+				return server.ID == serverID;
+			});
+		}
 	};
 
 	struct ServerEmbed : public DiscordObject {

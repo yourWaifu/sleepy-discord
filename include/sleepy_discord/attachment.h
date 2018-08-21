@@ -4,13 +4,12 @@
 #include "discord_object_interface.h"
 
 namespace SleepyDiscord {
-	struct Attachment : public DiscordObject {
+	struct Attachment : public IdentifiableDiscordObject<Attachment> {
 	public:
 		Attachment();
 		~Attachment();
 		Attachment(const std::string * rawJSON);
 		Attachment(const std::vector<std::string> values);
-		Snowflake<Attachment> ID;
 		std::string filename;
 		uint64_t size;
 		std::string url;

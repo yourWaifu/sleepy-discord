@@ -5,7 +5,7 @@ namespace SleepyDiscord {
 
 	VoiceRegion::VoiceRegion(const std::vector<std::string> values) :
 		//variable      modifier value               felid
-		ID             (        values[index(fields, "id"             )] ),
+		Parent         (        values[index(fields, "id"             )] ),
 		name           (        values[index(fields, "name"           )] ),
 		sampleHostname(        values[index(fields, "sample_hostname")] ),
 		samplePort    (toInt  (values[index(fields, "sample_port"    )])),

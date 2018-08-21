@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 
 	Attachment::Attachment(const std::vector<std::string> values) :
 		//variable           condition  modifier    value                     felid
-		ID        (                                 values[index(fields, "id"       )]    ),
+		Parent    (                                 values[index(fields, "id"       )]    ),
 		filename  (                                 values[index(fields, "filename" )]    ),
 		size      ( std::stoull(                    values[index(fields, "size"     )]   )),
 		url       (                                 values[index(fields, "url"      )]    ),

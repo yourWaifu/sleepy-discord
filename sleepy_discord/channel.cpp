@@ -5,7 +5,7 @@ namespace SleepyDiscord {
 
 	Channel::Channel(const std::vector<std::string> values) : 
 		//felid                modifier                       value
-		ID                   (                                values[index(fields, "id"                   )]  ),
+		Parent               (                                values[index(fields, "id"                   )]  ),
 		type                 (static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
 		serverID             (                                values[index(fields, "guild_id"             )]  ),
 		position             (toInt                         ( values[index(fields, "position"             )]) ),
@@ -45,7 +45,6 @@ namespace SleepyDiscord {
 		//variable       modifier value                    felid
 		ID             (         values[index(fields, "id"             )] ),
 		is_private     ( getBool(values[index(fields, "is_private"     )])),
-		recipient      ( User(  &values[index(fields, "recipient"      )])),
 		lastMessageID  (         values[index(fields, "last_message_id")] )
 	{}
 
@@ -60,7 +59,7 @@ namespace SleepyDiscord {
 
 	Overwrite::Overwrite(const std::vector<std::string> values) :
 		//variable modifier value              felid
-		ID    (      values[index(fields, "id"   )] ),
+		Parent(      values[index(fields, "id"   )] ),
 		type  (      values[index(fields, "type" )] ),
 		allow (toPermission(toLongLong(values[index(fields, "allow")]))),
 		deny  (toPermission(toLongLong(values[index(fields, "deny" )])))

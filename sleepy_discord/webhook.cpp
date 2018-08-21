@@ -5,7 +5,7 @@ namespace SleepyDiscord {
 
 	Webhook::Webhook(const std::vector<std::string> values) :
 		//variable           condition modifier value              felid         else
-		ID        (                          values[index(fields, "id"        )]     ),
+		Parent    (                          values[index(fields, "id"        )]     ),
 		serverID  (setIfElse(isDefined,      values[index(fields, "guild_id"  )], "")),
 		channelID (                          values[index(fields, "channel_id")]     ),
 		user      (                    User(&values[index(fields, "user"      )]    )),
