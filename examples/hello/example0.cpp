@@ -2,7 +2,7 @@
   remember to change this to uwebsockets_websocket.h*/
 #include "sleepy_discord/websocketpp_websocket.h"
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 	void onMessage(SleepyDiscord::Message message) {
@@ -12,6 +12,6 @@ public:
 };
 
 int main() {
-	myClientClass client("token", 2);
+	MyClientClass client("token", 2);
 	client.run();
 }
