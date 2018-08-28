@@ -53,22 +53,26 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <sleepy_discord.h>
 #include <iostream>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
-	private:
-	void onReady() {
-		SleepyDiscord::Message message = sendMessage("channel id", "Hello");
-		std::cout << message.content;
-	}
+class MyClientClass : public SleepyDiscord::DiscordClient {
+  public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+
+	void onMessage(SleepyDiscord::Message message) {
+      if (message.content == "hello") {
+		    SleepyDiscord::Message message = sendMessage(message.channelID, "Hello");
+		    std::cout << message.content;
+      }
+  }
 }
 
 int main() {
-	myClientClass client("token", 2);
+  MyClientClass client("token", 2);
   client.run();
 
   return 0;
 }
 ```
->Output: Message sent
+>Output: Hello
 
 ```shell
 Hello
@@ -105,6 +109,33 @@ Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#c
  ```cpp
 ObjectResponse<Message> uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message);
 ```
+```cpp
+#include <sleepy_discord.h>
+#include <iostream>
+
+class MyClientClass : public SleepyDiscord::DiscordClient {
+  public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+
+	void onMessage(SleepyDiscord::Message message) {
+    if (message.content == "rules")
+		  uploadFile(message.channelID, "res/rules.txt", "These are the rules");
+	}
+}
+
+int main() {
+  MyClientClass client("token", 2);
+  client.run();
+
+  return 0;
+}
+```
+
+```shell
+'rules.txt'
+These are the rules
+```
+
 
 Uploads a file with a message to a channel.
 
@@ -138,6 +169,8 @@ bool addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std
 
 class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+
 	void onMessage(SleepyDiscord::Message message) {
 		addReaction(message.channelID, message.ID, "%F0%9F%98%95");
 	}
@@ -195,6 +228,8 @@ bool removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, 
 
 class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+
   void onMessage(SleepyDiscord::Message message) {
 		removeReaction(message.channelID, message.ID, "%F0%9F%98%95", "@me");
 	}
@@ -292,6 +327,28 @@ See [removeAllReactions](#removeallreactions)
  ```cpp
 ArrayResponse<Reaction> getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 ```
+```cpp
+#include <sleepy_discord.h>
+#include <iostream>
+
+class MyClientClass : public SleepyDiscord::DiscordClient {
+  public:
+  using SleepyDiscord::DiscordClient::DiscordClient;
+
+  void onMessage(SleepyDiscord::Message message) {
+    ArrayResponse<Reaction> reactions = getReactions(message.channelID, message.ID, "%F0%9F%98%95");
+    std::cout << reactions.text;
+  }
+}
+
+int main() {
+ MyClientClass client("token", 2);
+ client.run();
+
+ return 0;
+}
+```
+>Output: [{"username": "User", "discriminator": "0000", "bot": true, "id": "000000000000000000", "avatar": "00000000000000000000000000000000"}]
 
 Get an array of all users who reacted with this emoji on a message
 
@@ -2155,9 +2212,10 @@ virtual void onServer(SleepyDiscord::Server server);
 #include <iostream>
 #include <vector>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
+
   void onServer(SleepyDiscord::Server server) {
       serverList.push_back(server);
       std::cout << "New server, name: " << server.name << "\n";
@@ -2168,7 +2226,7 @@ private:
 };
 
 int main() {
-  myClientClass client("token", 2);
+  MyClientClass client("token", 2);
   client.run();
 
   return 0;
@@ -2192,16 +2250,17 @@ virtual void onBan(std::string *jsonMessage);
 ```cpp
 #include <sleepy_discord.h>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
+
   void onBan(std::string \*jsonMessage) {
     std::cout << "New ban, json data: " << \*jsonMessage << "\n";
   }
 };
 
 int main() {
-  myClientClass client("token", 2);
+  MyClientClass client("token", 2);
   client.run();
 
   return 0;
@@ -2225,16 +2284,17 @@ virtual void onUnban(std::string \*jsonMessage);
 ```cpp
 #include <sleepy_discord.h>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
+
   void onUnban(std::string \*jsonMessage) {
     std::cout << "New Unban, json data: " << \*jsonMessage << "\n";
   }
 };
 
 int main() {
-  myClientClass client("token", 2);
+  MyClientClass client("token", 2);
   client.run();
 
   return 0;
@@ -2259,9 +2319,10 @@ virtual void onMessage(SleepyDiscord::Message message);
 ```cpp
 #include <sleepy_discord>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
-	using DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
+
 	void onMessage(SleepyDiscord::Message m) {
 		if (m.startsWith("whcg hello")) {
 			SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
@@ -2271,7 +2332,7 @@ public:
 };
 
 int main() {
-	myClientClass client("token", 2);
+	MyClientClass client("token", 2);
   client.run();
 }
 ```
@@ -2303,16 +2364,17 @@ virtual void onEditMessage(std::string \*jsonMessage);
 ```cpp
 #include <sleepy_discord.h>
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
   using SleepyDiscord::DiscordClient::DiscordClient;
+
   void onEditMessage(std::string \*jsonMessage) {
     std::cout << "New edit message, json data: " << \*jsonMessage << "\n";
   }
 };
 
 int main() {
-  myClientClass client("token", 2);
+  MyClientClass client("token", 2);
   client.run();
 
   return 0;
