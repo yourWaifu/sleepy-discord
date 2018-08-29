@@ -517,6 +517,13 @@ namespace SleepyDiscord {
 		onHeartbeat();
 	}
 
+	void BaseDiscordClient::resetHeartbeatValues() {
+		if (heart.isValid()) heart.stop();
+		lastHeartbeat = 0;
+		wasHeartbeatAcked = true;
+		heartbeatInterval = 0;
+	}
+
 	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
