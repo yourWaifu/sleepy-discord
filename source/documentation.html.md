@@ -54,22 +54,22 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <iostream>
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
-  public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+public:
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-	void onMessage(SleepyDiscord::Message message) {
-      if (message.content == "hello") {
-		    SleepyDiscord::Message message = sendMessage(message.channelID, "Hello");
-		    std::cout << message.content;
-      }
-  }
+	void onMessage(SleepyDiscord::Message message) override {
+		if (message.content == "hello") {
+			SleepyDiscord::Message message = sendMessage(message.channelID, "Hello");
+			std::cout << message.content;
+		}
+	}
 }
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 >Output: Hello
@@ -100,7 +100,7 @@ If you want to send a new line, use ``\\\\n``. Normal escape chars do not work, 
 The Message you just sent as a Message object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#create-message)
 
@@ -114,20 +114,20 @@ ObjectResponse<Message> uploadFile(Snowflake<Channel> channelID, std::string fil
 #include <iostream>
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
-  public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+public:
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-	void onMessage(SleepyDiscord::Message message) {
-    if (message.content == "rules")
-		  uploadFile(message.channelID, "res/rules.txt", "These are the rules");
+	void onMessage(SleepyDiscord::Message message) override {
+		if (message.content == "rules")
+			uploadFile(message.channelID, "res/rules.txt", "These are the rules");
 	}
 }
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 
@@ -155,7 +155,7 @@ Uploads a file with a message to a channel.
 The Message you just sent as a Message object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Message](https://discordapp.com/developers/docs/resources/channel#create-message)
 
@@ -169,18 +169,18 @@ bool addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std
 
 class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-	void onMessage(SleepyDiscord::Message message) {
+	void onMessage(SleepyDiscord::Message message) override {
 		addReaction(message.channelID, message.ID, "%F0%9F%98%95");
 	}
 }
 
 int main() {
-  myDiscordClient client("token", 2);
-  client.run();
+	myDiscordClient client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 >Output: added 😕 reaction
@@ -214,7 +214,7 @@ Adds a reaction to a message.
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Reaction](https://discordapp.com/developers/docs/resources/channel#create-reaction)
 
@@ -228,18 +228,18 @@ bool removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, 
 
 class myDiscordClient : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onMessage(SleepyDiscord::Message message) {
+	void onMessage(SleepyDiscord::Message message) override {
 		removeReaction(message.channelID, message.ID, "%F0%9F%98%95", "@me");
 	}
 }
 
 int main() {
-  myDiscordClient client("token", 2);
-  client.run();
+	myDiscordClient client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 >Output: removed 😕 reaction
@@ -277,7 +277,7 @@ Removes a reaction from a message.
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Reaction](https://discordapp.com/developers/docs/resources/channel#delete-own-reaction)
 
@@ -304,7 +304,7 @@ Removes all reactions from a message.
 </table>
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete All Reactions](https://discordapp.com/developers/docs/resources/channel#delete-all-reactions)
 
@@ -332,18 +332,18 @@ ArrayResponse<Reaction> getReactions(Snowflake<Channel> channelID, Snowflake<Mes
 #include <iostream>
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
-  public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+public:
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onMessage(SleepyDiscord::Message message) {
-    ArrayResponse<Reaction> reactions = getReactions(message.channelID, message.ID, "%F0%9F%98%95");
-    std::cout << reactions.text;
-  }
+	void onMessage(SleepyDiscord::Message message) override {
+		ArrayResponse<Reaction> reactions = getReactions(message.channelID, message.ID, "%F0%9F%98%95");
+		std::cout << reactions.text;
+	}
 }
 
 int main() {
- MyClientClass client("token", 2);
- client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
  return 0;
 }
@@ -374,7 +374,7 @@ Get an array of all users who reacted with this emoji on a message
 Returns an array of ``Reaction`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Reactions](https://discordapp.com/developers/docs/resources/channel#get-reactions)
 
@@ -400,7 +400,7 @@ Gets message from a message id
 Returns a ``Message`` object from the message you requested
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel Message](https://discordapp.com/developers/docs/resources/channel#get-channel-message)
 
@@ -430,7 +430,7 @@ Gets an array of messages from a channel id around, before or after a message fr
 Returns an array of ``Message`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel Messages](https://discordapp.com/developers/docs/resources/channel#get-channel-messages)
 
@@ -461,7 +461,7 @@ Edits an existing message
 Returns the message you just edited
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Edit Message](https://discordapp.com/developers/docs/resources/channel#edit-message)
 
@@ -487,7 +487,7 @@ Puts a message into the pinned messages of a channel
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Add Pinned Channel Message](https://discordapp.com/developers/docs/resources/channel#add-pinned-channel-message)
 
@@ -513,7 +513,7 @@ Removes a message from the pinned messages of a channel
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Pinned Channel Message](https://discordapp.com/developers/docs/resources/channel#delete-pinned-channel-message)
 
@@ -537,7 +537,7 @@ Gets all pinned messages in a channel
 Returns an array of ``Message`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Messages](https://discordapp.com/developers/docs/resources/channel#get-pinned-messages)
 
@@ -563,7 +563,7 @@ Deletes a message
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Message](https://discordapp.com/developers/docs/resources/channel#delete-message)
 
@@ -589,7 +589,7 @@ Bulk deletes messages
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Bulk Delete Messages](https://discordapp.com/developers/docs/resources/channel#bulk-delete-messages)
 
@@ -605,7 +605,7 @@ Gets the current user
 Returns a ``User`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Current User](https://discordapp.com/developers/docs/resources/user#get-current-user)
 
@@ -629,7 +629,7 @@ Gets the user from a user id
 Returns a ``User`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get User](https://discordapp.com/developers/docs/resources/user#get-user)
 
@@ -645,7 +645,7 @@ Gets all the connections from the current user
 Returns a ``Connection`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get User Connections](https://discordapp.com/developers/docs/resources/user#get-user-connections)
 
@@ -661,7 +661,7 @@ Gets the direct message channels for the current user
 Returns a ``DMChannel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get User DMs](https://discordapp.com/developers/docs/resources/user#get-user-dms)
 
@@ -685,7 +685,7 @@ Creates a DMChannel with the current user and a recipient
 Returns a ``DMChannel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create DM](https://discordapp.com/developers/docs/resources/user#create-dm)
 
@@ -713,7 +713,7 @@ Mutes or unmutes userID in server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Guild Member](https://discordapp.com/developers/docs/resources/guild#modify-guild-member)
 
@@ -739,7 +739,7 @@ Changes the name that is displayed on a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Current User Nick](https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick)
 
@@ -767,7 +767,7 @@ Gives a member a role on a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Add Guild Member Role](https://discordapp.com/developers/docs/resources/guild#add-guild-member-role)
 
@@ -795,7 +795,7 @@ Takes away a role from a member on a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Remove Guild Member Role](https://discordapp.com/developers/docs/resources/guild#remove-guild-member-role)
 
@@ -819,7 +819,7 @@ Gets all roles in a server
 Returns an array of ``Role`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Roles](https://discordapp.com/developers/docs/resources/guild#get-guild-roles)
 
@@ -853,7 +853,7 @@ Creates a new role in server
 Returns an ``Role`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Guild Role](https://discordapp.com/developers/docs/resources/guild#create-guild-role)
 
@@ -879,7 +879,7 @@ Changes the positions of the given roles
 Returns an ``Role`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Guild Role Positions](https://discordapp.com/developers/docs/resources/guild#modify-guild-role-positions)
 
@@ -913,7 +913,7 @@ Changes the given role
 Returns an ``Role`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Guild Role Positions](https://discordapp.com/developers/docs/resources/guild#modify-guild-role-positions)
 
@@ -939,7 +939,7 @@ Deletes the given role from a server
 Returns ``true`` on succes
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Guild Role](https://discordapp.com/developers/docs/resources/guild#delete-guild-role)
 
@@ -965,7 +965,7 @@ Removes a member from a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Remove Guild Member](https://discordapp.com/developers/docs/resources/guild#remove-guild-member)
 
@@ -988,7 +988,7 @@ Kicks all members of a server who have not been online for more than the specifi
 </table>
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Begin Guild Prune](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune)
 
@@ -1014,7 +1014,7 @@ Bans a member from a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Guild Ban](https://discordapp.com/developers/docs/resources/guild#create-guild-ban)
 
@@ -1024,7 +1024,7 @@ Uses [Create Guild Ban](https://discordapp.com/developers/docs/resources/guild#c
 bool unbanMember(Snowflake<Server> serverID, Snowflake<User> userID);
 ```
 
-Bans a member from a server
+Unbans a member from a server
 
 #### Parameters
 <table>
@@ -1040,7 +1040,7 @@ Bans a member from a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Remove Guild Ban](https://discordapp.com/developers/docs/resources/guild#remove-guild-ban)
 
@@ -1064,7 +1064,7 @@ Gets all bans in a server
 Returns an array of ``User`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Bans](https://discordapp.com/developers/docs/resources/guild#get-guild-bans)
 
@@ -1080,7 +1080,7 @@ Gets all servers where the current user is in
 Returns an array of ``Server`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Current User Guilds](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
 
@@ -1104,7 +1104,7 @@ Gets a server object from a serverID
 Returns a ``Server`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild](https://discordapp.com/developers/docs/resources/guild#get-guild)
 
@@ -1128,7 +1128,7 @@ Removes the current user from a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Leave Guild](https://discordapp.com/developers/docs/resources/user#leave-guild)
 
@@ -1152,7 +1152,7 @@ Get a channel object from a channelID
 Returns a ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel](https://discordapp.com/developers/docs/resources/channel#get-channel)
 
@@ -1180,7 +1180,7 @@ Changes the channel name and topic
 Returns a ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Channel](https://discordapp.com/developers/docs/resources/channel#modify-channel)
 
@@ -1205,7 +1205,7 @@ Edit the channel name and return a Channel object of that channel
 Return a ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Calls [editChannel](#editchannel)
 
@@ -1230,7 +1230,7 @@ Changes the channel topic
 Returns a ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Calls [editChannel](#editchannel)
 
@@ -1238,6 +1238,26 @@ Calls [editChannel](#editchannel)
 ```cpp
 bool editChannelPermissions(Snowflake<Channel> channelID, std::string ID, int allow, int deny, std::string type);
 ```
+```cpp
+#include <sleepy_discord.h>
+
+class myDiscordClient : public SleepyDiscord::DiscordClient {
+public:
+	using SleepyDiscord::DiscordClient::DiscordClient;
+
+	void onMessage(SleepyDiscord::Message message) override {
+		editChannelPermissions(message.channelID, message.author.ID, 0, 2048, "member"); // Denies the member who sent the message permission to send messages
+	}
+}
+
+int main() {
+	myDiscordClient client("token", 2);
+	client.run();
+
+	return 0;
+}
+```
+
 
 Changes the channel permission overwrites for a user or role in a channel
 
@@ -1261,7 +1281,7 @@ Changes the channel permission overwrites for a user or role in a channel
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Edit Channel Permissions](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions)
 
@@ -1286,7 +1306,7 @@ Removes a channel permission overwrite for a user or role in a channel
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Channel Permission](https://discordapp.com/developers/docs/resources/channel#delete-channel-permission)
 
@@ -1316,7 +1336,7 @@ Deletes a channel and return
 Returns a ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete/Close Channel](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
 
@@ -1340,7 +1360,7 @@ Deletes a server from a server id
 Returns a ``Server`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Guild](https://discordapp.com/developers/docs/resources/guild#delete-guild)
 
@@ -1366,7 +1386,7 @@ Gets a member for a user id in a server
 Returns a ``ServerMember`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Member](https://discordapp.com/developers/docs/resources/guild#get-guild-member)
 
@@ -1394,7 +1414,7 @@ Gets an array of members in a server
 Returns an array of ``ServerMember`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [List Guild Members](https://discordapp.com/developers/docs/resources/guild#list-guild-members)
 
@@ -1430,7 +1450,7 @@ Adds a member to the server
 Returns a ``ServerMember`` object of the added user
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Add Guild Member](https://discordapp.com/developers/docs/resources/guild#add-guild-member)
 
@@ -1454,7 +1474,7 @@ Gets an array of all the invites from a channel id
 Returns an array of ``Invite`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel Invites](https://discordapp.com/developers/docs/resources/channel#get-channel-invite)
 
@@ -1486,7 +1506,7 @@ Creates an invite for a channel
 Returns the ``Invite`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel Invites](https://discordapp.com/developers/docs/resources/channel#get-channel-invite)
 
@@ -1510,7 +1530,7 @@ Gets all channels in a server
 Returns an array of ``Channel`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Channels](https://discordapp.com/developers/docs/resources/guild#get-guild-channels)
 
@@ -1536,7 +1556,7 @@ Creates a new text channel
 Returns the ``Channel`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Guild Channel](https://discordapp.com/developers/docs/resources/guild#create-guild-channel)
 
@@ -1562,7 +1582,7 @@ Changes the positions of the given channels
 Returns an array of ``Channel`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Guild Channel Positions](https://discordapp.com/developers/docs/resources/guild#modify-guild-channel-positions)
 
@@ -1586,7 +1606,7 @@ Gets all invites from a server
 Returns an array of ``Invite`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Invites](https://discordapp.com/developers/docs/resources/guild#get-guild-invites)
 
@@ -1610,7 +1630,7 @@ Gets an invite from an invite code
 Returns an ``Invite`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Invite](https://discordapp.com/developers/docs/resources/guild#get-invite)
 
@@ -1634,7 +1654,7 @@ Deletes an invite from an invite code
 Returns the deleted ``Invite`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Invite](https://discordapp.com/developers/docs/resources/guild#delete-invite)
 
@@ -1658,7 +1678,7 @@ Gets all integrations in a server
 Returns a JSON string of the integration objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Integrations](https://discordapp.com/developers/docs/resources/guild#get-guild-integrations)
 
@@ -1686,7 +1706,7 @@ Creates an integration in a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Guild Integration](https://discordapp.com/developers/docs/resources/guild#create-guild-integration)
 
@@ -1718,7 +1738,7 @@ Changes an integration in a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Guild Integration](https://discordapp.com/developers/docs/resources/guild#modify-guild-integration)
 
@@ -1744,7 +1764,7 @@ Deletes an integration in a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Guild Integration](https://discordapp.com/developers/docs/resources/guild#delete-guild-integration)
 
@@ -1770,7 +1790,7 @@ Syncs an integration in a server
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Sync Guild Integration](https://discordapp.com/developers/docs/resources/guild#sync-guild-integration)
 
@@ -1794,7 +1814,7 @@ Gets a server embed from a server
 Returns a ``ServerEmbed`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Embed](https://discordapp.com/developers/docs/resources/guild#get-guild-embed)
 
@@ -1823,7 +1843,7 @@ Creates a webhook in a channel
 Returns a ``Webhook`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Create Webhook](https://discordapp.com/developers/docs/resources/webhook#create-webhook)
 
@@ -1847,7 +1867,7 @@ Gets all the webhooks in a channel
 Returns an array of ``Webhook`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Channel Webhooks](https://discordapp.com/developers/docs/resources/webhook#get-channel-webhooks)
 
@@ -1871,7 +1891,7 @@ Gets all the webhooks in a server
 Returns an array of ``Webhook`` objects
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Guild Webhooks](https://discordapp.com/developers/docs/resources/webhook#get-guild-webhooks)
 
@@ -1897,7 +1917,7 @@ Gets a webhook with an optional webhook token
 Returns a ``Webhook`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Get Webhook](https://discordapp.com/developers/docs/resources/webhook#get-webhook)
 Uses [Get Webhook with Token](https://discordapp.com/developers/docs/resources/webhook#get-webhook-with-token)
@@ -1928,7 +1948,7 @@ Changes the name and avatar of a webhook with an optional webhook token
 Returns a ``Webhook`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Modify Webhook](https://discordapp.com/developers/docs/resources/webhook#modify-webhook)
 Uses [Modify Webhook with Token](https://discordapp.com/developers/docs/resources/webhook#modify-webhook-with-token)
@@ -1955,7 +1975,7 @@ Deletes a webhook with an optional webhook token
 Returns ``true`` on success
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Delete Webhook](https://discordapp.com/developers/docs/resources/webhook#delete-webhook)
 Uses [Delete Webhook with Token](https://discordapp.com/developers/docs/resources/webhook#delete-webhook-with-token)
@@ -1992,7 +2012,7 @@ Executes a webhook with a webhook token, reads the message from the string
 Returns a ``Webhook`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Execute Webhook](https://discordapp.com/developers/docs/resources/webhook#execute-webhook)
 
@@ -2028,7 +2048,7 @@ Executes a webhook with a webhook token, reads the message from a file
 Returns a ``Webhook`` object
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Execute Webhook](https://discordapp.com/developers/docs/resources/webhook#execute-webhook)
 
@@ -2052,7 +2072,7 @@ Sets the typing indicator for the current user, typing is stopped after a few se
 Returns ``true`` on succes
 
 #### Other Details
-[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/endpoints.cpp)
+[Declared in `client.h`](https://github.com/NoNamer64/sleepy-discord/blob/master/include/sleepy_discord/client.h) and [defined in `endpoints.cpp`](https://github.com/yourWaifu/sleepy-discord/blob/master/sleepy_discord/endpoints.cpp)
 
 Uses [Trigger Typing Indicator](https://discordapp.com/developers/docs/resources/channel#trigger-typing-indicator)
 
@@ -2214,22 +2234,22 @@ virtual void onServer(SleepyDiscord::Server server);
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onServer(SleepyDiscord::Server server) {
-      serverList.push_back(server);
-      std::cout << "New server, name: " << server.name << "\n";
-  }
+	void onServer(SleepyDiscord::Server server) {
+		serverList.push_back(server);
+		std::cout << "New server, name: " << server.name << "\n";
+	}
 
 private:
   std::vector<SleepyDiscord::Server> serverList;
 };
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 
@@ -2252,18 +2272,18 @@ virtual void onBan(std::string *jsonMessage);
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onBan(std::string \*jsonMessage) {
-    std::cout << "New ban, json data: " << \*jsonMessage << "\n";
-  }
+	void onBan(std::string \*jsonMessage) {
+		std::cout << "New ban, json data: " << \*jsonMessage << "\n";
+	}
 };
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 
@@ -2286,18 +2306,18 @@ virtual void onUnban(std::string \*jsonMessage);
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onUnban(std::string \*jsonMessage) {
-    std::cout << "New Unban, json data: " << \*jsonMessage << "\n";
-  }
+	void onUnban(std::string \*jsonMessage) {
+		std::cout << "New Unban, json data: " << \*jsonMessage << "\n";
+	}
 };
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 
@@ -2333,7 +2353,7 @@ public:
 
 int main() {
 	MyClientClass client("token", 2);
-  client.run();
+	client.run();
 }
 ```
 >Input: Message received
@@ -2366,18 +2386,18 @@ virtual void onEditMessage(std::string \*jsonMessage);
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
-  using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::DiscordClient;
 
-  void onEditMessage(std::string \*jsonMessage) {
-    std::cout << "New edit message, json data: " << \*jsonMessage << "\n";
-  }
+	void onEditMessage(std::string \*jsonMessage) {
+		std::cout << "New edit message, json data: " << \*jsonMessage << "\n";
+	}
 };
 
 int main() {
-  MyClientClass client("token", 2);
-  client.run();
+	MyClientClass client("token", 2);
+	client.run();
 
-  return 0;
+	return 0;
 }
 ```
 
