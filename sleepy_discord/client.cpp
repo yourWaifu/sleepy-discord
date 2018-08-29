@@ -471,7 +471,7 @@ namespace SleepyDiscord {
 		case HELLO:
 			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
 			heartbeat();
-			if (!ready) sendIdentity();
+			if (sessionID.empty()) sendIdentity();
 			else sendResume();
 			break;
 		case RECONNECT:
@@ -481,7 +481,7 @@ namespace SleepyDiscord {
 			if (d[0][0] == 't') {
 				schedule(&BaseDiscordClient::sendResume, 2500);
 			} else {
-				sessionID = "";
+				sessionID = {};
 				sendIdentity();
 			}
 			break;
@@ -503,15 +503,20 @@ namespace SleepyDiscord {
 		case DECODE_ERROR:
 		case NOT_AUTHENTICATED:
 		case ALREADY_AUTHENTICATED:
-		case INVALID_SEQ:
 		case RATE_LIMITED:
 		case SESSION_TIMEOUT:
 		default:
 			break;
 
+		case SESSION_NO_LONGER_VALID:
+		case INVALID_SEQ:
 		case 1000:
-			if (!isQuiting())
+			if (!isQuiting()) {
+				//restart with new session
+				sessionID = {};
+				lastSReceived = 0;
 				break;
+			}
 			//else fall through
 
 		//Might be Unrecoveralbe
@@ -522,6 +527,7 @@ namespace SleepyDiscord {
 			return quit(false, true);
 			break;
 		}
+		resetHeartbeatValues();
 		reconnect(1001);
 	}
 
@@ -560,6 +566,13 @@ namespace SleepyDiscord {
 		sendL(heartbeat);
 		wasHeartbeatAcked = false;
 		onHeartbeat();
+	}
+
+	void BaseDiscordClient::resetHeartbeatValues() {
+		if (heart.isValid()) heart.stop();
+		lastHeartbeat = 0;
+		wasHeartbeatAcked = true;
+		heartbeatInterval = 0;
 	}
 
 	//

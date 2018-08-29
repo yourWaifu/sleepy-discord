@@ -367,6 +367,7 @@ namespace SleepyDiscord {
 		void processCloseCode(const int16_t code) override;
 		void heartbeat();
 		void sendHeartbeat();
+		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(
