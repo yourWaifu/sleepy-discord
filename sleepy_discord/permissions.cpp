@@ -1,31 +1,33 @@
 #include "permissions.h"
-#include "json.h"
+//#include "json.h"
 #include "server.h"
 #include "channel.h"
 
 namespace SleepyDiscord {
-	Role::Role() : color(0), hoist(false), position(0), permissions(NONE), managed(0),
-		mantionable(false)
-	{}
+	//Role::Role() : color(0), hoist(false), position(0), permissions(NONE), managed(0),
+	//	mantionable(false)
+	//{}
 
-	Role::Role(const std::string * rawJSON) : Role(json::getValues(rawJSON->c_str(), fields)) {}
+	//Role::Role(const std::string * rawJSON) : Role(json::getValues(rawJSON->c_str(), fields)) {}
 
-	Role::Role(const std::vector<std::string> values) :
-		//variable  modifier                           value                     felid
-		Parent     (                                   values[index(fields, "id"         )]  ),
-		name       (                                   values[index(fields, "name"       )]  ),
-		color      (                        std::stol (values[index(fields, "color"      )]) ),
-		hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
-		position   (                        std::stol (values[index(fields, "position"   )]) ),
-		permissions(static_cast<Permission>(std::stoll(values[index(fields, "permissions")]))),
-		managed    (                        getBool   (values[index(fields, "managed"    )]) ),
-		mantionable(                        getBool   (values[index(fields, "mentionable")]) )
-	{}
+	//Role::Role(const json::Value& rawJSON) : Role(json::getValues(rawJSON.data(), fields)) {}
 
-	const std::initializer_list<const char*const> Role::fields = {
-		"id", "name", "color", "hoist", "position", "permissions",
-		"managed", "mentionable"
-	};
+	//Role::Role(const json::Values values) :
+	//	//variable  modifier                           value                     felid
+	//	Parent     (                                   values[index(fields, "id"         )]  ),
+	//	name       (                                   values[index(fields, "name"       )]  ),
+	//	color      (                        toInt     (values[index(fields, "color"      )]) ),
+	//	hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
+	//	position   (                        toInt     (values[index(fields, "position"   )]) ),
+	//	permissions(static_cast<Permission>(toLongLong(values[index(fields, "permissions")]))),
+	//	managed    (                        getBool   (values[index(fields, "managed"    )]) ),
+	//	mantionable(                        getBool   (values[index(fields, "mentionable")]) )
+	//{}
+
+	//const std::initializer_list<const char*const> Role::fields = {
+	//	"id", "name", "color", "hoist", "position", "permissions",
+	//	"managed", "mentionable"
+	//};
 
 	Permission getBasePermissions(const Server& server, const ServerMember& member) {
 		if (server.ownerID == member.user.ID)
@@ -91,5 +93,12 @@ namespace SleepyDiscord {
 
 	Permission getPermissions(const Server& server, const ServerMember& member, const Channel& channel) {
 		return overwritePermissions(getBasePermissions(server, member), server, member, channel);
+	}
+
+	Role::Role(const json::Value & json) :
+		Role(json::fromJSON<Role>(json)) {
+	}
+	Role::Role(const nonstd::string_view & json) :
+		Role(json::fromJSON<Role>(json)) {
 	}
 }

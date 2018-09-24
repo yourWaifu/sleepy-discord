@@ -1,5 +1,6 @@
 #include "websocketpp_websocket.h"
 #ifndef NONEXISTENT_WEBSOCKETPP
+#include <future>
 
 namespace SleepyDiscord {
 
@@ -77,19 +78,40 @@ namespace SleepyDiscord {
 		} while (!isQuiting());
 	}
 
-	void handleTimers(const websocketpp::lib::error_code &ec, std::function<void()>& code) {
-		if (ec == websocketpp::transport::error::operation_aborted) return;
-		else code();
+	void handleTimers(const websocketpp::lib::error_code &ec, std::function<void()>& code, _client::timer_ptr timer) {
+		if (ec != websocketpp::transport::error::operation_aborted) {
+			code();
+		}
+	}
+
+	template<class Client>
+	void rerunTimer(_client::timer_ptr timer, TimedTask code, Client& c) {
+		timer->async_wait(
+			std::bind(
+				&_client::type::handle_timer,
+				c.this_client,
+				timer,
+				std::bind(
+					&handleTimers, websocketpp::lib::placeholders::_1, code, timer),
+				websocketpp::lib::placeholders::_1
+			)
+		);
 	}
 
 	Timer WebsocketppDiscordClient::schedule(TimedTask code, const time_t milliseconds) {
-		auto timer = this_client.set_timer(
+		_client::timer_ptr timer;
+		auto callback = std::bind(
+			&handleTimers, websocketpp::lib::placeholders::_1, code, timer);
+		timer = this_client.set_timer(
 			milliseconds,
-			websocketpp::lib::bind(&handleTimers, websocketpp::lib::placeholders::_1, code)
+			callback
 		);
-		return Timer([timer]() {
-			timer->cancel();
-		});
+
+		return Timer(
+			[timer]() {
+				timer->cancel();
+			}
+		);
 	}
 
 	void WebsocketppDiscordClient::runAsync() {
@@ -116,7 +138,12 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl hdl,
 		websocketpp::config::asio_client::message_type::ptr msg,
 		GenericMessageReceiver* messageProcessor) {
-		processMessage(messageProcessor, msg->get_payload());
+		std::async([=]() { messageProcessor->processMessage(msg->get_payload()); });
+		//messageProcessor->processMessage(msg->get_payload());
+	}
+
+	UDPClient WebsocketppDiscordClient::createUDPClient() {
+		return UDPClient(this_client.get_io_service());
 	}
 	
 	void WebsocketppDiscordClient::disconnect(

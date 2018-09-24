@@ -2,6 +2,7 @@
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
+#include "server.h"
 
 namespace SleepyDiscord {
 	enum GameType {
@@ -25,15 +26,29 @@ namespace SleepyDiscord {
 	};
 
 	struct Ready : public DiscordObject {
-		Ready(const std::string * rawJSON);
-		Ready(const std::vector<std::string> values);
+		Ready() = default;
+		//Ready(const std::string * rawJSON);
+		Ready(const json::Value & rawJSON);
+		Ready(const nonstd::string_view & rawJSON);
+		//Ready(const json::Values values);
 		int v;	//gateway protocol version
 		User user;
-		std::vector<Channel> privateChannels;
-		//std::vector<UnavailableServer> servers;
+		std::list<Channel> privateChannels;
+		std::list<UnavailableServer> servers;
 		std::string sessionID;
-		std::vector<std::string> trace;
-	private:
-		const static std::initializer_list<const char*const> fields;
+		//std::vector<std::string> trace;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&Ready::v              , "v"               , json::REQUIRIED_FIELD),
+				json::pair                           (&Ready::user           , "user"            , json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Ready::privateChannels, "private_channels", json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Ready::servers        , "guilds"          , json::REQUIRIED_FIELD),
+				json::pair                           (&Ready::sessionID      , "session_id"      , json::REQUIRIED_FIELD)
+				//This doesn't work anymore
+				//json::pair(&Ready::trace          , json::toArray<std::string>      , "_trace"          , json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 }

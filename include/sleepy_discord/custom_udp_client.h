@@ -12,11 +12,15 @@ namespace SleepyDiscord {
 		inline bool connect(const std::string& to, const uint16_t port) override {
 			return client->connect(to, port);
 		}
-		inline bool    send(const uint8_t* buffer, size_t bufferLength) override {
-			return client->send(buffer, bufferLength);
+		inline void send(
+			const uint8_t* buffer,
+			size_t bufferLength,
+			SendHandler handler = []() {}
+		) override {
+			return client->send(buffer, bufferLength, handler);
 		}
-		inline std::vector<uint8_t> receive(const std::string& from, const uint16_t port) override {
-			return client->receive(from, port);
+		inline void receive(ReceiveHandler handler) override {
+			return client->receive(handler);
 		}
 	private:
 		std::unique_ptr<GenericUDPClient> client;

@@ -5,7 +5,7 @@
 
 namespace SleepyDiscord {
 	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-		origin(client), context(_context), UDP(), sSRC(0), port(0), previousTime(0),
+		origin(client), context(_context), UDP(origin->createUDPClient()), sSRC(0), port(0), previousTime(0),
 		nextTime(0),
 #if !defined(NONEXISTENT_OPUS)
 		encoder(nullptr),
@@ -61,13 +61,16 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processMessage(const std::string &message) {
-		std::vector<std::string> values = json::getValues(message.c_str(),
-			{ "op", "d" });
-		VoiceOPCode op = static_cast<VoiceOPCode>(std::stoi(values[0]));
-		std::string *d = &values[1];
+		//json::Values values = json::getValues(message.c_str(),
+		//	{ "op", "d" });
+		rapidjson::Document values;
+		values.Parse(message.c_str(), message.length());
+
+		VoiceOPCode op = static_cast<VoiceOPCode>(json::toInt(values["op"]));
+		json::Value& d = values["d"];
 		switch (op) {
 		case HELLO: {
-			heartbeatInterval = std::stoi(json::getValue(d->c_str(), "heartbeat_interval"));
+			heartbeatInterval = d["heartbeat_interval"].GetInt();
 
 			//Don't sent a identity during resumes
 			if (state & OPEN)
@@ -95,10 +98,10 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | CONNECTED);
 			break;
 		case READY: {
-			std::vector<std::string> values = json::getValues(d->c_str(),
-			{ "ssrc", "port" });
-			sSRC = std::stoul(values[0]);
-			port = static_cast<uint16_t>(std::stoul(values[1]));
+			//json::Values values = json::getValues(d->c_str(),
+			//{ "ssrc", "port" });
+			sSRC = values["ssrc"].GetUint();
+			port = static_cast<uint16_t>(values["port"].GetUint());
 			//start heartbeating
 			heartbeat();
 			//connect to UDP
@@ -140,12 +143,11 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | State::OPEN);
 			break;
 		case SESSION_DESCRIPTION: {
-			const std::string value = json::getValue(d->c_str(), "secret_key");
-			std::vector<std::string> stringArray = json::getArray(&value);
-			const std::size_t stringArraySize = stringArray.size();
-			for (std::size_t i = 0; i < SECRET_KEY_SIZE && i < stringArraySize; ++i) {
-				if (!stringArray[i].empty())
-					secretKey[i] = std::stoul(stringArray[i]) & 0xFF;
+			const json::Value& secretKeyJSON = d["secret_key"];
+			json::Array secretKeyJSONArray = secretKeyJSON.GetArray();
+			const std::size_t secretKeyJSONArraySize = secretKeyJSONArray.Size();
+			for (std::size_t i = 0; i < SECRET_KEY_SIZE && i < secretKeyJSONArraySize; ++i) {
+					secretKey[i] = secretKeyJSONArray[i].GetUint() & 0xFF;
 			}
 			}
 			state = static_cast<State>(state | State::AUDIO_ENABLED);
@@ -163,7 +165,11 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processCloseCode(const int16_t code) {
-		getDiscordClient().removeVoiceConnectionAndContext(*this);
+		switch (code) {
+		default:
+			getDiscordClient().removeVoiceConnectionAndContext(*this);
+			break;
+		}
 	}
 
 	void VoiceConnection::heartbeat() {
@@ -280,11 +286,12 @@ namespace SleepyDiscord {
 		);
 		previousTime = nextTime;
 		nextTime += interval;
-		const time_t delay = nextTime - origin->getEpochTimeMillisecond();
+		time_t delay = nextTime - origin->getEpochTimeMillisecond();
+		delay = 0 < delay ? delay : 0;
 
-		origin->schedule([this]() {
+		speechTimer = origin->schedule([this]() {
 			this->speak();
-		}, 0 < delay ? delay : 0);
+		}, delay);
 	}
 
 	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {

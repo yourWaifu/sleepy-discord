@@ -251,6 +251,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -267,7 +269,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -284,6 +286,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions>/machine:X64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -429,7 +433,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -447,6 +451,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference />
     <ProjectReference />
@@ -462,7 +468,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -480,6 +486,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions>/machine:X64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference />
     <ProjectReference />
@@ -815,19 +823,6 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\deps\cpr\cpr\auth.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\cookies.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\cprtypes.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\digest.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\error.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\multipart.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\parameters.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\payload.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\proxies.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\session.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
     <ClCompile Include="asignments_client.cpp" />
     <ClCompile Include="asio_udp.cpp" />
     <ClCompile Include="attachment.cpp" />
@@ -856,6 +851,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\asio_include.h" />
     <ClInclude Include="..\include\sleepy_discord\asio_udp.h" />
     <ClInclude Include="..\include\sleepy_discord\attachment.h" />
+    <ClInclude Include="..\include\sleepy_discord\cache.h" />
     <ClInclude Include="..\include\sleepy_discord\channel.h" />
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
@@ -864,6 +860,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\custom_session.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\gateway.h" />
+    <ClInclude Include="..\include\sleepy_discord\json_wrapper.h" />
     <ClInclude Include="..\include\sleepy_discord\message_receiver.h" />
     <ClInclude Include="..\include\sleepy_discord\http.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp" />
@@ -871,6 +868,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\cpr\cpr.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\sodium.h" />
+    <ClInclude Include="..\include\sleepy_discord\rest.h" />
     <ClInclude Include="..\include\sleepy_discord\session.h" />
     <ClInclude Include="..\include\sleepy_discord\snowflake.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
@@ -903,6 +901,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
   <ItemGroup>
     <None Include="..\buildtools\Makefile" />
     <None Include="..\buildtools\Makefile.3ds" />
+    <None Include="..\buildtools\Makefile.linux" />
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

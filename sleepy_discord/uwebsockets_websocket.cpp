@@ -40,10 +40,12 @@ namespace SleepyDiscord {
 			(*static_cast<std::function<void()>*>(timer->getData()))();
 			timer->close();
 		}, milliseconds, 0);
-		return [timer]() {
-			timer->stop();
-			timer->close();
-		};
+		return Timer(
+			[timer]() {
+				timer->stop();
+				timer->close();
+			}
+		);
 	}
 
 	void UWebSocketsDiscordClient::runAsync() {

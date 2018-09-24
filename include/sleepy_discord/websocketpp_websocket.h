@@ -8,6 +8,7 @@
 #include <websocketpp/common/memory.hpp>
 #include "client.h"
 #include "websocketpp_connection.h"
+#include "asio_udp.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
@@ -17,11 +18,14 @@ namespace SleepyDiscord {
 	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = SleepyDiscord::USER_CONTROLED_THREADS);
+		WebsocketppDiscordClient(const std::string token, const char numOfThreads = SleepyDiscord::DEFAULT_THREADS);
 		~WebsocketppDiscordClient();
+
+		using TimerPointer = std::weak_ptr<websocketpp::lib::asio::steady_timer>;
 
 		void run();
 		Timer schedule(TimedTask code, const time_t milliseconds);
+		UDPClient createUDPClient() override;
 	protected:
 #include "standard_config_header.h"
 	private:
