@@ -1,41 +1,6 @@
 #include "channel.h"
 
 namespace SleepyDiscord {
-	//Channel::Channel() : type(CHANNEL_TYPE_NONE), position(0), isNSFW(false), bitrate(0), userLimit(0)
-	//{}
-
-	//Channel::Channel(const std::string * rawJSON) : Channel(json::getValues(rawJSON->c_str(), fields)) {}
-
-	//Channel::Channel(const nonstd::string_view& rawJSON) : Channel(json::getValues(rawJSON.data(), fields)) {}
-
-	//Channel::Channel(const json::Values values) :
-	//	//felid                modifier                       value
-	//	Parent               (                                values[index(fields, "id"                   )]  ),
-	//	type                 (static_cast<ChannelType>(toInt( values[index(fields, "type"                 )]))),
-	//	serverID             (                                values[index(fields, "guild_id"             )]  ),
-	//	position             (toInt                         ( values[index(fields, "position"             )]) ),
-	//	permissionOverwrites (modIfElse(isSpecified, JSON_getArray<Overwrite>, values[index(fields, "permission_overwrites" )], std::vector<Overwrite>())),
-	//	name                 (                                values[index(fields, "name"                 )]  ),
-	//	topic                (                                values[index(fields, "topic"                )]  ),
-	//	isNSFW               (getBool                       ( values[index(fields, "nsfw"                 )]) ),
-	//	lastMessageID        (                                values[index(fields, "last_message_id"      )]  ),
-	//	bitrate              (toInt                         ( values[index(fields, "bitrate"              )]) ),
-	//	userLimit            (toInt                         ( values[index(fields, "user_limit"           )]) ),
-	//	//recipients
-	//	icon                 (                                values[index(fields, "icon"                 )]  ),
-	//	ownerID              (                                values[index(fields, "owner_id"             )]  ),
-	//	//applicationID
-	//	parentID             (                                values[index(fields, "parent_id"            )]  ),
-	//	lastPinTimestamp     (                                values[index(fields, "last_pin_timestamp"   )]  )
-	//{}
-
-	//const std::initializer_list<const char*const> Channel::fields = {
-	//	"id", "type", "guild_id", "position", "permission_overwrites",
-	//	"name", "topic", "nsfw", "last_message_id", "bitrate",
-	//	"user_limit", "recipients", "icon", "owner_id",
-	//	"application_id", "parent_id", "last_pin_timestamp"
-	//};
-
 	Channel::~Channel() {
 
 	}
@@ -48,27 +13,6 @@ namespace SleepyDiscord {
 		Channel(json::fromJSON<Channel>(json)) {
 	}
 
-	//DirectMessageChannel::~DirectMessageChannel() {
-
-	//}
-
-	//DirectMessageChannel::DirectMessageChannel(const std::string * json) : DirectMessageChannel(json::getValues(json->c_str(), fields)) {}
-
-	//DirectMessageChannel::DirectMessageChannel(const std::vector<std::string> values) :
-	//	//variable       modifier value                    felid
-	//	ID             (         values[index(fields, "id"             )] ),
-	//	is_private     ( getBool(values[index(fields, "is_private"     )])),
-	//	recipient      ( User(  &values[index(fields, "recipient"      )])),
-	//	lastMessageID  (         values[index(fields, "last_message_id")] )
-	//{}
-
-	//const std::initializer_list<const char*const> DirectMessageChannel::fields = {
-	//	"id", "is_private", "recipient", "last_message_id"
-	//};
-
-	//Overwrite::Overwrite() : allow(Permission::NONE), deny(Permission::NONE)
-	//{}
-
 	Overwrite::Overwrite(const json::Value& json) :
 		Overwrite(json::fromJSON<Overwrite>(json)) {
 	}
@@ -76,19 +20,4 @@ namespace SleepyDiscord {
 	Overwrite::Overwrite(const nonstd::string_view& json) :
 		Overwrite(json::fromJSON<Overwrite>(json)) {
 	}
-
-	//Overwrite::Overwrite(const std::string * rawJSON) : Overwrite(json::getValues(rawJSON->c_str(), fields)) {}
-
-	//Overwrite::Overwrite(const nonstd::string_view& rawJSON) : Overwrite(json::getValues(rawJSON.data(), fields)) {}
-
-	//Overwrite::Overwrite(const json::Values values) :
-	//	//variable modifier value              felid
-	//	Parent(                        values[index(fields, "id"   )] ),
-	//	type  (                        values[index(fields, "type" )] ),
-	//	allow (toPermission(toLongLong(values[index(fields, "allow")]))),
-	//	deny  (toPermission(toLongLong(values[index(fields, "deny" )])))
-	//{}
-	//const std::initializer_list<const char*const> Overwrite::fields = {
-	//	"id", "type", "allow", "deny"
-	//};
 }
