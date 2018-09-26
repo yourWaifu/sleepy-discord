@@ -252,7 +252,8 @@ namespace SleepyDiscord {
 			return pair<TypeHelper<Type, defaultValue>>(member, name, type);
 		}
 
-		template <template<class...> class TypeHelper = ClassTypeHelper, class Class, class Type>
+		//TO DO: Test to see if the new code can replace the commented below
+		/*template <template<class> class TypeHelper = ClassTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type>> pair(Type Class::*member, const char* name, FieldType type) {
 			return pair<TypeHelper<Type>>(member, name, type);
 		}
@@ -260,6 +261,11 @@ namespace SleepyDiscord {
 		template <template<class, template<class...> class> class TypeHelper, template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
 			return pair<TypeHelper<Type, TypeHelper2>>(member, name, type);
+		}*/
+
+		template <template<class, typename...> class TypeHelper, class... OtherParms, class Class, class Type>
+		constexpr PairImpl<Class, Type, TypeHelper<Type, OtherParms...> pair(Type Class::*mamber, const char* name, FieldType type) {
+			return pair<TypeHelper<Type, OtherParms...>>(member, name, type);
 		}
 
 		//There needs to be a workaround for Visual C++ for this to compile. However, this workaround relys on c++14.
