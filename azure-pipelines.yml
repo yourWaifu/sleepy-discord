@@ -8,7 +8,6 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'Win32'
   buildConfiguration: 'Release'
 
 steps:
@@ -18,13 +17,14 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+#Do both 32 bit and 64 bit
+
+- task: CMake@1
+  inputs:
+    CMakeArgs: -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
