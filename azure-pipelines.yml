@@ -21,7 +21,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    CMakeArgs: -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
 
 - task: VSBuild@1
   inputs:
