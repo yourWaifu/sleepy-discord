@@ -19,6 +19,9 @@ steps:
 
 #Do both 32 bit and 64 bit
 
+- script: perl -v
+  displayName: 'Pre-Build'
+
 - task: CMake@1
   inputs:
     CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
