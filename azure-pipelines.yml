@@ -26,7 +26,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL\"
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL\bin"
 
 - task: VSBuild@1
   inputs:
