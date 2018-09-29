@@ -20,20 +20,13 @@ steps:
 #Do both 32 bit and 64 bit
 
 - script: |
-    choco install nasm -y
+    choco install openssl.light -y
     call RefreshEnv.cmd
-    nasm
-    git clone https://github.com/openssl/openssl.git
-    cd openssl
-    perl Configure VC-WIN32
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
-    nmake
-    nmake install
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL\bin"
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL" -DOPENSSL_LIBRARIES="C:\Program Files\OpenSSL\lib"
 
 - task: VSBuild@1
   inputs:
