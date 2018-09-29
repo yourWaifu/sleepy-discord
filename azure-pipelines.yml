@@ -22,6 +22,7 @@ steps:
 - script: |
     perl -v
     choco
+    choco install nasm
   displayName: 'Pre-Build'
 
 - script: |
