@@ -21,7 +21,7 @@ steps:
 
 - script: |
     choco install nasm
-    refreshenv
+    call RefreshEnv.cmd
     git clone https://github.com/openssl/openssl.git
     cd openssl
     perl Configure VC-WIN32
