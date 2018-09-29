@@ -22,11 +22,11 @@ steps:
 - script: |
     perl -v
     choco
-    choco install nasm
   displayName: 'Pre-Build'
 
 - script: |
-    ":\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
+    choco install nasm
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
     git clone https://github.com/openssl/openssl.git
     cd openssl
     perl Configure VC-WIN32
