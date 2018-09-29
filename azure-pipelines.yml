@@ -10,6 +10,7 @@ variables:
   solution: 'build/*.sln'
   buildConfiguration: 'Release'
 
+steps:
 #Do both 32 bit and 64 bit
 
 - script: |
