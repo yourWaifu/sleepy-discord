@@ -20,7 +20,7 @@ steps:
 #Do both 32 bit and 64 bit
 
 - script: |
-    choco install openssl.light -y
+    choco install openssl.light --x86 -y
     call RefreshEnv.cmd
   displayName: 'OpenSSL Install'
 
