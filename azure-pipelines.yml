@@ -23,7 +23,8 @@ steps:
   displayName: 'Pre-Build'
 
 - script: |
-    git https://github.com/openssl/openssl.git
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+    git clone https://github.com/openssl/openssl.git
     cd openssl
     perl Configure VC-WIN32
     nmake
