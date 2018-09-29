@@ -19,11 +19,13 @@ steps:
 
 #Do both 32 bit and 64 bit
 
-- script: perl -v
+- script: |
+    perl -v
+    choco
   displayName: 'Pre-Build'
 
 - script: |
-    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
+    ":\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
     git clone https://github.com/openssl/openssl.git
     cd openssl
     perl Configure VC-WIN32
