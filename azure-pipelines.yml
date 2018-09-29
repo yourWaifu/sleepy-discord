@@ -22,12 +22,12 @@ steps:
 - script: perl -v
   displayName: 'Pre-Build'
 
-- script: 
-git https://github.com/openssl/openssl.git
-cd openssl
-perl Configure VC-WIN32
-nmake
-nmake install
+- script: |
+    git https://github.com/openssl/openssl.git
+    cd openssl
+    perl Configure VC-WIN32
+    nmake
+    nmake install
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
