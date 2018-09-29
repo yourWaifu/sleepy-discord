@@ -7,15 +7,8 @@ pool:
   vmImage: 'VS2017-Win2016'
 
 variables:
-  solution: '**/*.sln'
+  solution: 'build/*.sln'
   buildConfiguration: 'Release'
-
-steps:
-- task: NuGetToolInstaller@0
-
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
 
 #Do both 32 bit and 64 bit
 
@@ -33,7 +26,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x64-windows-static"
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static"
 
 - task: VSBuild@1
   inputs:
