@@ -28,7 +28,7 @@ steps:
 
 - script: |
     cd vcpkg
-    .\vcpkg install openssl-windows:x86
+    .\vcpkg install openssl-windows:x86-windows-static
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
