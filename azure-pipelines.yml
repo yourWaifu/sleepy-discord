@@ -20,11 +20,6 @@ steps:
 #Do both 32 bit and 64 bit
 
 - script: |
-    perl -v
-    choco -?
-  displayName: 'Pre-Build'
-
-- script: |
     choco install nasm
     git clone https://github.com/openssl/openssl.git
     cd openssl
