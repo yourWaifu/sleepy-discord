@@ -8,7 +8,7 @@ pool:
 
 variables:
   solution: 'build/*.sln'
-  buildPlatform: x86
+  buildPlatform: Win32
   buildConfiguration: 'Release'
 
 steps:
