@@ -20,8 +20,15 @@ steps:
 #Do both 32 bit and 64 bit
 
 - script: |
-    choco install openssl.light --x86 -y
-    call RefreshEnv.cmd
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    .\bootstrap-vcpkg.bat
+    cd
+  displayName: 'vcpkg setup'
+
+- script: |
+    cd
+    .\vcpkg install openssl-windows
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
