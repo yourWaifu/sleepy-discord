@@ -21,7 +21,7 @@ steps:
 
 - script: |
     perl -v
-    choco
+    choco -?
   displayName: 'Pre-Build'
 
 - script: |
