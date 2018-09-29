@@ -20,7 +20,7 @@ steps:
 #Do both 32 bit and 64 bit
 
 - script: |
-    choco install nasm
+    choco install nasm -y
     call RefreshEnv.cmd
     git clone https://github.com/openssl/openssl.git
     cd openssl
