@@ -130,11 +130,13 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct ServerCache : public std::list<Server> {
+	class ServerCache : public std::list<Server> {
+	public:
 		using std::list<Server>::list;
 		ServerCache() : list() {} //for some odd reason the default constructor isn't inherited
 		ServerCache(std::list<Server> list) : std::list<Server>(list) {}
 
+		//Linear time complexity if unordered map: to do figure out how to do this with constant time complexity
 		template<class Container, class Object>
 		iterator findOnetWithObject(Container Server::*list, const Snowflake<Object>& objectID) {
 			return std::find_if(begin(), end(), [&objectID, list](Server& server) {
@@ -151,6 +153,7 @@ namespace SleepyDiscord {
 			return findOnetWithObject(&Server::roles, roleID);
 		}
 
+		//Linear time complexity
 		inline iterator findServer(const Snowflake<Server> serverID) {
 			return std::find_if(begin(), end(), [&serverID](Server& server) {
 				return server.ID == serverID;

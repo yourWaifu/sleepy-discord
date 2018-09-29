@@ -453,7 +453,7 @@ namespace SleepyDiscord {
 				User user = d["user"];
 				std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
 				std::string nick = json::toStdString(d["nick"]);
-				if (serverCache) {
+				/*if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end()) {
 						auto foundMember = server->findMember(userID);
@@ -464,7 +464,12 @@ namespace SleepyDiscord {
 							member.nick = nick;
 						}
 					}
-				}
+				}*/
+				AccessObjectFromCache(serverID, Server::members, userID, [user, roles, nick](ServerMember& member) {
+					member.user = user;
+					member.roles = roles;
+					member.nick = nick;
+				});
 				onEditMember(serverID, user, roles, nick);
 				} break;
 			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;

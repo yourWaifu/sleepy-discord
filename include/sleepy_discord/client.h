@@ -457,6 +457,22 @@ namespace SleepyDiscord {
 		void connectToVoiceIfReady(VoiceContext& context);
 		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif
+
+		template<class Type, class Container, class Callback>
+		void BaseDiscordClient::accessObjectFromCache(
+			Snowflake<Server> serverID, Container Server::* container, Type ID, Callback callback
+		) {
+			if (serverCache) {
+				ServerCache::iterator server = serverCache->findServer(serverID);
+				if (server != serverCache->end()) {
+					auto found = ID.findObject(server->container);
+					if (found != server->container.end()) {
+						callback(*found);
+					}
+				}
+			}
+		}
+
 	};
 
 	//inline BaseDiscordClient::AssignmentType operator|(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
