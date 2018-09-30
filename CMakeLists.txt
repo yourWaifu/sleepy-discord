@@ -99,6 +99,11 @@ if(USE_LIBSODIUM)
 	)
 endif()
 
+# For CI for Windows, we need to add extra includes
+if(SLEEPY_ADDITIONAL_DIRS)
+	include_directories(SLEEPY_ADDITIONAL_DIRS)
+endif()
+
 # Add Subdirectories
 add_subdirectory(sleepy_discord)
 if (BUILD_SLEEPY_DISCORD_EXAMPLES)
