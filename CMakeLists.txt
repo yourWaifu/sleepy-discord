@@ -100,8 +100,8 @@ if(USE_LIBSODIUM)
 endif()
 
 # For CI for Windows, we need to add extra includes
-if(SLEEPY_ADDITIONAL_DIRS)
-	include_directories(SLEEPY_ADDITIONAL_DIRS)
+if(SLEEPY_ADDITIONAL_INCLUDE_DIRS)
+	include_directories(SLEEPY_ADDITIONAL_INCLUDE_DIRS)
 endif()
 
 # Add Subdirectories
