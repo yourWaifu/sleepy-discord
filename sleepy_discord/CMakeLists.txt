@@ -52,7 +52,9 @@ endif()
 
 if(USE_WEBSOCKETPP)
 	target_include_directories(sleepy-discord PUBLIC ${websocketpp_SOURCE_DIR})
-	target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
+	if (UNIX)
+		target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
+	endif()
 endif()
 
 if(USE_UWEBSOCKETS)
