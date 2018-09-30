@@ -19,6 +19,7 @@ steps:
     cd vcpkg
     .\bootstrap-vcpkg.bat
     .\vcpkg integrate install
+    call RefreshEnv.cmd
   displayName: 'Vcpkg Setup'
 
 - script: |
