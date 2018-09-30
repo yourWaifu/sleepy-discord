@@ -36,3 +36,4 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: /property:IncludeDirectories="$(IncludeDirectories);D:\a\1\s\vcpkg\installed\x86-windows-static\include";
