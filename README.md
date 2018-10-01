@@ -3,6 +3,12 @@ C++ library for Discord
 
 Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would normally pronounce sleepy.
 
+## Build Status
+| OS | Windows | Ubuntu
+| ------ | ------- | ------
+| Master   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=master)](https://dev.azure.com/wuhao64/sleepy-discord/_build/?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg?branch=master)](https://travis-ci.org/yourWaifu/sleepy-discord)
+| Develop   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=develop)](https://dev.azure.com/wuhao64/sleepy-discord/_build/latest?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg)](https://travis-ci.org/yourWaifu/sleepy-discord)
+
 # [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
 [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/compile.html.md "Edit Documentation") [How to Compile](https://yourwaifu.github.io/sleepy-discord/compile.html)<br />
 [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/link.html.md "Edit Documentation") [How To Link](https://yourwaifu.github.io/sleepy-discord/link.html)<br />
