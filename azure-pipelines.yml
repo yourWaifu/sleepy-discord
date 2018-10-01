@@ -7,24 +7,32 @@ pool:
   vmImage: 'VS2017-Win2016'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
+  solution: 'build/*.sln'
+  buildPlatform: Win32
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
+#Do both 32 bit and 64 bit
 
-- task: NuGetCommand@2
+- script: |
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    .\bootstrap-vcpkg.bat
+    .\vcpkg integrate install
+    call RefreshEnv.cmd
+  displayName: 'Vcpkg Setup'
+
+- script: |
+    cd vcpkg
+    .\vcpkg install openssl-windows:x86-windows-static
+  displayName: 'OpenSSL Install'
+
+- task: CMake@1
   inputs:
-    restoreSolution: '$(solution)'
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
 
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
