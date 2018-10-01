@@ -1,3 +1,0 @@
-repository='https://github.com/zaphoyd/websocketpp.git'
-module=''
-tag=''

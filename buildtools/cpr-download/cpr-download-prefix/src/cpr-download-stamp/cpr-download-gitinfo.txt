@@ -1,3 +1,0 @@
-repository='https://github.com/whoshuu/cpr.git'
-module=''
-tag=''
