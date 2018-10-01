@@ -1,4 +1,5 @@
 #pragma once
+#include <tuple>
 #include "user.h"
 #include "attachment.h"
 #include "embed.h"
@@ -14,60 +15,84 @@ namespace SleepyDiscord {
 	struct Emoji : public IdentifiableDiscordObject<Emoji> {
 	public:
 		~Emoji();
-		Emoji();
-		Emoji(const std::string* rawJson);
-		Emoji(const std::vector<std::string> values);
+		Emoji() = default;
+		//Emoji(const std::string* rawJson);
+		Emoji(const json::Value & rawJSON);
+		Emoji(const nonstd::string_view& json);
+		//Emoji(const json::Values values);
 		std::string name;
 		std::vector<Role> roles;
 		User user;	//optional
-		bool requireColons;
-		bool managed;
-	private:
-		const static std::initializer_list<const char*const> fields;
+		bool requireColons = false;
+		bool managed = false;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&Emoji::ID           , "id"            , json::NULLABLE_FIELD ),
+				json::pair                           (&Emoji::name         , "name"          , json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Emoji::roles        , "roles"         , json::OPTIONAL_FIELD ),
+				json::pair                           (&Emoji::user         , "user"          , json::OPTIONAL_FIELD ),
+				json::pair                           (&Emoji::requireColons, "require_colons", json::OPTIONAL_FIELD ),
+				json::pair                           (&Emoji::managed      , "managed"       , json::OPTIONAL_FIELD )
+			);
+		JSONStructEnd
 	};
 	
 	struct Reaction : public DiscordObject {
 	public:
-		Reaction();
+		Reaction() = default;
 		~Reaction();
-		Reaction(const std::string * rawJson);
-		Reaction(const std::vector<std::string> values);
-		int count;
-		bool me;
+		//Reaction(const std::string * rawJson);
+		Reaction(const json::Value & rawJSON);
+		Reaction(const nonstd::string_view & json);
+		//Reaction(const json::Values values);
+		int count = 0;
+		bool me = false;
 		Emoji emoji;
-	private:
-		const static std::initializer_list<const char*const> fields;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&Reaction::count, "count", json::REQUIRIED_FIELD),
+				json::pair(&Reaction::me   , "me"   , json::REQUIRIED_FIELD),
+				json::pair(&Reaction::emoji, "emoji", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 
 	class BaseDiscordClient;
 
 	struct Message : public IdentifiableDiscordObject<Message> {
 	public:
-		Message();
+		Message() = default;
 		~Message();
-		Message(const std::vector<std::string> values);
-		Message(const std::string * rawJson);
+		//Message(const json::Values values);
+		//Message(const std::string * rawJson);
+		Message(const json::Value& json);
+		Message(const nonstd::string_view& json);
+		//using DiscordObject::DiscordObject;
 		bool startsWith(const std::string& test);
 		std::size_t length();
 		bool isMentioned(Snowflake<User> ID);
 		bool isMentioned(User& _user);
 		Message send(BaseDiscordClient * client);
-		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
+		Message reply(BaseDiscordClient * client, std::string message, Embed embed = Embed(), bool tts = false);
 
 		Snowflake<Channel> channelID;
 		User author;
 		std::string content;
 		std::string timestamp;
 		std::string editedTimestamp;
-		bool tts;
-		bool mentionEveryone;
+		bool tts = false;
+		bool mentionEveryone = false;
 		std::vector<User> mentions;
 		std::vector<Snowflake<User>> mentionRoles;
 		std::vector<Attachment> attachments;
 		std::vector<Embed> embeds;
 		std::vector<Reaction> reactions;
-		int64_t nonce;	//nullable
-		bool pinned;
+		int64_t nonce = 0;	//nullable
+		bool pinned = false;
 		Snowflake<Webhook> webhookID;
 		enum MessageType {
 			DEFAULT                = 0,
@@ -78,8 +103,29 @@ namespace SleepyDiscord {
 			CHANNEL_ICON_CHANGE    = 5,
 			CHANNEL_PINNED_MESSAGE = 6,
 			GUILD_MEMBER_JOIN      = 7
-		} type;
-	private:
-		const static std::initializer_list<const char*const> fields;
+		} type = DEFAULT;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&Message::ID             , "id"              , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::channelID      , "channel_id"      , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::author         , "author"          , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::content        , "content"         , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::timestamp      , "timestamp"       , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::editedTimestamp, "edited_timestamp", json::NULLABLE_FIELD         ),
+				json::pair                           (&Message::tts            , "tts"             , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::mentionEveryone, "mention_everyone", json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::mentions       , "mentions"        , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::mentionRoles   , "mention_roles"   , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::attachments    , "attachments"     , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::embeds         , "embeds"          , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::reactions      , "reactions"       , json::OPTIONAL_FIELD         ),
+				json::pair                           (&Message::nonce          , "nonce"           , json::OPTIONAL_NULLABLE_FIELD),
+				json::pair                           (&Message::pinned         , "pinned"          , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::webhookID      , "webhook_id"      , json::OPTIONAL_FIELD         ),
+				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        )
+			);
+		JSONStructEnd
 	};
 }

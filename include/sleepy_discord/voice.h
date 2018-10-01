@@ -10,20 +10,33 @@ namespace SleepyDiscord {
 	struct User;
 
 	struct VoiceState : public DiscordObject {
-		VoiceState();
-		VoiceState(const std::string * rawJson);
-		VoiceState(const std::vector<std::string> values);
+		VoiceState() = default;
+		//VoiceState(const std::string * rawJson);
+		VoiceState(const nonstd::string_view & rawJSON);
+		VoiceState(const json::Value& json);
+		//VoiceState(const json::Values values);
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
 		Snowflake<User> userID;
 		std::string sessionID;
-		bool deaf;
-		bool mute;
-		bool selfDeaf;
-		bool selfMute;
-		bool suppress;
-	private:
-		const static std::initializer_list<const char*const> fields;
+		bool deaf = false;
+		bool mute = false;
+		bool selfDeaf = false;
+		bool selfMute = false;
+		bool suppress = false;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&VoiceState::serverID , "guild_id"  , json::OPTIONAL_FIELD ),
+				json::pair(&VoiceState::channelID, "channel_id", json::NULLABLE_FIELD ),
+				json::pair(&VoiceState::userID   , "user_id"   , json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::sessionID, "session_id", json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::deaf     , "deaf"      , json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::mute     , "mute"      , json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::selfDeaf , "self_deaf" , json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::selfMute , "self_mute" , json::REQUIRIED_FIELD),
+				json::pair(&VoiceState::suppress , "suppress"  , json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 
 	/*
@@ -39,19 +52,27 @@ namespace SleepyDiscord {
 	custom          bool    whether this is a custom voice region (used for events/etc)
 	*/
 	struct VoiceRegion : IdentifiableDiscordObject<VoiceRegion> {
-		VoiceRegion();
-		VoiceRegion(const std::string * rawJson);
-		VoiceRegion(const std::vector<std::string> values);
+		VoiceRegion() = default;
+		//VoiceRegion(const std::string * rawJson);
+		VoiceRegion(const nonstd::string_view & rawJSON);
+		VoiceRegion(const json::Value& json);
+		//VoiceRegion(const json::Values values);
 		std::string name;
-		std::string sampleHostname;
-		int samplePort;
-		bool vip;
-		bool optimal;
-		bool deprecated;
-		bool custom;
-
-	private:
-		const static std::initializer_list<const char*const> fields;
+		bool vip = false;
+		bool optimal = false;
+		bool deprecated = false;
+		bool custom = false;
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&VoiceRegion::ID            , "id"        , json::REQUIRIED_FIELD),
+				json::pair(&VoiceRegion::name          , "name"      , json::REQUIRIED_FIELD),
+				json::pair(&VoiceRegion::vip           , "vip"       , json::REQUIRIED_FIELD),
+				json::pair(&VoiceRegion::optimal       , "optimal"   , json::REQUIRIED_FIELD),
+				json::pair(&VoiceRegion::deprecated    , "deprecated", json::REQUIRIED_FIELD),
+				json::pair(&VoiceRegion::custom        , "custom"    , json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 
 	/*
@@ -62,13 +83,21 @@ namespace SleepyDiscord {
 	endpoint  string     the voice server host
 	*/
 	struct VoiceServerUpdate : DiscordObject {
-		VoiceServerUpdate();
-		VoiceServerUpdate(const std::string * rawJson);
-		VoiceServerUpdate(const std::vector<std::string> values);
+		VoiceServerUpdate() = default;
+		//VoiceServerUpdate(const std::string * rawJson);
+		VoiceServerUpdate(const nonstd::string_view & rawJSON);
+		VoiceServerUpdate(const json::Value& json);
+		//VoiceServerUpdate(const json::Values values);
 		std::string token;
 		Snowflake<Server> serverID;
 		std::string endpoint;
-	private:
-		const static std::initializer_list<const char*const> fields;
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&VoiceServerUpdate::token   , "token"   , json::REQUIRIED_FIELD),
+				json::pair(&VoiceServerUpdate::serverID, "guild_id", json::REQUIRIED_FIELD),
+				json::pair(&VoiceServerUpdate::endpoint, "endpoint", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 }

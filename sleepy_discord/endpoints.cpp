@@ -18,8 +18,16 @@ namespace SleepyDiscord {
 	//
 	//channel functions
 	//
-	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, bool tts) {
-		return request(Post, path("channels/{channel.id}/messages", { channelID }), "{\"content\":\"" + message + (tts ? "\",\"tts\":\"true\"" : "\"") + "}");
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, bool tts) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		rapidjson::Value content;
+		auto& allocator = doc.GetAllocator();
+		content.SetString(message.c_str(), message.length());
+		doc.AddMember("content", content, allocator);
+		if (tts == true) doc.AddMember("tts", true, allocator);
+		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
+		return request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringify(doc));
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message) {
@@ -34,8 +42,8 @@ namespace SleepyDiscord {
 		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), "{\"content\": \"" + newMessage + "\"}");
 	}
 
-	BooleanResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
-		return request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }));
+	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+		return { request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID })), EmptyRespFn() };
 	}
 
 	bool BaseDiscordClient::bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs) {
@@ -219,6 +227,19 @@ namespace SleepyDiscord {
 		}));
 	}
 
+	bool BaseDiscordClient::editMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname, std::vector<Snowflake<Role>> roles, int8_t mute, int8_t deaf, Snowflake<Channel> channelID) {
+		const std::string muteString = mute == -1 ? json::boolean(mute) : "";
+		const std::string deafString = deaf == -1 ? json::boolean(deaf) : "";
+
+		return request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), json::createJSON({
+			{ "nick"      , json::string(nickname)       },
+			{ "roles"     , json::createJSONArray(roles) },
+			{ "mute"      , muteString                   },
+			{ "deaf"      , deafString                   },
+			{ "channel_id", channelID                    },
+		})).statusCode == NO_CONTENT;;
+	}
+
 	ArrayResponse<Role> BaseDiscordClient::editRolePosition(Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions) {
 		return request(Patch, path("guilds/{guild.id}/roles", { serverID }), getEditPositionString(positions));
 	}
@@ -245,6 +266,20 @@ namespace SleepyDiscord {
 	bool BaseDiscordClient::muteServerMember(Snowflake<Server> serverID, Snowflake<User> userID, bool mute) {
 		return request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), mute ? "{\"mute\":true}" : "{\"mute\":false}").statusCode == NO_CONTENT;
 	}
+
+	//needs ablily to turn channel into json
+	/*ObjectResponse<Server> BaseDiscordClient::createServer(std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, int explicitContentLevel, std::vector<Role> roles, std::vector<Channel> channels) {
+		request(Post, "guilds", json::createJSON({
+			{ "name"                         , json::string (name) },
+			{ "region"                       , json::string(region) },
+			{ "icon"                         , json::string(icon) },
+			{ "verification_level"           , json::integer(verificationLevel) },
+			{ "default_message_notifications", json::integer(defaultMessageNotifications) },
+			{ "explicit_content_filter"      , json::integer(explicitContentLevel) },
+			{ "roles"                        , json::createJSONArray(roles) },
+			{ "channels"                     , json::createJSONArray(channels) }
+		}));
+	}*/
 
 	ObjectResponse<Server> BaseDiscordClient::getServer(Snowflake<Server> serverID) {
 		return request(Get, path("guilds/{guild.id}", { serverID }));

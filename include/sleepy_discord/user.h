@@ -20,10 +20,12 @@ namespace SleepyDiscord {
 	*/
 	struct User : public IdentifiableDiscordObject<User> {
 	public:
-		~User();
-		User();
-		User(const std::string * rawJSON);
-		User(const std::vector<std::string> values);
+		User() = default;
+		//~User();
+		//User(const std::string * rawJSON);
+		User(const nonstd::string_view & json);
+		User(const json::Value& json);
+		//User(const json::Values values);
 		std::string username;
 		std::string discriminator;
 		std::string avatar;			//base64 encoded jpeg image
@@ -32,34 +34,21 @@ namespace SleepyDiscord {
 		bool mfa_enabled = false;	//true if two-factor authentication is enabled
 		bool verified = false;		//true if email has been verified
 		std::string email = "";
-	private:
-		const static std::initializer_list<const char*const> fields;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&User::ID           , "id"           , json::REQUIRIED_FIELD),
+				json::pair(&User::username     , "username"     , json::REQUIRIED_FIELD),
+				json::pair(&User::discriminator, "discriminator", json::REQUIRIED_FIELD),
+				json::pair(&User::avatar       , "avatar"       , json::NULLABLE_FIELD ),
+				json::pair(&User::bot          , "bot"          , json::OPTIONAL_FIELD ),
+				json::pair(&User::mfa_enabled  , "mfa_enabled"  , json::OPTIONAL_FIELD ),
+				json::pair(&User::verified     , "verified"     , json::OPTIONAL_FIELD ),
+				json::pair(&User::email        , "email"        , json::OPTIONAL_FIELD )
+			);
+		JSONStructEnd
 	};
-
-	/*
-	User Guild Structure    A brief version of a guild object
-
-	Field	Type	Description
-	id	snowflake	guild.id
-	name	string	guild.name
-	icon	string	guild.icon
-	owner	bool	true if the user is an owner of the guild
-	permissions	integer	bitwise of the user's enabled/disabled permissions
-	*/
-	struct ServerUser : public IdentifiableDiscordObject<ServerUser> {
-	public:
-		ServerUser();
-		ServerUser(const std::string * rawJSON);
-		ServerUser(const std::vector<std::string> values);
-		std::string name;
-		std::string icon;
-		bool owner;
-		Permission permissions;
-	private:
-		const static std::initializer_list<const char*const> fields;
-	};
-
-	typedef ServerUser UserServer; //useful for intellisense
 
 	/*Connection Structure  The connection object that the user has attached.
 
@@ -72,13 +61,23 @@ namespace SleepyDiscord {
 	*/
 	struct Connection : public IdentifiableDiscordObject<Connection> {
 	public:
-		Connection();
-		Connection(const std::string * rawJSON);
-		Connection(const std::vector<std::string> values);
+		Connection() = default;
+		//Connection(const std::string * rawJSON);
+		Connection(const nonstd::string_view & json);
+		Connection(const json::Value& json);
+		//Connection(const json::Values values);
 		std::string name;
 		std::string type;
 		bool revoked;
-	private:
-		const static std::initializer_list<const char*const> fields;
+
+		//const static std::initializer_list<const char*const> fields;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&Connection::ID     , "id"     , json::REQUIRIED_FIELD),
+				json::pair(&Connection::name   , "name"   , json::REQUIRIED_FIELD),
+				json::pair(&Connection::type   , "type"   , json::REQUIRIED_FIELD),
+				json::pair(&Connection::revoked, "revoked", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 }

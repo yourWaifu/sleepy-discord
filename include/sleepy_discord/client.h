@@ -81,14 +81,14 @@ namespace SleepyDiscord {
 		enum GetMessagesKey {na, around, before, after, limit};
 		ArrayResponse <Message     > getMessages             (Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t limit = 0);
 		ObjectResponse<Message     > getMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID);                                                    //to do add more then one message return
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, bool tts = false);
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, bool tts = false);
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message);
 		bool                         addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 		bool                         removeReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID = "@me");
 		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
 		void                         removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID);
 		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
-		BooleanResponse              deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID);
+		BoolResponse                 deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID);
 		bool                         bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs);
 		/*allow is a bitwise value of all allowed permissions
 		deny is a bitwise value of all deisallowed permissions
@@ -302,49 +302,43 @@ namespace SleepyDiscord {
 		RELATIONSHIP_REMOVE
 		* event that hasn't been added
 		*/
-		virtual void onReady             (Ready        readyData    );
-		virtual void onResumed           (std::string* jsonMessage  );
-		virtual void onDeleteServer      (std::string* jsonMessage  );
-		virtual void onEditServer        (std::string* jsonMessage  );
-		virtual void onBan               (std::string* jsonMessage  );
-		virtual void onUnban             (std::string* jsonMessage  );
-		virtual void onMember            (std::string* jsonMessage  );
-		virtual void onRemoveMember      (std::string* jsonMessage  );
-		virtual void onDeleteMember      (std::string* jsonMessage  );
-		virtual void onEditMember        (std::string* jsonMessage  );
-		virtual void onRole              (std::string* jsonMessage  );
-		virtual void onDeleteRole        (std::string* jsonMessage  );
-		virtual void onEditRole          (std::string* jsonMessage  );
-		virtual void onEditEmojis        (std::string* jsonMessage  );
-		virtual void onMemberChunk       (std::string* jsonMessage  );
-		virtual void onDeleteChannel     (std::string* jsonMessage  );
-		virtual void onEditChannel       (std::string* jsonMessage  );
-		virtual void onPinMessage        (std::string* jsonMessage);
-		virtual void onPresenceUpdate    (std::string* jsonMessage  );
-		virtual void onEditUser          (std::string* jsonMessage  );
-		virtual void onEditUserNote      (std::string* jsonMessage  );
-		virtual void onEditUserSettings  (std::string* jsonMessage  );
-		virtual void onEditVoiceState    (VoiceState state          );
-		virtual void onTyping            (std::string* jsonMessage  );
-		virtual void onDeleteMessage     (std::string* jsonMessage  );
-		virtual void onEditMessage       (std::string* jsonMessage  );
-		virtual void onBulkDelete        (std::string* jsonMessage  );
-		virtual void onServerSync        (std::string* jsonMessage  );
-		virtual void onRelationship      (std::string* jsonMessage  );
-		virtual void onRemoveRelationship(std::string* jsonMessage  );
-		virtual void onDeleteRelationship(std::string* jsonMessage  );
-		virtual void onReaction          (std::string* jsonMessage  );
-		virtual void onRemoveReaction    (std::string* jsonMessage  );
-		virtual void onDeleteReaction    (std::string* jsonMessage  );
-		virtual void onRemoveAllReaction (std::string* jsonMessage  );
-		virtual void onDeleteAllReaction (std::string* jsonMessage  );
-		virtual void onMessage           (Message message           );
-		virtual void onEditedMessage     (std::string* jsonMessage  );
-		virtual void onServer            (Server server             );
-		virtual void onChannel           (std::string* jsonMessage  );
-		virtual void onEditedRole        (std::string* jsonMessage  );
-		virtual void onDispatch          (std::string* jsonMessage  );
-		virtual void onEditVoiceServer   (VoiceServerUpdate update);
+		//TODO: use references, using them now will break other's code
+		virtual void onReady             (Ready              readyData  );
+		virtual void onResumed           (const json::Value& jsonMessage);
+		virtual void onDeleteServer      (UnavailableServer  server);
+		virtual void onEditServer        (Server             server);
+		virtual void onBan               (Snowflake<Server> serverID, User user);
+		virtual void onUnban             (Snowflake<Server> serverID, User user);
+		virtual void onMember            (Snowflake<Server> serverID, ServerMember member);
+		virtual void onRemoveMember      (Snowflake<Server> serverID, User user);
+		virtual void onEditMember        (Snowflake<Server> serverID, User user, std::vector<Snowflake<Role>> roles, std::string nick);
+		virtual void onRole              (Snowflake<Server> serverID, Role role);
+		virtual void onDeleteRole        (Snowflake<Server> serverID, Snowflake<Role> roleID);
+		virtual void onEditRole          (Snowflake<Server> serverID, Role role);
+		virtual void onEditEmojis        (Snowflake<Server> serverID, std::vector<Emoji> emojis);
+		virtual void onMemberChunk       (const json::Value& jsonMessage);
+		virtual void onDeleteChannel     (Channel channel);
+		virtual void onEditChannel       (Channel channel);
+		virtual void onPinMessage        (const json::Value& jsonMessage);
+		virtual void onPresenceUpdate    (const json::Value& jsonMessage);
+		virtual void onEditUser          (User user);
+		virtual void onEditUserNote      (const json::Value& jsonMessage);
+		virtual void onEditUserSettings  (const json::Value& jsonMessage);
+		virtual void onEditVoiceState    (VoiceState&        state      );
+		virtual void onTyping            (Snowflake<Channel> channelID, Snowflake<User> userID, time_t timestamp);
+		virtual void onDeleteMessages    (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messages);
+		virtual void onEditMessage       (const json::Value& jsonMessage);
+		virtual void onEditVoiceServer   (VoiceServerUpdate& update     );
+		virtual void onServerSync        (const json::Value& jsonMessage);
+		virtual void onRelationship      (const json::Value& jsonMessage);
+		virtual void onDeleteRelationship(const json::Value& jsonMessage);
+		virtual void onReaction          (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
+		virtual void onDeleteReaction    (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
+		virtual void onDeleteAllReaction (Snowflake<Channel> channelID, Snowflake<Message> messageID);
+		virtual void onMessage           (Message            message    );
+		virtual void onServer            (Server             server     );
+		virtual void onChannel           (Channel            channel    );
+		virtual void onDispatch          (const json::Value& jsonMessage);
 
 		//websocket stuff
 		virtual void onHeartbeat();

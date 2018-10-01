@@ -5,18 +5,22 @@
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 #include <stdexcept>
 #endif
+#include "nonstd/string_view.hpp"
+#include "json_wrapper.h"
 
 namespace SleepyDiscord {
 	//Stops you from mixing up different types of ids, like using a message_id as a user_id
 	template <typename DiscordObject>
 	struct Snowflake {
-		Snowflake(                                         ) : raw(""        ) {}
-		Snowflake(const std::string             & snow     ) : raw( snow     ) {}
-		Snowflake(const std::string             * snow     ) : raw(*snow     ) {}
-		Snowflake(const char                    * snow     ) : raw( snow     ) {}
-		Snowflake(const DiscordObject           & object   ) : Snowflake(object. ID) {}
-		Snowflake(const DiscordObject           * object   ) : Snowflake(object->ID) {}
-		Snowflake(const int64_t                   number   ) : Snowflake(std::to_string(number)) {}
+		Snowflake(                                  ) : raw(""                            ) {}
+		Snowflake(const std::string         & snow  ) : raw( snow                         ) {}
+		Snowflake(const std::string         * snow  ) : raw(*snow                         ) {}
+		Snowflake(const char                * snow  ) : raw( snow                         ) {}
+		Snowflake(const nonstd::string_view & snow  ) : raw( snow.to_string(             )) {}
+		Snowflake(const DiscordObject       & object) : Snowflake(object. ID              ) {}
+		Snowflake(const DiscordObject       * object) : Snowflake(object->ID              ) {}
+		Snowflake(const int64_t               number) : Snowflake(std::to_string(number  )) {}
+		Snowflake(const json::Value         & value ) : Snowflake(json::toStdString(value)) {}
 
 		inline bool operator==(const Snowflake& right) const {
 			return raw == right.raw;
@@ -49,7 +53,7 @@ namespace SleepyDiscord {
 		template<class iterator>
 		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {
-				return this->operator==(object.ID);
+				return this->operator==(static_cast<DiscordObject>(object));
 			});
 		}
 

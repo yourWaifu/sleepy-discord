@@ -12,7 +12,6 @@ add_library(sleepy-discord
 	gateway.cpp
 	http.cpp
 	invite.cpp
-	json.c
 	json_wrapper.cpp
 	message.cpp
 	permissions.cpp
@@ -52,7 +51,12 @@ endif()
 
 if(USE_WEBSOCKETPP)
 	target_include_directories(sleepy-discord PUBLIC ${websocketpp_SOURCE_DIR})
-	target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
+	if (WIN32)
+		find_package(OpenSSL REQUIRED)
+		target_link_libraries(sleepy-discord PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+	elseif (UNIX)
+		target_link_libraries(sleepy-discord PUBLIC ssl crypto Threads::Threads)
+	endif()
 endif()
 
 if(USE_UWEBSOCKETS)

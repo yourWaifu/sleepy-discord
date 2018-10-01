@@ -5,158 +5,134 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onResumed(std::string * jsonMessage) {
+	void BaseDiscordClient::onResumed(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onDeleteServer(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteServer(UnavailableServer server) {
 
 	}
 
-	void BaseDiscordClient::onEditServer(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditServer(Server server) {
 
 	}
 
-	void BaseDiscordClient::onBan(std::string * jsonMessage) {
+	void BaseDiscordClient::onBan(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onUnban(std::string * jsonMessage) {
+	void BaseDiscordClient::onUnban(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onMember(std::string * jsonMessage) {
+	void BaseDiscordClient::onMember(Snowflake<Server> serverID, ServerMember member) {
 
 	}
 
-	void BaseDiscordClient::onRemoveMember(std::string * jsonMessage) {
-
-	}
-	
-	void BaseDiscordClient::onDeleteMember(std::string * jsonMessage) {
+	void BaseDiscordClient::onRemoveMember(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onEditMember(std::string * jsonMessage) {
+
+	void BaseDiscordClient::onEditMember(Snowflake<Server> serverID, User user, std::vector<Snowflake<Role>> roles, std::string nick) {
 
 	}
 
-	void BaseDiscordClient::onRole(std::string * jsonMessage) {
+	void BaseDiscordClient::onRole(Snowflake<Server> serverID, Role role) {
 
 	}
 
-	void BaseDiscordClient::onDeleteRole(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteRole(Snowflake<Server> serverID, Snowflake<Role> roleID) {
 
 	}
 
-	void BaseDiscordClient::onEditRole(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditRole(Snowflake<Server> serverID, Role role) {
 
 	}
 
-	void BaseDiscordClient::onEditEmojis(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditEmojis(Snowflake<Server> serverID, std::vector<Emoji> emojis) {
 
 	}
 
-	void BaseDiscordClient::onMemberChunk(std::string * jsonMessage) {
+	void BaseDiscordClient::onMemberChunk(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onDeleteChannel(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onEditChannel(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onPinMessage(std::string * jsonMessage) {
+	void BaseDiscordClient::onPinMessage(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onPresenceUpdate(std::string * jsonMessage) {
+	void BaseDiscordClient::onPresenceUpdate(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditUser(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditUser(User user) {
 
 	}
 
-	void BaseDiscordClient::onEditUserNote(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditUserNote(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditUserSettings(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditUserSettings(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceState(VoiceState state) {
+	void BaseDiscordClient::onEditVoiceState(VoiceState& state) {
 
 	}
 
-	void BaseDiscordClient::onTyping(std::string * jsonMessage) {
+	void BaseDiscordClient::onTyping(Snowflake<Channel> channelID, Snowflake<User> userID, time_t timestamp) {
 
 	}
 
-	void BaseDiscordClient::onDeleteMessage(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messages) {
 
 	}
 
-	void BaseDiscordClient::onEditMessage(std::string * jsonMessage) {
+	void BaseDiscordClient::onEditMessage(const json::Value& jsonMessage) {
+		//because of the fact that on edited messages it'll contain only a subset of the full message object payload
+		//We need a way to edit a message without editing the whole thing
+	}
+
+	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate& voiceServerUpdate) {
 
 	}
 
-	void BaseDiscordClient::onBulkDelete(std::string * jsonMessage) {
+	void BaseDiscordClient::onServerSync(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate voiceServerUpdate) {
+	void BaseDiscordClient::onRelationship(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onServerSync(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteRelationship(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onRelationship(std::string * jsonMessage) {
+	void BaseDiscordClient::onReaction(Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji) {
 
 	}
 
-	void BaseDiscordClient::onRemoveRelationship(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteReaction(Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji) {
 
 	}
 
-	void BaseDiscordClient::onDeleteRelationship(std::string * jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onReaction(std::string * jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onRemoveReaction(std::string * jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onDeleteReaction(std::string * jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onRemoveAllReaction(std::string * jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onDeleteAllReaction(std::string * jsonMessage) {
+	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
 
 	}
 
 	void BaseDiscordClient::onMessage(Message message) {
 		
-	}
-
-	void BaseDiscordClient::onEditedMessage(std::string* jsonMessage) {
-		//onMessage(jsonMessage); 
-		//because of the fact that on edited messages it'll contain only a subset of the full message object payload
-		//this is will crash the client
 	}
 
 	void BaseDiscordClient::onHeartbeat() {
@@ -171,15 +147,11 @@ namespace SleepyDiscord {
 	
 	}
 
-	void BaseDiscordClient::onChannel(std::string* jsonMessage) {
+	void BaseDiscordClient::onChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onEditedRole(std::string* jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onDispatch(std::string * jsonMessage) {
+	void BaseDiscordClient::onDispatch(const json::Value& jsonMessage) {
 
 	}
 
