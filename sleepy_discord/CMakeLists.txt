@@ -12,7 +12,6 @@ add_library(sleepy-discord
 	gateway.cpp
 	http.cpp
 	invite.cpp
-	json.c
 	json_wrapper.cpp
 	message.cpp
 	permissions.cpp

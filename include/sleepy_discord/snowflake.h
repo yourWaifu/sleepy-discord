@@ -57,6 +57,8 @@ namespace SleepyDiscord {
 			});
 		}
 
+/*
+
 		template<class Container, class = int>
 		struct HasFindFuncation : std::false_type {};
 
@@ -69,9 +71,11 @@ namespace SleepyDiscord {
 			return objects.find(*this);
 		}
 
+*/
+
 		template<class Container>
-		inline typename std::enable_if<HasFindFuncation<Container>::value == false, decltype(Container::begin())>
-		findObject(const Container& objects) const {
+		//inline typename std::enable_if<HasFindFuncation<Container>::value == false, decltype(Container::begin())>
+		decltype(Container::begin()) findObject(const Container& objects) const {
 			return findObject(objects.begin(), objects.end());
 		}
 

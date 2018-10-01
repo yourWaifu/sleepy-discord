@@ -148,6 +148,10 @@ namespace SleepyDiscord {
 			}
 		};
 
+		//ClassTypeHelper needs to be able to call toJSON so it's forward decleared
+		template<class Object>
+		inline Value toJSON(const Object& object, Value::AllocatorType& allocator);
+
 		template <class Type>
 		struct ClassTypeHelper : public EmptyFunction<Type> {
 			static inline Type toType(const Value& value) {
@@ -215,13 +219,13 @@ namespace SleepyDiscord {
 		template<class Container, template<class...> class TypeHelper>
 		struct ContainerTypeHelper : public EmptyFunction<Container> {
 			static inline Container toType(const Value& value) {
-				return toArray<Container::value_type>(value);
+				return toArray<typename Container::value_type>(value);
 			}
 			static inline Value fromType(const Container& values, Value::AllocatorType& allocator) {
 				Value arr(rapidjson::kArrayType);
 				arr.Reserve(values.size(), allocator);
-				for (const Container::value_type& value : values)
-					arr.PushBack(TypeHelper<Container::value_type>::fromType(value, allocator), allocator);
+				for (const typename Container::value_type& value : values)
+					arr.PushBack(TypeHelper<typename Container::value_type>::fromType(value, allocator), allocator);
 				return arr;
 			}
 		};
@@ -242,30 +246,19 @@ namespace SleepyDiscord {
 			const FieldType type;
 		};
 
-		template <class TypeHelper, class Class, class Type>
-		constexpr PairImpl<Class, Type, TypeHelper> pair(Type Class::*member, const char* name, FieldType type) {
-			return PairImpl<Class, Type, TypeHelper>{member, name, type};
-		}
-
 		template <int defaultValue, template<class, int> class TypeHelper = PrimitiveTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type, defaultValue>> pair(Type Class::*member, const char* name, FieldType type) {
-			return pair<TypeHelper<Type, defaultValue>>(member, name, type);
+			return PairImpl<Class, Type, TypeHelper<Type, defaultValue>>{member, name, type};
 		}
 
-		//TO DO: Test to see if the new code can replace the commented below
-		/*template <template<class> class TypeHelper = ClassTypeHelper, class Class, class Type>
+		template <template<class> class TypeHelper = ClassTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type>> pair(Type Class::*member, const char* name, FieldType type) {
-			return pair<TypeHelper<Type>>(member, name, type);
+			return PairImpl<Class, Type, TypeHelper<Type>>{member, name, type};
 		}
 
 		template <template<class, template<class...> class> class TypeHelper, template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
-			return pair<TypeHelper<Type, TypeHelper2>>(member, name, type);
-		}*/
-
-		template <template<class, typename...> class TypeHelper, class... OtherParms, class Class, class Type>
-		constexpr PairImpl<Class, Type, TypeHelper<Type, OtherParms...> pair(Type Class::*mamber, const char* name, FieldType type) {
-			return pair<TypeHelper<Type, OtherParms...>>(member, name, type);
+			return PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>>{member, name, type};
 		}
 
 		//There needs to be a workaround for Visual C++ for this to compile. However, this workaround relys on c++14.
