@@ -58,6 +58,7 @@ namespace SleepyDiscord {
 		return toPermission(value.GetInt64());
 	}
 
+/*
 	template<>
 	struct json::EnumTypeHelper<Permission> {
 		static inline Permission toType(const Value& value) {
@@ -67,6 +68,7 @@ namespace SleepyDiscord {
 			return value == NONE;
 		}
 	};
+*/
 
 	inline constexpr Permission operator|(const Permission& a, const Permission& b) {
 		return static_cast<Permission>(static_cast<int64_t>(a) | static_cast<int64_t>(b));
