@@ -424,6 +424,7 @@ namespace SleepyDiscord {
 		bool ready;
 		bool quiting;
 		bool bot;
+		int consecutiveReconnectsCount = 0;
 		void sendIdentity();
 		void sendResume();
 		void quit(bool isRestarting, bool isDisconnected = false);
@@ -459,7 +460,7 @@ namespace SleepyDiscord {
 #endif
 
 		template<class Type, class Container, class Callback>
-		void BaseDiscordClient::accessObjectFromCache(
+		void accessObjectFromCache(
 			Snowflake<Server> serverID, Container Server::* container, Type ID, Callback callback
 		) {
 			if (serverCache) {
