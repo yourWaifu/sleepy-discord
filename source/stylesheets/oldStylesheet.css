@@ -81,7 +81,6 @@ a {
 	left: -50%;
   z-index: -100;
   background-image: url('../images/360-degree_Panorama_of_the_Southern_Sky_edit1high.jpg');
-  background-attachment: fixed;
   background-position: center;
   width: 200%;
   height: 200%;
