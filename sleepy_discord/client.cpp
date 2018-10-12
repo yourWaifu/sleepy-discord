@@ -339,13 +339,9 @@ namespace SleepyDiscord {
 			wasHeartbeatAcked = true; //stops the library from spamming discord
 		}
 		disconnectWebsocket(status);
-		//loop unrolling
-		if (connect(theGateway, this, connection)) return;
-		if (connect(theGateway, this, connection)) return;
-		if (connect(theGateway, this, connection)) return;
-		getTheGateway();
-		if (connect(theGateway, this, connection)) return;
-		setError(CONNECT_FAILED);
+		if (consecutiveReconnectsCount == 10) getTheGateway();
+		schedule([]() {}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
+		++consecutiveReconnectsCount;
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -388,6 +384,7 @@ namespace SleepyDiscord {
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
+			consecutiveReconnectsCount = 0; //Successfully connected
 			switch (hash(json::toStdString(t).c_str())) {
 			case hash("READY"                      ): {
 				Ready readyData = d;
@@ -467,7 +464,7 @@ namespace SleepyDiscord {
 					}
 				}
 				*/
-				AccessObjectFromCache(serverID, Server::members, userID, [user, roles, nick](ServerMember& member) {
+				accessObjectFromCache(serverID, &Server::members, userID, [user, roles, nick](ServerMember& member) {
 					member.user = user;
 					member.roles = roles;
 					member.nick = nick;
@@ -619,7 +616,7 @@ namespace SleepyDiscord {
 				schedule(&BaseDiscordClient::sendResume, 2500);
 			} else {
 				sessionID = "";
-				sendIdentity();
+				schedule(&BaseDiscordClient::sendIdentity, 2500);
 			}
 			break;
 		case HEARTBEAT_ACK:

@@ -369,7 +369,7 @@ namespace SleepyDiscord {
 			GenericMessageReceiver* messageProcessor,  //IN  When a message is receved, this will process it
 			WebsocketConnection& connection             //OUT data needed in order to send a message. nullptr by default
 		) { return false; }
-		void handleFailToConnect() override { schedule([=]() { reconnect(); }, 10000); }
+		void handleFailToConnect() override { reconnect(); }
 		virtual void send(std::string message, WebsocketConnection& connection) {}
 		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection) {}
 		void reconnect(const unsigned int status = 1000);
@@ -466,8 +466,8 @@ namespace SleepyDiscord {
 			if (serverCache) {
 				ServerCache::iterator server = serverCache->findServer(serverID);
 				if (server != serverCache->end()) {
-					auto found = ID.findObject(server->container);
-					if (found != server->container.end()) {
+					auto found = ID.findObject((*server).*(container));
+					if (found != ((*server).*(container)).end()) {
 						callback(*found);
 					}
 				}

@@ -2,7 +2,7 @@
 #ifndef NONEXISTENT_ASIO
 
 namespace SleepyDiscord {
-	ASIOUDPClient::ASIOUDPClient() : ASIOUDPClient(asio::io_service()) {}
+//	ASIOUDPClient::ASIOUDPClient() : ASIOUDPClient(asio::io_service()) {}
 
 	ASIOUDPClient::ASIOUDPClient(asio::io_service& service) :
 		iOService(&service),

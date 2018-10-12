@@ -25,7 +25,7 @@ namespace SleepyDiscord {
 
 		void run();
 		Timer schedule(TimedTask code, const time_t milliseconds);
-		UDPClient createUDPClient() override;
+		UDPClient createUDPClient() /* override*/;
 	protected:
 #include "standard_config_header.h"
 	private:
