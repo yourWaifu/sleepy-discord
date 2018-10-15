@@ -8,12 +8,24 @@
 #include <websocketpp/common/memory.hpp>
 #include "client.h"
 #include "websocketpp_connection.h"
+#include "asio_schedule.h"
 #include "asio_udp.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
 	//typedef GenericMessageReceiver MessageProcssor;
+
+	class WebsocketppScheduleHandler : public ASIOBasedScheduleHandler {
+	public:
+		WebsocketppScheduleHandler(_client& c) : client(c) {}
+		Timer schedule(TimedTask code, const time_t milliseconds);
+		inline websocketpp::lib::asio::io_service& getIOService() override {
+			return client.get_io_service();
+		}
+	private:
+		_client& client;
+	};
 
 	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
@@ -25,7 +37,7 @@ namespace SleepyDiscord {
 
 		void run();
 		Timer schedule(TimedTask code, const time_t milliseconds);
-		UDPClient createUDPClient() /* override*/;
+		//UDPClient createUDPClient() /* override*/;
 	protected:
 #include "standard_config_header.h"
 	private:
@@ -51,6 +63,7 @@ namespace SleepyDiscord {
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
+		WebsocketppScheduleHandler scheduleHandler = this_client;
 		const char maxNumOfThreads;
 	};
 	typedef WebsocketppDiscordClient DiscordClient;

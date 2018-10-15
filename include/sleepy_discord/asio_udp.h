@@ -6,7 +6,7 @@
 namespace SleepyDiscord {
 	class ASIOUDPClient : public GenericUDPClient {
 	public:
-		ASIOUDPClient();
+		//ASIOUDPClient();
 		ASIOUDPClient(asio::io_service& service);
 		bool connect(const std::string& to  , const uint16_t port) override;
 		void send(

@@ -3,6 +3,21 @@
 #include <future>
 
 namespace SleepyDiscord {
+	void handleTimer(const websocketpp::lib::error_code &ec, std::function<void()>& code) {
+		if (ec != websocketpp::transport::error::operation_aborted) {
+			code();
+		}
+	}
+
+	Timer WebsocketppScheduleHandler::schedule(TimedTask code, const time_t milliseconds) {
+		auto timer = client.set_timer(
+			milliseconds,
+			websocketpp::lib::bind(&handleTimer, websocketpp::lib::placeholders::_1, code)
+		);
+		return Timer([timer]() {
+			timer->cancel();
+		});
+	}
 
 	WebsocketppDiscordClient::WebsocketppDiscordClient(const std::string token, const char numOfThreads) :
 		_thread(nullptr), maxNumOfThreads(numOfThreads)
@@ -142,9 +157,9 @@ namespace SleepyDiscord {
 		//messageProcessor->processMessage(msg->get_payload());
 	}
 
-	UDPClient WebsocketppDiscordClient::createUDPClient() {
-		return UDPClient(this_client.get_io_service());
-	}
+	//UDPClient WebsocketppDiscordClient::createUDPClient() {
+	//	return UDPClient(this_client.get_io_service());
+	//}
 	
 	void WebsocketppDiscordClient::disconnect(
 		unsigned int code,

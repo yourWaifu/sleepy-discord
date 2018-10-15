@@ -62,7 +62,7 @@ namespace SleepyDiscord {
 	public:
 		BaseDiscordClient();
 		BaseDiscordClient(const std::string _token) { start(_token); }
-		virtual ~BaseDiscordClient();
+		virtual ~BaseDiscordClient() = default;
 
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
@@ -385,10 +385,6 @@ namespace SleepyDiscord {
 		}
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
-
-#if defined(_WIN32) || defined(_WIN64)
-		virtual UDPClient createUDPClient() { return UDPClient(); }
-#endif
 
 	private:
 		using GenericMessageReceiver::initialize;

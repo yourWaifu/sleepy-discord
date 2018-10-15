@@ -848,6 +848,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="webhook.cpp" />
     <ClCompile Include="websocketpp_websocket.cpp" />
     <ClInclude Include="..\include\sleepy_discord\asio_include.h" />
+    <ClInclude Include="..\include\sleepy_discord\asio_schedule.h" />
     <ClInclude Include="..\include\sleepy_discord\asio_udp.h" />
     <ClInclude Include="..\include\sleepy_discord\attachment.h" />
     <ClInclude Include="..\include\sleepy_discord\cache.h" />
