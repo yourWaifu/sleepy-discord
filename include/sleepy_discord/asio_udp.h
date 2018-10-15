@@ -4,9 +4,13 @@
 #include "udp.h"
 
 namespace SleepyDiscord {
+
+	class BaseDiscordClient;
+
 	class ASIOUDPClient : public GenericUDPClient {
 	public:
 		//ASIOUDPClient();
+		ASIOUDPClient(BaseDiscordClient& client);
 		ASIOUDPClient(asio::io_service& service);
 		bool connect(const std::string& to  , const uint16_t port) override;
 		void send(
