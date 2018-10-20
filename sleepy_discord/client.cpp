@@ -17,6 +17,11 @@
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads, int _shardID, int _shardCount) {
+		if (!scheduleHandler) {
+			setError(CANT_SCHEDULE);
+			return;
+		}
+		
 		ready = false;
 		quiting = false;
 		bot = true;

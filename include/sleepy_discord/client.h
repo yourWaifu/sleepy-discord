@@ -63,7 +63,7 @@ namespace SleepyDiscord {
 	public:
 		BaseDiscordClient();
 		BaseDiscordClient(const std::string _token) { start(_token); }
-		virtual ~BaseDiscordClient() = default;
+		~BaseDiscordClient();
 
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
@@ -193,11 +193,18 @@ namespace SleepyDiscord {
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		const Snowflake<User> getID() { return userID; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
-		inline GenericScheduleHandler& getScheduleHandler() { return scheduleHandler; } 
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
-
+		
 		//time
+		template <class Handler, class... Types>
+		inline void setScheduleHandler(Types&&... arguments) {
+			scheduleHandler = std::unique_ptr<GenericScheduleHandler>(
+				new Handler(std::forward<Types>(arguments)...)
+			);
+		}
+		inline GenericScheduleHandler& getScheduleHandler() { return *scheduleHandler; } 
+
 		enum AssignmentType : bool {
 			TilDueTime = 0,
 			EpochTime  = 1,
@@ -395,7 +402,7 @@ namespace SleepyDiscord {
 		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
-		GenericScheduleHandler& scheduleHandler;
+		std::unique_ptr<GenericScheduleHandler> scheduleHandler = nullptr;
 		Timer heart;
 
 		enum OPCode {

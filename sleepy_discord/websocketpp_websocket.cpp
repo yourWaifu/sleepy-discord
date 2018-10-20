@@ -23,6 +23,7 @@ namespace SleepyDiscord {
 		_thread(nullptr), maxNumOfThreads(numOfThreads)
 	{
 		init();
+		setScheduleHandler<WebsocketppScheduleHandler>(this_client);
 		start(token, numOfThreads);
 	}
 

@@ -19,7 +19,8 @@ namespace SleepyDiscord {
 	class WebsocketppScheduleHandler : public ASIOBasedScheduleHandler {
 	public:
 		WebsocketppScheduleHandler(_client& c) : client(c) {}
-		Timer schedule(TimedTask code, const time_t milliseconds);
+		~WebsocketppScheduleHandler() = default;
+		Timer schedule(TimedTask code, const time_t milliseconds) override;
 		inline websocketpp::lib::asio::io_service& getIOService() override {
 			return client.get_io_service();
 		}
@@ -63,7 +64,6 @@ namespace SleepyDiscord {
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
-		WebsocketppScheduleHandler scheduleHandler = this_client;
 		const char maxNumOfThreads;
 	};
 	typedef WebsocketppDiscordClient DiscordClient;

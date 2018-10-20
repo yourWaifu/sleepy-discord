@@ -6,6 +6,7 @@ namespace SleepyDiscord {
 	class GenericScheduleHandler {
 	public:
 		virtual ~GenericScheduleHandler() = default;
+		virtual Timer schedule(TimedTask code, const time_t milliseconds) = 0;
 	};
 
 	class ASIOBasedScheduleHandler : public GenericScheduleHandler {
