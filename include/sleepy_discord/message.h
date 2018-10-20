@@ -61,7 +61,9 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	//forward declearion
 	class BaseDiscordClient;
+	struct Server;
 
 	struct Message : public IdentifiableDiscordObject<Message> {
 	public:
@@ -80,6 +82,7 @@ namespace SleepyDiscord {
 		Message reply(BaseDiscordClient * client, std::string message, Embed embed = Embed(), bool tts = false);
 
 		Snowflake<Channel> channelID;
+		Snowflake<Server> serverID;
 		User author;
 		std::string content;
 		std::string timestamp;
@@ -110,6 +113,7 @@ namespace SleepyDiscord {
 			std::make_tuple(
 				json::pair                           (&Message::ID             , "id"              , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::channelID      , "channel_id"      , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::serverID       , "guild_id"        , json::OPTIONAL_FIELD         ),
 				json::pair                           (&Message::author         , "author"          , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::content        , "content"         , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::timestamp      , "timestamp"       , json::REQUIRIED_FIELD        ),
