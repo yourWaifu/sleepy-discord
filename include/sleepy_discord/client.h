@@ -364,6 +364,7 @@ namespace SleepyDiscord {
 		bool ready;
 		bool quiting;
 		bool bot;
+		int consecutiveReconnectsCount = 0;
 		void sendIdentity();
 		void sendResume();
 		//bool restart();		//it's like start but when it already started. it's basicly useless in it's current form

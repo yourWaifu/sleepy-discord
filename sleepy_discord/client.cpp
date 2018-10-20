@@ -310,13 +310,11 @@ namespace SleepyDiscord {
 			wasHeartbeatAcked = true; //stops the library from spamming discord
 		}
 		disconnectWebsocket(status);
-		//loop unrolling
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
-		if (connect(theGateway)) return;
-		getTheGateway();
-		if (connect(theGateway)) return;
-		setError(CONNECT_FAILED);
+		if (consecutiveReconnectsCount == 10) getTheGateway();
+		schedule([this]() {
+			connect(theGateway, this, connection);
+		}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
+		++consecutiveReconnectsCount;
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -356,6 +354,7 @@ namespace SleepyDiscord {
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = std::stoi(values[2]);
+			consecutiveReconnectsCount = 0; //Successfully connected
 			switch (hash(t.c_str())) {
 			case hash("READY"): {
 				Ready readyData = d;
@@ -439,7 +438,7 @@ namespace SleepyDiscord {
 				sendResume();
 			} else {
 				sessionID = {};
-				sendIdentity();
+				schedule(&BaseDiscordClient::sendIdentity, 2500);
 			}
 			break;
 		case HEARTBEAT_ACK:
