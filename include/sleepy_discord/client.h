@@ -420,6 +420,7 @@ namespace SleepyDiscord {
 		bool ready;
 		bool quiting;
 		bool bot;
+		int consecutiveReconnectsCount = 0;
 		void sendIdentity();
 		void sendResume();
 		void quit(bool isRestarting, bool isDisconnected = false);
