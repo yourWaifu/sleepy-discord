@@ -345,7 +345,9 @@ namespace SleepyDiscord {
 		}
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
-		schedule([]() {}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
+		schedule([this]() {
+			connect(theGateway, this, connection);
+		}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
 		++consecutiveReconnectsCount;
 	}
 
@@ -707,9 +709,9 @@ namespace SleepyDiscord {
 
 #ifdef SLEEPY_VOICE_ENABLED
 
-	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server, BaseVoiceEventHandler * eventHandler) {
+	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Server> server, Snowflake<Channel> channel, BaseVoiceEventHandler * eventHandler) {
 		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel).cast().serverID;
-		voiceContexts.push_front({ channel, serverTarget, eventHandler });
+		voiceContexts.push_front({ serverTarget, channel, eventHandler });
 		waitingVoiceContexts.emplace_front(&voiceContexts.front());
 		return voiceContexts.front();
 	}
@@ -739,8 +741,8 @@ namespace SleepyDiscord {
 		  */
 	}
 
-	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
-		VoiceContext& target = createVoiceContext(channel, server);
+	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings) {
+		VoiceContext& target = createVoiceContext(server, channel);
 		connectToVoiceChannel(target, settings);
 		return target;
 	}

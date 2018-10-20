@@ -36,6 +36,8 @@ namespace SleepyDiscord {
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
+		if (speechTimer.isValid())
+			speechTimer.stop();
 		state = static_cast<State>(state & ~State::CONNECTED);
 	}
 
@@ -100,8 +102,8 @@ namespace SleepyDiscord {
 		case READY: {
 			//json::Values values = json::getValues(d->c_str(),
 			//{ "ssrc", "port" });
-			sSRC = values["ssrc"].GetUint();
-			port = static_cast<uint16_t>(values["port"].GetUint());
+			sSRC = d["ssrc"].GetUint();
+			port = static_cast<uint16_t>(d["port"].GetUint());
 			//start heartbeating
 			heartbeat();
 			//connect to UDP

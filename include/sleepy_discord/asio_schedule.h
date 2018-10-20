@@ -9,6 +9,8 @@ namespace SleepyDiscord {
 		virtual Timer schedule(TimedTask code, const time_t milliseconds) = 0;
 	};
 
+#ifndef NONEXISTENT_ASIO 
+
 	class ASIOBasedScheduleHandler : public GenericScheduleHandler {
 	public:
 		virtual ~ASIOBasedScheduleHandler() = default;
@@ -45,4 +47,5 @@ namespace SleepyDiscord {
 	private:
 		asio::io_service io;
 	};
+#endif
 }

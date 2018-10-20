@@ -195,6 +195,10 @@ namespace SleepyDiscord {
 			}
 		};
 
+		//for some reason, some compilers need this
+		template <int defaultValue>
+		struct PrimitiveTypeHelper<long int, defaultValue> : public PrimitiveTypeHelper<long long, defaultValue> {};
+
 		template<> struct ClassTypeHelper<int     > : public PrimitiveTypeHelper<int     > {};
 		template<> struct ClassTypeHelper<uint32_t> : public PrimitiveTypeHelper<uint32_t> {};
 		template<> struct ClassTypeHelper<int64_t > : public PrimitiveTypeHelper<int64_t > {};

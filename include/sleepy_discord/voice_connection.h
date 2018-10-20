@@ -47,12 +47,12 @@ namespace SleepyDiscord {
 		}
 
 	private:
-		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID, BaseVoiceEventHandler* _eventHandler) :
-			channelID(_channelID), serverID(_serverID), eventHandler(_eventHandler)
+		VoiceContext(Snowflake<Server> _serverID, Snowflake<Channel> _channelID, BaseVoiceEventHandler* _eventHandler) :
+			serverID(_serverID), channelID(_channelID), eventHandler(_eventHandler)
 		{}
 
-		Snowflake<Channel> channelID;
 		Snowflake<Server> serverID;
+		Snowflake<Channel> channelID;
 		std::string sessionID = "";
 		std::string endpoint = "";
 		std::string token;
