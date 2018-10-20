@@ -312,7 +312,7 @@ namespace SleepyDiscord {
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
 		schedule([this]() {
-			connect(theGateway, this, connection);
+			connect(theGateway);
 		}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
 		++consecutiveReconnectsCount;
 	}
