@@ -58,16 +58,6 @@ namespace SleepyDiscord {
 		return toPermission(value.GetInt64());
 	}
 
-	template<>
-	struct json::EnumTypeHelper<Permission> {
-		static inline Permission toType(const Value& value) {
-			return toPermission(value);
-		}
-		static inline bool empty(const Permission& value) {
-			return value == NONE;
-		}
-	};
-
 	inline constexpr Permission operator|(const Permission& a, const Permission& b) {
 		return static_cast<Permission>(static_cast<int64_t>(a) | static_cast<int64_t>(b));
 	}
@@ -122,7 +112,6 @@ namespace SleepyDiscord {
 			return ID == right.ID;
 		}
 
-		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
 				json::pair                      (&Role::ID         , "id"         , json::REQUIRIED_FIELD),
