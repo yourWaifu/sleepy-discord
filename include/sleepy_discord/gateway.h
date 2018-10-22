@@ -56,6 +56,10 @@ namespace SleepyDiscord {
 
 	struct ActivityTimestamp {
 	public:
+		ActivityTimestamp() = default;
+		~ActivityTimestamp() = default;
+		ActivityTimestamp(const json::Value & json);
+		ActivityTimestamp(const nonstd::string_view & json);
 		std::time_t start;
 		std::time_t end;
 
@@ -69,6 +73,10 @@ namespace SleepyDiscord {
 
 	struct ActivityParty {
 	public:
+		ActivityParty() = default;
+		~ActivityParty() = default;
+		ActivityParty(const json::Value & json);
+		ActivityParty(const nonstd::string_view & json);
 		std::string ID;
 		std::array<int64_t, 2> size;
 		int64_t& currentSize = size[0];
@@ -84,6 +92,10 @@ namespace SleepyDiscord {
 
 	struct ActivityAssets {
 	public:
+		ActivityAssets() = default;
+		~ActivityAssets() = default;
+		ActivityAssets(const json::Value & json);
+		ActivityAssets(const nonstd::string_view & json);
 		std::string largeImage;
 		std::string largeText;
 		std::string smallImage;
@@ -100,6 +112,11 @@ namespace SleepyDiscord {
 	};
 
 	struct ActivitySecrets {
+	public:
+		ActivitySecrets() = default;
+		~ActivitySecrets() = default;
+		ActivitySecrets(const json::Value & json);
+		ActivitySecrets(const nonstd::string_view & json);
 		std::string join;
 		std::string spectate;
 		std::string match;
@@ -117,6 +134,11 @@ namespace SleepyDiscord {
 	struct Application {};
 
 	struct Activity : public DiscordObject {
+	public:
+		Activity() = default;
+		~Activity() = default;
+		Activity(const json::Value & json);
+		Activity(const nonstd::string_view & json);
 		std::string name;
 		enum ActivityType {
 			ACTIVITY_TYPE_NONE = -1,
@@ -163,6 +185,10 @@ namespace SleepyDiscord {
 
 	struct PresenceUpdate : public DiscordObject {
 	public:
+		PresenceUpdate() = default;
+		~PresenceUpdate() = default;
+		PresenceUpdate(const json::Value & json);
+		PresenceUpdate(const nonstd::string_view & json);
 		User user;
 		std::vector<Snowflake<Role>> roleIDs;
 		Activity currentActivity;

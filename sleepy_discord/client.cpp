@@ -478,7 +478,7 @@ namespace SleepyDiscord {
 				});
 				onEditMember(serverID, user, roles, nick);
 				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
+			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d["guild_id"], json::toArray<ServerMember>(d["members"])); break;
 			case hash("GUILD_ROLE_CREATE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
@@ -550,7 +550,7 @@ namespace SleepyDiscord {
 				}
 				onDeleteChannel(d);
 				} break;
-			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d); break;
+			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d["channel_id"], json::toStdString(d["last_pin_timestamp"])); break;
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
 			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;

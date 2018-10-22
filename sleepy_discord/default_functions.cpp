@@ -66,7 +66,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onPinMessage(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onPinMessage(Snowflake<Channel> channelID, std::string lastPinTimestamp) {
 
 	}
 

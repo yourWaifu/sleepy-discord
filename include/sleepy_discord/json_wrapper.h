@@ -65,8 +65,15 @@ namespace SleepyDiscord {
 				return Container<Type>(jsonArray.begin(), jsonArray.end());
 			}
 
+			template<std::size_t size>
+			inline std::array<TypeToConvertTo, size> array() {
+				std::array<TypeToConvertTo, size> arr;
+				std::copy_n(Base::getArray().begin(), size, arr.begin());
+				return arr;
+			}
+
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
-			inline std::list  <TypeToConvertTo> list()   { return get<std::list>();   }
+			inline std::list  <TypeToConvertTo> list  () { return get<std::list>();   }
 
 			//c arrays
 			inline TypeToConvertTo* cArray() { return &vector()[0]; }
@@ -126,6 +133,11 @@ namespace SleepyDiscord {
 		template<class Type>
 		inline ArrayWrapper<Type> toArray(const Value& value) {
 			return ArrayWrapper<Type>(value);
+		}
+
+		template<class Type, std::size_t size>
+		inline ArrayWrapper<Type> toArray(const Value& value) {
+			return ArrayWrapper<Type>(value).array<size>(value);
 		}
 
 		template<class Type>
@@ -196,8 +208,8 @@ namespace SleepyDiscord {
 		};
 
 		//for some reason, some compilers need this
-		template <int defaultValue>
-		struct PrimitiveTypeHelper<long int, defaultValue> : public PrimitiveTypeHelper<long long, defaultValue> {};
+		//template <int defaultValue>
+		//struct PrimitiveTypeHelper<long int, defaultValue> : public PrimitiveTypeHelper<long long, defaultValue> {};
 
 		template<> struct ClassTypeHelper<int     > : public PrimitiveTypeHelper<int     > {};
 		template<> struct ClassTypeHelper<uint32_t> : public PrimitiveTypeHelper<uint32_t> {};
@@ -220,19 +232,30 @@ namespace SleepyDiscord {
 			}
 		};
 
-		template<class Container, template<class...> class TypeHelper>
-		struct ContainerTypeHelper : public EmptyFunction<Container> {
-			static inline Container toType(const Value& value) {
-				return toArray<typename Container::value_type>(value);
-			}
+		template<class Container>
+		struct FromContainerFunction {
 			static inline Value fromType(const Container& values, Value::AllocatorType& allocator) {
 				Value arr(rapidjson::kArrayType);
 				arr.Reserve(values.size(), allocator);
 				for (const typename Container::value_type& value : values)
 					arr.PushBack(TypeHelper<typename Container::value_type>::fromType(value, allocator), allocator);
 				return arr;
+			} 
+		};
+
+		template<class Container, template<class...> class TypeHelper>
+		struct ContainerTypeHelper : public EmptyFunction<Container>, public FromContainerFunction<Container> {
+			static inline Container toType(const Value& value) {
+				return toArray<typename Container::value_type>(value);
 			}
 		};
+
+		template<class StdArray, std::size_t size>
+		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray> {
+			static inline Container toType(const Value& value) {
+				return toArray<StdArray::value_type, size>(value);
+			}
+		}
 
 		enum FieldType {
 			REQUIRIED_FIELD = 0,
