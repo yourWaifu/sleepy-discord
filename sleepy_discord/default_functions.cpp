@@ -54,7 +54,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onMemberChunk(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onMemberChunk(Snowflake<Server> serverID, std::vector<ServerMember> members) {
 
 	}
 
@@ -70,7 +70,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onPresenceUpdate(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onPresenceUpdate(PresenceUpdate presenseUpdate) {
 
 	}
 

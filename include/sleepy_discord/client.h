@@ -332,11 +332,11 @@ namespace SleepyDiscord {
 		virtual void onDeleteRole        (Snowflake<Server> serverID, Snowflake<Role> roleID);
 		virtual void onEditRole          (Snowflake<Server> serverID, Role role);
 		virtual void onEditEmojis        (Snowflake<Server> serverID, std::vector<Emoji> emojis);
-		virtual void onMemberChunk       (const json::Value& jsonMessage);
+		virtual void onMemberChunk       (Snowflake<Server> serverID, std::vector<ServerMember> members);
 		virtual void onDeleteChannel     (Channel channel);
 		virtual void onEditChannel       (Channel channel);
-		virtual void onPinMessage        (const json::Value& jsonMessage);
-		virtual void onPresenceUpdate    (const json::Value& jsonMessage);
+		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);
+		virtual void onPresenceUpdate    (PresenceUpdate     presenseUpdate);
 		virtual void onEditUser          (User user);
 		virtual void onEditUserNote      (const json::Value& jsonMessage);
 		virtual void onEditUserSettings  (const json::Value& jsonMessage);

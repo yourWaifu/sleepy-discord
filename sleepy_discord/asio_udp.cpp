@@ -4,8 +4,6 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-//	ASIOUDPClient::ASIOUDPClient() : ASIOUDPClient(asio::io_service()) {}
-
 	//Note: you need to be using a ASIOBasedScheduleHandler for this to work
 	ASIOUDPClient::ASIOUDPClient(BaseDiscordClient& client) :
 		ASIOUDPClient(static_cast<ASIOBasedScheduleHandler&>(client.getScheduleHandler()).getIOService())
