@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 		Streaming = 1
 	};
 
-	struct Game : DiscordObject {
+	struct Game : public DiscordObject {
 		std::string name = "";
 		GameType type;
 		std::string url = ""; //used when type is Streaming
@@ -54,7 +54,7 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct ActivityTimestamp {
+	struct ActivityTimestamp : public DiscordObject {
 	public:
 		ActivityTimestamp() = default;
 		~ActivityTimestamp() = default;
@@ -71,7 +71,7 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct ActivityParty {
+	struct ActivityParty : public DiscordObject {
 	public:
 		ActivityParty() = default;
 		~ActivityParty() = default;
@@ -84,13 +84,13 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&ActivityParty::ID  , "id"  , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&ActivityParty::size, "size", json::OPTIONAL_FIELD)
+				json::pair                          (&ActivityParty::ID  , "id"  , json::OPTIONAL_FIELD),
+				json::pair<json::StdArrayTypeHelper>(&ActivityParty::size, "size", json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
 
-	struct ActivityAssets {
+	struct ActivityAssets : public DiscordObject {
 	public:
 		ActivityAssets() = default;
 		~ActivityAssets() = default;
@@ -111,7 +111,7 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct ActivitySecrets {
+	struct ActivitySecrets : public DiscordObject {
 	public:
 		ActivitySecrets() = default;
 		~ActivitySecrets() = default;
@@ -151,7 +151,7 @@ namespace SleepyDiscord {
 		Snowflake<Application> applicationID;
 		std::string details;
 		std::string state;
-		ActivityParty party;
+		//ActivityParty party;
 		ActivityAssets assets;
 		ActivitySecrets secrets;
 		bool instance;
@@ -167,18 +167,18 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&Activity::name         , "name"          , json::REQUIRIED_FIELD        ),
-				json::pair(&Activity::type         , "type"          , json::REQUIRIED_FIELD        ),
-				json::pair(&Activity::url          , "url"           , json::OPTIONAL_NULLABLE_FIELD),
-				json::pair(&Activity::timestamps   , "timestamps"    , json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::applicationID, "application_id", json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::details      , "details"       , json::OPTIONAL_NULLABLE_FIELD),
-				json::pair(&Activity::state        , "state"         , json::OPTIONAL_NULLABLE_FIELD),
-				json::pair(&Activity::party        , "party"         , json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::assets       , "assets"        , json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::secrets      , "secrets"       , json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::instance     , "instance"      , json::OPTIONAL_FIELD         ),
-				json::pair(&Activity::flags        , "flags"         , json::OPTIONAL_FIELD         )
+				json::pair                      (&Activity::name         , "name"          , json::REQUIRIED_FIELD        ),
+				json::pair<json::EnumTypeHelper>(&Activity::type         , "type"          , json::REQUIRIED_FIELD        ),
+				json::pair                      (&Activity::url          , "url"           , json::OPTIONAL_NULLABLE_FIELD),
+				json::pair                      (&Activity::timestamps   , "timestamps"    , json::OPTIONAL_FIELD         ),
+				json::pair                      (&Activity::applicationID, "application_id", json::OPTIONAL_FIELD         ),
+				json::pair                      (&Activity::details      , "details"       , json::OPTIONAL_NULLABLE_FIELD),
+				json::pair                      (&Activity::state        , "state"         , json::OPTIONAL_NULLABLE_FIELD),
+				//json::pair                      (&Activity::party        , "party"         , json::OPTIONAL_FIELD         ),
+				json::pair                      (&Activity::assets       , "assets"        , json::OPTIONAL_FIELD         ),
+				json::pair                      (&Activity::secrets      , "secrets"       , json::OPTIONAL_FIELD         ),
+				json::pair                      (&Activity::instance     , "instance"      , json::OPTIONAL_FIELD         ),
+				json::pair<json::EnumTypeHelper>(&Activity::flags        , "flags"         , json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
 	};
@@ -198,12 +198,12 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&PresenceUpdate::user           , "user"      , json::REQUIRIED_FIELD),
-				json::pair(&PresenceUpdate::roleIDs        , "roles"     , json::REQUIRIED_FIELD),
-				json::pair(&PresenceUpdate::currentActivity, "game"      , json::NULLABLE_FIELD ),
-				json::pair(&PresenceUpdate::serverID       , "guild_id"  , json::REQUIRIED_FIELD),
-				json::pair(&PresenceUpdate::status         , "status"    , json::REQUIRIED_FIELD),
-				json::pair(&PresenceUpdate::activities     , "activities", json::REQUIRIED_FIELD)
+				json::pair                           (&PresenceUpdate::user           , "user"      , json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::roleIDs        , "roles"     , json::REQUIRIED_FIELD),
+				json::pair                           (&PresenceUpdate::currentActivity, "game"      , json::NULLABLE_FIELD ),
+				json::pair                           (&PresenceUpdate::serverID       , "guild_id"  , json::REQUIRIED_FIELD),
+				json::pair                           (&PresenceUpdate::status         , "status"    , json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::activities     , "activities", json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};

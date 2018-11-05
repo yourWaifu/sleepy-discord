@@ -65,13 +65,6 @@ namespace SleepyDiscord {
 				return Container<Type>(jsonArray.begin(), jsonArray.end());
 			}
 
-			template<std::size_t size>
-			inline std::array<TypeToConvertTo, size> array() {
-				std::array<TypeToConvertTo, size> arr;
-				std::copy_n(Base::getArray().begin(), size, arr.begin());
-				return arr;
-			}
-
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
 			inline std::list  <TypeToConvertTo> list  () { return get<std::list>();   }
 
@@ -133,11 +126,6 @@ namespace SleepyDiscord {
 		template<class Type>
 		inline ArrayWrapper<Type> toArray(const Value& value) {
 			return ArrayWrapper<Type>(value);
-		}
-
-		template<class Type, std::size_t size>
-		inline ArrayWrapper<Type> toArray(const Value& value) {
-			return ArrayWrapper<Type>(value).array<size>(value);
 		}
 
 		template<class Type>
@@ -232,7 +220,7 @@ namespace SleepyDiscord {
 			}
 		};
 
-		template<class Container>
+		template<class Container, template<class...> class TypeHelper>
 		struct FromContainerFunction {
 			static inline Value fromType(const Container& values, Value::AllocatorType& allocator) {
 				Value arr(rapidjson::kArrayType);
@@ -244,18 +232,29 @@ namespace SleepyDiscord {
 		};
 
 		template<class Container, template<class...> class TypeHelper>
-		struct ContainerTypeHelper : public EmptyFunction<Container>, public FromContainerFunction<Container> {
+		struct ContainerTypeHelper : public EmptyFunction<Container>, public FromContainerFunction<Container, TypeHelper> {
 			static inline Container toType(const Value& value) {
 				return toArray<typename Container::value_type>(value);
 			}
 		};
 
-		template<class StdArray, std::size_t size>
-		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray> {
-			static inline Container toType(const Value& value) {
-				return toArray<StdArray::value_type, size>(value);
+		template<class StdArray, template<class...> class TypeHelper>
+		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray, TypeHelper> {
+			static inline StdArray toType(const Value& value) {
+				ArrayWrapper<typename StdArray::value_type> arrayWrapper(value);
+				std::array<typename StdArray::value_type, std::tuple_size<StdArray>::value> arr;
+				Array jsonArray = arrayWrapper.getArray();
+				Value::ConstValueIterator iterator = jsonArray.Begin();
+				for (typename StdArray::value_type& v : arr) {
+					if (iterator == jsonArray.End())
+						break;
+					v = TypeHelper<typename StdArray::value_type>::toType(*iterator);
+					++iterator;
+				}
+				return arr;
+				//return toArray<typename StdArray::value_type, std::tuple_size<StdArray>::value>(value);
 			}
-		}
+		};
 
 		enum FieldType {
 			REQUIRIED_FIELD = 0,
