@@ -410,20 +410,32 @@ namespace SleepyDiscord {
 				} break;
 			case hash("GUILD_DELETE"               ): {
 				UnavailableServer server(d);
+				/*
 				if (serverCache) {
 					ServerCache::const_iterator foundServer = serverCache->findServer(server);
 					if (foundServer != serverCache->end())
 						serverCache->erase(foundServer);
 				}
+				*/
+				if (serverCache) {
+					findServerInCache(server.ID, [=](ServerCache::iterator& found) {
+						serverCache->erase(found);
+					});
+				}
 				onDeleteServer(server);
 				} break;
 			case hash("GUILD_UPDATE"               ): {
 				Server server(d);
+				/*
 				if (serverCache) {
 					ServerCache::iterator foundServer = serverCache->findServer(server);
 					if (foundServer != serverCache->end())
 						*foundServer = server;
 				}
+				*/
+				accessServerFromCache(server.ID, [server](Server& foundServer) {
+					foundServer = server;
+				});
 				onEditServer(server);
 				} break;
 			case hash("GUILD_BAN_ADD"              ): onBan  (d["guild_id"], d["user"]); break;
@@ -432,24 +444,30 @@ namespace SleepyDiscord {
 			case hash("GUILD_MEMBER_ADD"           ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				ServerMember member(d);
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end())
 						server->members.push_front(member);
 				}
+				*/
+				appendObjectToCache(serverID, &Server::members, member);
 				onMember(serverID, member);
 				} break;
 			case hash("GUILD_MEMBER_REMOVE"        ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				User user = d["user"];
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end()) {
-						auto member = server->findMember(userID);
+						auto member = server->findMember(user.ID);
 						if (member != server->members.end())
 							server->members.erase(member);
 					}
 				}
+				*/
+				eraseObjectFromCache(serverID, &Server::members, user.ID);
 				onRemoveMember(serverID, user);
 				} break;
 			case hash("GUILD_MEMBER_UPDATE"        ): {
@@ -471,28 +489,34 @@ namespace SleepyDiscord {
 					}
 				}
 				*/
-				accessObjectFromCache(serverID, &Server::members, userID, [user, roles, nick](ServerMember& member) {
-					member.user = user;
-					member.roles = roles;
-					member.nick = nick;
-				});
+				accessObjectFromCache(serverID, &Server::members, user.ID,
+					[user, roles, nick](Server& server, ServerMember& member) {
+						member.user = user;
+						member.roles = roles;
+						member.nick = nick;
+					}
+				);
 				onEditMember(serverID, user, roles, nick);
 				} break;
 			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d["guild_id"], json::toArray<ServerMember>(d["members"])); break;
 			case hash("GUILD_ROLE_CREATE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end())
 						server->roles.push_front(role);
 				}
+				*/
+				appendObjectToCache(serverID, &Server::roles, role);
 				onRole(serverID, role);
 				} break;
 			case hash("GUILD_ROLE_UPDATE"):
 			{
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end()) {
@@ -501,11 +525,18 @@ namespace SleepyDiscord {
 							*foundRole = role;
 					}
 				}
+				*/
+				accessObjectFromCache(serverID, &Server::roles, role.ID,
+					[role](Server& server, Role& foundRole) {
+						foundRole = role;
+					}
+				);
 				onEditRole(serverID, role);
 			} break;
 			case hash("GUILD_ROLE_DELETE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Snowflake<Role> roleID = d["role_id"];
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(serverID);
 					if (server != serverCache->end()) {
@@ -514,20 +545,26 @@ namespace SleepyDiscord {
 							server->roles.erase(foundRole);
 					}
 				}
+				*/
+				eraseObjectFromCache(serverID, &Server::roles, roleID);
 				onDeleteRole(serverID, roleID);
 				} break;
 			case hash("GUILD_EMOJIS_UPDATE"        ): onEditEmojis        (d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
 			case hash("CHANNEL_CREATE"             ): {
 				Channel channel = d;
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(channel.serverID);
 					if (server != serverCache->end())
 						server->channels.push_front(channel);
 				}
+				*/
+				appendObjectToCache(channel.serverID, &Server::channels, channel);
 				onChannel(d);
 				} break;
 			case hash("CHANNEL_UPDATE"             ): {
 				Channel channel = d;
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(channel.serverID);
 					if (server != serverCache->end()) {
@@ -536,10 +573,17 @@ namespace SleepyDiscord {
 							*foundChannel = channel;
 					}
 				}
+				*/
+				accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
+					[channel](Server& server, Channel& foundChannel) {
+						foundChannel = channel;
+					}
+				);
 				onEditChannel(d); 
 				} break;
 			case hash("CHANNEL_DELETE"             ): {
 				Channel channel = d;
+				/*
 				if (serverCache) {
 					ServerCache::iterator server = serverCache->findServer(channel.serverID);
 					if (server != serverCache->end()) {
@@ -548,6 +592,8 @@ namespace SleepyDiscord {
 							server->channels.erase(foundChannel);
 					}
 				}
+				*/
+				eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
 				onDeleteChannel(d);
 				} break;
 			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d["channel_id"], json::toStdString(d["last_pin_timestamp"])); break;

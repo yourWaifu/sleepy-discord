@@ -471,21 +471,78 @@ namespace SleepyDiscord {
 		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif
 
-		template<class Type, class Container, class Callback>
-		void accessObjectFromCache(
-			Snowflake<Server> serverID, Container Server::* container, Type ID, Callback callback
-		) {
+		template<class Callback>
+		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {
 			if (serverCache) {
 				ServerCache::iterator server = serverCache->findServer(serverID);
 				if (server != serverCache->end()) {
-					auto found = ID.findObject((*server).*(container));
-					if (found != ((*server).*(container)).end()) {
-						callback(*found);
-					}
+					onSuccessCallback(server);
 				}
 			}
 		}
 
+		template<class Callback>
+		void accessServerFromCache(Snowflake<Server>& serverID, Callback callback) {
+			findServerInCache(serverID, [callback](ServerCache::iterator& found) {
+				callback(*found);
+			});
+		}
+
+		template<class Container, class Callback>
+		void accessContainerFromCache(
+			Snowflake<Server>& serverID, Container Server::* container, Callback callback
+		) {
+			accessServerFromCache(serverID, [callback, container](Server& server) {
+				callback(server, server.*(container));
+			});
+		}
+
+		template<class Container>
+		void appendObjectToCache(
+			Snowflake<Server>& serverID, Container Server::* container, typename Container::value_type& object
+		) {
+			accessContainerFromCache(serverID, container,
+				[object](Server& server, Container& found) {
+					found.push_front(object);
+				}
+			);
+		}
+
+		template<class Type, class Container, class Callback>
+		void accessIteratorFromCache (
+			Snowflake<Server>& serverID, Container Server::* container, Type ID, Callback callback
+		) {
+			accessContainerFromCache(serverID, container,
+				[callback, ID](Server& server, Container& foundContainter) {
+					auto found = ID.findObject(foundContainter);
+					if (found != foundContainter.end()) {
+						callback(server, found);
+					}
+				}
+			);
+		}
+
+		template<class Type, class Container, class Callback>
+		void accessObjectFromCache(
+			Snowflake<Server> serverID, Container Server::* container, Type ID, Callback callback
+		) {
+			accessIteratorFromCache(serverID, container, ID,
+				[callback] (Server& server, typename Container::iterator& iterator) {
+					callback(server, *iterator);
+				}
+			);
+		}
+
+		template<class Type, class Container>
+		void eraseObjectFromCache(
+			Snowflake<Server> serverID, Container Server::* container, Type ID
+		) {
+			accessIteratorFromCache(serverID, container, ID, 
+				[container](Server& server, typename Container::iterator& found) {
+					(server.*(container)).erase(found);
+				}
+			);
+		}
 	};
 
 	//inline BaseDiscordClient::AssignmentType operator|(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {

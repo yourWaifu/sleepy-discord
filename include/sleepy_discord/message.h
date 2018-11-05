@@ -84,6 +84,7 @@ namespace SleepyDiscord {
 		Snowflake<Channel> channelID;
 		Snowflake<Server> serverID;
 		User author;
+		ServerMember member;
 		std::string content;
 		std::string timestamp;
 		std::string editedTimestamp;
@@ -116,6 +117,7 @@ namespace SleepyDiscord {
 				json::pair                           (&Message::serverID       , "guild_id"        , json::OPTIONAL_FIELD         ),
 				json::pair                           (&Message::author         , "author"          , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::content        , "content"         , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::member         , "member"          , json::OPTIONAL_FIELD         ),
 				json::pair                           (&Message::timestamp      , "timestamp"       , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::editedTimestamp, "edited_timestamp", json::NULLABLE_FIELD         ),
 				json::pair                           (&Message::tts            , "tts"             , json::REQUIRIED_FIELD        ),
