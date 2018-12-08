@@ -4,7 +4,7 @@ void DiscordClient::onError(SleepyDiscord::ErrorCode errorCode, const std::strin
 	if (errorCode != 0)
 		std::cout << "Error " << errorCode << ": " + errorMessage + '\n';
 	else
-		std::cout << "Error " << ": " + errorMessage + '\n';
+		std::cout << "Error: " + errorMessage + '\n';
 }
 #endif
 

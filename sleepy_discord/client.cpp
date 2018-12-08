@@ -26,7 +26,8 @@ namespace SleepyDiscord {
 		quiting = false;
 		bot = true;
 		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
-		setShardID(_shardID, _shardCount);
+		if (_shardID != 0 || _shardCount != 0)
+			setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
 		getTheGateway();
