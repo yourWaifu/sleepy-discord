@@ -666,7 +666,7 @@ namespace SleepyDiscord {
 			reconnect();
 			break;
 		case INVALID_SESSION:
-			if (d[0][0] == 't') {
+			if (json::toBool(d) == true) {
 				schedule(&BaseDiscordClient::sendResume, 2500);
 			} else {
 				sessionID = "";

@@ -287,7 +287,7 @@ namespace SleepyDiscord {
 			return PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>>{member, name, type};
 		}
 
-		//There needs to be a workaround for Visual C++ for this to compile. However, this workaround relys on c++14.
+		//There needs to be a workaround for Visual C++ and clang for this to compile. However, this workaround relys on c++14.
 #if __cpp_return_type_deduction
 #define JSONStruct getJSONStructure()
 #define JSONStructStart constexpr static auto JSONStruct { return

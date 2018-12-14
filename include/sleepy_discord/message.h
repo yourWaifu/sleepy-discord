@@ -95,7 +95,7 @@ namespace SleepyDiscord {
 		std::vector<Attachment> attachments;
 		std::vector<Embed> embeds;
 		std::vector<Reaction> reactions;
-		int64_t nonce = 0;	//nullable
+		std::string nonce = "";	//nullable
 		bool pinned = false;
 		Snowflake<Webhook> webhookID;
 		enum MessageType {
