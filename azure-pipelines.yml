@@ -29,7 +29,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static"
 
 - task: VSBuild@1
   inputs:

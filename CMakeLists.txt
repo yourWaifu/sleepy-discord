@@ -25,6 +25,11 @@ include(buildtools/cmake/DownloadProject.cmake)
 if(USE_CPR)
 	#to do install libssl-dev
 
+	#the cmake test has issues on visual studio so disable them
+	if(NOT DEFINED BUILD_CPR_TESTS)
+		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
+	endif()
+
 	download_project(
 		PROJ           cpr
 		GIT_REPOSITORY https://github.com/whoshuu/cpr.git
