@@ -84,6 +84,7 @@ so now that we can make sure this doesnt cause any errors, we will want to link 
 
 now make the CMakeLists.txt file that we will use to compile the project
 > nano CMakeLists.txt
+
 In File:
 ```cmake
  cmake_minimum_required (VERSION 2.6)
@@ -97,6 +98,7 @@ In File:
 ```
 now we dont want to clog up our source directory with cmake stuff, so lets make a small bash script to compile and run it in a sub directory,
 > nano Build.sh; chmod +x Build.sh
+
 In File:
 ```bash
 #!/bin/bash
