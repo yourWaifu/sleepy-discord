@@ -65,3 +65,79 @@ or
 
 # Develop Branch
 For the cutting edge of Sleepy Discord, check out the develop branch. Please use the develop branch with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the branch is used for code that may not work. Also check to see if it's not behind the master branch, unless you want to use an older version of Sleepy Discord.
+
+
+# How to install and set up on linux, by someguyontheweb
+
+do note that i am using Ubuntu 18.04.1 LTS Server, and running everything over ssh and samba
+
+first step is to download and extract the repo files to anywhere on the linux system, then install the dependences (these may allready be installed by other packages).
+
+were ever you extracted the repo (for reference this will be ./sleepy-discord/)
+> mkdir ./sleepy-discord/Build/; cd ./sleepy-discord/Build; cmake ..; make;
+
+make sure this does not cause any errors, if it does then you are missing dependencys or the extraction failed somewhat. once we have determined that no errors are caused, you can remove the Build directory
+> rm -r Build/
+
+so now that we can make sure this doesnt cause any errors, we will want to link this to our project, to do this we will create a symlink to the Project path (for reference this will be ./proj/) and then create a cmake file and a basic bash script to make things nice.
+> ./proj/$ ln -s ./sleepy-discord/ ./proj/sleepy-discord
+
+now make the CMakeLists.txt file that we will use to compile the project
+> nano CMakeLists.txt
+In File:
+> cmake_minimum_required (VERSION 2.6)
+> project (ProjName)
+>
+> add_executable(ProjName main.cpp)
+> include_directories(ProjName "${PROJECT_BINARY_DIR}")
+>
+> add_subdirectory("${PROJECT_SOURCE_DIR}/sleepy-discord")
+> target_link_libraries(ProjName sleepy-discord)
+
+now we dont want to clog up our source directory with cmake stuff, so lets make a small bash script to compile and run it in a sub directory,
+> nano Build.sh; chmod +x Build.sh
+In File:
+```
+#!/bin/bash
+CURDIR=$(/bin/pwd)
+# get script local, so we can execute it from anywere, WARNING this will break if the script is executed from a symlink
+Root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+ProjName="<ProjName>"
+
+# if Build directory doesnt exist Make it
+if [ ! -e $Root/Build ]; then
+	mkdir $Root/Build
+fi
+
+# if the output file exists remove it (helps later in the script)
+if [-e $Root/Build/$ProjName ]; then
+	rm $Root/Build/$ProjName
+fi
+
+echo Compiling
+cd $Root/Build
+echo Executing Cmake
+cmake ..
+echo Executing Make
+make
+# go back to Source Dir, so that the Project will executing in the source enviroment
+# you can change this to execute in an enviroment instead
+cd ..
+
+if [ -e $Root/Build/$ProjName ]; then
+	echo "Compiled! Executing!"
+	$Root/Build/$ProjName
+else
+	echo "Failed!! FIX errors!"
+fi
+
+# return to were the script was executed from
+cd $CURDIR
+echo Exited!
+```
+
+so now if you want to run your project just execute "./ProjName/Build.sh" and it will compleatly compile the project and run it for you, do note that compiling with cmake will take a while the first 2 times but after that its fairly quick. depending on how much you edited.
+
+
+
+
