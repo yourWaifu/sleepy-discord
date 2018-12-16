@@ -73,7 +73,7 @@ do note that i am using Ubuntu 18.04.1 LTS Server, and running everything over s
 
 first step is to download and extract the repo files to anywhere on the linux system, then install the dependences (these may allready be installed by other packages).
 
-were ever you extracted the repo (for reference this will be ./sleepy-discord/)
+where ever you extracted the repo (for reference this will be ./sleepy-discord/)
 > mkdir ./sleepy-discord/Build/; cd ./sleepy-discord/Build; cmake ..; make;
 
 make sure this does not cause any errors, if it does then you are missing dependencys or the extraction failed somewhat. once we have determined that no errors are caused, you can remove the Build directory
@@ -85,19 +85,20 @@ so now that we can make sure this doesnt cause any errors, we will want to link 
 now make the CMakeLists.txt file that we will use to compile the project
 > nano CMakeLists.txt
 In File:
-> cmake_minimum_required (VERSION 2.6)
-> project (ProjName)
->
-> add_executable(ProjName main.cpp)
-> include_directories(ProjName "${PROJECT_BINARY_DIR}")
->
-> add_subdirectory("${PROJECT_SOURCE_DIR}/sleepy-discord")
-> target_link_libraries(ProjName sleepy-discord)
+```cmake
+ cmake_minimum_required (VERSION 2.6)
+ project (ProjName)
 
+ add_executable(ProjName main.cpp)
+ include_directories(ProjName "${PROJECT_BINARY_DIR}")
+
+ add_subdirectory("${PROJECT_SOURCE_DIR}/sleepy-discord")
+ target_link_libraries(ProjName sleepy-discord)
+```
 now we dont want to clog up our source directory with cmake stuff, so lets make a small bash script to compile and run it in a sub directory,
 > nano Build.sh; chmod +x Build.sh
 In File:
-```
+```bash
 #!/bin/bash
 CURDIR=$(/bin/pwd)
 # get script local, so we can execute it from anywere, WARNING this will break if the script is executed from a symlink
@@ -138,6 +139,7 @@ echo Exited!
 
 so now if you want to run your project just execute "./ProjName/Build.sh" and it will compleatly compile the project and run it for you, do note that compiling with cmake will take a while the first 2 times but after that its fairly quick. depending on how much you edited.
 
-
+dont forget to get your hands on both libssl and libcurl, on ubuntu you can install them with
+> sudo apt-get install libssl-dev libcurl4-openssl-dev
 
 
