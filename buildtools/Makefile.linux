@@ -1,17 +1,33 @@
-         CXX       = g++ #compiler
+.SUFFIXES:
+.SUFFIXES: .c .cpp .o .a
+
+         CC        = gcc # c compiler
+         CXX       = g++ # c++ compiler
          AR        = ar rv
-         DFLAGS    = -Wall -c -std=c++11 -fPIC
-override FLAGS    := $(DFLAGS) $(FLAGS)
-         SOURCE    = ../sleepy_discord
-         INCLUDE   = ../include/sleepy_discord ../deps/include ../include/sleepy_discord/IncludeNonexistent
-         TARGET    = libsleepy_discord
-         SUFFIX    = .a
-         OUTPUT    = $(TARGET)$(SUFFIX)
+         CPPFLAGS  = -I../include/sleepy_discord -I../deps/include -I../include/sleepy_discord/IncludeNonexistent -Wall -fPIC
+override CFLAGS    =
+override CXXFLAGS  = -std=c++11
+         SRCDIR    = ../sleepy_discord
+         DESTDIR   = .
+         CXXOBJS  := $(patsubst %.cpp,%.o,$(wildcard $(SRCDIR)/*.cpp))
+         COBJS    := $(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c))
 
-all: ${TARGET}.o ar
+all: libcpr.a libsleepy_discord.a
 
-$(TARGET).o: 
-	$(CXX) $(FLAGS) $(SOURCE)/*.cpp $(foreach dir, $(INCLUDE), -I $(dir))
+clean:
+	rm -f $(DESTDIR)/*.o
+	rm -f $(DESTDIR)/*.a
 
-ar:
-	$(AR) $(OUTPUT) *.o
+c++: $(CXXOBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $^
+
+c: $(COBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $^
+
+libsleepy_discord.a: $(COBJS) $(CXXOBJS)
+	$(AR) $@ $^
+
+libcpr.a: $(patsubst %.cpp,%.o,$(wildcard ../deps/cpr/cpr/*.cpp))
+	sed -i '25,26d' ../deps/cpr/cpr/error.cpp # duplicate case value
+	$(CXX) -I../deps/include -c ../deps/cpr/cpr/*.cpp
+	$(AR) $@ $^
