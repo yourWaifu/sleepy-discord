@@ -30,6 +30,23 @@ if(USE_CPR)
 		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
 	endif()
 
+	set(BUILD_CURL_EXE OFF CACHE BOOL "")
+	set(CURL_STATICLIB ON CACHE BOOL "")
+	set(CURL_ZLIB OFF CACHE BOOL "")
+
+	#set what ssl library to use for curl based on OS
+	#this fixes 
+	set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+	if(WIN32)
+		set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+	elseif(APPLE)
+		set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
+	elseif(UNIX)
+		set(CMAKE_USE_MBEDTLS ON CACHE BOOL "")
+	else()
+		set(CMAKE_USE_OPENSSL ON CACHE BOOL "")
+	endif()
+
 	download_project(
 		PROJ           cpr
 		GIT_REPOSITORY https://github.com/whoshuu/cpr.git
