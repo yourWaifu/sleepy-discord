@@ -276,17 +276,17 @@ The first step to using Sleepy Discord
 <tr>
 <td>REST API</td>
 <td>Send a message using a request</td>
-<td>HTTP Secure</td>
+<td>Any HTTP Secure library</td>
 </tr>
 <tr>
 <td>Gateway</td>
 <td>Receiving a message at any time</td>
-<td>Websockets Secure</td>
+<td>Any Websockets Secure library</td>
 </tr>
 <tr>
 <td>Voice</td>
 <td>Talk in a voice channel</td>
-<td>Websockets Secure, UDP, libOpus, and libsodium</td>
+<td>Any Websockets Secure library, Any UDP library, libOpus, and libsodium</td>
 </tr>
 </tbody></table>
 
@@ -352,23 +352,21 @@ For people developing things for platforms outside of the main 3 operating syste
 
 <p><a href="TODO%20add%20links%20to%20all%20and%20how%20to%20for%20the%20custom%20stuff"></a></p>
 
+<p>Can&rsquo;t decide? We recommend Websocket++, and CPR.</p>
+
 <h1 id="getting-setup">Getting Setup</h1>
 
 <p>There&rsquo;s few options for getting setup to compile</p>
 
 <ul>
-<li><a href="#cmake">CMake</a></li>
+<li><a href="#cmake">CMake (Recommended)</a></li>
 <li><a href="#python-setup-script">Python Setup Scirpt</a></li>
 <li><a href="#manual-setup">Manual (last resort)</a></li>
 </ul>
 
+<p>Can&rsquo;t decide? We recommend CMake.</p>
+
 <h2 id="cmake">CMake</h2>
-<pre class="highlight powershell tab-powershell"><code>mkdir build
-<span class="nb">cd </span>build
-cmake ..
-make
-</code></pre>
-<p>To use CMake, you&rsquo;ll obviously need CMake. You can download it from <a href="https://cmake.org/download/">their website</a> or from your package manager. You might also run the issue about ssl, This can be simply fixed by downloading libssl-dev from your package manager. If you plan on also linking, you may want to skip to <a href="link.html#cmake">How to Link</a> as cmake can handle setup, compile and link. </p>
 
 <h3 id="list-of-options">List of Options</h3>
 
@@ -377,39 +375,131 @@ make
 <th>Option</th>
 <th>Variable</th>
 <th>Default value</th>
+<th>Requires OpenSSL</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>Websocket++</td>
 <td>USE_WEBSOCKETPP</td>
 <td>ON</td>
+<td>YES</td>
 </tr>
 <tr>
 <td>uWebsockets</td>
 <td>USE_UWEBSOCKETS</td>
 <td>OFF</td>
+<td>YES</td>
 </tr>
 <tr>
 <td>CPR</td>
 <td>USE_CPR</td>
 <td>ON</td>
+<td>NO</td>
 </tr>
 <tr>
 <td>ASIO</td>
 <td>USE_ASIO</td>
 <td>OFF but ON when USE_WEBSOCKETPP is ON</td>
+<td>NO</td>
 </tr>
 <tr>
 <td>libOpus</td>
 <td>USE_LIBOPUS</td>
 <td>OFF</td>
+<td>NO</td>
 </tr>
 <tr>
 <td>libsodium</td>
 <td>USE_LIBSODIUM</td>
 <td>OFF</td>
+<td>NO</td>
 </tr>
 </tbody></table>
+
+<h3 id="installing-openssl">Installing OpenSSL</h3>
+
+<p>Take a look at the chart above, that&rsquo;ll tell you if you need OpenSSL. If you already have OpenSSL or don&rsquo;t need it, skip to <a href="#generating-build-configuration-files">Generating Build Configuration Files</a>.</p>
+
+<p>Options (Choose one option):</p>
+
+<ul>
+<li>For Windows Users:
+
+<ul>
+<li><a href="#vcpkg">VCPKG</a></li>
+<li><a href="#windows-installer">Windows Installer</a></li>
+</ul></li>
+<li>For Linux / Bash Users:
+
+<ul>
+<li><a href="#linux">Linux</a></li>
+</ul></li>
+</ul>
+
+<h4 id="vcpkg">VCPKG</h4>
+
+<blockquote>
+<p>In Windows, run these commands
+<code class="prettyprint">powershell
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install
+.\vcpkg install openssl-windows
+</code></p>
+</blockquote>
+
+<p>It is recommend that you download openSSL using a package manager like <a href="https://github.com/Microsoft/vcpkg">vcpkg</a>. Also in case, you don&rsquo;t have git, make sure you download it from <a href="https://git-scm.com/download/win">git&rsquo;s website</a>.</p>
+
+<p>When running CMake, you&rsquo;ll need to set some values for this to work. After installing vcpkg integration, vcpkg will print <code class="prettyprint">CMake projects should use: &quot;X&quot;</code>. Copy what&rsquo;s in between the <code class="prettyprint">&quot;&quot;</code> and paste it when using the cmake command. The right or below should have examples on how to do this, remember to replace <code class="prettyprint">D:\path\to\vcpkg</code> with the path to vcpkg.</p>
+<pre class="highlight shell tab-shell"><code>cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES<span class="o">=</span>1 -DCMAKE_TOOLCHAIN_FILE<span class="o">=</span>D:<span class="se">\p</span>ath<span class="se">\t</span>o<span class="se">\v</span>cpkg<span class="se">\s</span>cripts<span class="se">\b</span>uildsystems<span class="se">\v</span>cpkg.cmake -DOPENSSL_USE_STATIC_LIBS<span class="o">=</span>TRUE -DOPENSSL_ROOT_DIR<span class="o">=</span><span class="s2">"D:</span><span class="se">\p</span><span class="s2">ath</span><span class="se">\t</span><span class="s2">o</span><span class="se">\v</span><span class="s2">cpkg</span><span class="se">\i</span><span class="s2">nstalled</span><span class="se">\x</span><span class="s2">86-windows-static"</span> -DBUILD_CPR_TESTS<span class="o">=</span>OFF
+</code></pre>
+<h4 id="windows-installer">Windows Installer</h4>
+
+<p><a href="https://slproweb.com/products/Win32OpenSSL.html">Go here</a>, download the installer (Don&rsquo;t download the light version), and follow the on screen instructions.</p>
+
+<h4 id="linux">Linux</h4>
+<pre class="highlight shell tab-shell"><code>sudo apt-get install libssl-dev
+</code></pre>
+<p>It&rsquo;s that easy. Well in case, cmake still can&rsquo;t find openssl, then you might need to define the variables <code class="prettyprint">OPENSSL_USE_STATIC_LIBS</code>, <code class="prettyprint">OPENSSL_ROOT_DIR</code>.</p>
+
+<h3 id="generating-build-configuration-files">Generating Build Configuration Files</h3>
+
+<p>Options (Choose one option):</p>
+
+<ul>
+<li>For Visual Studio Users:
+
+<ul>
+<li><a href="#generating-visual-studio-solution">Generating Visual Studio Solution</a></li>
+</ul></li>
+<li>For Linux / Bash Users:
+
+<ul>
+<li><a href="#generating-makefile">Generating Makefile</a></li>
+</ul></li>
+</ul>
+
+<h4 id="generating-makefile">Generating Makefile</h4>
+<pre class="highlight powershell tab-powershell"><code>mkdir build
+<span class="nb">cd </span>build
+cmake ..
+make
+</code></pre>
+<p>To use CMake, you&rsquo;ll obviously need CMake. You can download it from <a href="https://cmake.org/download/">their website</a> or from your package manager. You will also need openSSL, this can be simply fixed by downloading libssl-dev from your package manager or download from <a href="https://wiki.openssl.org/index.php/Binaries">any of the urls listed here</a>. If you are on linux, just run the commands in the example. After that&rsquo;s done, <a href="#the-next-step">Go to the next step.</a></p>
+
+<h4 id="generating-visual-studio-solution">Generating Visual Studio Solution</h4>
+
+<blockquote>
+<p>Replace &lt;\path\to\openSSL&gt; with the path to the OpenSSL folder and replace &lt;\path\to\vcpkg&gt; with path to vcpkg folder.</p>
+</blockquote>
+<pre class="highlight powershell tab-powershell"><code>mkdir build
+<span class="nb">cd </span>build
+cmake .. -G <span class="s2">"Visual Studio 15 2017"</span> -A x64 -DCMAKE_TOOLCHAIN_FILE<span class="o">=</span>&lt;<span class="se">\p</span>ath<span class="se">\t</span>o<span class="se">\v</span>cpkg&gt;<span class="se">\s</span>cripts<span class="se">\b</span>uildsystems<span class="se">\v</span>cpkg.cmake -DOPENSSL_ROOT_DIR<span class="o">=</span>&lt;<span class="se">\p</span>ath<span class="se">\t</span>o<span class="se">\o</span>penSSL&gt;
+</code></pre>
+<p>&lt;\path\to\openSSL&gt; can be find somewhere in &lt;\path\to\vcpkg&gt;\installed\ for vcpkg and C:\ for Windows Installer. You can also use <code class="prettyprint">-DOPENSSL_USE_STATIC_LIBS=TRUE</code> to use the static library. Once the command has finished it&rsquo;s task, go to the build folder and open the sleepy-discord.sln file that was just created. Open solution explorer, right click on sleepy-discord and click on build. After that&rsquo;s done, <a href="#the-next-step">Go to the next step.</a></p>
+
+<aside>If you want fancy, you can open the cmake list files in Visual Studio. <a href = "https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp?view=vs-2017">You&rsquo;ll need to read this tho.</aside>
 
 <h2 id="python-setup-script">Python setup script</h2>
 <pre class="highlight powershell tab-powershell"><code><span class="nb">PS </span>C:<span class="se">\&gt;</span> python -v
@@ -522,6 +612,8 @@ Don&rsquo;t forget to change the configuration to &ldquo;Release&rdquo; if you d
 </aside>
 
 <h2 id="common-issues">Common Issues</h2>
+
+<p>If you don&rsquo;t see your issue listed here, check <a href="https://github.com/yourWaifu/sleepy-discord/issues">the list of issues on the Github repo</a> and if your issue isn&rsquo;t listed in there, report it by creating a new issue.</p>
 
 <h3 id="cannot-open-input-file-libcurl_a-lib">cannot open input file &lsquo;libcurl_a.lib&rsquo;</h3>
 
