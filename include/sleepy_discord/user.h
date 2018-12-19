@@ -38,14 +38,14 @@ namespace SleepyDiscord {
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&User::ID           , "id"           , json::REQUIRIED_FIELD),
-				json::pair(&User::username     , "username"     , json::REQUIRIED_FIELD),
-				json::pair(&User::discriminator, "discriminator", json::REQUIRIED_FIELD),
-				json::pair(&User::avatar       , "avatar"       , json::NULLABLE_FIELD ),
-				json::pair(&User::bot          , "bot"          , json::OPTIONAL_FIELD ),
-				json::pair(&User::mfa_enabled  , "mfa_enabled"  , json::OPTIONAL_FIELD ),
-				json::pair(&User::verified     , "verified"     , json::OPTIONAL_FIELD ),
-				json::pair(&User::email        , "email"        , json::OPTIONAL_FIELD )
+				json::pair(&User::ID           , "id"           , json::REQUIRIED_FIELD        ),
+				json::pair(&User::username     , "username"     , json::OPTIONAL_FIELD         ),
+				json::pair(&User::discriminator, "discriminator", json::OPTIONAL_FIELD         ),
+				json::pair(&User::avatar       , "avatar"       , json::OPTIONAL_NULLABLE_FIELD),
+				json::pair(&User::bot          , "bot"          , json::OPTIONAL_FIELD         ),
+				json::pair(&User::mfa_enabled  , "mfa_enabled"  , json::OPTIONAL_FIELD         ),
+				json::pair(&User::verified     , "verified"     , json::OPTIONAL_FIELD         ),
+				json::pair(&User::email        , "email"        , json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
 	};
