@@ -29,9 +29,9 @@ It's important to understand the requirements needed to run this library. You ca
 ###Features
 |Feature|Example|Requirements|
 |-------|-----------|------------|
-|REST API|Send a message using a request|HTTP Secure|
-|Gateway|Receiving a message at any time|Websockets Secure|
-|Voice|Talk in a voice channel|Websockets Secure, UDP, libOpus, and libsodium|
+|REST API|Send a message using a request|Any HTTP Secure library|
+|Gateway|Receiving a message at any time|Any Websockets Secure library|
+|Voice|Talk in a voice channel|Any Websockets Secure library, Any UDP library, libOpus, and libsodium|
 
 ###Libraries/Options
 |Option|Description|Dependencies|
@@ -50,15 +50,84 @@ For people developing things for platforms outside of the main 3 operating syste
 </aside>
 [](TODO add links to all and how to for the custom stuff)
 
+Can't decide? We recommend Websocket++, and CPR.
+
 #Getting Setup
 
 There's few options for getting setup to compile
 
-* [CMake](#cmake)
+* [CMake (Recommended)](#cmake)
 * [Python Setup Scirpt](#python-setup-script)
 * [Manual (last resort)](#manual-setup)
 
+Can't decide? We recommend CMake.
+
 ##CMake
+
+### List of Options
+|Option|Variable|Default value|Requires OpenSSL|
+|------|--------|-------------|----------------|
+|Websocket++|USE_WEBSOCKETPP|ON|YES|
+|uWebsockets|USE_UWEBSOCKETS|OFF|YES|
+|CPR|USE_CPR|ON|NO|YES|
+|ASIO|USE_ASIO|OFF but ON when USE_WEBSOCKETPP is ON|NO|
+|libOpus|USE_LIBOPUS|OFF|NO|
+|libsodium|USE_LIBSODIUM|OFF|NO|
+
+### Installing OpenSSL
+
+Take a look at the chart above, that'll tell you if you need OpenSSL. If you already have OpenSSL or don't need it, skip to [Generating Build Configuration Files](#generating-build-configuration-files).
+
+Options (Choose one option):
+
+* For Windows Users:
+  * [VCPKG](#vcpkg)
+  * [Windows Installer](#windows-installer)
+* For Linux / Bash Users:
+  * [Linux](#linux)
+
+#### VCPKG
+
+> In Windows, run these commands
+```powershell
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install
+.\vcpkg install openssl-windows
+```
+
+It is recommend that you download openSSL using a package manager like [vcpkg](https://github.com/Microsoft/vcpkg). Also in case, you don't have git, make sure you download it from [git's website](https://git-scm.com/download/win).
+
+When running CMake, you'll need to set some values for this to work. After installing vcpkg integration, vcpkg will print ``CMake projects should use: "X"``. Copy what's in between the ``""`` and paste it when using the cmake command. The right or below should have examples on how to do this, remember to replace ``D:\path\to\vcpkg`` with the path to vcpkg.
+
+```shell
+cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\path\to\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
+```
+
+#### Windows Installer
+
+[Go here](https://slproweb.com/products/Win32OpenSSL.html), download the installer (Don't download the light version), and follow the on screen instructions.
+
+#### Linux 
+
+```shell
+sudo apt-get install libssl-dev
+```
+
+It's that easy. Well in case, cmake still can't find openssl, then you might need to define the variables ``OPENSSL_USE_STATIC_LIBS``, ``OPENSSL_ROOT_DIR``.
+
+### Generating Build Configuration Files
+
+Options (Choose one option):
+
+* For Visual Studio Users:
+  * [Generating Visual Studio Solution](#generating-visual-studio-solution)
+* For Linux / Bash Users:
+  * [Generating Makefile](#generating-makefile)
+
+#### Generating Makefile
+
 ```powershell
 mkdir build
 cd build
@@ -66,17 +135,21 @@ cmake ..
 make
 ```
 
-To use CMake, you'll obviously need CMake. You can download it from [their website](https://cmake.org/download/) or from your package manager. You might also run the issue about ssl, This can be simply fixed by downloading libssl-dev from your package manager. If you plan on also linking, you may want to skip to [How to Link](link.html#cmake) as cmake can handle setup, compile and link. 
+To use CMake, you'll obviously need CMake. You can download it from [their website](https://cmake.org/download/) or from your package manager. You will also need openSSL, this can be simply fixed by downloading libssl-dev from your package manager or download from [any of the urls listed here](https://wiki.openssl.org/index.php/Binaries). If you are on linux, just run the commands in the example. After that's done, [Go to the next step.](#the-next-step)
 
-### List of Options
-|Option|Variable|Default value|
-|------|--------|-------------|
-|Websocket++|USE_WEBSOCKETPP|ON|
-|uWebsockets|USE_UWEBSOCKETS|OFF|
-|CPR|USE_CPR|ON|
-|ASIO|USE_ASIO|OFF but ON when USE_WEBSOCKETPP is ON|
-|libOpus|USE_LIBOPUS|OFF|
-|libsodium|USE_LIBSODIUM|OFF|
+#### Generating Visual Studio Solution
+
+> Replace <\path\to\openSSL> with the path to the OpenSSL folder and replace <\path\to\vcpkg> with path to vcpkg folder.
+
+```powershell
+mkdir build
+cd build
+cmake .. -G "Visual Studio 15 2017" -A x64 -DCMAKE_TOOLCHAIN_FILE=<\path\to\vcpkg>\scripts\buildsystems\vcpkg.cmake -DOPENSSL_ROOT_DIR=<\path\to\openSSL>
+```
+
+<\path\to\openSSL\> can be find somewhere in <\path\to\vcpkg>\installed\ for vcpkg and C:\ for Windows Installer. You can also use ``-DOPENSSL_USE_STATIC_LIBS=TRUE`` to use the static library. Once the command has finished it's task, go to the build folder and open the sleepy-discord.sln file that was just created. Open solution explorer, right click on sleepy-discord and click on build. After that's done, [Go to the next step.](#the-next-step)
+
+<aside>If you want fancy, you can open the cmake list files in Visual Studio. <a href = "https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp?view=vs-2017">You'll need to read this tho.</aside>
 
 ##Python setup script
 ```powershell
@@ -179,6 +252,8 @@ Don't forget to change the configuration to ``Release`` if you don't want the de
 </aside>
 
 ##Common Issues
+
+If you don't see your issue listed here, check [the list of issues on the Github repo](https://github.com/yourWaifu/sleepy-discord/issues) and if your issue isn't listed in there, report it by creating a new issue.
 
 ### cannot open input file 'libcurl_a.lib'
 
