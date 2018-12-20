@@ -33,14 +33,19 @@ target_include_directories(sleepy-discord
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord
 )
 
-set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 11)
+#The codebase is c++11 but both clang and visual c++ have issues with c++11
+#These issues are fixed by using preprocessor defines to replace code that
+#cause issues with c++14 code
+set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
-
-target_compile_features(sleepy-discord PUBLIC cxx_std_11)
+target_compile_features(sleepy-discord PUBLIC cxx_std_14)
 
 target_compile_options(sleepy-discord PUBLIC -Wall)
 
 if(USE_CPR)
+	if(CURL_STATICLIB)
+		target_compile_definitions(${CPR_LIBRARIES} PUBLIC CURL_STATICLIB)
+	endif()
 	target_include_directories(sleepy-discord PUBLIC ${CPR_INCLUDE_DIRS})
 	target_link_libraries(sleepy-discord PUBLIC ${CPR_LIBRARIES})
 endif()
