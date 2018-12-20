@@ -39,10 +39,11 @@ if(USE_CPR)
 	if(NOT DEFINED CMAKE_USE_OPENSSL)
 		if(WIN32)
 			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		elseif(APPLE)
 			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		endif()
-		set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		#to do, set one for linux
 	endif()
 
