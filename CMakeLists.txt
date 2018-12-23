@@ -25,6 +25,28 @@ include(buildtools/cmake/DownloadProject.cmake)
 if(USE_CPR)
 	#to do install libssl-dev
 
+	#the cmake test has issues on visual studio so disable them
+	if(NOT DEFINED BUILD_CPR_TESTS)
+		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
+	endif()
+
+	set(BUILD_CURL_EXE OFF CACHE BOOL "")
+	set(CURL_STATICLIB ON CACHE BOOL "")
+	set(CURL_ZLIB OFF CACHE BOOL "")
+
+	#set what ssl library to use for curl based on OS
+	#this fixes
+	if(NOT DEFINED CMAKE_USE_OPENSSL)
+		if(WIN32)
+			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		elseif(APPLE)
+			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		endif()
+		#to do, set one for linux
+	endif()
+
 	download_project(
 		PROJ           cpr
 		GIT_REPOSITORY https://github.com/whoshuu/cpr.git
