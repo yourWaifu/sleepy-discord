@@ -177,7 +177,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::setServerCache(std::shared_ptr<ServerCache> cache) {
 		serverCache = cache;
 		if ((ready || !isBot()) && serverCache->size() == 0)
-			*serverCache = getServers().get<std::list>();
+			*serverCache = getServers().get<Cache>();
 	}
 
 	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset) {
@@ -406,7 +406,7 @@ namespace SleepyDiscord {
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)
-					serverCache->push_front(server);
+					serverCache->insert(server);
 				onServer(server);
 				} break;
 			case hash("GUILD_DELETE"               ): {

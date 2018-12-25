@@ -35,14 +35,21 @@ if(USE_CPR)
 	set(CURL_ZLIB OFF CACHE BOOL "")
 
 	#set what ssl library to use for curl based on OS
-	#this fixes 
-	set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-	if(WIN32)
-		set(CMAKE_USE_WINSSL ON CACHE BOOL "")
-	elseif(APPLE)
-		set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
-	else()
-		set(CMAKE_USE_OPENSSL ON CACHE BOOL "")
+	#this fixes
+	if(NOT DEFINED CMAKE_USE_OPENSSL)
+		if(WIN32)
+			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		elseif(APPLE)
+			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		endif()
+		#to do, set one for linux
+	endif()
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		#using cmake to configure curl on linux has issues
+		#so use system curl
+		set(USE_SYSTEM_CURL ON CACHE BOOL "")
 	endif()
 
 	download_project(
