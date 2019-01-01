@@ -1,5 +1,5 @@
 ---
-title: Untitled 
+title: Getting Started
 
 language_tabs:
 
@@ -10,7 +10,7 @@ includes:
 search: true
 ---
 
-# Untitled
+# Getting Started
 
  1. In case you haven't already have any source code, create a cpp file and copy and paste [this example code](https://github.com/yourWaifu/sleepy-discord/blob/master/examples/hello/example0.cpp).
 

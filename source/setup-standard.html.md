@@ -24,7 +24,7 @@ search: true
 
 ## Instructions
 
-### Configuring CMake
+### Creating a CMakeList file
 
 ```cmake
 #CMakeLists.txt
@@ -34,15 +34,17 @@ project(example)
 add_executable(replace-me source.cpp)
 ```
 
+ 1. In case you haven't already created a CMakeLists.txt file for your project. please do so on the root directory or folder of your project.
+
+ 2. Replace replace-me with the name of your project or executable.
+
+## Linking Sleepy Discord
+
 ```cmake
 #Add these two lines
 add_subdirectory(path/to/sleepy-discord)
 target_link_libraries(replace-me sleepy-discord)
 ```
-
- 1. In case you haven't already created a CMakeLists.txt for your project. please do so on the root directory or folder of your project.
-
- 2. Replace replace-me with the name of your project or executable.
 
  3. Add these two lines to the CMakeList.txt so that Sleepy Discord will be linked.
 

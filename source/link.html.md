@@ -40,7 +40,7 @@ To link Sleepy Discord using CMake, simply add two lines of cmake code to your C
 
 ```shell
 cd ./examples/hello/
-g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
+g++ -std=c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcpr -lcurl -lssl -lcrypto -lpthread -o example.out
 ```
 
 This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.
