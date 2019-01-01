@@ -274,7 +274,7 @@ I&rsquo;m going to assume that you have compiled Sleepy Discord or aquired a com
 
 <h1 id="g">G++</h1>
 <pre class="highlight shell tab-shell"><code><span class="nb">cd</span> ./examples/hello/
-g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcurl -lssl -lcrypto -lpthread -o example.out
+g++ -std<span class="o">=</span>c++11 -I ../../include -I ../../deps -I ../../deps/include -I ../../include/sleepy_discord/IncludeNonexistent example0.cpp -L../../buildtools -L/usr/lib -lsleepy_discord -lcpr -lcurl -lssl -lcrypto -lpthread -o example.out
 </code></pre>
 <p>This example command should compile and link the example code in examples/hello to Sleepy Discord with G++. Please note that this example assumes that libcurl.a, libssl.a, and libcrypto.a are located in /usr/lib.</p>
 

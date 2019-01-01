@@ -262,19 +262,24 @@
 
 <h2 id="instructions">Instructions</h2>
 
-<h3 id="configuring-cmake">Configuring CMake</h3>
+<h3 id="creating-a-cmakelist-file">Creating a CMakeList file</h3>
 <pre class="highlight cmake tab-cmake"><code><span class="c1">#CMakeLists.txt</span>
 <span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 3.6<span class="p">)</span>
 <span class="nb">project</span><span class="p">(</span>example<span class="p">)</span>
 
 <span class="nb">add_executable</span><span class="p">(</span>replace-me source.cpp<span class="p">)</span>
-</code></pre><pre class="highlight cmake tab-cmake"><code><span class="c1">#Add these two lines</span>
+</code></pre>
+<ol>
+<li><p>In case you haven&rsquo;t already created a CMakeLists.txt file for your project. please do so on the root directory or folder of your project.</p></li>
+<li><p>Replace replace-me with the name of your project or executable.</p></li>
+</ol>
+
+<h2 id="linking-sleepy-discord">Linking Sleepy Discord</h2>
+<pre class="highlight cmake tab-cmake"><code><span class="c1">#Add these two lines</span>
 <span class="nb">add_subdirectory</span><span class="p">(</span>path/to/sleepy-discord<span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span>replace-me sleepy-discord<span class="p">)</span>
 </code></pre>
 <ol>
-<li><p>In case you haven&rsquo;t already created a CMakeLists.txt for your project. please do so on the root directory or folder of your project.</p></li>
-<li><p>Replace replace-me with the name of your project or executable.</p></li>
 <li><p>Add these two lines to the CMakeList.txt so that Sleepy Discord will be linked.</p></li>
 <li><p>Replace path/to/sleepy-discord with the relative path to the sleepy-discord directory or folder. Also remember to replace replace-me with the name of your executable.</p></li>
 </ol>
