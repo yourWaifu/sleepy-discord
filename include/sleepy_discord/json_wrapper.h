@@ -2,6 +2,8 @@
 #include <list>
 #include <utility>
 #include <vector>
+//for errrors
+#include <iostream>
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 typedef std::size_t SizeType;
@@ -309,12 +311,17 @@ namespace SleepyDiscord {
 		{
 			constexpr auto field = std::get<i>(ResultingObject::JSONStruct);
 			using Helper = typename decltype(field)::Helper;
-			if (field.type & OPTIONAL_NULLABLE_FIELD) {
-				Value::ConstMemberIterator iterator = value.FindMember(field.name);
-				if (iterator != value.MemberEnd() && !iterator->value.IsNull())
+			Value::ConstMemberIterator iterator = value.FindMember(field.name);
+			if (iterator != value.MemberEnd()) {
+				if (!iterator->value.IsNull()) //ignore if null
 					object.*(field.member) = Helper::toType(iterator->value);
-			} else {
-				object.*(field.member) = Helper::toType(value[field.name]);
+			} else if (field.type == REQUIRIED_FIELD) {
+				//error
+				std::cout << 
+				"JSON Parse Error: "
+				"variable \"" << field.name << "\" not found. "
+				"Please look at call stack from your debugger for more details.";
+				RAPIDJSON_ASSERT(false);
 			}
 			fromJSON<ResultingObject, i + 1>(object, value);
 		}

@@ -39,12 +39,12 @@ namespace SleepyDiscord {
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&ServerMember::user    , "user"     , json::REQUIRIED_FIELD),
+				json::pair                           (&ServerMember::user    , "user"     , json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::nick    , "nick"     , json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::joinedAt, "joined_at", json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::deaf    , "deaf"     , json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::mute    , "mute"     , json::REQUIRIED_FIELD)
+				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::joinedAt, "joined_at", json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::deaf    , "deaf"     , json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};

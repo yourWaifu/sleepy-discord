@@ -139,7 +139,7 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&EmbedFooter::text        , "name"          , json::REQUIRIED_FIELD),
+				json::pair(&EmbedFooter::text        , "text"          , json::REQUIRIED_FIELD),
 				json::pair(&EmbedFooter::iconUrl     , "icon_url"      , json::OPTIONAL_FIELD ),
 				json::pair(&EmbedFooter::proxyIconUrl, "proxy_icon_url", json::OPTIONAL_FIELD )
 			);

@@ -1,24 +1,33 @@
-         CXX       = g++ #compiler
+.SUFFIXES:
+.SUFFIXES: .c .cpp .o .a
+
+         CC        = gcc # c compiler
+         CXX       = g++ # c++ compiler
          AR        = ar rv
-         CXXFLAGS  = -std=c++11
-         CFLAGS    = -Wall -c
-override FLAGS    := $(CXXFLAGS) $(CFLAGS) $(FLAGS)
-         ISCUSTOM  = TRUE
-         SOURCE    = ../sleepy_discord
+         CPPFLAGS  = -Wall -fPIC -c $(foreach dir, $(INCLUDE), -I$(dir))
+override CFLAGS   +=
+override CXXFLAGS += -std=c++11
+         SRCDIR    = ../sleepy_discord
          INCLUDE   = ../include/sleepy_discord ../deps/include ../include/sleepy_discord/IncludeNonexistent
-         TARGET    = libsleepy_discord
-         SUFFIX    = .a
-         OUTPUT    = $(TARGET)$(SUFFIX)
+         DESTDIR   = .
+         COBJS     = $(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c))
+         CXXOBJS   = $(patsubst %.cpp,%.o,$(wildcard $(SRCDIR)/*.cpp))
+         CPROBJS   = $(patsubst %.cpp,%.o,$(wildcard ../deps/cpr/cpr/*.cpp))
 
-ifeq ($(ISCUSTOM),TRUE)
-  INCLUDE = ../include/sleepy_discord ../include/sleepy_discord/IncludeNonexistent
-endif
+all: libsleepy_discord.a libcpr-patch libcpr.a
 
-all: ${TARGET}.o ar
+clean:
+	rm -f $(DESTDIR)/*.a
+	rm -f $(COBJS)
+	rm -f $(CXXOBJS)
+	rm -f $(CPROBJS)
 
-$(TARGET).o: 
-	$(CXX) $(FLAGS) $(SOURCE)/*.cpp $(foreach dir, $(INCLUDE), -I $(dir))
-	$(CXX) $(CFLAGS) $(SOURCE)/*.c $(foreach dir, $(INCLUDE), -I $(dir)) #Needed for some compilers
+libsleepy_discord.a: $(COBJS) $(CXXOBJS)
+	$(AR) $@ $^
 
-ar:
-	$(AR) $(OUTPUT) *.o
+libcpr.a: $(CPROBJS)
+	$(AR) $@ $^
+
+libcpr-patch:
+	# duplicate case value in lines 25,26
+	sed -i 's/.*VER.*//; s/.*REM.*//' ../deps/cpr/cpr/error.cpp 
