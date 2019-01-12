@@ -19,6 +19,7 @@ namespace SleepyDiscord {
 		//variable                  condition    modifier                         value                felid               else
 		Parent           (                                                        values[index(fields, "id"              )]                          ),
 		channelID        (                                                        values[index(fields, "channel_id"      )]                          ),
+		serverID         (                                                        values[index(fields, "guild_id"        )]                          ),
 		author           (                                                       &values[index(fields, "author"          )]                          ),
 		content          (                                                        values[index(fields, "content"         )]                          ),
 		timestamp        (                                                        values[index(fields, "timestamp"       )]                          ),
@@ -81,7 +82,7 @@ namespace SleepyDiscord {
 		Parent        (                     values[index(fields, "id"            )] ),
 		name          (                     values[index(fields, "name"          )] ),
 		roles         (JSON_getArray<Role>(&values[index(fields, "roles"         )])),
-		user          (                    &values[index(fields, "user"          )] ),
+		user          (setIfElse(isSpecified, &values[index(fields, "user")], User())),
 		requireColons (getBool(             values[index(fields, "require_colons")])),
 		managed       (getBool(             values[index(fields, "managed"       )]))
 	{}

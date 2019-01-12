@@ -55,6 +55,7 @@ namespace SleepyDiscord {
 		Message reply(BaseDiscordClient * client, std::string message, bool tts = false);
 
 		Snowflake<Channel> channelID;
+		Snowflake<Server> serverID;
 		User author;
 		std::string content;
 		std::string timestamp;
