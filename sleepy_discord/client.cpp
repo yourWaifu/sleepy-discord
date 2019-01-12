@@ -45,7 +45,8 @@ namespace SleepyDiscord {
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
-		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters) {
+		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters,
+		std::function<void(Response)> callback) {
 		//check if rate limited
 		Response response;
 		const time_t currentTime = getEpochTimeMillisecond();
@@ -92,68 +93,80 @@ namespace SleepyDiscord {
 				header.push_back({ "Content-Length", "0" });
 			}
 			session.setHeader(header);
-			//Response response;
+			//create response processing function
+			const auto processResponse = [=](Response& response) {
+				{
+					//status checking
+					switch (response.statusCode) {
+					case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
+					case TOO_MANY_REQUESTS: {   //this should fall down to default
+						int retryAfter = std::stoi(response.header["Retry-After"]);
+						isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
+						nextRetry = getEpochTimeMillisecond() + retryAfter;
+						if (!isGlobalRateLimited) {
+							buckets[bucket] = nextRetry;
+							onDepletedRequestSupply(bucket, retryAfter);
+						}
+						onExceededRateLimit(isGlobalRateLimited, retryAfter, Request{*this, method, path, jsonParameters, multipartParameters});
+					}
+					default:
+					{		//error
+						const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
+						setError(code);		//https error
+						//json::Values values = json::getValues(response.text.c_str(),
+						//{ "code", "message" });	//parse json to get code and message
+						rapidjson::Document document;
+						document.Parse(response.text.c_str());
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != document.MemberEnd())
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
+							);
+						else
+							onError(ERROR_NOTE, response.text);
+		#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+						throw code;
+		#endif
+					} break;
+					}
+					//rate limit check
+					if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+						std::tm date = {};
+						//for some reason std::get_time requires gcc 5
+						std::istringstream dateStream(response.header["Date"]);
+						dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+						const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+		#if defined(_WIN32) || defined(_WIN64)
+						std::tm gmTM;
+						std::tm*const resetGM = &gmTM;
+						gmtime_s(resetGM, &reset);
+		#else
+						std::tm* resetGM = std::gmtime(&reset);
+		#endif
+						const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+						buckets[bucket] = resetDelta + getEpochTimeMillisecond();
+						onDepletedRequestSupply(bucket, resetDelta);
+					}
+				}
+				onResponse(response);
+			};
+			if (callback)
+				session.setResponseCallback([=](Response response) {
+					processResponse(response);
+					callback(response);
+				});
+			//Do the response
 			switch (method) {
 			case Post: case Patch: case Delete: case Get: case Put:
 				response = session.request(method);
 				break;
 			default: response.statusCode = BAD_REQUEST; break; //unexpected method
 			}
-			//status checking
-			switch (response.statusCode) {
-			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
-			case TOO_MANY_REQUESTS: {   //this should fall down to default
-				int retryAfter = std::stoi(response.header["Retry-After"]);
-				isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
-				nextRetry = getEpochTimeMillisecond() + retryAfter;
-				if (!isGlobalRateLimited) {
-					buckets[bucket] = nextRetry;
-					onDepletedRequestSupply(bucket, retryAfter);
-				}
-				onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters });
-			}
-			default:
-			{		//error
-				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
-				setError(code);		//https error
-				//json::Values values = json::getValues(response.text.c_str(),
-				//{ "code", "message" });	//parse json to get code and message
-				rapidjson::Document document;
-				document.Parse(response.text.c_str());
-				auto errorCode = document.FindMember("code");
-				auto errorMessage = document.FindMember("message");
-				if (errorCode != document.MemberEnd())
-					onError(
-						static_cast<ErrorCode>(errorCode->value.GetInt()),
-						{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-					);
-				else
-					onError(ERROR_NOTE, response.text);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-				throw code;
-#endif
-			} break;
-			}
-			//rate limit check
-			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				buckets[bucket] = resetDelta + getEpochTimeMillisecond();
-				onDepletedRequestSupply(bucket, resetDelta);
-			}
+			if (!callback)
+				processResponse(response);
 		}
-		onResponse(response);
 		return response;
 	}
 

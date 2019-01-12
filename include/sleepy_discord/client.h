@@ -66,9 +66,18 @@ namespace SleepyDiscord {
 		~BaseDiscordClient();
 
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
-			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
+			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
+			std::function<void(Response)> callback = {});
 		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
+
+		template<class ParmType, class Callback>
+		void requestAsync(const RequestMethod method, Route path,  Callback callback, const std::string jsonParameters = "",
+			const std::initializer_list<Part>& multipartParameters = {}) {
+			request(method, path, jsonParameters, multipartParameters, [callback](Response r) {
+				callback(static_cast<ParmType>(r));
+			});
+		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
 
@@ -193,6 +202,8 @@ namespace SleepyDiscord {
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		const Snowflake<User> getID() { return userID; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
+		const int getShardID() { return shardID; }
+		const int getShardCount() { return shardCount; }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
 		
@@ -578,7 +589,7 @@ namespace SleepyDiscord {
 	struct Request {
 		BaseDiscordClient& client;
 		const RequestMethod method;
-		const std::string url;
+		const Route url;
 		const std::string jsonParameters;
 		const std::initializer_list<Part> multipartParameters;
 		inline void operator()() {

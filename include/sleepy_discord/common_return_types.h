@@ -78,4 +78,13 @@ namespace SleepyDiscord {
 
 	template <class Type>
 	using ArrayResponse = json::ArrayWrapper<Type, ArrayResponseWrapper>;
+
+	struct StringResponse : public StandardResponse {
+		using StandardResponse::StandardResponse;
+		inline operator const std::string&() const {
+			return text;
+		}
+	};
+
+	using VoidResponse = StringResponse;
 }
