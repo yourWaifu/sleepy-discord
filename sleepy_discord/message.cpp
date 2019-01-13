@@ -3,9 +3,10 @@
 
 namespace SleepyDiscord {
 	const std::initializer_list<const char*const> Message::fields = {
-		"id", "channel_id", "content", "timestamp", "edited_timestamp", "tts",
-		"mention_everyone", "author", "mentions", "mention_roles", "attachments",
-		"embeds", "reactions", "nonce", "pinned", "webhook_id", "type"
+		"id", "channel_id", "guild_id", "content", "timestamp", "edited_timestamp",
+		"tts", "mention_everyone", "author", "mentions", "mention_roles",
+		"attachments", "embeds", "reactions", "nonce", "pinned", "webhook_id",
+		"type"
 	};
 
 	Message::Message() {
