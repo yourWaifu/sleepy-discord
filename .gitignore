@@ -265,3 +265,4 @@ ModelManifest.xml
 #my files
 deps/
 /discord token.txt
+include/sleepy_discord/version.h

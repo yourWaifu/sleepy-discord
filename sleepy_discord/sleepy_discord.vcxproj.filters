@@ -191,6 +191,7 @@
     <ClInclude Include="..\include\sleepy_discord\asio_schedule.h">
       <Filter>schedule\asio</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\version_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
@@ -203,6 +204,7 @@
     <None Include="..\buildtools\Makefile.linux">
       <Filter>buildtools</Filter>
     </None>
+    <None Include="make_version.h.js" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="websocket">

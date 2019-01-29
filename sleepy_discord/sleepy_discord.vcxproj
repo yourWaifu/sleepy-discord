@@ -254,6 +254,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -289,6 +292,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -322,6 +328,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Make|Win32'">
     <ClCompile>
@@ -456,6 +465,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -491,6 +503,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
@@ -524,6 +539,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Make|Win32'">
     <ClCompile>
@@ -889,6 +907,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\user.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h" />
+    <ClInclude Include="..\include\sleepy_discord\version_helper.h" />
     <ClInclude Include="..\include\sleepy_discord\voice.h" />
     <ClInclude Include="..\include\sleepy_discord\voice_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h" />
@@ -903,6 +922,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <None Include="..\buildtools\Makefile.3ds" />
     <None Include="..\buildtools\Makefile.linux" />
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
+    <None Include="make_version.h.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
