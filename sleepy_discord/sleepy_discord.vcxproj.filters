@@ -218,6 +218,7 @@
     <ClInclude Include="..\include\sleepy_discord\custom_connection.h">
       <Filter>websocket</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\version_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
@@ -227,6 +228,7 @@
     <None Include="..\buildtools\Makefile">
       <Filter>buildtools</Filter>
     </None>
+    <None Include="make_version.h.js" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="websocket">

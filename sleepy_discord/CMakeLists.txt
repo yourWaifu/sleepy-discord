@@ -88,6 +88,10 @@ if(USE_LIBSODIUM)
 	target_link_libraries(sleepy-discord ${LIB_SODIUM})
 endif()
 
+if(NOT Git_FOUND)
+	target_compile_definitions(sleepy-discord PRIVATE NONEXISTANT_GIT_INFO)
+endif()
+
 target_include_directories(sleepy-discord
 	PUBLIC
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent
