@@ -59,10 +59,12 @@ if(USE_CPR)
 endif()
 
 if(USE_ASIO)
+	# Note websocketpp doesn't work with the latest version of asio
+	# Remember to go back to the master version after they are fixed
 	download_project(
 		PROJ           asio
 		GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-		GIT_TAG        master
+		GIT_TAG        22afb86
 		SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
 		UPDATE_DISCONNECTED 1
 	)
