@@ -459,7 +459,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteRelationship(const json::Value& jsonMessage);
 		virtual void onReaction          (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
 		virtual void onDeleteReaction    (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
-		virtual void onDeleteAllReaction (Snowflake<Channel> channelID, Snowflake<Message> messageID);
+		virtual void onDeleteAllReaction (Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID);
 		virtual void onMessage           (Message            message    );
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );

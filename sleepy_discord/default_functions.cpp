@@ -127,7 +127,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID) {
 
 	}
 

@@ -562,7 +562,7 @@ namespace SleepyDiscord {
 			case hash("RELATIONSHIP_REMOVE"        ): onDeleteRelationship(d); break;
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["user_id"], d["channel_id"]); break;
+			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
 			default: 
 				setError(EVENT_UNKNOWN);
 				onError(ERROR_NOTE, json::toStdString(t));
