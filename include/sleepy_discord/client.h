@@ -24,6 +24,7 @@
 #include "message_receiver.h"
 #include "timer.h"
 #include "voice_connection.h"
+#include "asio_schedule.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
@@ -39,12 +40,13 @@ namespace SleepyDiscord {
 
 	class Route {
 	public:
+		using Bucket = std::string;
 		Route(const std::string route, const std::initializer_list<std::string>& _values = {});
 		Route(const char* route);
 		inline const std::string& url() {
 			return _url;
 		}
-		const std::string bucket(RequestMethod method);
+		const Bucket bucket(RequestMethod method);
 		inline operator const std::string&() {
 			return url();
 		}
@@ -61,19 +63,121 @@ namespace SleepyDiscord {
 	public:
 		BaseDiscordClient();
 		BaseDiscordClient(const std::string _token) { start(_token); }
-		virtual ~BaseDiscordClient();
+		~BaseDiscordClient();
 
+		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
-			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {});
+			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
+			RequestCallback callback = nullptr);
 		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
+		template<class ParmType, class Callback>
+		void requestAsync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
+			const std::initializer_list<Part>& multipartParameters = {}) {
+			postTask(Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
+				callback(static_cast<ParmType>(r));
+			} });
+		}
+
+		template<class ParmType, class Callback>
+		Response requestSync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
+			const std::initializer_list<Part>& multipartParameters = {}) {
+			return request(method, path, jsonParameters, multipartParameters, [callback](Response r) {
+				callback(static_cast<ParmType>(r));
+			});
+		}
+
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
+
+		enum RequestMode {
+			Async,
+			Sync
+		};
+
+		template<class _ParmType>
+		struct RequestSettings {
+			RequestMode mode =
+#ifdef SLEEPY_DEFAULT_REQUEST_MODE_ASYNC
+				Async;
+#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
+				Sync;
+#else
+				Sync;
+#endif
+			using ParmType = _ParmType;
+			using Callback = std::function<void(ParmType)>;
+			using CallbackParmTypeInContainer = std::function<void(typename ParmType::Type)>;
+			Callback callback = nullptr;
+		private:
+			inline Callback convertCallback(CallbackParmTypeInContainer& c) {
+				return [c](ParmType p) { c(p); };
+			}
+		public:
+			RequestSettings(RequestMode r) : mode(r) {}
+			RequestSettings(Callback c) : mode(Async), callback(c) {}
+			RequestSettings(RequestMode r, Callback c) : mode(r), callback(c) {}
+			RequestSettings(CallbackParmTypeInContainer c) : RequestSettings(convertCallback(c)) {}
+			RequestSettings(RequestMode r, CallbackParmTypeInContainer c) : RequestSettings(r, convertCallback(c)) {}
+			RequestSettings() = default;
+		};
+
+		template<class RequestSettingsClass>
+		Response request(const RequestMethod method, Route path, RequestSettingsClass& settings,
+			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
+			switch (settings.mode) {
+			case Async:        requestAsync<typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			case Sync:  return requestSync <typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			default:    return Response(BAD_REQUEST); break;
+			}
+			return Response();
+		}
+
+		template<RequestMode mode, class type>
+		struct RawRequestModeTypeHelper {
+			using ReturnType = type;
+			static type doRequest() {}
+		};
+
+#define RequestModeRequestDefine template<class ParmType, class Callback> \
+		static ReturnType doRequest(BaseDiscordClient& client, const RequestMethod method, Route path, \
+			const std::string jsonParameters, const std::initializer_list<Part>& multipartParameters, Callback callback) 
+
+		template<RequestMode mode> struct RequestModeType {};
+		template<> struct RequestModeType<Async> : RawRequestModeTypeHelper<Async, void> {
+			RequestModeRequestDefine {
+				client.requestAsync<ParmType, Callback>(method, path, callback, jsonParameters, multipartParameters);
+			}
+		};
+		template<> struct RequestModeType<Sync>  : RawRequestModeTypeHelper<Sync , Request> {
+			RequestModeRequestDefine {
+				return client.requestSync(method, path, callback, jsonParameters, multipartParameters);
+			}
+		};
+
+		template<RequestMode mode, class ParmType = void, class Callback = RequestCallback>
+		typename RequestModeType<mode>::ReturnType request(const RequestMethod method, Route path, Callback callback,
+			const std::string jsonParameters = ""/*,
+			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {}
+			) {
+			return RequestModeType<mode>::doRequest<ParmType, Callback>(*this, method, path, jsonParameters, multipartParameters, callback);
+		}
+
+		template<class RequestSettingsClass>
+		typename RequestSettingsClass::ReturnType request(const RequestMethod method, Route path, RequestSettingsClass& settings,
+			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
+			switch (settings.mode) {
+			case Async:        requestAsync<ParmType, Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			case Sync:  return requestSync                     (method, path, settings.callback, jsonParameters, multipartParameters); break;
+			default:    return Response(BAD_REQUEST); break;
+			}
+			return Response();
+		}
 
 		void testFunction(std::string teststring);
 
 		//channel functions
-		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID);
+		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID, RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = "");
 		ObjectResponse<Channel     > editChannelName         (Snowflake<Channel> channelID, std::string name);
 		ObjectResponse<Channel     > editChannelTopic        (Snowflake<Channel> channelID, std::string topic);
@@ -191,10 +295,20 @@ namespace SleepyDiscord {
 		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		const Snowflake<User> getID() { return userID; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
+		const int getShardID() { return shardID; }
+		const int getShardCount() { return shardCount; }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
-
+		
 		//time
+		template <class Handler, class... Types>
+		inline void setScheduleHandler(Types&&... arguments) {
+			scheduleHandler = std::unique_ptr<GenericScheduleHandler>(
+				new Handler(std::forward<Types>(arguments)...)
+			);
+		}
+		inline GenericScheduleHandler& getScheduleHandler() { return *scheduleHandler; } 
+
 		enum AssignmentType : bool {
 			TilDueTime = 0,
 			EpochTime  = 1,
@@ -207,6 +321,11 @@ namespace SleepyDiscord {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
 		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
+		
+		typedef TimedTask PostableTask;
+		virtual void postTask(PostableTask code) {
+			schedule(code, 0);
+		}
 
 #ifdef SLEEPY_VOICE_ENABLED
 		//
@@ -221,9 +340,15 @@ namespace SleepyDiscord {
 			deafen = 1 << 1
 		};
 
-		VoiceContext& createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server = "", BaseVoiceEventHandler* eventHandler = nullptr);
+		VoiceContext& createVoiceContext(Snowflake<Server> server, Snowflake<Channel> channel, BaseVoiceEventHandler* eventHandler = nullptr);
+		inline VoiceContext& createVoiceContext(Snowflake<Channel> channel, BaseVoiceEventHandler* eventHandler = nullptr) {
+			createVoiceContext("", channel, eventHandler);
+		}
 		void connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings);
-		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
+		VoiceContext& connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings = normal);
+		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, VoiceMode settings = normal) {
+			return connectToVoiceChannel("", channel, settings);
+		}
 		inline void disconnectVoiceConnection(VoiceConnection & connection) {
 			connection.disconnect();
 		}
@@ -250,15 +375,15 @@ namespace SleepyDiscord {
 #endif
 
 		//Caching
-		std::shared_ptr<ServerCache>& createServerCache();
-		void setServerCache(std::shared_ptr<ServerCache>& cache);
+		std::shared_ptr<ServerCache> createServerCache();
+		void setServerCache(std::shared_ptr<ServerCache> cache);
 		inline std::shared_ptr<ServerCache>& getServerCache() {
 			return serverCache;
 		}
 
 	protected:
 		//Rest events
-		virtual void onDepletedRequestSupply(time_t timeTilRetry, Request request);
+		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
 		virtual void onExceededRateLimit(bool global, time_t timeTilRetry, Request request);
 
 		/* list of events
@@ -316,11 +441,11 @@ namespace SleepyDiscord {
 		virtual void onDeleteRole        (Snowflake<Server> serverID, Snowflake<Role> roleID);
 		virtual void onEditRole          (Snowflake<Server> serverID, Role role);
 		virtual void onEditEmojis        (Snowflake<Server> serverID, std::vector<Emoji> emojis);
-		virtual void onMemberChunk       (const json::Value& jsonMessage);
+		virtual void onMemberChunk       (Snowflake<Server> serverID, std::vector<ServerMember> members);
 		virtual void onDeleteChannel     (Channel channel);
 		virtual void onEditChannel       (Channel channel);
-		virtual void onPinMessage        (const json::Value& jsonMessage);
-		virtual void onPresenceUpdate    (const json::Value& jsonMessage);
+		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);
+		virtual void onPresenceUpdate    (PresenceUpdate     presenseUpdate);
 		virtual void onEditUser          (User user);
 		virtual void onEditUserNote      (const json::Value& jsonMessage);
 		virtual void onEditUserSettings  (const json::Value& jsonMessage);
@@ -334,7 +459,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteRelationship(const json::Value& jsonMessage);
 		virtual void onReaction          (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
 		virtual void onDeleteReaction    (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
-		virtual void onDeleteAllReaction (Snowflake<Channel> channelID, Snowflake<Message> messageID);
+		virtual void onDeleteAllReaction (Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID);
 		virtual void onMessage           (Message            message    );
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );
@@ -361,7 +486,6 @@ namespace SleepyDiscord {
 		void processCloseCode(const int16_t code) override;
 		void heartbeat();
 		void sendHeartbeat();
-		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(
@@ -369,7 +493,7 @@ namespace SleepyDiscord {
 			GenericMessageReceiver* messageProcessor,  //IN  When a message is receved, this will process it
 			WebsocketConnection& connection             //OUT data needed in order to send a message. nullptr by default
 		) { return false; }
-		void handleFailToConnect() override { schedule([=]() { reconnect(); }, 10000); }
+		void handleFailToConnect() override { reconnect(); }
 		virtual void send(std::string message, WebsocketConnection& connection) {}
 		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection) {}
 		void reconnect(const unsigned int status = 1000);
@@ -393,6 +517,7 @@ namespace SleepyDiscord {
 		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
+		std::unique_ptr<GenericScheduleHandler> scheduleHandler = nullptr;
 		Timer heart;
 
 		enum OPCode {
@@ -436,7 +561,7 @@ namespace SleepyDiscord {
 		int8_t messagesRemaining;
 		bool isGlobalRateLimited = false;
 		time_t nextRetry = 0;
-		std::unordered_map<std::string, time_t> buckets;
+		std::unordered_map<Route::Bucket, time_t> buckets;
 
 		//error handling
 		void setError(int errorCode);
@@ -454,6 +579,79 @@ namespace SleepyDiscord {
 		void connectToVoiceIfReady(VoiceContext& context);
 		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif
+
+		template<class Callback>
+		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {
+			if (serverCache) {
+				ServerCache::iterator server = serverCache->findServer(serverID);
+				if (server != serverCache->end()) {
+					onSuccessCallback(server);
+				}
+			}
+		}
+
+		template<class Callback>
+		void accessServerFromCache(Snowflake<Server>& serverID, Callback callback) {
+			findServerInCache(serverID, [callback](ServerCache::iterator& found) {
+				callback(*found);
+			});
+		}
+
+		template<class Container, class Callback>
+		void accessContainerFromCache(
+			Snowflake<Server>& serverID, Container Server::* container, Callback callback
+		) {
+			accessServerFromCache(serverID, [callback, container](Server& server) {
+				callback(server, server.*(container));
+			});
+		}
+
+		template<class Container>
+		void appendObjectToCache(
+			Snowflake<Server>& serverID, Container Server::* container, typename Container::value_type& object
+		) {
+			accessContainerFromCache(serverID, container,
+				[object](Server& server, Container& found) {
+					found.push_front(object);
+				}
+			);
+		}
+
+		template<class Type, class Container, class Callback>
+		void accessIteratorFromCache (
+			Snowflake<Server>& serverID, Container Server::* container, Type ID, Callback callback
+		) {
+			accessContainerFromCache(serverID, container,
+				[callback, ID](Server& server, Container& foundContainter) {
+					auto found = ID.findObject(foundContainter);
+					if (found != foundContainter.end()) {
+						callback(server, found);
+					}
+				}
+			);
+		}
+
+		template<class Type, class Container, class Callback>
+		void accessObjectFromCache(
+			Snowflake<Server> serverID, Container Server::* container, Type ID, Callback callback
+		) {
+			accessIteratorFromCache(serverID, container, ID,
+				[callback] (Server& server, typename Container::iterator& iterator) {
+					callback(server, *iterator);
+				}
+			);
+		}
+
+		template<class Type, class Container>
+		void eraseObjectFromCache(
+			Snowflake<Server> serverID, Container Server::* container, Type ID
+		) {
+			accessIteratorFromCache(serverID, container, ID, 
+				[container](Server& server, typename Container::iterator& found) {
+					(server.*(container)).erase(found);
+				}
+			);
+		}
 	};
 
 	//inline BaseDiscordClient::AssignmentType operator|(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
@@ -474,8 +672,6 @@ namespace SleepyDiscord {
 		Timer schedule(TimedTask code, const time_t milliseconds);
 	protected:
 		void resumeMainLoop();
-		virtual int setDoAssignmentTimer(const time_t milliseconds); //call doAssignment in x milliseconds
-		virtual void stopDoAssignmentTimer(const int jobID) {}
 		void doAssignment();
 	private:
 		struct Assignment {
@@ -491,11 +687,12 @@ namespace SleepyDiscord {
 	struct Request {
 		BaseDiscordClient& client;
 		const RequestMethod method;
-		const std::string url;
+		const Route url;
 		const std::string jsonParameters;
 		const std::initializer_list<Part> multipartParameters;
+		const BaseDiscordClient::RequestCallback callback;
 		inline void operator()() {
-			client.request(method, url, jsonParameters, multipartParameters);
+			client.request(method, url, jsonParameters, multipartParameters, callback);
 		}
 		//inline operator std::function<void()>() {
 		//	return std::bind(&Request::operator(), this);

@@ -54,7 +54,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onMemberChunk(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onMemberChunk(Snowflake<Server> serverID, std::vector<ServerMember> members) {
 
 	}
 
@@ -66,11 +66,11 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onPinMessage(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onPinMessage(Snowflake<Channel> channelID, std::string lastPinTimestamp) {
 
 	}
 
-	void BaseDiscordClient::onPresenceUpdate(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onPresenceUpdate(PresenceUpdate presenseUpdate) {
 
 	}
 
@@ -127,7 +127,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID) {
 
 	}
 

@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
-#include <list>
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
 #include "snowflake.h"
+#include "cache.h"
 
 namespace SleepyDiscord {
 	enum Permission : int64_t;
@@ -39,12 +39,12 @@ namespace SleepyDiscord {
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&ServerMember::user    , "user"     , json::REQUIRIED_FIELD),
+				json::pair                           (&ServerMember::user    , "user"     , json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::nick    , "nick"     , json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::joinedAt, "joined_at", json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::deaf    , "deaf"     , json::REQUIRIED_FIELD),
-				json::pair                           (&ServerMember::mute    , "mute"     , json::REQUIRIED_FIELD)
+				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::joinedAt, "joined_at", json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::deaf    , "deaf"     , json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
@@ -130,34 +130,35 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	class ServerCache : public std::list<Server> {
+	class ServerCache : public Cache<Server> {
 	public:
-		using std::list<Server>::list;
-		ServerCache() : list() {} //for some odd reason the default constructor isn't inherited
-		ServerCache(std::list<Server> list) : std::list<Server>(list) {}
+		using Cache<Server>::Cache;
+		ServerCache() : Cache() {} //for some odd reason the default constructor isn't inherited
+		ServerCache(Cache<Server> list) : Cache<Server>(list) {}
 
+		/*
 		//Linear time complexity if unordered map: to do figure out how to do this with constant time complexity
 		template<class Container, class Object>
-		iterator findOnetWithObject(Container Server::*list, const Snowflake<Object>& objectID) {
+		iterator findOneWithObject(Container Server::*list, const Snowflake<Object>& objectID) {
 			return std::find_if(begin(), end(), [&objectID, list](Server& server) {
 				auto result = objectID.findObject(server.*list);
 				return result != std::end(server.*list);
 			});
 		}
+		*/
 
-		inline iterator findSeverWith(const Snowflake<Channel>& channelID) {
-			return findOnetWithObject(&Server::channels, channelID);
+		inline const_iterator findSeverWith(const Snowflake<Channel>& channelID) {
+			return findOneWithObject(&Server::channels, channelID);
 		}
 
-		inline iterator findServerWith(const Snowflake<Role> roleID) {
-			return findOnetWithObject(&Server::roles, roleID);
+		inline const_iterator findServerWith(const Snowflake<Role> roleID) {
+			return findOneWithObject(&Server::roles, roleID);
 		}
 
-		//Linear time complexity
+		//Linear time complexity if using list
+		//Usually Constant time complexity if using unordered maps
 		inline iterator findServer(const Snowflake<Server> serverID) {
-			return std::find_if(begin(), end(), [&serverID](Server& server) {
-				return server.ID == serverID;
-			});
+			return serverID.findObject(*this);
 		}
 	};
 

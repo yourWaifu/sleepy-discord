@@ -2,6 +2,8 @@
 #include <list>
 #include <utility>
 #include <vector>
+//for errrors
+#include <iostream>
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 typedef std::size_t SizeType;
@@ -66,7 +68,7 @@ namespace SleepyDiscord {
 			}
 
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
-			inline std::list  <TypeToConvertTo> list()   { return get<std::list>();   }
+			inline std::list  <TypeToConvertTo> list  () { return get<std::list>();   }
 
 			//c arrays
 			inline TypeToConvertTo* cArray() { return &vector()[0]; }
@@ -195,6 +197,10 @@ namespace SleepyDiscord {
 			}
 		};
 
+		//for some reason, some compilers need this
+		//template <int defaultValue>
+		//struct PrimitiveTypeHelper<long int, defaultValue> : public PrimitiveTypeHelper<long long, defaultValue> {};
+
 		template<> struct ClassTypeHelper<int     > : public PrimitiveTypeHelper<int     > {};
 		template<> struct ClassTypeHelper<uint32_t> : public PrimitiveTypeHelper<uint32_t> {};
 		template<> struct ClassTypeHelper<int64_t > : public PrimitiveTypeHelper<int64_t > {};
@@ -217,16 +223,38 @@ namespace SleepyDiscord {
 		};
 
 		template<class Container, template<class...> class TypeHelper>
-		struct ContainerTypeHelper : public EmptyFunction<Container> {
-			static inline Container toType(const Value& value) {
-				return toArray<typename Container::value_type>(value);
-			}
+		struct FromContainerFunction {
 			static inline Value fromType(const Container& values, Value::AllocatorType& allocator) {
 				Value arr(rapidjson::kArrayType);
 				arr.Reserve(values.size(), allocator);
 				for (const typename Container::value_type& value : values)
 					arr.PushBack(TypeHelper<typename Container::value_type>::fromType(value, allocator), allocator);
 				return arr;
+			} 
+		};
+
+		template<class Container, template<class...> class TypeHelper>
+		struct ContainerTypeHelper : public EmptyFunction<Container>, public FromContainerFunction<Container, TypeHelper> {
+			static inline Container toType(const Value& value) {
+				return toArray<typename Container::value_type>(value);
+			}
+		};
+
+		template<class StdArray, template<class...> class TypeHelper>
+		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray, TypeHelper> {
+			static inline StdArray toType(const Value& value) {
+				ArrayWrapper<typename StdArray::value_type> arrayWrapper(value);
+				std::array<typename StdArray::value_type, std::tuple_size<StdArray>::value> arr;
+				Array jsonArray = arrayWrapper.getArray();
+				Value::ConstValueIterator iterator = jsonArray.Begin();
+				for (typename StdArray::value_type& v : arr) {
+					if (iterator == jsonArray.End())
+						break;
+					v = TypeHelper<typename StdArray::value_type>::toType(*iterator);
+					++iterator;
+				}
+				return arr;
+				//return toArray<typename StdArray::value_type, std::tuple_size<StdArray>::value>(value);
 			}
 		};
 
@@ -261,7 +289,7 @@ namespace SleepyDiscord {
 			return PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>>{member, name, type};
 		}
 
-		//There needs to be a workaround for Visual C++ for this to compile. However, this workaround relys on c++14.
+		//There needs to be a workaround for Visual C++ and clang for this to compile. However, this workaround relys on c++14.
 #if __cpp_return_type_deduction
 #define JSONStruct getJSONStructure()
 #define JSONStructStart constexpr static auto JSONStruct { return
@@ -283,12 +311,16 @@ namespace SleepyDiscord {
 		{
 			constexpr auto field = std::get<i>(ResultingObject::JSONStruct);
 			using Helper = typename decltype(field)::Helper;
-			if (field.type & OPTIONAL_NULLABLE_FIELD) {
-				Value::ConstMemberIterator iterator = value.FindMember(field.name);
-				if (iterator != value.MemberEnd() && !iterator->value.IsNull())
+			Value::ConstMemberIterator iterator = value.FindMember(field.name);
+			if (iterator != value.MemberEnd()) {
+				if (!iterator->value.IsNull()) //ignore if null
 					object.*(field.member) = Helper::toType(iterator->value);
-			} else {
-				object.*(field.member) = Helper::toType(value[field.name]);
+			} else if (field.type == REQUIRIED_FIELD) {
+				//error
+				std::cout << 
+				"JSON Parse Error: "
+				"variable #" << i << ": \"" << field.name << "\" not found. "
+				"Please look at call stack from your debugger for more details.";
 			}
 			fromJSON<ResultingObject, i + 1>(object, value);
 		}

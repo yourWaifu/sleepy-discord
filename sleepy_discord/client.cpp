@@ -17,11 +17,17 @@
 
 namespace SleepyDiscord {
 	void BaseDiscordClient::start(const std::string _token, const char maxNumOfThreads, int _shardID, int _shardCount) {
+		if (!scheduleHandler) {
+			setError(CANT_SCHEDULE);
+			return;
+		}
+		
 		ready = false;
 		quiting = false;
 		bot = true;
 		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
-		setShardID(_shardID, _shardCount);
+		if (_shardID != 0 || _shardCount != 0)
+			setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
 		getTheGateway();
@@ -39,7 +45,8 @@ namespace SleepyDiscord {
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
-		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters) {
+		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters,
+		RequestCallback callback) {
 		//check if rate limited
 		Response response;
 		const time_t currentTime = getEpochTimeMillisecond();
@@ -47,7 +54,7 @@ namespace SleepyDiscord {
 			if (nextRetry <= currentTime) {
 				isGlobalRateLimited = false;
 			} else {
-				onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, { *this, method, path, jsonParameters, multipartParameters });
+				onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
 				response.statusCode = TOO_MANY_REQUESTS;
 				setError(response.statusCode);
 				return response;
@@ -59,7 +66,7 @@ namespace SleepyDiscord {
 			if (bucketResetTimestamp->second <= currentTime) {
 				buckets.erase(bucketResetTimestamp);
 			} else {
-				onExceededRateLimit(false, bucketResetTimestamp->second - currentTime, { *this, method, path, jsonParameters, multipartParameters });
+				onExceededRateLimit(false, bucketResetTimestamp->second - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
 				response.statusCode = TOO_MANY_REQUESTS;
 				setError(response.statusCode);
 				return response;
@@ -86,68 +93,80 @@ namespace SleepyDiscord {
 				header.push_back({ "Content-Length", "0" });
 			}
 			session.setHeader(header);
-			//Response response;
+			//create response processing function
+			const auto processResponse = [=](Response& response) {
+				{
+					//status checking
+					switch (response.statusCode) {
+					case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
+					case TOO_MANY_REQUESTS: {   //this should fall down to default
+						int retryAfter = std::stoi(response.header["Retry-After"]);
+						isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
+						nextRetry = getEpochTimeMillisecond() + retryAfter;
+						if (!isGlobalRateLimited) {
+							buckets[bucket] = nextRetry;
+							onDepletedRequestSupply(bucket, retryAfter);
+						}
+						onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters, callback });
+					}
+					default:
+					{		//error
+						const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
+						setError(code);		//https error
+						//json::Values values = json::getValues(response.text.c_str(),
+						//{ "code", "message" });	//parse json to get code and message
+						rapidjson::Document document;
+						document.Parse(response.text.c_str());
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != document.MemberEnd())
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
+							);
+						else
+							onError(ERROR_NOTE, response.text);
+		#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+						throw code;
+		#endif
+					} break;
+					}
+					//rate limit check
+					if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+						std::tm date = {};
+						//for some reason std::get_time requires gcc 5
+						std::istringstream dateStream(response.header["Date"]);
+						dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+						const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+		#if defined(_WIN32) || defined(_WIN64)
+						std::tm gmTM;
+						std::tm*const resetGM = &gmTM;
+						gmtime_s(resetGM, &reset);
+		#else
+						std::tm* resetGM = std::gmtime(&reset);
+		#endif
+						const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+						buckets[bucket] = resetDelta + getEpochTimeMillisecond();
+						onDepletedRequestSupply(bucket, resetDelta);
+					}
+				}
+				onResponse(response);
+			};
+			if (callback)
+				session.setResponseCallback([=](Response response) {
+					processResponse(response);
+					callback(response);
+				});
+			//Do the response
 			switch (method) {
-			case Post:   response = session.Post();   break;
-			case Patch:  response = session.Patch();  break;
-			case Delete: response = session.Delete(); break;
-			case Get:    response = session.Get();    break;
-			case Put:    response = session.Put();    break;
-			default:     response.statusCode = BAD_REQUEST; break; //unexpected method
+			case Post: case Patch: case Delete: case Get: case Put:
+				response = session.request(method);
+				break;
+			default: response.statusCode = BAD_REQUEST; break; //unexpected method
 			}
-			//status checking
-			switch (response.statusCode) {
-			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
-			case TOO_MANY_REQUESTS: {   //this should fall down to default
-				int retryAfter = std::stoi(response.header["Retry-After"]);
-				isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
-				nextRetry = getEpochTimeMillisecond() + retryAfter;
-				if (!isGlobalRateLimited)
-					buckets[bucket] = nextRetry;
-				onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters });
-			}
-			default:
-			{		//error
-				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
-				setError(code);		//https error
-				//json::Values values = json::getValues(response.text.c_str(),
-				//{ "code", "message" });	//parse json to get code and message
-				rapidjson::Document document;
-				document.Parse(response.text.c_str());
-				auto errorCode = document.FindMember("code");
-				auto errorMessage = document.FindMember("message");
-				if (errorCode != document.MemberEnd())
-					onError(
-						static_cast<ErrorCode>(errorCode->value.GetInt()),
-						{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-					);
-				else
-					onError(ERROR_NOTE, response.text);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-				throw code;
-#endif
-			} break;
-			}
-			//rate limit check
-			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				buckets[bucket] = resetDelta + getEpochTimeMillisecond();
-				onDepletedRequestSupply(resetDelta, { *this, method, path, jsonParameters, multipartParameters });
-			}
+			if (!callback)
+				processResponse(response);
 		}
-		onResponse(response);
 		return response;
 	}
 
@@ -163,7 +182,18 @@ namespace SleepyDiscord {
 		return Route(source, values);
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(std::time_t timeTilRetry, Request request) {
+	std::shared_ptr<ServerCache> BaseDiscordClient::createServerCache() {
+		setServerCache(std::make_shared<ServerCache>());
+		return getServerCache();
+	}
+
+	void BaseDiscordClient::setServerCache(std::shared_ptr<ServerCache> cache) {
+		serverCache = cache;
+		if ((ready || !isBot()) && serverCache->size() == 0)
+			*serverCache = getServers().get<Cache>();
+	}
+
+	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset) {
 	}
 
 	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
@@ -203,7 +233,7 @@ namespace SleepyDiscord {
 #else
 		Session session;
 		session.setUrl("https://discordapp.com/api/gateway");
-		Response a = session.Get();	//todo change this back to a post
+		Response a = session.request(Get);	//todo change this back to a post
 		if (!a.text.length()) {	//error check
 			quit(false, true);
 			return setError(GATEWAY_FAILED);
@@ -389,25 +419,23 @@ namespace SleepyDiscord {
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)
-					serverCache->push_front(server);
+					serverCache->insert(server);
 				onServer(server);
 				} break;
 			case hash("GUILD_DELETE"               ): {
 				UnavailableServer server(d);
 				if (serverCache) {
-					ServerCache::const_iterator foundServer = serverCache->findServer(server);
-					if (foundServer != serverCache->end())
-						serverCache->erase(foundServer);
+					findServerInCache(server.ID, [=](ServerCache::iterator& found) {
+						serverCache->erase(found);
+					});
 				}
 				onDeleteServer(server);
 				} break;
 			case hash("GUILD_UPDATE"               ): {
 				Server server(d);
-				if (serverCache) {
-					ServerCache::iterator foundServer = serverCache->findServer(server);
-					if (foundServer != serverCache->end())
-						*foundServer = server;
-				}
+				accessServerFromCache(server.ID, [server](Server& foundServer) {
+					foundServer = server;
+				});
 				onEditServer(server);
 				} break;
 			case hash("GUILD_BAN_ADD"              ): onBan  (d["guild_id"], d["user"]); break;
@@ -416,24 +444,13 @@ namespace SleepyDiscord {
 			case hash("GUILD_MEMBER_ADD"           ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				ServerMember member(d);
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end())
-						server->members.push_front(member);
-				}
+				appendObjectToCache(serverID, &Server::members, member);
 				onMember(serverID, member);
 				} break;
 			case hash("GUILD_MEMBER_REMOVE"        ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				User user = d["user"];
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end()) {
-						auto member = server->findMember(userID);
-						if (member != server->members.end())
-							server->members.erase(member);
-					}
-				}
+				eraseObjectFromCache(serverID, &Server::members, user.ID);
 				onRemoveMember(serverID, user);
 				} break;
 			case hash("GUILD_MEMBER_UPDATE"        ): {
@@ -441,93 +458,60 @@ namespace SleepyDiscord {
 				User user = d["user"];
 				std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
 				std::string nick = json::toStdString(d["nick"]);
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end()) {
-						auto foundMember = server->findMember(userID);
-						if (foundMember != server->members.end()) {
-							ServerMember& member = *foundMember;
-							member.user = user;
-							member.roles = roles;
-							member.nick = nick;
-						}
+				accessObjectFromCache(serverID, &Server::members, user.ID,
+					[user, roles, nick](Server& server, ServerMember& member) {
+						member.user = user;
+						member.roles = roles;
+						member.nick = nick;
 					}
-				}
+				);
 				onEditMember(serverID, user, roles, nick);
 				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
+			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d["guild_id"], json::toArray<ServerMember>(d["members"])); break;
 			case hash("GUILD_ROLE_CREATE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end())
-						server->roles.push_front(role);
-				}
+				appendObjectToCache(serverID, &Server::roles, role);
 				onRole(serverID, role);
 				} break;
 			case hash("GUILD_ROLE_UPDATE"):
 			{
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end()) {
-						auto foundRole = server->findRole(role);
-						if (foundRole != server->roles.end())
-							*foundRole = role;
+				accessObjectFromCache(serverID, &Server::roles, role.ID,
+					[role](Server& server, Role& foundRole) {
+						foundRole = role;
 					}
-				}
+				);
 				onEditRole(serverID, role);
 			} break;
 			case hash("GUILD_ROLE_DELETE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Snowflake<Role> roleID = d["role_id"];
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(serverID);
-					if (server != serverCache->end()) {
-						auto foundRole = server->findRole(roleID);
-						if (foundRole != server->roles.end())
-							server->roles.erase(foundRole);
-					}
-				}
+				eraseObjectFromCache(serverID, &Server::roles, roleID);
 				onDeleteRole(serverID, roleID);
 				} break;
 			case hash("GUILD_EMOJIS_UPDATE"        ): onEditEmojis        (d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
 			case hash("CHANNEL_CREATE"             ): {
 				Channel channel = d;
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(channel.serverID);
-					if (server != serverCache->end())
-						server->channels.push_front(channel);
-				}
+				appendObjectToCache(channel.serverID, &Server::channels, channel);
 				onChannel(d);
 				} break;
 			case hash("CHANNEL_UPDATE"             ): {
 				Channel channel = d;
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(channel.serverID);
-					if (server != serverCache->end()) {
-						auto foundChannel = server->findChannel(channel);
-						if (foundChannel != server->channels.end())
-							*foundChannel = channel;
+				accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
+					[channel](Server& server, Channel& foundChannel) {
+						foundChannel = channel;
 					}
-				}
+				);
 				onEditChannel(d); 
 				} break;
 			case hash("CHANNEL_DELETE"             ): {
 				Channel channel = d;
-				if (serverCache) {
-					ServerCache::iterator server = serverCache->findServer(channel.serverID);
-					if (server != serverCache->end()) {
-						auto foundChannel = server->findChannel(channel);
-						if (foundChannel != server->channels.end())
-							server->channels.erase(foundChannel);
-					}
-				}
+				eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
 				onDeleteChannel(d);
 				} break;
-			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d); break;
+			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d["channel_id"], json::toStdString(d["last_pin_timestamp"])); break;
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
 			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
@@ -578,7 +562,7 @@ namespace SleepyDiscord {
 			case hash("RELATIONSHIP_REMOVE"        ): onDeleteRelationship(d); break;
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["user_id"], d["channel_id"]); break;
+			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
 			default: 
 				setError(EVENT_UNKNOWN);
 				onError(ERROR_NOTE, json::toStdString(t));
@@ -589,17 +573,17 @@ namespace SleepyDiscord {
 		case HELLO:
 			heartbeatInterval = d["heartbeat_interval"].GetInt();
 			heartbeat();
-			if (sessionID.empty()) sendIdentity();
+			if (!ready) sendIdentity();
 			else sendResume();
 			break;
 		case RECONNECT:
 			reconnect();
 			break;
 		case INVALID_SESSION:
-			if (d[0][0] == 't') {
+			if (json::toBool(d) == true) {
 				schedule(&BaseDiscordClient::sendResume, 2500);
 			} else {
-				sessionID = {};
+				sessionID = "";
 				schedule(&BaseDiscordClient::sendIdentity, 2500);
 			}
 			break;
@@ -621,20 +605,15 @@ namespace SleepyDiscord {
 		case DECODE_ERROR:
 		case NOT_AUTHENTICATED:
 		case ALREADY_AUTHENTICATED:
+		case INVALID_SEQ:
 		case RATE_LIMITED:
 		case SESSION_TIMEOUT:
 		default:
 			break;
 
-		case SESSION_NO_LONGER_VALID:
-		case INVALID_SEQ:
 		case 1000:
-			if (!isQuiting()) {
-				//restart with new session
-				sessionID = {};
-				lastSReceived = 0;
+			if (!isQuiting())
 				break;
-			}
 			//else fall through
 
 		//Might be Unrecoveralbe
@@ -645,7 +624,6 @@ namespace SleepyDiscord {
 			return quit(false, true);
 			break;
 		}
-		resetHeartbeatValues();
 		reconnect(1001);
 	}
 
@@ -686,22 +664,15 @@ namespace SleepyDiscord {
 		onHeartbeat();
 	}
 
-	void BaseDiscordClient::resetHeartbeatValues() {
-		if (heart.isValid()) heart.stop();
-		lastHeartbeat = 0;
-		wasHeartbeatAcked = true;
-		heartbeatInterval = 0;
-	}
-
 	//
 	//Voice
 	//
 
 #ifdef SLEEPY_VOICE_ENABLED
 
-	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server, BaseVoiceEventHandler * eventHandler) {
+	VoiceContext& BaseDiscordClient::createVoiceContext(Snowflake<Server> server, Snowflake<Channel> channel, BaseVoiceEventHandler * eventHandler) {
 		Snowflake<Server> serverTarget = server != "" ? server : getChannel(channel).cast().serverID;
-		voiceContexts.push_front({ channel, serverTarget, eventHandler });
+		voiceContexts.push_front({ serverTarget, channel, eventHandler });
 		waitingVoiceContexts.emplace_front(&voiceContexts.front());
 		return voiceContexts.front();
 	}
@@ -731,8 +702,8 @@ namespace SleepyDiscord {
 		  */
 	}
 
-	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server, VoiceMode settings) {
-		VoiceContext& target = createVoiceContext(channel, server);
+	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings) {
+		VoiceContext& target = createVoiceContext(server, channel);
 		connectToVoiceChannel(target, settings);
 		return target;
 	}

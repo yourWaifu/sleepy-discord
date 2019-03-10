@@ -20,7 +20,28 @@ namespace SleepyDiscord {
 		session.SetMultipart(muiltpart);
 	}
 
-	Response CPRSession::convertResponse(cpr::Response response) {
+	Response CPRSession::request(RequestMethod method) {
+		if (responseCallback) {
+			std::async([=](RequestMethod method) {
+				responseCallback(perform(method));
+			}, method);
+			return Response();
+		} else {
+			return perform(method);
+		}
+	}
+
+	Response CPRSession::perform(RequestMethod method) {
+		cpr::Response response;
+		switch (method) {
+		case Post  : response = session.Post  (); break;
+		case Patch : response = session.Patch (); break;
+		case Delete: response = session.Delete(); break;
+		case Get   : response = session.Get   (); break;
+		case Put   : response = session.Put   (); break;
+		default    : return Response(); break;
+		}
+
 		Response target;
 		target.statusCode = response.status_code;
 		target.text = response.text;

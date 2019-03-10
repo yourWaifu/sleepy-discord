@@ -5,7 +5,7 @@
 
 namespace SleepyDiscord {
 	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-		origin(client), context(_context), UDP(), sSRC(0), port(0), previousTime(0),
+		origin(client), context(_context), UDP(*origin), sSRC(0), port(0), previousTime(0),
 		nextTime(0),
 #if !defined(NONEXISTENT_OPUS)
 		encoder(nullptr),
@@ -36,6 +36,8 @@ namespace SleepyDiscord {
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
+		if (speechTimer.isValid())
+			speechTimer.stop();
 		state = static_cast<State>(state & ~State::CONNECTED);
 	}
 
@@ -100,8 +102,8 @@ namespace SleepyDiscord {
 		case READY: {
 			//json::Values values = json::getValues(d->c_str(),
 			//{ "ssrc", "port" });
-			sSRC = values["ssrc"].GetUint();
-			port = static_cast<uint16_t>(values["port"].GetUint());
+			sSRC = d["ssrc"].GetUint();
+			port = static_cast<uint16_t>(d["port"].GetUint());
 			//start heartbeating
 			heartbeat();
 			//connect to UDP
@@ -165,7 +167,11 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processCloseCode(const int16_t code) {
-		getDiscordClient().removeVoiceConnectionAndContext(*this);
+		switch (code) {
+		default:
+			getDiscordClient().removeVoiceConnectionAndContext(*this);
+			break;
+		}
 	}
 
 	void VoiceConnection::heartbeat() {
@@ -282,11 +288,12 @@ namespace SleepyDiscord {
 		);
 		previousTime = nextTime;
 		nextTime += interval;
-		const time_t delay = nextTime - origin->getEpochTimeMillisecond();
+		time_t delay = nextTime - origin->getEpochTimeMillisecond();
+		delay = 0 < delay ? delay : 0;
 
-		origin->schedule([this]() {
+		speechTimer = origin->schedule([this]() {
 			this->speak();
-		}, 0 < delay ? delay : 0);
+		}, delay);
 	}
 
 	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {

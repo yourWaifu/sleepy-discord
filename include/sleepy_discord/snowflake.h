@@ -12,15 +12,19 @@ namespace SleepyDiscord {
 	//Stops you from mixing up different types of ids, like using a message_id as a user_id
 	template <typename DiscordObject>
 	struct Snowflake {
+		using RawType = std::string;
+		
 		Snowflake(                                  ) : raw(""                            ) {}
 		Snowflake(const std::string         & snow  ) : raw( snow                         ) {}
 		Snowflake(const std::string         * snow  ) : raw(*snow                         ) {}
 		Snowflake(const char                * snow  ) : raw( snow                         ) {}
-		Snowflake(const nonstd::string_view & snow  ) : raw( snow.to_string(             )) {}
+		Snowflake(const nonstd::string_view & snow  ) : raw(snow.data(), snow.length()    ) {}
+		Snowflake(const Snowflake           & flake ) : Snowflake(flake.string(          )) {}
 		Snowflake(const DiscordObject       & object) : Snowflake(object. ID              ) {}
 		Snowflake(const DiscordObject       * object) : Snowflake(object->ID              ) {}
 		Snowflake(const int64_t               number) : Snowflake(std::to_string(number  )) {}
 		Snowflake(const json::Value         & value ) : Snowflake(json::toStdString(value)) {}
+		//Snowflake(const std::pair<const RawType, DiscordObject>& pair  ) : Snowflake(pair.first              ) {}
 
 		inline bool operator==(const Snowflake& right) const {
 			return raw == right.raw;
@@ -53,17 +57,39 @@ namespace SleepyDiscord {
 		template<class iterator>
 		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {
-				return this->operator==(static_cast<DiscordObject>(object));
+				return operator==(static_cast<DiscordObject>(object));
 			});
 		}
 
+		//Magical code from stackflow
+		//https://stackoverflow.com/a/87846
 		template<class Container>
-		inline auto findObject(const Container& objects) const -> decltype(objects.begin()) {
+		struct HasAFindFunction {
+			using SuccessType = char;
+			using FailureType = int;
+			template<class _Container, size_t (_Container::*)() const> struct Magic {};
+			template<class _Container> static SuccessType Test(Magic<_Container, &_Container::find>*);
+			template<class _Container> static FailureType Test(...);
+			static const bool Value = sizeof(Test<Container>(0)) == sizeof(SuccessType);
+		};
+
+		template<class Container>
+		auto findObject(Container& objects, std::true_type) const -> decltype(objects.begin()) {
+			return objects.find(operator const std::string&());
+		}
+
+		template<class Container>
+		auto findObject(Container& objects, std::false_type) const -> decltype(objects.begin()) {
 			return findObject(objects.begin(), objects.end());
 		}
 
+		template<class Container>
+		auto findObject(Container& objects) const -> decltype(objects.begin()) {
+			return findObject(objects, std::integral_constant<bool, HasAFindFunction<Container>::Value>());
+		}
+
 	private:
-		std::string raw;
+		RawType raw;
 		static const time_t discordEpoch = 1420070400000;	//the first second of 2015 since epoch
 	};
 

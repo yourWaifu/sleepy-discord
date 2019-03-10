@@ -8,20 +8,40 @@
 #include <websocketpp/common/memory.hpp>
 #include "client.h"
 #include "websocketpp_connection.h"
+#include "asio_schedule.h"
+#include "asio_udp.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> _client;
 
 namespace SleepyDiscord {
 	//typedef GenericMessageReceiver MessageProcssor;
 
+	class WebsocketppScheduleHandler : public ASIOBasedScheduleHandler {
+	public:
+		WebsocketppScheduleHandler(_client& c) : client(c) {}
+		~WebsocketppScheduleHandler() = default;
+		Timer schedule(TimedTask code, const time_t milliseconds) override;
+		inline websocketpp::lib::asio::io_service& getIOService() override {
+			return client.get_io_service();
+		}
+	private:
+		_client& client;
+	};
+
 	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = SleepyDiscord::USER_CONTROLED_THREADS);
+		WebsocketppDiscordClient(const std::string token, const char numOfThreads = SleepyDiscord::DEFAULT_THREADS);
 		~WebsocketppDiscordClient();
+
+		using TimerPointer = std::weak_ptr<websocketpp::lib::asio::steady_timer>;
 
 		void run();
 		Timer schedule(TimedTask code, const time_t milliseconds);
+		void postTask(PostableTask code) override {
+			asio::post(code);
+		}
+		//UDPClient createUDPClient() /* override*/;
 	protected:
 #include "standard_config_header.h"
 	private:

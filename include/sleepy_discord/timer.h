@@ -8,7 +8,8 @@ namespace SleepyDiscord {
 	public:
 		typedef std::function<void()> StopTimerFunction;
 		Timer() {}
-		Timer(StopTimerFunction stopTimer) : implStop(stopTimer) {}
+		Timer(StopTimerFunction stopTimer) :
+			implStop(stopTimer) {}
 		inline void stop() const { implStop(); }
 		inline bool isValid() const { return implStop != nullptr; }
 	private:

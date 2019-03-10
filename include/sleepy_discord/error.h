@@ -48,5 +48,6 @@ namespace SleepyDiscord {
 		ERROR_NOTE      = 5005, //Comes after an error to give more detail about an error in the message
 		VOICE_NO_SODIUM = 5006, //Failed to init libsodium. Try linking libsodium?
 		VOICE_NO_OPUS   = 5007, //Failed to init libopus. Try linking libopus?
+		CANT_SCHEDULE   = 5008, //The Discord Client's scheduleHandler is not set
 	};
 }

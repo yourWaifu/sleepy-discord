@@ -91,6 +91,7 @@ namespace SleepyDiscord {
 		case ERROR_NOTE     : onError(code, "This is subposed to be a note"                                    ); break;
 		case VOICE_NO_SODIUM: onError(code, "Failed to init libsodium. Try linking libsodium?"                 ); break;
 		case VOICE_NO_OPUS  : onError(code, "Failed to init libopus. Try linking libopus?"                     ); break;
+		case CANT_SCHEDULE  : onError(code, "The Discord Client's scheduleHandler is not set"                  ); break;
 		}
 	}
 }

@@ -7,13 +7,25 @@ namespace SleepyDiscord {
 		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
 		//		{"color", json::UInteger(0x1000000)}
 		//}));
-		ObjectResponse<Message> m = sendMessage("error_test", "testing");
-		if (m.error()) {
-			onError(ERROR_ZERO, "test");
-		}
-		if (std::vector<Channel>(getServerChannels("error_test")).empty()) {
-			onError(ERROR_NOTE, "test");
-		}
+
+		//ObjectResponse<Message> m = sendMessage("error_test", "testing");
+		//if (m.error()) {
+		//	onError(ERROR_ZERO, "test");
+		//}
+		//if (std::vector<Channel>(getServerChannels("error_test")).empty()) {
+		//	onError(ERROR_NOTE, "test");
+		//}
+
+		//sendMessage(createDirectMessageChannel("99259409045143552")->ID, "Hey, How's it going?");
+		
+		//uploadFile("202917641101246465", "C:/Users/steve/Documents/nsprojects/sleepy_discord/test/test_windows/hello.png", "Hello World");
+		
+		auto user = getCurrentUser();
+		User currentUser = user;
+
+		Embed embed;
+		embed.title = "HELLO!!!";
+		sendMessage(createDirectMessageChannel("99259409045143552").cast().ID, "", embed);
 	}
 	//
 	//channel functions
@@ -39,7 +51,12 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage) {
-		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), "{\"content\": \"" + newMessage + "\"}");
+		rapidjson::Document doc;
+		doc.SetObject();
+		rapidjson::Value content;
+		content.SetString(newMessage.c_str(), newMessage.length());
+		doc.AddMember("content", content, doc.GetAllocator());
+		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), json::stringify(doc));
 	}
 
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
@@ -80,8 +97,8 @@ namespace SleepyDiscord {
 		return request(Delete, path("channels/{channel.id}", { channelID }));
 	}
 
-	ObjectResponse<Channel> BaseDiscordClient::getChannel(Snowflake<Channel> channelID) {
-		return request(Get, path("channels/{channel.id}", { channelID }));
+	ObjectResponse<Channel> BaseDiscordClient::getChannel(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<Channel>> settings) {
+		return request(Get, path("channels/{channel.id}", { channelID }), settings);
 	}
 
 	ArrayResponse<Message> BaseDiscordClient::getMessages(Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t _limit) {

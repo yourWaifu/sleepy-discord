@@ -46,6 +46,11 @@ if(USE_CPR)
 		endif()
 		#to do, set one for linux
 	endif()
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		#using cmake to configure curl on linux has issues
+		#so use system curl
+		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+	endif()
 
 	download_project(
 		PROJ           cpr

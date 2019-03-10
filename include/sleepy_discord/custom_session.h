@@ -18,11 +18,12 @@ namespace SleepyDiscord {
 		inline void setMultipart(const std::initializer_list<Part>& parts) {
 			session->setMultipart(parts);
 		}
-		inline Response Post  () { return session->Post  (); }
-		inline Response Patch () { return session->Patch (); }
-		inline Response Delete() { return session->Delete(); }
-		inline Response Get   () { return session->Get   (); }
-		inline Response Put   () { return session->Put   (); }
+		inline void setResponseCallback(const ResponseCallback& callback) {
+			session->setResponseCallback(callback);
+		}
+		inline Response request(RequestMethod method) {
+			return session->request(method);
+		}
 	private:
 		std::unique_ptr<GenericSession> session; //pointer to session
 	};

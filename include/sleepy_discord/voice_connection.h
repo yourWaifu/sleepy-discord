@@ -47,12 +47,12 @@ namespace SleepyDiscord {
 		}
 
 	private:
-		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID, BaseVoiceEventHandler* _eventHandler) :
-			channelID(_channelID), serverID(_serverID), eventHandler(_eventHandler)
+		VoiceContext(Snowflake<Server> _serverID, Snowflake<Channel> _channelID, BaseVoiceEventHandler* _eventHandler) :
+			serverID(_serverID), channelID(_channelID), eventHandler(_eventHandler)
 		{}
 
-		Snowflake<Channel> channelID;
 		Snowflake<Server> serverID;
+		Snowflake<Channel> channelID;
 		std::string sessionID = "";
 		std::string endpoint = "";
 		std::string token;
@@ -167,19 +167,20 @@ namespace SleepyDiscord {
 		using OpusEncoder = void;
 #endif
 
+		BaseDiscordClient* origin;
+		VoiceContext& context;
 		UDPClient UDP;
 		time_t heartbeatInterval = 0;
 		uint32_t sSRC;
 		uint16_t port;
-		BaseDiscordClient* origin;
 		Timer heart;
 		State state = State::NOT_CONNECTED;
 		int16_t numOfPacketsSent = 0;
 		std::unique_ptr<BaseAudioSource> audioSource;
+		Timer speechTimer;
 		std::size_t samplesSentLastTime = 0;
 		time_t previousTime;
 		time_t nextTime;
-		VoiceContext& context;
 		OpusEncoder *encoder;
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
