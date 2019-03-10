@@ -45,7 +45,7 @@ namespace SleepyDiscord {
 		inline operator const std::string&() const { return raw; }
 
 		inline const std::string& string() const { return operator const std::string&(); }
-		inline const int64_t& number() const { return std::stoll(raw); }
+		inline const int64_t number() const { return std::stoll(raw); }
 
 		std::chrono::time_point<std::chrono::steady_clock> timestamp() const {
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
