@@ -457,7 +457,8 @@ namespace SleepyDiscord {
 				Snowflake<Server> serverID = d["guild_id"];
 				User user = d["user"];
 				std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
-				std::string nick = json::toStdString(d["nick"]);
+				const json::Value& nickValue = d["nick"];
+				std::string nick = nickValue.IsString() ? json::toStdString(d["nick"]) : "";
 				accessObjectFromCache(serverID, &Server::members, user.ID,
 					[user, roles, nick](Server& server, ServerMember& member) {
 						member.user = user;
