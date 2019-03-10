@@ -319,9 +319,8 @@ namespace SleepyDiscord {
 				//error
 				std::cout << 
 				"JSON Parse Error: "
-				"variable \"" << field.name << "\" not found. "
+				"variable #" << i << ": \"" << field.name << "\" not found. "
 				"Please look at call stack from your debugger for more details.";
-				RAPIDJSON_ASSERT(false);
 			}
 			fromJSON<ResultingObject, i + 1>(object, value);
 		}

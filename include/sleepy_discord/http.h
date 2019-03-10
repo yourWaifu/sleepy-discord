@@ -26,6 +26,8 @@ namespace SleepyDiscord {
 		inline bool error() const {
 			return BAD_REQUEST <= statusCode;
 		}
+		Response(int32_t _statusCode) : statusCode(_statusCode) {}
+		Response() {}
 	};
 
 	struct filePathPart {

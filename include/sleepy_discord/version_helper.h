@@ -46,9 +46,11 @@ namespace SleepyDiscord {
 	
 	//Features
 	//Remember to list features in both preprocessers and unordered_set
-#define SLEEPY_FEATURE_ASYNC_REQUESTS
+#define SLEEPY_FEATURE_AVAILABLE_FEATURE_LIST
+#define SLEEPY_FEATURE_LIST_OF_AVAILABLE_FEATURES //fixed grammer
 	std::unordered_set<std::string> availableFeatures{
-		"Async Requests"
+		"Available Feature List"
+		"List of Available Features"
 	};
 	inline bool isFeatureAvaiable(std::string& featureName) {
 		return availableFeatures.find(featureName) != availableFeatures.end();

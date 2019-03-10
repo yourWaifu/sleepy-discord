@@ -38,6 +38,9 @@ namespace SleepyDiscord {
 
 		void run();
 		Timer schedule(TimedTask code, const time_t milliseconds);
+		void postTask(PostableTask code) override {
+			asio::post(code);
+		}
 		//UDPClient createUDPClient() /* override*/;
 	protected:
 #include "standard_config_header.h"

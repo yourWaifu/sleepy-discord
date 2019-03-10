@@ -13,19 +13,20 @@ namespace SleepyDiscord {
 	public:
 		using StandardResponse::StandardResponse;
 		using Callback = std::function<bool(const Response& response)>;
+		using Type = bool;
 		BooleanResponse(const Response& response, const Callback callback) :
 			StandardResponse(response), wasSuccessful(callback) { }
 
-		inline operator bool() const {
+		inline operator Type() const {
 			return wasSuccessful(*this) || !error();
 		}
 		
-		bool operator*() const {
-			return operator bool();
+		Type operator*() const {
+			return operator Type();
 		}
 
-		inline bool cast() {
-			return operator bool();
+		inline Type cast() {
+			return operator Type();
 		}
 
 		const Callback wasSuccessful = [](const Response& response) { return true; };
@@ -47,9 +48,10 @@ namespace SleepyDiscord {
 	}
 
 
-	template<class Type>
+	template<class _Type>
 	struct ObjectResponse : public StandardResponse {
 		using StandardResponse::StandardResponse;
+		using Type = _Type;
 		operator Type() { //to do use references instead of pointers
 			return error() ? Type() : Type(text);
 		}
@@ -66,6 +68,7 @@ namespace SleepyDiscord {
 
 	struct ArrayResponseWrapper : public json::BaseArrayWrapper, public StandardResponse {
 		using StandardResponse::StandardResponse;
+		using Type = std::string;
 		inline operator const std::string&() const {
 			return text;
 		}
@@ -81,7 +84,8 @@ namespace SleepyDiscord {
 
 	struct StringResponse : public StandardResponse {
 		using StandardResponse::StandardResponse;
-		inline operator const std::string&() const {
+		using Type = std::string;
+		inline operator const Type&() const {
 			return text;
 		}
 	};

@@ -51,7 +51,12 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage) {
-		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), "{\"content\": \"" + newMessage + "\"}");
+		rapidjson::Document doc;
+		doc.SetObject();
+		rapidjson::Value content;
+		content.SetString(newMessage.c_str(), newMessage.length());
+		doc.AddMember("content", content, doc.GetAllocator());
+		return request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), json::stringify(doc));
 	}
 
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
@@ -92,8 +97,8 @@ namespace SleepyDiscord {
 		return request(Delete, path("channels/{channel.id}", { channelID }));
 	}
 
-	ObjectResponse<Channel> BaseDiscordClient::getChannel(Snowflake<Channel> channelID) {
-		return request(Get, path("channels/{channel.id}", { channelID }));
+	ObjectResponse<Channel> BaseDiscordClient::getChannel(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<Channel>> settings) {
+		return request(Get, path("channels/{channel.id}", { channelID }), settings);
 	}
 
 	ArrayResponse<Message> BaseDiscordClient::getMessages(Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t _limit) {

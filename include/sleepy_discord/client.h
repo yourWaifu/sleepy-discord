@@ -65,26 +65,119 @@ namespace SleepyDiscord {
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
+		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
-			std::function<void(Response)> callback = {});
+			RequestCallback callback = nullptr);
 		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
 		template<class ParmType, class Callback>
-		void requestAsync(const RequestMethod method, Route path,  Callback callback, const std::string jsonParameters = "",
+		void requestAsync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {}) {
-			request(method, path, jsonParameters, multipartParameters, [callback](Response r) {
+			postTask(Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
+				callback(static_cast<ParmType>(r));
+			} });
+		}
+
+		template<class ParmType, class Callback>
+		Response requestSync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
+			const std::initializer_list<Part>& multipartParameters = {}) {
+			return request(method, path, jsonParameters, multipartParameters, [callback](Response r) {
 				callback(static_cast<ParmType>(r));
 			});
 		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
 
+		enum RequestMode {
+			Async,
+			Sync
+		};
+
+		template<class _ParmType>
+		struct RequestSettings {
+			RequestMode mode =
+#ifdef SLEEPY_DEFAULT_REQUEST_MODE_ASYNC
+				Async;
+#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
+				Sync;
+#else
+				Sync;
+#endif
+			using ParmType = _ParmType;
+			using Callback = std::function<void(ParmType)>;
+			using CallbackParmTypeInContainer = std::function<void(typename ParmType::Type)>;
+			Callback callback = nullptr;
+		private:
+			inline Callback convertCallback(CallbackParmTypeInContainer& c) {
+				return [c](ParmType p) { c(p); };
+			}
+		public:
+			RequestSettings(RequestMode r) : mode(r) {}
+			RequestSettings(Callback c) : mode(Async), callback(c) {}
+			RequestSettings(RequestMode r, Callback c) : mode(r), callback(c) {}
+			RequestSettings(CallbackParmTypeInContainer c) : RequestSettings(convertCallback(c)) {}
+			RequestSettings(RequestMode r, CallbackParmTypeInContainer c) : RequestSettings(r, convertCallback(c)) {}
+			RequestSettings() = default;
+		};
+
+		template<class RequestSettingsClass>
+		Response request(const RequestMethod method, Route path, RequestSettingsClass& settings,
+			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
+			switch (settings.mode) {
+			case Async:        requestAsync<typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			case Sync:  return requestSync <typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			default:    return Response(BAD_REQUEST); break;
+			}
+			return Response();
+		}
+
+		template<RequestMode mode, class type>
+		struct RawRequestModeTypeHelper {
+			using ReturnType = type;
+			static type doRequest() {}
+		};
+
+#define RequestModeRequestDefine template<class ParmType, class Callback> \
+		static ReturnType doRequest(BaseDiscordClient& client, const RequestMethod method, Route path, \
+			const std::string jsonParameters, const std::initializer_list<Part>& multipartParameters, Callback callback) 
+
+		template<RequestMode mode> struct RequestModeType {};
+		template<> struct RequestModeType<Async> : RawRequestModeTypeHelper<Async, void> {
+			RequestModeRequestDefine {
+				client.requestAsync<ParmType, Callback>(method, path, callback, jsonParameters, multipartParameters);
+			}
+		};
+		template<> struct RequestModeType<Sync>  : RawRequestModeTypeHelper<Sync , Request> {
+			RequestModeRequestDefine {
+				return client.requestSync(method, path, callback, jsonParameters, multipartParameters);
+			}
+		};
+
+		template<RequestMode mode, class ParmType = void, class Callback = RequestCallback>
+		typename RequestModeType<mode>::ReturnType request(const RequestMethod method, Route path, Callback callback,
+			const std::string jsonParameters = ""/*,
+			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {}
+			) {
+			return RequestModeType<mode>::doRequest<ParmType, Callback>(*this, method, path, jsonParameters, multipartParameters, callback);
+		}
+
+		template<class RequestSettingsClass>
+		typename RequestSettingsClass::ReturnType request(const RequestMethod method, Route path, RequestSettingsClass& settings,
+			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
+			switch (settings.mode) {
+			case Async:        requestAsync<ParmType, Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
+			case Sync:  return requestSync                     (method, path, settings.callback, jsonParameters, multipartParameters); break;
+			default:    return Response(BAD_REQUEST); break;
+			}
+			return Response();
+		}
+
 		void testFunction(std::string teststring);
 
 		//channel functions
-		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID);
+		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID, RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = "");
 		ObjectResponse<Channel     > editChannelName         (Snowflake<Channel> channelID, std::string name);
 		ObjectResponse<Channel     > editChannelTopic        (Snowflake<Channel> channelID, std::string topic);
@@ -228,6 +321,11 @@ namespace SleepyDiscord {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
 		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
+		
+		typedef TimedTask PostableTask;
+		virtual void postTask(PostableTask code) {
+			schedule(code, 0);
+		}
 
 #ifdef SLEEPY_VOICE_ENABLED
 		//
@@ -592,8 +690,9 @@ namespace SleepyDiscord {
 		const Route url;
 		const std::string jsonParameters;
 		const std::initializer_list<Part> multipartParameters;
+		const BaseDiscordClient::RequestCallback callback;
 		inline void operator()() {
-			client.request(method, url, jsonParameters, multipartParameters);
+			client.request(method, url, jsonParameters, multipartParameters, callback);
 		}
 		//inline operator std::function<void()>() {
 		//	return std::bind(&Request::operator(), this);
