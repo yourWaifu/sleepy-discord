@@ -106,7 +106,7 @@ namespace SleepyDiscord {
 		int position = 0;
 		Permission permissions = NONE;
 		bool managed = false;
-		bool mantionable = false;
+		bool mentionable = false;
 
 		inline bool operator==(Role& right) {
 			return ID == right.ID;
@@ -121,7 +121,7 @@ namespace SleepyDiscord {
 				json::pair                      (&Role::position   , "position"   , json::REQUIRIED_FIELD),
 				json::pair<json::EnumTypeHelper>(&Role::permissions, "permissions", json::REQUIRIED_FIELD),
 				json::pair                      (&Role::managed    , "managed"    , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::mantionable, "mentionable", json::REQUIRIED_FIELD)
+				json::pair                      (&Role::mentionable, "mentionable", json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};

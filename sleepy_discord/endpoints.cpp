@@ -63,7 +63,7 @@ namespace SleepyDiscord {
 		return { request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs) {
+	BoolResponse BaseDiscordClient::bulkDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs) {
 		std::string JSON = "{\"messages\":[";
 		for (Snowflake<Message> messageID : messageIDs) {
 			JSON += messageID;
@@ -72,7 +72,7 @@ namespace SleepyDiscord {
 		if (messageIDs.size())
 			JSON.pop_back();
 		JSON += "]}";
-		return request(Post, path("channels/{channel.id}/messages/bulk-delete", { channelID }), JSON).statusCode == NO_CONTENT;
+		return { request(Post, path("channels/{channel.id}/messages/bulk-delete", { channelID }), JSON), EmptyRespFn() };
 	}
 
 	ObjectResponse<Channel> BaseDiscordClient::editChannel(Snowflake<Channel> channelID, std::string name, std::string topic) {
@@ -121,31 +121,31 @@ namespace SleepyDiscord {
 		return request(Get, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }));
 	}
 
-	bool BaseDiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) {
-		return request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", { channelID, messageID, emoji })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) {
+		return { request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", { channelID, messageID, emoji })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID) {
-		return request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, emoji, userID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID) {
+		return { request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, emoji, userID })), EmptyRespFn() };
 	}
 
 	ArrayResponse<Reaction> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) {
 		return request(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channelID, messageID, emoji }));
 	}
 
-	void BaseDiscordClient::removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
-		request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions", { channelID, messageID }));
+	StandardResponse BaseDiscordClient::removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+		return request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions", { channelID, messageID }));
 	}
 
-	bool BaseDiscordClient::editChannelPermissions(Snowflake<Channel> channelID, Snowflake<Overwrite> overwriteID, int allow, int deny, std::string type) {
-		return request(
+	BoolResponse BaseDiscordClient::editChannelPermissions(Snowflake<Channel> channelID, Snowflake<Overwrite> overwriteID, int allow, int deny, std::string type) {
+		return { request(
 			Put,
 			path("channels/{channel.id}/permissions/{overwrite.id}", { channelID, overwriteID }),
 			json::createJSON({
 				{ "allow", std::to_string(allow) },
 				{ "deny", std::to_string(deny) },
 				{ "type", json::string(type) }
-		})).statusCode == NO_CONTENT;
+		})), EmptyRespFn() };
 	}
 
 	ArrayResponse<Invite> BaseDiscordClient::getChannelInvites(Snowflake<Channel> channelID) {
@@ -162,32 +162,32 @@ namespace SleepyDiscord {
 			}));
 	}
 
-	bool BaseDiscordClient::removeChannelPermission(Snowflake<Channel> channelID, std::string ID) {
-		return request(Delete, path("channels/{channel.id}/permissions/{overwrite.id}", { channelID, ID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::removeChannelPermission(Snowflake<Channel> channelID, std::string ID) {
+		return { request(Delete, path("channels/{channel.id}/permissions/{overwrite.id}", { channelID, ID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::sendTyping(Snowflake<Channel> channelID) {
-		return request(Post, path("channels/{channel.id}/typing", { channelID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::sendTyping(Snowflake<Channel> channelID) {
+		return { request(Post, path("channels/{channel.id}/typing", { channelID })), EmptyRespFn() };
 	}
 
 	ArrayResponse<Message> BaseDiscordClient::getPinnedMessages(Snowflake<Channel> channelID) {
 		return request(Get, path("channels/{channel.id}/pins", { channelID }));
 	}
 
-	bool BaseDiscordClient::pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
-		return request(Put, path("channels/{channel.id}/pins/{message.id}", { channelID, messageID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::pinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+		return { request(Put, path("channels/{channel.id}/pins/{message.id}", { channelID, messageID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
-		return request(Delete, path("channels/{channel.id}/pins/{message.id}", { channelID, messageID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::unpinMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID) {
+		return { request(Delete, path("channels/{channel.id}/pins/{message.id}", { channelID, messageID })), EmptyRespFn() };
 	}
 
-	void BaseDiscordClient::addRecipient(Snowflake<Channel> channelID, Snowflake<User> userID) {
-		request(Put, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }));
+	StandardResponse BaseDiscordClient::addRecipient(Snowflake<Channel> channelID, Snowflake<User> userID) {
+		return request(Put, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }));
 	}
 
-	void BaseDiscordClient::removeRecipient(Snowflake<Channel> channelID, Snowflake<User> userID) {
-		request(Delete, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }));
+	StandardResponse BaseDiscordClient::removeRecipient(Snowflake<Channel> channelID, Snowflake<User> userID) {
+		return request(Delete, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }));
 	}
 
 	//
@@ -229,7 +229,7 @@ namespace SleepyDiscord {
 					{ "hoist"      , json::boolean (role.hoist      ) },
 					{ "position"   , json::integer (role.position   ) },
 					{ "managed"    , json::boolean (role.managed    ) },
-					{ "mentionable", json::boolean (role.mantionable) }
+					{ "mentionable", json::boolean (role.mentionable) }
 				});
 			}
 			rolesString = json::createJSONArray(values);
@@ -244,17 +244,17 @@ namespace SleepyDiscord {
 		}));
 	}
 
-	bool BaseDiscordClient::editMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname, std::vector<Snowflake<Role>> roles, int8_t mute, int8_t deaf, Snowflake<Channel> channelID) {
+	BoolResponse BaseDiscordClient::editMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname, std::vector<Snowflake<Role>> roles, int8_t mute, int8_t deaf, Snowflake<Channel> channelID) {
 		const std::string muteString = mute == -1 ? json::boolean(mute) : "";
 		const std::string deafString = deaf == -1 ? json::boolean(deaf) : "";
 
-		return request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), json::createJSON({
+		return { request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), json::createJSON({
 			{ "nick"      , json::string(nickname)       },
 			{ "roles"     , json::createJSONArray(roles) },
 			{ "mute"      , muteString                   },
 			{ "deaf"      , deafString                   },
 			{ "channel_id", channelID                    },
-		})).statusCode == NO_CONTENT;;
+		})), EmptyRespFn() };
 	}
 
 	ArrayResponse<Role> BaseDiscordClient::editRolePosition(Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions) {
@@ -262,7 +262,7 @@ namespace SleepyDiscord {
 	}
 
 
-	std::string BaseDiscordClient::editRole(Snowflake<Server> serverID, Snowflake<Role> roleID, std::string name, Permission permissions, uint32_t color, int8_t hoist, int8_t mentionable) {
+	StringResponse BaseDiscordClient::editRole(Snowflake<Server> serverID, Snowflake<Role> roleID, std::string name, Permission permissions, uint32_t color, int8_t hoist, int8_t mentionable) {
 		const std::string colorString       = color       >> 24 == 0 ? std::to_string(color      ) : "";	//if over 24 bits, do not change color
 		const std::string hoistString       = hoist       >> 1  == 0 ? json::boolean (hoist      ) : "";	//if larger then 1 bit, do change hoist
 		const std::string mentionableString = mentionable >> 1  == 0 ? json::boolean (mentionable) : "";
@@ -273,15 +273,15 @@ namespace SleepyDiscord {
 			{ "color"      , colorString                },
 			{ "hoist"      , hoistString                },
 			{ "mentionable", mentionableString          }
-		})).text;
+		}));
 	}
 
-	bool SleepyDiscord::BaseDiscordClient::deleteRole(Snowflake<Server> serverID, Snowflake<Role> roleID) {
-		return request(Delete, path("guilds/{guild.id}/roles/{role.id}", { serverID, roleID })).statusCode == NO_CONTENT;
+	BoolResponse SleepyDiscord::BaseDiscordClient::deleteRole(Snowflake<Server> serverID, Snowflake<Role> roleID) {
+		return { request(Delete, path("guilds/{guild.id}/roles/{role.id}", { serverID, roleID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::muteServerMember(Snowflake<Server> serverID, Snowflake<User> userID, bool mute) {
-		return request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), mute ? "{\"mute\":true}" : "{\"mute\":false}").statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::muteServerMember(Snowflake<Server> serverID, Snowflake<User> userID, bool mute) {
+		return { request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), mute ? "{\"mute\":true}" : "{\"mute\":false}"), EmptyRespFn() };
 	}
 
 	//needs ablily to turn channel into json
@@ -310,32 +310,32 @@ namespace SleepyDiscord {
 		return request(Get, path("guilds/{guild.id}/channels", { serverID }));
 	}
 
-	bool BaseDiscordClient::editNickname(Snowflake<Server> serverID, std::string newNickname) {
-		return request(Patch, path("guilds/{guild.id}/members/@me/nick", { serverID }), "{\"nick\":\"" + newNickname + "\"}").statusCode == OK;
+	BoolResponse BaseDiscordClient::editNickname(Snowflake<Server> serverID, std::string newNickname) {
+		return { request(Patch, path("guilds/{guild.id}/members/@me/nick", { serverID }), "{\"nick\":\"" + newNickname + "\"}"), StandardRespFn() };
 	}
 
-	bool BaseDiscordClient::addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID) {
-		return request(Put, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { serverID, userID, roleID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::addRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID) {
+		return { request(Put, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { serverID, userID, roleID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID) {
-		return request(Delete, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { serverID, userID, roleID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::removeRole(Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID) {
+		return { request(Delete, path("guilds/{guild.id}/members/{user.id}/roles/{role.id}", { serverID, userID, roleID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::kickMember(Snowflake<Server> serverID, Snowflake<User> userID) {
-		return request(Delete, path("guilds/{guild.id}/members/{user.id}", { serverID, userID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::kickMember(Snowflake<Server> serverID, Snowflake<User> userID) {
+		return { request(Delete, path("guilds/{guild.id}/members/{user.id}", { serverID, userID })), EmptyRespFn() };
 	}
 
 	ArrayResponse<User> BaseDiscordClient::getBans(Snowflake<Server> serverID) {
 		return request(Get, path("guilds/{guild.id}/bans", { serverID }));
 	}
 
-	bool BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID) {
-		return request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID) {
+		return { request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::unbanMember(Snowflake<Server> serverID, Snowflake<User> userID) {
-		return request(Delete, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::unbanMember(Snowflake<Server> serverID, Snowflake<User> userID) {
+		return { request(Delete, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID })), EmptyRespFn() };
 	}
 
 	ArrayResponse<Role> BaseDiscordClient::getRoles(Snowflake<Server> serverID) {
@@ -352,9 +352,9 @@ namespace SleepyDiscord {
 		}));
 	}
 
-	void BaseDiscordClient::pruneMembers(Snowflake<Server> serverID, const unsigned int numOfDays) {
-		if (numOfDays == 0) return;
-		request(Post, path("guilds/{guild.id}/prune", { serverID }), "{\"days\":" + std::to_string(numOfDays) + '}');
+	StandardResponse BaseDiscordClient::pruneMembers(Snowflake<Server> serverID, const unsigned int numOfDays) {
+		if (numOfDays == 0) return BAD_REQUEST;
+		return request(Post, path("guilds/{guild.id}/prune", { serverID }), "{\"days\":" + std::to_string(numOfDays) + '}');
 	}
 
 	ArrayResponse<VoiceRegion> BaseDiscordClient::getVoiceRegions() {
@@ -365,31 +365,31 @@ namespace SleepyDiscord {
 		return request(Get, path("guilds/{guild.id}/invites", { serverID }));
 	}
 
-	std::string BaseDiscordClient::getIntegrations(Snowflake<Server> serverID) {
-		return request(Get, path("guilds/{guild.id}/integrations", { serverID })).text;
+	StringResponse BaseDiscordClient::getIntegrations(Snowflake<Server> serverID) {
+		return request(Get, path("guilds/{guild.id}/integrations", { serverID }));
 	}
 
-	bool BaseDiscordClient::createIntegration(Snowflake<Server> serverID, std::string type, std::string integrationID) {
-		return request(Post, path("guilds/{guild.id}/integrations", { serverID }), json::createJSON({
+	BoolResponse BaseDiscordClient::createIntegration(Snowflake<Server> serverID, std::string type, std::string integrationID) {
+		return { request(Post, path("guilds/{guild.id}/integrations", { serverID }), json::createJSON({
 			{ "type", json::string(type) },
 			{ "id", json::string(integrationID) }
-		})).statusCode == NO_CONTENT;
+		})), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::editIntergration(Snowflake<Server> serverID, std::string integrationID, int expireBegavior, int expireGracePeriod, bool enbleEmoticons) {
-		return request(Patch, path("guilds/{guild.id}/integrations/{integration.id}", { serverID, integrationID }), json::createJSON({
+	BoolResponse BaseDiscordClient::editIntergration(Snowflake<Server> serverID, std::string integrationID, int expireBegavior, int expireGracePeriod, bool enbleEmoticons) {
+		return { request(Patch, path("guilds/{guild.id}/integrations/{integration.id}", { serverID, integrationID }), json::createJSON({
 			{ "expire_behavior", json::integer(expireBegavior) },
 			{ "expire_grace_period", json::integer(expireGracePeriod) },
 			{ "enable_emoticons", json::boolean(enbleEmoticons) }
-		})).statusCode == NO_CONTENT;
+		})), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::deleteIntegration(Snowflake<Server> serverID, std::string integrationID) {
-		return request(Delete, path("guilds/{guild.id}/integrations/{integration.id}", { serverID, integrationID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::deleteIntegration(Snowflake<Server> serverID, std::string integrationID) {
+		return { request(Delete, path("guilds/{guild.id}/integrations/{integration.id}", { serverID, integrationID })), EmptyRespFn() };
 	}
 
-	bool BaseDiscordClient::syncIntegration(Snowflake<Server> serverID, std::string integrationID) {
-		return request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", { serverID, integrationID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::syncIntegration(Snowflake<Server> serverID, std::string integrationID) {
+		return { request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", { serverID, integrationID })), EmptyRespFn() };
 	}
 
 	ObjectResponse<ServerEmbed> BaseDiscordClient::getServerEmbed(Snowflake<Server> serverID) {
@@ -429,8 +429,8 @@ namespace SleepyDiscord {
 		return request(Get, "users/@me/guilds");
 	}
 
-	bool BaseDiscordClient::leaveServer(Snowflake<Server> serverID) {
-		return request(Delete, path("users/@me/guilds/{guild.id}", { serverID })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::leaveServer(Snowflake<Server> serverID) {
+		return { request(Delete, path("users/@me/guilds/{guild.id}", { serverID })), EmptyRespFn() };
 	}
 
 	ArrayResponse<Channel> BaseDiscordClient::getDirectMessageChannels() {
@@ -478,8 +478,8 @@ namespace SleepyDiscord {
 		}));
 	}
 
-	bool BaseDiscordClient::deleteWebhook(Snowflake<Webhook> webhookID, std::string webhookToken) {
-		return request(Delete, path(optionalWebhookToken(webhookToken), { webhookID, webhookToken })).statusCode == NO_CONTENT;
+	BoolResponse BaseDiscordClient::deleteWebhook(Snowflake<Webhook> webhookID, std::string webhookToken) {
+		return { request(Delete, path(optionalWebhookToken(webhookToken), { webhookID, webhookToken })), EmptyRespFn() };
 	}
 
 	//excute webhook

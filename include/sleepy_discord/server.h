@@ -66,7 +66,7 @@ namespace SleepyDiscord {
 		int AFKTimeout;
 		bool embedEnable;
 		std::string embedChannelID;
-		int verficationLevel;
+		int verificationLevel;
 		int defaultMessageNotifications;
 		std::list<Role> roles;
 		//voice_states
@@ -102,7 +102,7 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::AFKTimeout                 , "afk_timeout"                  , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::embedEnable                , "embed_enabled"                , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::embedChannelID             , "embed_channel_id"             , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::verficationLevel           , "verification_level"           , json::REQUIRIED_FIELD),
+				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),

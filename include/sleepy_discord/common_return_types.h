@@ -29,6 +29,9 @@ namespace SleepyDiscord {
 			return operator Type();
 		}
 
+		//this isn't a function so that we can override it during construction.
+		//this isn't a virtual function because then we need lots of child classes
+		//this isn't used in a template because then the user would have to write the right error handling function
 		const Callback wasSuccessful = [](const Response& response) { return true; };
 	};
 
