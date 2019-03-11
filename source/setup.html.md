@@ -26,5 +26,5 @@ Use Default configuration
 ###Custom
 Choose what libraries you want in your configuration
 
-###Only Sleepy Discord
+###[Only Sleepy Discord](only-sleepy-discord)
 Your own code is the configuration
