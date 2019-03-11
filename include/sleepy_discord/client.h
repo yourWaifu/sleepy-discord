@@ -539,6 +539,7 @@ namespace SleepyDiscord {
 		bool quiting;
 		bool bot;
 		int consecutiveReconnectsCount = 0;
+		Timer reconnectTimer;
 		void sendIdentity();
 		void sendResume();
 		void quit(bool isRestarting, bool isDisconnected = false);
