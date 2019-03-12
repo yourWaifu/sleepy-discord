@@ -1,0 +1,126 @@
+<h1 id="using-only-sleepy-discord">Using only Sleepy Discord</h1>
+
+<p>There are at 3 things that the library needs in order to function: WebSocket Secure, HTTPS, and Async Input/Output. The library splits this up into a 2 main parts: the Websocket client and Sessions. There are also a few optional parts that allow for optional features such as voice. Currently, The only one optional part is UDP.</p>
+
+<aside> There are a actually a few libraries that is part of Sleepy Discord. They are json and string view libraries. However, those are cross-platform and shouldn&rsquo;t cause any issues with compatibility. </aside>
+
+<h2 id="https">HTTPS</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">MySession</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericSession</span> <span class="p">{</span>
+    <span class="n">MySession</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<p>You&rsquo;ll need to create a class that inherits <code class="prettyprint">GenericSession</code>.</p>
+
+<p>This rest is mostly self-explanatory. You basicity implement functions that do what it the function name suggest.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">setUrl</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">_url</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>This is self-explanatory.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">setBody</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">body</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>body is the data that will be sent in the body of the HTTP request.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">setHeader</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">HeaderPair</span><span class="o">&gt;&amp;</span> <span class="n">header</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>header is a list of header fields. <code class="prettyprint">SleepyDiscord::HeaderPair</code> has two variables, name and value.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="kt">void</span> <span class="n">setMultipart</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Part</span><span class="o">&gt;&amp;</span> <span class="n">parts</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>Like header, parts is a list of parts. SleepyDiscord::Part has 3 variables, name, value, and isFile.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Post</span>  <span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+<span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Patch</span> <span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+<span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Delete</span><span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+<span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Get</span>   <span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+<span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Put</span>   <span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>This sends the https request. The only difference between each function is that they use different HTTP methods.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Do this at the start
+</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">CustomInit</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Session</span><span class="o">::</span><span class="n">init</span> <span class="o">=</span> 
+    <span class="p">[]()</span><span class="o">-&gt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericSession</span><span class="o">*</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="n">MySession</span><span class="p">;</span> <span class="p">};</span>
+</code></pre>
+<p>You need to set SleepyDiscord::Session::init to a function that returns a pointer to a new Session. You can put this in the beginning of your cpp file after including the header file with your session class.</p>
+
+<h2 id="websockets">WebSockets</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">MyWebsocketConnection</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericWebsocketConnection</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">MyWebsocketConnection</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="n">MyWebsocketConnection</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">token</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">start</span><span class="p">(</span><span class="n">token</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">MyConnectionHandle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+<p>You are going to need a WebSocket Connection class that the library will pass around in a <code class="prettyprint">std::shared_ptr&lt;GenericWebsocketConnection&gt;</code> called <code class="prettyprint">WebsocketConnection</code>. <code class="prettyprint">GenericWebsocketConnection</code> is an empty class so this acts like a <code class="prettyprint">std::shared_ptr&lt;void&gt;</code>. You can put anything you want in this class, but you&rsquo;ll likely need to handle in there. You&rsquo;ll also likely want to store a reference to the <code class="prettyprint">GenericMessageReceiver</code> in it, but it&rsquo;s optional if you don&rsquo;t want to. We&rsquo;ll talk about <code class="prettyprint">GenericMessageReceiver</code> later. You&rsquo;ll also need to call <code class="prettyprint">start</code> at some point, the constructor isn&rsquo;t a bad place to do this.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="k">class</span> <span class="nc">MyWebsocketClient</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">BaseDiscordClient</span> <span class="p">{</span>
+    <span class="n">MyWebsocketClient</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//The typedef is optional.
+</span><span class="k">typedef</span> <span class="n">MyWebsocketClient</span> <span class="n">DiscordClient</span><span class="p">;</span>
+</code></pre>
+<p>The WebSocket client is actually a child of The <code class="prettyprint">BaseDiscordClient</code> and using a typedef is renamed to <code class="prettyprint">DiscordClient</code>.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Add these function decelerations to your WebsocketClient
+//Optional: These should can be set to private
+</span><span class="kt">bool</span> <span class="n">connect</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span> <span class="n">uri</span><span class="p">,</span>
+    <span class="n">GenericMessageReceiver</span><span class="o">*</span> <span class="n">messageProcessor</span><span class="p">,</span>
+    <span class="n">WebsocketConnection</span><span class="o">&amp;</span> <span class="n">connection</span>
+<span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+    <span class="n">MyConnectionHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">websocket</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">);</span> <span class="c1">//connect and get handle from websocket library
+</span>    <span class="n">connection</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MyWebsocketConnection</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messageProcessor</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">//you don't need to return a bool, it was related to a removed feature.
+</span><span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">disconnect</span><span class="p">(</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">code</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">reason</span><span class="p">,</span>
+    <span class="n">WebsocketConnection</span><span class="o">&amp;</span> <span class="n">connection</span>
+<span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+    <span class="n">connection</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">MyWebsocketConnection</span><span class="o">&gt;</span><span class="p">().</span><span class="n">handle</span><span class="p">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">send</span><span class="p">(</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">,</span>
+    <span class="n">WebsocketConnection</span><span class="o">&amp;</span> <span class="n">connection</span>
+<span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+    <span class="n">connection</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">MyWebsocketConnection</span><span class="o">&gt;</span><span class="p">().</span><span class="n">handle</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<p>There are 3 virtual functions that you need to override: connect, disconnect, and send. In <code class="prettyprint">connect</code>, set <code class="prettyprint">connection</code> to a new connection object with you <code class="prettyprint">WebsocketConnection</code> class. Use <code class="prettyprint">std::shared_ptr</code>&lsquo;s <code class="prettyprint">get</code> to get your <code class="prettyprint">WebSocketConnection</code>.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Add the equivalent code to your connect function
+</span><span class="n">websocket</span><span class="p">.</span><span class="n">onOpen</span> <span class="o">=</span> <span class="p">[</span><span class="o">=</span><span class="p">]()</span> <span class="p">{</span>
+    <span class="n">messageProcessor</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">websocket</span><span class="p">.</span><span class="n">onClose</span> <span class="o">=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="kt">int16_t</span> <span class="n">closeCode</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">messageProcessor</span><span class="o">-&gt;</span><span class="n">processCloseCode</span><span class="p">(</span><span class="n">closeCode</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">websocket</span><span class="p">.</span><span class="n">onMessage</span> <span class="o">=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">messageProcessor</span><span class="o">-&gt;</span><span class="n">processMessage</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="n">websocket</span><span class="p">.</span><span class="n">onFail</span> <span class="o">=</span> <span class="p">[</span><span class="o">=</span><span class="p">]()</span> <span class="p">{</span>
+    <span class="n">messageProcessor</span><span class="o">-&gt;</span><span class="n">handleFailToConnect</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
+<p>This is where you&rsquo;ll need <code class="prettyprint">messageProcessor</code>, you&rsquo;ll need to call it&rsquo;s member functions in the websocket callbacks. If you can&rsquo;t capture <code class="prettyprint">messageProcessor</code>, then you&rsquo;ll want to have a reference to it in your connection class.</p>
+
+<h2 id="async-i-o">Async I/O</h2>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Add these function declarations to your WebsocketClient class
+</span><span class="kt">void</span> <span class="n">run</span><span class="p">();</span>
+<span class="n">Timer</span> <span class="n">schedule</span><span class="p">(</span><span class="n">TimedTask</span> <span class="n">code</span><span class="p">,</span> <span class="k">const</span> <span class="kt">time_t</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+</code></pre>
+<p>There&rsquo;s 1 function you&rsquo;ll need to implement, <code class="prettyprint">schedule</code>. <code class="prettyprint">run</code> is optional. Async I/O is done inside the <code class="prettyprint">WebSocketClient</code> so place them in there.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Add the equivalent code
+</span><span class="n">Timer</span> <span class="n">MyWebsocketClient</span><span class="o">::</span><span class="n">schedule</span><span class="p">(</span><span class="n">TimedTask</span> <span class="n">code</span><span class="p">,</span> <span class="k">const</span> <span class="kt">time_t</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Library</span><span class="o">::</span><span class="n">Timer</span> <span class="n">timer</span> <span class="o">=</span> <span class="n">Library</span><span class="o">::</span><span class="n">createTimer</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">milliseconds</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">Timer</span><span class="p">([</span><span class="n">timer</span><span class="p">](){</span>
+        <span class="n">timer</span><span class="p">.</span><span class="n">stop</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre>
+<p>Create a timer that will call <code class="prettyprint">code</code> in <code class="prettyprint">milliseconds</code> milliseconds. Then, return a function to stop the timer.</p>
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Here's an example of run
+</span><span class="kt">void</span> <span class="nf">run</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">Library</span><span class="o">::</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
