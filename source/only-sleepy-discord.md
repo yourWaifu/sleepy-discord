@@ -1,3 +1,15 @@
+---
+title: Using only Sleepy Discord
+
+language_tabs:
+
+toc_footers:
+
+includes:
+
+search: true
+---
+
 # Using only Sleepy Discord
 
 There are at 3 things that the library needs in order to function: WebSocket Secure, HTTPS, and Async Input/Output. The library splits this up into a 2 main parts: the Websocket client and Sessions. There are also a few optional parts that allow for optional features such as voice. Currently, The only one optional part is UDP.
@@ -144,7 +156,7 @@ void run();
 Timer schedule(TimedTask code, const time_t milliseconds) override;
 ```
 
-There's 1 functions you'll need to implement, ``schedule``. ``run`` is optional. Async I/O is done inside the ``WebSocketClient`` so place them in there.
+There's 1 function you'll need to implement, ``schedule``. ``run`` is optional. Async I/O is done inside the ``WebSocketClient`` so place them in there.
 
 ```cpp
 //Add the equivalent code

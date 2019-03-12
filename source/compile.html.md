@@ -89,6 +89,7 @@ Options (Choose one option):
 #### VCPKG
 
 > In Windows, run these commands
+
 ```powershell
 git clone https://github.com/Microsoft/vcpkg.git
 cd vcpkg
@@ -149,7 +150,7 @@ cmake .. -G "Visual Studio 15 2017" -A x64 -DCMAKE_TOOLCHAIN_FILE=<\path\to\vcpk
 
 <\path\to\openSSL\> can be find somewhere in <\path\to\vcpkg>\installed\ for vcpkg and C:\ for Windows Installer. You can also use ``-DOPENSSL_USE_STATIC_LIBS=TRUE`` to use the static library. Once the command has finished it's task, go to the build folder and open the sleepy-discord.sln file that was just created. Open solution explorer, right click on sleepy-discord and click on build. After that's done, [Go to the next step.](#the-next-step)
 
-<aside>If you want fancy, you can open the cmake list files in Visual Studio. <a href = "https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp?view=vs-2017">You'll need to read this tho.</aside>
+<aside>If you want fancy, you can open the cmake list files in Visual Studio. <a href = "https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp?view=vs-2017">You'll need to read this tho.</a></aside>
 
 ##Python setup script
 ```powershell
