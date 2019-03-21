@@ -78,6 +78,11 @@ namespace SleepyDiscord {
 			websocketpp::lib::placeholders::_1, messageProcessor
 		));
 
+#ifdef SLEEPY_WEBSCOKETPP_PRINTALL
+		this_client.set_access_channels(websocketpp::log::alevel::all);
+		this_client.set_error_channels(websocketpp::log::alevel::all);
+#endif
+
 		if (connection.expired() == false)
 			connection.reset();
 
