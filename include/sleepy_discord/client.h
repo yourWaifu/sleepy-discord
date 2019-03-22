@@ -213,9 +213,9 @@ namespace SleepyDiscord {
 		//IntelliSense Help
 		/*functions with more then one name to make life easy for users that use IntelliSense*/
 		inline BoolResponse          deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction         (channelID, messageID, emoji); }
-		inline StandardResponse      deleteAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                   ) {        removeAllReactions     (channelID, messageID       ); }
+		inline StandardResponse      deleteAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                   ) { return removeAllReactions     (channelID, messageID       ); }
 		inline BoolResponse          deleteChannelPermission (Snowflake<Channel> channelID, std::string               ID                   ) { return removeChannelPermission(channelID,        ID       ); }
-		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    userID                   ) {        removeRecipient        (channelID,    userID       ); }
+		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    userID                   ) { return removeRecipient        (channelID,    userID       ); }
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
 

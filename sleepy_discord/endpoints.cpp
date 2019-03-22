@@ -353,7 +353,7 @@ namespace SleepyDiscord {
 	}
 
 	StandardResponse BaseDiscordClient::pruneMembers(Snowflake<Server> serverID, const unsigned int numOfDays) {
-		if (numOfDays == 0) return BAD_REQUEST;
+		if (numOfDays == 0) return { BAD_REQUEST };
 		return request(Post, path("guilds/{guild.id}/prune", { serverID }), "{\"days\":" + std::to_string(numOfDays) + '}');
 	}
 
