@@ -21,14 +21,7 @@ namespace SleepyDiscord {
 	}
 
 	Response CPRSession::request(RequestMethod method) {
-		if (responseCallback) {
-			std::async([=](RequestMethod method) {
-				responseCallback(perform(method));
-			}, method);
-			return Response();
-		} else {
-			return perform(method);
-		}
+		return perform(method);
 	}
 
 	Response CPRSession::perform(RequestMethod method) {

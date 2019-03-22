@@ -95,30 +95,26 @@ namespace SleepyDiscord {
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
 
+#ifndef SLEEPY_DEFAULT_REQUEST_MODE
+	#ifdef SLEEPY_DEFAULT_REQUEST_MODE_ASYNC
+		#define SLEEPY_DEFAULT_REQUEST_MODE Async;
+	#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
+		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
+	#else
+		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
+	#endif
+#endif
+
 		template<class _ParmType>
 		struct RequestSettings {
-			RequestMode mode =
-#ifdef SLEEPY_DEFAULT_REQUEST_MODE_ASYNC
-				Async;
-#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
-				Sync;
-#else
-				Sync;
-#endif
+			RequestMode mode = SLEEPY_DEFAULT_REQUEST_MODE;
 			using ParmType = _ParmType;
 			using Callback = std::function<void(ParmType)>;
-			using CallbackParmTypeInContainer = std::function<void(typename ParmType::Type)>;
 			Callback callback = nullptr;
-		private:
-			inline Callback convertCallback(CallbackParmTypeInContainer& c) {
-				return [c](ParmType p) { c(p); };
-			}
-		public:
+
 			RequestSettings(RequestMode r) : mode(r) {}
 			RequestSettings(Callback c) : mode(Async), callback(c) {}
 			RequestSettings(RequestMode r, Callback c) : mode(r), callback(c) {}
-			RequestSettings(CallbackParmTypeInContainer c) : RequestSettings(convertCallback(c)) {}
-			RequestSettings(RequestMode r, CallbackParmTypeInContainer c) : RequestSettings(r, convertCallback(c)) {}
 			RequestSettings() {}; //for some reason = default doesn't work
 		};
 
@@ -126,9 +122,23 @@ namespace SleepyDiscord {
 		Response request(const RequestMethod method, Route path, RequestSettingsClass& settings,
 			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
 			switch (settings.mode) {
-			case Async:        requestAsync<typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
-			case Sync:  return requestSync <typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback>(method, path, settings.callback, jsonParameters, multipartParameters); break;
-			default:    return Response(BAD_REQUEST); break;
+			case Async:
+				requestAsync<
+					typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback
+				>(method, path, settings.callback, jsonParameters, multipartParameters);
+				break;
+			case Sync:
+				if (settings.callback)
+					//having an invalid callback here would cause bugs
+					return requestSync<
+						typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback
+					>(method, path, settings.callback, jsonParameters, multipartParameters);
+				else
+					return request(method, path, jsonParameters, multipartParameters);
+				break;
+			default:
+				return Response(BAD_REQUEST);
+				break;
 			}
 			return Response();
 		}
