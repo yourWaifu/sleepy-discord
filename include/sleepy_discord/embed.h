@@ -151,8 +151,8 @@ namespace SleepyDiscord {
 		EmbedField() = default;
 		EmbedField(const json::Value & json);
 		EmbedField(const nonstd::string_view & json);
-		std::string name;
-		std::string value;
+		std::string name = "";
+		std::string value = "";
 		bool isInline = false;
 
 		bool empty() const {
@@ -161,9 +161,9 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&EmbedField::name    , "name"  , json::REQUIRIED_FIELD),
-				json::pair(&EmbedField::value   , "value" , json::REQUIRIED_FIELD),
-				json::pair(&EmbedField::isInline, "inline", json::OPTIONAL_FIELD )
+				json::pair(&EmbedField::name    , "name"  , json::OPTIONAL_FIELD),
+				json::pair(&EmbedField::value   , "value" , json::OPTIONAL_FIELD),
+				json::pair(&EmbedField::isInline, "inline", json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
