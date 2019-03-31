@@ -203,9 +203,10 @@ namespace SleepyDiscord {
 		sendL(json::createJSON({
 			{ "op", json::integer(STATUS_UPDATE) },
 			{ "d", json::createJSON({
-				{"idle_since", idleSince != 0 ? json::UInteger(idleSince) : "null"},
+				{"since", idleSince != 0 ? json::UInteger(idleSince) : "null"},
 				{"game", gameName != "" ? json::createJSON({
-					{"name", json::string(gameName)}
+					{"name", json::string(gameName)},
+					{"type", json::integer(0)}
 				}) : "null"},
 				{ "status", SleepyDiscord::json::string(statusString[status]) },
 				{ "afk", SleepyDiscord::json::boolean(afk) }
