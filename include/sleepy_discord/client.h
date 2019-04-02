@@ -295,7 +295,6 @@ namespace SleepyDiscord {
 		const bool isReady() { return ready; }
 		const bool isQuiting() { return quiting; }
 		const bool isBot() { return bot; }
-		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		const Snowflake<User> getID() { return userID; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		const int getShardID() { return shardID; }
