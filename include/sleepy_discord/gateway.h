@@ -60,8 +60,24 @@ namespace SleepyDiscord {
 		~ActivityTimestamp() = default;
 		ActivityTimestamp(const json::Value & json);
 		ActivityTimestamp(const nonstd::string_view & json);
-		std::time_t start;
-		std::time_t end;
+		std::string start;
+		std::string end;
+
+		const std::time_t getStartTimestamp() {
+			return std::stoll(start);
+		}
+
+		const std::time_t getEndTimestamp() {
+			return std::stoll(end);
+		}
+
+		void setStartTimestamp(const std::time_t& time) {
+			start = std::to_string(static_cast<int64_t>(time));
+		}
+
+		void setEndTimestamp(const std::time_t& time) {
+			end = std::to_string(static_cast<int64_t>(time));
+		}
 
 		JSONStructStart
 			std::make_tuple(
