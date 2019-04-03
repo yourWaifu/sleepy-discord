@@ -54,6 +54,28 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	template<class Type>
+	struct ActivityTimestampTypeHelper {
+		using TypeHelper = json::PrimitiveTypeHelper<Type>;
+		static inline Type toType(const json::Value& value) {
+			return value.IsString() ?
+				static_cast<Type>(
+					std::stoll(
+						std::string(value.GetString(),
+						value.GetStringLength())
+					)
+				)
+				:
+				TypeHelper::toType(value);
+		}
+		static inline bool empty(const Type& value) {
+			return TypeHelper::empty(value);
+		}
+		static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
+			return TypeHelper::fromType(value, allocator);
+		}
+	};
+
 	struct ActivityTimestamp : public DiscordObject {
 	public:
 		ActivityTimestamp() = default;
@@ -65,8 +87,8 @@ namespace SleepyDiscord {
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&ActivityTimestamp::start, "start", json::OPTIONAL_FIELD),
-				json::pair(&ActivityTimestamp::end  , "end"  , json::OPTIONAL_FIELD)
+				json::pair<ActivityTimestampTypeHelper>(&ActivityTimestamp::start, "start", json::OPTIONAL_FIELD),
+				json::pair<ActivityTimestampTypeHelper>(&ActivityTimestamp::end  , "end"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
