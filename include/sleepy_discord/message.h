@@ -95,7 +95,6 @@ namespace SleepyDiscord {
 		std::vector<Attachment> attachments;
 		std::vector<Embed> embeds;
 		std::vector<Reaction> reactions;
-		std::string nonce = "";	//nullable
 		bool pinned = false;
 		Snowflake<Webhook> webhookID;
 		enum MessageType {
@@ -127,7 +126,6 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&Message::attachments    , "attachments"     , json::REQUIRIED_FIELD        ),
 				json::pair<json::ContainerTypeHelper>(&Message::embeds         , "embeds"          , json::REQUIRIED_FIELD        ),
 				json::pair<json::ContainerTypeHelper>(&Message::reactions      , "reactions"       , json::OPTIONAL_FIELD         ),
-				json::pair                           (&Message::nonce          , "nonce"           , json::OPTIONAL_NULLABLE_FIELD),
 				json::pair                           (&Message::pinned         , "pinned"          , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::webhookID      , "webhook_id"      , json::OPTIONAL_FIELD         ),
 				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        )

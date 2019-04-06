@@ -58,6 +58,8 @@ namespace SleepyDiscord {
 	struct ActivityTimestampTypeHelper {
 		using TypeHelper = json::PrimitiveTypeHelper<Type>;
 		static inline Type toType(const json::Value& value) {
+			//For some reason Discord sends a string sometimes
+			//instead of an int
 			return value.IsString() ?
 				static_cast<Type>(
 					std::stoll(
