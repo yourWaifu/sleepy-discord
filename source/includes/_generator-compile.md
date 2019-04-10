@@ -8,9 +8,9 @@ Please click on the generator you used.
 
 ### Visual Studio
 
- 1. Open the sln file in your build folder with Visual Studio or click ``Open Project`` in the CMake GUI.
+ 1. In your build folder, open the sln file with Visual Studio or click ``Open Project`` in the CMake GUI.
 
- 2. Open the Solution Explorer, right click on your project and click ``Build``. 
+ 2. Open the Solution Explorer, right click on your project and click ``Build``.
 
 <aside>
 	You can also right click and click on ``Set up as Start up Project`` and then click on ``&#9658;Local Windows Debugger`` below the menu bar to run you project in debug mode.
@@ -27,4 +27,4 @@ make
 
 ### Other
 
-If other, go to your favorite search engine and look up ``How to compile X`` and replace X with whatever generator you chose.
+If other, go to your favorite search engine and look up ``How to compile using X`` and replace X with whatever generator you chose.

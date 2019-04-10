@@ -19,16 +19,12 @@ Hello there, if you are looking for some help on using the Sleepy Discord Librar
 <table>
   <tbody>
     <tr>
-      <td><a href="compile.html">How To Compile Sleepy Discord</a></td>
+      <td><a href="setup.html">Getting Started</a></td>
       <td><a href="basic text bot.html">How To Make a Basic Text Bot</a></td>
     </tr>
     <tr>
-      <td><a href="link.html">How To Link Sleepy Discord</a></td>
       <td><a href="voice.html">Creating Applications with Voice</a></td>
-    </tr>
-    <tr>
       <td><a href="breaking changes.html">Breaking Changes</a></td>
-      <td><a>  </a></td>
     </tr>
   </tbody>
 </table>

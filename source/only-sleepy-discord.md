@@ -63,7 +63,7 @@ SleepyDiscord::Response Put   () override;
 This sends the https request. The only difference between each function is that they use different HTTP methods.
 
 ```cpp
-//Do this at the start
+//Execute this line at the start of your program
 SleepyDiscord::CustomInit SleepyDiscord::Session::init = 
 	[]()->SleepyDiscord::GenericSession* { return new MySession; };
 ```
