@@ -12,7 +12,7 @@ namespace SleepyDiscord {
 		online         ,
 		doNotDisturb   ,
 		idle           ,
-		invisuble      ,
+		invisible      ,
 		offline        
 	};
 
@@ -40,6 +40,7 @@ namespace SleepyDiscord {
 		std::list<UnavailableServer> servers;
 		std::string sessionID;
 		//std::vector<std::string> trace;
+		std::array<int, 2> shard = {0, 1};
 
 		JSONStructStart
 			std::make_tuple(
@@ -47,9 +48,10 @@ namespace SleepyDiscord {
 				json::pair                           (&Ready::user           , "user"            , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&Ready::privateChannels, "private_channels", json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&Ready::servers        , "guilds"          , json::REQUIRIED_FIELD),
-				json::pair                           (&Ready::sessionID      , "session_id"      , json::REQUIRIED_FIELD)
+				json::pair                           (&Ready::sessionID      , "session_id"      , json::REQUIRIED_FIELD),
 				//This doesn't work anymore
-				//json::pair(&Ready::trace          , json::toArray<std::string>      , "_trace"          , json::REQUIRIED_FIELD)
+				//json::pair(&Ready::trace          , json::toArray<std::string>      , "_trace"          , json::REQUIRIED_FIELD),
+				json::pair<json::StdArrayTypeHelper >(&Ready::shard          , "shard"           , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};
