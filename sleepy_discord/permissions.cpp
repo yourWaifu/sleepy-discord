@@ -40,7 +40,7 @@ namespace SleepyDiscord {
 				permissions = permissions | rolePermissions->permissions;
 		}
 
-		if (hasPremission(permissions, Permission::ADMINISTRATOR))
+		if (hasPermission(permissions, Permission::ADMINISTRATOR))
 			return Permission::ALL;
 		return permissions;
 	}
@@ -54,7 +54,7 @@ namespace SleepyDiscord {
 	}
 
 	Permission overwritePermissions(const Permission basePermissions, const Server& server, const ServerMember& member, const Channel& channel) {
-		if (hasPremission(basePermissions, Permission::ADMINISTRATOR))
+		if (hasPermission(basePermissions, Permission::ADMINISTRATOR))
 			return Permission::ALL;
 
 		Permission permissions = basePermissions;
