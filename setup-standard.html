@@ -281,8 +281,12 @@
 </code></pre>
 <ol>
 <li><p>Add these two lines to the CMakeList.txt so that Sleepy Discord will be linked.</p></li>
-<li><p>Replace path/to/sleepy-discord with the relative path to the sleepy-discord directory or folder. Also remember to replace replace-me with the name of your executable.</p></li>
+<li><p>Replace path/to/sleepy-discord with the relative path to the sleepy-discord directory or folder. Windows users, remember to use <code class="prettyprint">/</code>. Also remember to replace replace-me with the name of your executable.</p></li>
 </ol>
+
+<aside class="note">
+In &ldquo;add_subdirectory&rdquo;, using a directory that isn&rsquo;t a subdirectory to the current folder will require you to add a path to the binary folder for sleepy-discord as the 2nd parameter. It is recommended that you don&rsquo;t do this.
+</aside>
 
 <h2 id="next-step">Next Step</h2>
 

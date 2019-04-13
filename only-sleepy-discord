@@ -31,7 +31,7 @@
 <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Response</span> <span class="n">Put</span>   <span class="p">()</span> <span class="k">override</span><span class="p">;</span>
 </code></pre>
 <p>This sends the https request. The only difference between each function is that they use different HTTP methods.</p>
-<pre class="highlight cpp tab-cpp"><code><span class="c1">//Do this at the start
+<pre class="highlight cpp tab-cpp"><code><span class="c1">//Execute this line at the start of your program
 </span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">CustomInit</span> <span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">Session</span><span class="o">::</span><span class="n">init</span> <span class="o">=</span> 
     <span class="p">[]()</span><span class="o">-&gt;</span><span class="n">SleepyDiscord</span><span class="o">::</span><span class="n">GenericSession</span><span class="o">*</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="n">MySession</span><span class="p">;</span> <span class="p">};</span>
 </code></pre>
