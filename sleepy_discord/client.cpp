@@ -311,7 +311,9 @@ namespace SleepyDiscord {
 		}
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
-		schedule([this]() {
+		if (reconnectTimer.isValid())
+			reconnectTimer.stop();
+		reconnectTimer = schedule([this]() {
 			connect(theGateway);
 		}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
 		++consecutiveReconnectsCount;
@@ -428,6 +430,8 @@ namespace SleepyDiscord {
 			heartbeat();
 			if (sessionID.empty()) sendIdentity();
 			else sendResume();
+			if (reconnectTimer.isValid())
+				reconnectTimer.stop();
 			break;
 		case RECONNECT:
 			reconnect();
