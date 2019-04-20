@@ -266,3 +266,4 @@ ModelManifest.xml
 /deps/
 /thirdparty/
 /discord token.txt
+include/sleepy_discord/version\.h

@@ -8,12 +8,11 @@ add_library(sleepy-discord
 	discord_object_interface.cpp
 	embed.cpp
 	endpoints.cpp
-	experimental.cpp
 	gateway.cpp
 	http.cpp
 	invite.cpp
-	json.c
 	json_wrapper.cpp
+	json.c
 	message.cpp
 	permissions.cpp
 	sd_error.cpp
@@ -86,6 +85,10 @@ if(USE_LIBSODIUM)
 	)
 	target_include_directories(sleepy-discord PUBLIC ${opus_SOURCE_DIR}/include)
 	target_link_libraries(sleepy-discord ${LIB_SODIUM})
+endif()
+
+if(NOT Git_FOUND)
+	target_compile_definitions(sleepy-discord PRIVATE NONEXISTANT_GIT_INFO)
 endif()
 
 target_include_directories(sleepy-discord
