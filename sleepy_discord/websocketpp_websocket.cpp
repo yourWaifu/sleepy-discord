@@ -29,7 +29,7 @@ namespace SleepyDiscord {
 		// Initialize the Asio transport policy
 		this_client.init_asio();
 
-		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onMessageInternal, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
 		
 		this_client.set_close_handler(std::bind(&WebsocketppDiscordClient::onClose, this,
 			websocketpp::lib::placeholders::_1));
@@ -94,7 +94,7 @@ namespace SleepyDiscord {
 		//Besides the library can detect bad connections by itself anyway
 	}
 
-	void WebsocketppDiscordClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
+	void WebsocketppDiscordClient::onMessageInternal(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
 		processMessage(msg->get_payload());
 	}
 	

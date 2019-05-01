@@ -38,7 +38,7 @@ namespace SleepyDiscord {
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
-		void onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
+		void onMessageInternal(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg);
 		const char maxNumOfThreads;
 		SLEEPY_LOCK_CLIENT_FUNCTIONS
 	};

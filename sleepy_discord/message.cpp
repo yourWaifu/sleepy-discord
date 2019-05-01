@@ -40,22 +40,22 @@ namespace SleepyDiscord {
 
 	Message::Message(const std::string * rawJson) : Message(json::getValues(rawJson->c_str(), fields)) {}
 
-	bool Message::startsWith(const std::string& test) {
+	bool Message::startsWith(const std::string& test) const {
 		return content.compare(0, test.length(), test) == 0;
 	}
 
-	std::size_t Message::length() {
+	std::size_t Message::length() const {
 		return content.length();
 	}
 
-	bool Message::isMentioned(Snowflake<User> ID) {
+	bool Message::isMentioned(Snowflake<User> ID) const {
 		std::size_t size = mentions.size();
 		for (std::size_t i = 0; i < size; i++)
 			if (mentions[i].ID == ID) return true;
 		return false;
 	}
 
-	bool Message::isMentioned(User& _user) {
+	bool Message::isMentioned(User& _user) const {
 		return isMentioned(_user.ID);
 	}
 
