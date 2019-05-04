@@ -65,6 +65,7 @@ namespace SleepyDiscord {
 	};
 
 	struct AudioTransmissionDetails;
+	struct VoiceOutput;
 
 	struct BaseAudioSource {
 		BaseAudioSource() : type(AUDIO_BASE_TYPE) {}
@@ -112,6 +113,10 @@ namespace SleepyDiscord {
 		inline void startSpeaking(Types&&... arguments) {
 			startSpeaking(new AudioSource(std::forward<Types>(arguments)...));
 		}
+
+		//=== startListening ===
+
+		void startListening();
 
 		inline BaseDiscordClient& getDiscordClient() {
 			return *origin;
@@ -184,9 +189,11 @@ namespace SleepyDiscord {
 		OpusEncoder *encoder;
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
+		Timer listenTimer;
 
 		#define SECRET_KEY_SIZE 32
 		unsigned char secretKey[SECRET_KEY_SIZE];
+		const int nonceSize = 24;
 
 		void heartbeat();
 		inline void stopSpeaking() {
@@ -199,6 +206,8 @@ namespace SleepyDiscord {
 			const std::size_t & length,
 			const std::size_t & frameSize
 		);
+		void listen();
+		void processIncomingAudio(const std::vector<uint8_t>& data);
 	};
 
 	struct AudioTransmissionDetails {
@@ -269,4 +278,11 @@ namespace SleepyDiscord {
 
 	using AudioPointerSource = BaseAudioSource;
 	using AudioVectorSource = AudioSource<std::vector<int16_t>>;
+
+	struct VoiceOutput : public AudioVectorSource {
+		VoiceOutput() : AudioVectorSource() {}
+		std::vector<int16_t> read(AudioTransmissionDetails& details) override {
+			return std::vector<int16_t>();
+		}
+	};
 }

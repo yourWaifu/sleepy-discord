@@ -344,7 +344,7 @@ namespace SleepyDiscord {
 
 		VoiceContext& createVoiceContext(Snowflake<Server> server, Snowflake<Channel> channel, BaseVoiceEventHandler* eventHandler = nullptr);
 		inline VoiceContext& createVoiceContext(Snowflake<Channel> channel, BaseVoiceEventHandler* eventHandler = nullptr) {
-			createVoiceContext("", channel, eventHandler);
+			return createVoiceContext("", channel, eventHandler);
 		}
 		void connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings);
 		VoiceContext& connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings = normal);

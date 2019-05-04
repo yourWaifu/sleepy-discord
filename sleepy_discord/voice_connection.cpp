@@ -355,8 +355,8 @@ namespace SleepyDiscord {
 			static_cast<uint8_t>((sSRC      >> (8 * 0)) & 0xff),
 		};
 			
-		uint8_t nonce[24];
-		std::memcpy(nonce                , header, sizeof nonce - sizeof header);
+		uint8_t nonce[nonceSize];
+		std::memcpy(nonce                , header, sizeof header);
 		std::memset(nonce + sizeof header,      0, sizeof nonce - sizeof header);
 		
 		const size_t numOfBtyes = sizeof header + length + crypto_secretbox_MACBYTES;
@@ -370,6 +370,36 @@ namespace SleepyDiscord {
 		samplesSentLastTime = frameSize << 1;
 		timestamp += frameSize;
 #endif
+	}
+
+	void VoiceConnection::startListening() {
+		listen();
+	}
+
+	void VoiceConnection::listen() {
+		UDP.receive([this](const std::vector<uint8_t>& data){
+			processIncomingAudio(data);
+		});
+
+		/*listenTimer = origin->schedule([this]() {
+			this->speak();
+		}, //Some number
+		);*/
+	}
+
+	void VoiceConnection::processIncomingAudio(const std::vector<uint8_t>& data) {
+		//To Do
+		//get nonce
+		uint8_t nonce[nonceSize];
+		std::memcpy(nonce, data.data(), sizeof nonce);
+		//decrypt
+		std::vector<uint8_t> decryptedData;
+		decryptedData.reserve(data.size());
+		bool isForged = crypto_secretbox_open_easy(
+			decryptedData.data(),
+			data.data() + sizeof nonce,
+			data.size(), nonce, secretKey) != 0;
+		//decode
 	}
 }
 #else
