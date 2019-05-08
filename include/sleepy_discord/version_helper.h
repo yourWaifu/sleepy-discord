@@ -43,6 +43,12 @@ namespace SleepyDiscord {
 	constexpr const char* revision = SLEEPY_DISCORD_VERSION_HASH;
 	constexpr const char* version = SLEEPY_DISCORD_VERSION;
 	constexpr bool isMaster = SLEEPY_DISCORD_VERSION_IS_MASTER;
+	constexpr const char* userAgent = 
+		"DiscordBot (https://github.com/yourWaifu/SleepyDiscord, " \
+		SLEEPY_DISCORD_VERSION_STR(NUM) \
+		") " \
+		SLEEPY_DISCORD_VERSION \
+	;
 	
 	//Features
 	//Remember to list features in both preprocessers and unordered_set

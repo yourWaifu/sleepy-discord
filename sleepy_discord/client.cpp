@@ -9,6 +9,7 @@
 #include <ctime>
 #include <cstring>
 #include "client.h"
+#include "version_helper.h"
 //#include "json.h"
 #include "rapidjson/document.h"
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
@@ -78,7 +79,7 @@ namespace SleepyDiscord {
 			session.setUrl("https://discordapp.com/api/v6/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
-				{ "User-Agent", "DiscordBot (https://github.com/yourWaifu/SleepyDiscord, vtheBestVersion)" },
+				{ "User-Agent", userAgent },
 			};
 			if (jsonParameters != "") {
 				session.setBody(&jsonParameters);
