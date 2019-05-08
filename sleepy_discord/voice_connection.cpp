@@ -5,10 +5,9 @@
 
 namespace SleepyDiscord {
 	VoiceConnection::VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-		origin(client), context(_context), UDP(*origin), sSRC(0), port(0), previousTime(0),
-		nextTime(0),
+		origin(client), context(_context), UDP(*origin), sSRC(0), port(0), nextTime(0),
 #if !defined(NONEXISTENT_OPUS)
-		encoder(nullptr),
+		encoder(nullptr), decoder(nullptr),
 #endif
 		secretKey()
 	{}
@@ -36,8 +35,18 @@ namespace SleepyDiscord {
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
-		if (speechTimer.isValid())
-			speechTimer.stop();
+		speechTimer.stop();
+		listenTimer.stop();
+		//deal with raw pointers
+		//Sorry about this c code, we are dealing with c libraries
+		if (encoder != nullptr) {
+			opus_encoder_destroy(encoder);
+			encoder = nullptr;
+		}
+		if (decoder != nullptr) {
+			opus_decoder_destroy(decoder);
+			decoder = nullptr;
+		}
 		state = static_cast<State>(state & ~State::CONNECTED);
 	}
 
@@ -156,6 +165,8 @@ namespace SleepyDiscord {
 			if (context.eventHandler != nullptr)
 				context.eventHandler->onReady(*this);
 			break;
+		case SPEAKING:
+			context.eventHandler->onSpeaking(*this);
 		case RESUMED:
 			break;
 		case HEARTBEAT_ACK:
@@ -198,6 +209,14 @@ namespace SleepyDiscord {
 		}, heartbeatInterval);
 	}
 
+	inline void VoiceConnection::scheduleNextTime(AudioTimer& timer, TimedTask code, const time_t interval) {
+		timer.nextTime += interval;
+		time_t delay = timer.nextTime - origin->getEpochTimeMillisecond();
+		delay = 0 < delay ? delay : 0;
+
+		timer.timer = origin->schedule(code, delay);
+	}
+
 	void VoiceConnection::startSpeaking() {
 		if ((state & State::ABLE) != State::ABLE) return;
 
@@ -210,7 +229,7 @@ namespace SleepyDiscord {
 #if defined(NONEXISTENT_OPUS)
 			return;
 #else
-			if (!(state & CAN_ENCODE)) {
+			if (!(state & CAN_ENCODE) || encoder == nullptr) {
 				//init opus
 				int opusError = 0;
 				encoder = opus_encoder_create(
@@ -232,7 +251,7 @@ namespace SleepyDiscord {
 		//say something
 		sendSpeaking(true);
 		state = static_cast<State>(state | State::SENDING_AUDIO);
-		previousTime = nextTime = origin->getEpochTimeMillisecond();
+		nextTime = origin->getEpochTimeMillisecond();
 		speak();
 	}
 
@@ -286,14 +305,11 @@ namespace SleepyDiscord {
 				AudioTransmissionDetails::bitrate() * AudioTransmissionDetails::channels()
 			)) * 1000.0f
 		);
-		previousTime = nextTime;
-		nextTime += interval;
-		time_t delay = nextTime - origin->getEpochTimeMillisecond();
-		delay = 0 < delay ? delay : 0;
-
-		speechTimer = origin->schedule([this]() {
-			this->speak();
-		}, delay);
+		scheduleNextTime(speechTimer,
+			[this]() {
+				this->speak();
+			}, interval
+		);
 	}
 
 	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {
@@ -372,7 +388,18 @@ namespace SleepyDiscord {
 #endif
 	}
 
+	//To do test this
 	void VoiceConnection::startListening() {
+		if (!(state & CAN_DECODE) || decoder == nullptr) {
+			int opusError = 0;
+			decoder = opus_decoder_create(
+				/*Sampling rate(Hz)*/AudioTransmissionDetails::bitrate(),
+				/*Channels*/         AudioTransmissionDetails::channels(),
+				&opusError);
+			if (opusError) {//error check
+				return;
+			}
+		}
 		listen();
 	}
 
@@ -381,25 +408,39 @@ namespace SleepyDiscord {
 			processIncomingAudio(data);
 		});
 
-		/*listenTimer = origin->schedule([this]() {
-			this->speak();
-		}, //Some number
-		);*/
+		scheduleNextTime(listenTimer,
+			[this]() {
+				this->listen();
+			},  AudioTransmissionDetails::proposedLengthOfTime()
+		);
 	}
 
-	void VoiceConnection::processIncomingAudio(const std::vector<uint8_t>& data) {
-		//To Do
+	void VoiceConnection::processIncomingAudio(const std::vector<uint8_t>& data)
+	{
 		//get nonce
 		uint8_t nonce[nonceSize];
 		std::memcpy(nonce, data.data(), sizeof nonce);
 		//decrypt
 		std::vector<uint8_t> decryptedData;
-		decryptedData.reserve(data.size());
+		const std::size_t decryptedDataSize = data.size() - sizeof nonce;
+		decryptedData.reserve(decryptedDataSize);
 		bool isForged = crypto_secretbox_open_easy(
 			decryptedData.data(),
 			data.data() + sizeof nonce,
-			data.size(), nonce, secretKey) != 0;
+			decryptedDataSize, nonce, secretKey
+		) != 0;
+		if (isForged)
+			return;
 		//decode
+		constexpr std::size_t frameSize = AudioTransmissionDetails::proposedLength();
+		BaseAudioOutput::Container decodedAudioData;
+		opus_int32 decodedAudioLength = opus_decode(
+			decoder, decryptedData.data(), decryptedData.size(),
+			decodedAudioData.data(), frameSize, 1);
+		if(decodedAudioLength < OPUS_OK || !hasAudioOutput())
+			return;
+		AudioTransmissionDetails details(context, 0);
+		audioOutput->write(decodedAudioData, details);
 	}
 }
 #else

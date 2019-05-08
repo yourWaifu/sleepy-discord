@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 #include <cstdint>
 #include <list>
 #include <opus.h>
@@ -18,6 +19,7 @@ namespace SleepyDiscord {
 	public:
 
 		virtual void onReady(VoiceConnection&) {}
+		virtual void onSpeaking(VoiceConnection&) {}
 		virtual void onEndSpeaking(VoiceConnection&) {}
 		virtual void onHeartbeat(VoiceConnection&) {}
 		virtual void onHeartbeatAck(VoiceConnection&) {}
@@ -64,8 +66,50 @@ namespace SleepyDiscord {
 		AUDIO_CONTAINER,
 	};
 
-	struct AudioTransmissionDetails;
-	struct VoiceOutput;
+	class VoiceConnection;
+
+	struct AudioTransmissionDetails {
+	public:
+		inline VoiceContext& context() {
+			return _context;
+		}
+
+		inline std::size_t amountSentSinceLastTime() {
+			return _amountSentSinceLastTime;
+		}
+
+		static inline constexpr int bitrate() {
+			return 48000;
+		}
+
+		static inline constexpr int channels() {
+			return 2;
+		}
+
+		static inline constexpr std::size_t proposedLengthOfTime() {
+			return 20;
+		}
+
+		static inline constexpr std::size_t proposedLength() {
+			return static_cast<std::size_t>(
+				bitrate() * channels() * (
+					static_cast<float>(proposedLengthOfTime()) * /*1 millisecond*/0.001
+				)
+			);
+		}
+	private:
+		friend VoiceConnection;
+		AudioTransmissionDetails(
+			VoiceContext& con,
+			const std::size_t amo
+		) :
+			_context(con),
+			_amountSentSinceLastTime(amo)
+		{ }
+
+		VoiceContext& _context;
+		const std::size_t _amountSentSinceLastTime;
+	};
 
 	struct BaseAudioSource {
 		BaseAudioSource() : type(AUDIO_BASE_TYPE) {}
@@ -75,6 +119,23 @@ namespace SleepyDiscord {
 		virtual ~BaseAudioSource() {}
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
+	};
+
+	struct BaseAudioOutput {
+		using Container = std::array<int16_t, AudioTransmissionDetails::proposedLength()>;
+		BaseAudioOutput() {}
+		virtual void write(Container audio, AudioTransmissionDetails& details) {}
+		private:
+		friend VoiceConnection;
+	};
+
+	struct AudioTimer {
+		Timer timer;
+		time_t nextTime = 0;
+		void stop() {
+			if (timer.isValid())
+				timer.stop();
+		}
 	};
 
 	class VoiceConnection : public GenericMessageReceiver {
@@ -96,8 +157,26 @@ namespace SleepyDiscord {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
 		}
 
+		inline const bool hasAudioSource() {
+			return audioSource != nullptr;
+		}
+
 		inline BaseAudioSource& getAudioSource() {
 			return *(audioSource.get());
+		}
+
+		/*To do there might be a way to prevent code reuse here*/
+
+		inline void setAudioOutput(BaseAudioOutput*& output) {
+			audioOutput = std::unique_ptr<BaseAudioOutput>(output);
+		} 
+
+		inline const bool hasAudioOutput() {
+			return audioOutput != nullptr;
+		}
+
+		inline BaseAudioOutput& getAudioOutput() {
+			return *(audioOutput.get());
 		}
 
 		//=== startSpeaking functions ===
@@ -170,6 +249,7 @@ namespace SleepyDiscord {
 
 #ifdef NONEXISTENT_OPUS
 		using OpusEncoder = void;
+		using OpusDecoder = void;
 #endif
 
 		BaseDiscordClient* origin;
@@ -182,20 +262,22 @@ namespace SleepyDiscord {
 		State state = State::NOT_CONNECTED;
 		int16_t numOfPacketsSent = 0;
 		std::unique_ptr<BaseAudioSource> audioSource;
-		Timer speechTimer;
+		std::unique_ptr<BaseAudioOutput> audioOutput;
+		AudioTimer speechTimer;
+		AudioTimer listenTimer;
 		std::size_t samplesSentLastTime = 0;
-		time_t previousTime;
-		time_t nextTime;
-		OpusEncoder *encoder;
+		time_t nextTime = 0;
+		OpusEncoder *encoder = nullptr;
+		OpusDecoder *decoder = nullptr;
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
-		Timer listenTimer;
 
 		#define SECRET_KEY_SIZE 32
 		unsigned char secretKey[SECRET_KEY_SIZE];
-		const int nonceSize = 24;
+		static constexpr int nonceSize = 24;
 
 		void heartbeat();
+		inline void scheduleNextTime(AudioTimer& timer, TimedTask code, const time_t interval);
 		inline void stopSpeaking() {
 			state = static_cast<State>(state & ~SENDING_AUDIO);
 		}
@@ -210,41 +292,6 @@ namespace SleepyDiscord {
 		void processIncomingAudio(const std::vector<uint8_t>& data);
 	};
 
-	struct AudioTransmissionDetails {
-	public:
-		inline VoiceContext& context() {
-			return _context;
-		}
-
-		inline std::size_t amountSentSinceLastTime() {
-			return _amountSentSinceLastTime;
-		}
-
-		static inline constexpr int bitrate() {
-			return 48000;
-		}
-
-		static inline constexpr int channels() {
-			return 2;
-		}
-
-		static inline constexpr std::size_t proposedLength() {
-			return static_cast<std::size_t>(bitrate() * channels() * .020);
-		}
-	private:
-		friend VoiceConnection;
-		AudioTransmissionDetails(
-			VoiceContext& con,
-			const std::size_t amo
-		) :
-			_context(con),
-			_amountSentSinceLastTime(amo)
-		{ }
-
-		VoiceContext& _context;
-		const std::size_t _amountSentSinceLastTime;
-	};
-
 	struct BasicAudioSourceForContainers : public BaseAudioSource {
 		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
 		void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) override {}
@@ -255,9 +302,10 @@ namespace SleepyDiscord {
 		) = 0;
 	};
 
-	template<class Container>
+	template<class _Container>
 	struct AudioSource : public BasicAudioSourceForContainers {
 	public:
+		using Container = _Container;
 		AudioSource() : BasicAudioSourceForContainers() {}
 		virtual Container read(AudioTransmissionDetails& details) {
 			return Container();
@@ -278,11 +326,4 @@ namespace SleepyDiscord {
 
 	using AudioPointerSource = BaseAudioSource;
 	using AudioVectorSource = AudioSource<std::vector<int16_t>>;
-
-	struct VoiceOutput : public AudioVectorSource {
-		VoiceOutput() : AudioVectorSource() {}
-		std::vector<int16_t> read(AudioTransmissionDetails& details) override {
-			return std::vector<int16_t>();
-		}
-	};
 }
