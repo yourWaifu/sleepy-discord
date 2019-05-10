@@ -40,7 +40,12 @@ set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
 target_compile_features(sleepy-discord PUBLIC cxx_std_14)
 
-target_compile_options(sleepy-discord PUBLIC -Wall)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	target_compile_options(sleepy-discord PUBLIC -W3)
+else()
+	target_compile_options(sleepy-discord PUBLIC -Wall)
+endif()
+
 if (NOT ONLY_SLEEPY_DISCORD)
 	#for some reason you a limited ammount of target_link_libraries calls
 	set(LIBRARIES_TO_LINK)
