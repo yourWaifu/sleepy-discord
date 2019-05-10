@@ -1,5 +1,10 @@
 #include "client.h"
 
+#if _MSC_VER && !__INTEL_COMPILER
+#pragma warning( disable: 4100 ) //warns about unused parameters with names
+#pragma warning( disable: 4458 ) //warns about variables that hide class members
+#endif
+
 namespace SleepyDiscord {
 	void BaseDiscordClient::onReady(Ready readyData) {
 
@@ -196,5 +201,9 @@ namespace SleepyDiscord {
 	
 	void BaseDiscordClient::onError(ErrorCode errorCode, std::string errorMessage) {
 		
+	}
+
+	Timer BaseDiscordClient::schedule(TimedTask code, const time_t millisecondsTilDueTime) {
+		return Timer([]() {});
 	}
 }

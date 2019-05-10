@@ -92,11 +92,12 @@ namespace SleepyDiscord {
 
 		static inline constexpr std::size_t proposedLength() {
 			return static_cast<std::size_t>(
-				bitrate() * channels() * (
+				static_cast<std::size_t>(bitrate()) * static_cast<std::size_t>(channels()) * (
 					static_cast<float>(proposedLengthOfTime()) * /*1 millisecond*/0.001
 				)
 			);
 		}
+
 	private:
 		friend VoiceConnection;
 		AudioTransmissionDetails(
@@ -118,7 +119,7 @@ namespace SleepyDiscord {
 		const AudioSourceType type;
 		virtual ~BaseAudioSource() {}
 		//This function below is here in case the user uses this class
-		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
+		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
 	};
 
 	struct BaseAudioOutput {
@@ -294,7 +295,7 @@ namespace SleepyDiscord {
 
 	struct BasicAudioSourceForContainers : public BaseAudioSource {
 		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
-		void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) override {}
+		void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) override {}
 		virtual void speak(
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,

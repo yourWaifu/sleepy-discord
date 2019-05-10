@@ -66,7 +66,7 @@ namespace SleepyDiscord {
 
 	class BaseDiscordClient : public GenericMessageReceiver {
 	public:
-		BaseDiscordClient();
+		BaseDiscordClient() = default;
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
@@ -82,7 +82,7 @@ namespace SleepyDiscord {
 			const std::initializer_list<Part>& multipartParameters = {}) {
 			postTask(static_cast<PostableTask>(Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			} }));
+			}}));
 		}
 
 		template<class ParmType, class Callback>
@@ -215,7 +215,7 @@ namespace SleepyDiscord {
 		inline BoolResponse          deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction         (channelID, messageID, emoji); }
 		inline StandardResponse      deleteAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                   ) { return removeAllReactions     (channelID, messageID       ); }
 		inline BoolResponse          deleteChannelPermission (Snowflake<Channel> channelID, std::string               ID                   ) { return removeChannelPermission(channelID,        ID       ); }
-		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    userID                   ) { return removeRecipient        (channelID,    userID       ); }
+		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    _userID                  ) { return removeRecipient        (channelID,   _userID       ); }
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
 
@@ -315,7 +315,7 @@ namespace SleepyDiscord {
 			TilDueTime = 0,
 			EpochTime  = 1,
 		};
-		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return Timer([](){}); }
+		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime);
 		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
 			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
 		}
@@ -491,13 +491,13 @@ namespace SleepyDiscord {
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(
-			const std::string & uri,                    //IN
-			GenericMessageReceiver* messageProcessor,  //IN  When a message is receved, this will process it
-			WebsocketConnection& connection             //OUT data needed in order to send a message. nullptr by default
+			const std::string & /*uri*/,                    //IN
+			GenericMessageReceiver* /*messageProcessor*/,   //IN  When a message is receved, this will process it
+			WebsocketConnection& /*connection*/             //OUT data needed in order to send a message. nullptr by default
 		) { return false; }
 		void handleFailToConnect() override { reconnect(); }
-		virtual void send(std::string message, WebsocketConnection& connection) {}
-		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection) {}
+		virtual void send(std::string /*message*/, WebsocketConnection& /*connection*/) {}
+		virtual void disconnect(unsigned int /*code*/, const std::string /*reason*/, WebsocketConnection& /*connection*/) {}
 		void reconnect(const unsigned int status = 1000);
 		//the next 3 functions are part of BaseDiscordClient because VoiceConnection is a private nested class
 		inline void initialize(GenericMessageReceiver*& messageProcessor) const {
@@ -539,14 +539,14 @@ namespace SleepyDiscord {
 
 		std::unique_ptr<std::string> token;		//stored in a unique_ptr so that you can't see it in the debugger
 		std::string sessionID;	//TODO: replace this with a Ready object
-		int shardID;
-		int shardCount;
+		int shardID = 0;
+		int shardCount = 0;
 		Snowflake<User> userID;
 		void getTheGateway();
 		std::string theGateway;
-		bool ready;
-		bool quiting;
-		bool bot;
+		bool ready = false;
+		bool quiting = false;
+		bool bot = true;
 		int consecutiveReconnectsCount = 0;
 		Timer reconnectTimer;
 		void sendIdentity();
@@ -561,7 +561,7 @@ namespace SleepyDiscord {
 		std::shared_ptr<ServerCache> serverCache;
 
 		//rate limiting
-		int8_t messagesRemaining;
+		int8_t messagesRemaining = 0;
 		bool isGlobalRateLimited = false;
 		time_t nextRetry = 0;
 		std::unordered_map<Route::Bucket, time_t> buckets;
@@ -614,7 +614,7 @@ namespace SleepyDiscord {
 			Snowflake<Server>& serverID, Container Server::* container, typename Container::value_type& object
 		) {
 			accessContainerFromCache(serverID, container,
-				[object](Server& server, Container& found) {
+				[object](Server&, Container& found) {
 					found.push_front(object);
 				}
 			);

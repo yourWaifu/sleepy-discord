@@ -2,6 +2,10 @@
 #include "discord_object_interface.h"
 #include "vector"
 
+#if _MSC_VER && !__INTEL_COMPILER
+#pragma warning( disable: 4458 ) //warns about variables that hide class members
+#endif
+
 namespace SleepyDiscord {
 	void BaseDiscordClient::testFunction(std::string teststring) {
 		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({
@@ -219,7 +223,7 @@ namespace SleepyDiscord {
 		if (roles.empty()){
 			rolesString = "";
 		} else {
-			unsigned int i = -1;
+			int i = -1;
 			std::vector<std::string> values(roles.size());
 			for (Role role : roles) {
 				values[++i] = json::createJSON({
@@ -502,7 +506,7 @@ namespace SleepyDiscord {
 	//	return requestExecuteWebhook(webhookID, webhookToken, { "embeds", crazy stuff happens here }, wait, username, avatar_url, tts);
 	//}
 	
-	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait, std::string username, std::string avatar_url, bool tts) {
+	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool /*wait*/, std::string username, std::string avatar_url, bool tts) {
 		return request(Post, path("webhooks/{webhook.id}/{webhook.token}", { webhookID, webhookToken }), {
 			{ "file"      , filePathPart(file)  },
 			{ "username"  , username            },
