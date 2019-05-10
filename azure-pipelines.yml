@@ -24,12 +24,12 @@ steps:
 
 - script: |
     cd vcpkg
-    .\vcpkg install openssl-windows:x86-windows-static
+    .\vcpkg install openssl-windows:x86-windows
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="C:\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 - task: VSBuild@1
   inputs:
