@@ -45,18 +45,22 @@ namespace SleepyDiscord {
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
 		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters,
-		RequestCallback callback) {
+		RequestCallback callback, RequestMode mode) {
 		//check if rate limited
 		Response response;
 		const time_t currentTime = getEpochTimeMillisecond();
+		response.birth = currentTime;
+		const auto continueBeingRateLimited = [&]() {
+			onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, mode, { *this, method, path, jsonParameters, multipartParameters, callback });
+			response.statusCode = TOO_MANY_REQUESTS;
+			setError(response.statusCode);
+			return response;
+		};
 		if (isGlobalRateLimited) {
 			if (nextRetry <= currentTime) {
 				isGlobalRateLimited = false;
 			} else {
-				onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
-				response.statusCode = TOO_MANY_REQUESTS;
-				setError(response.statusCode);
-				return response;
+				return continueBeingRateLimited();
 			}
 		}
 		const std::string bucket = path.bucket(method);
@@ -65,10 +69,7 @@ namespace SleepyDiscord {
 			if (bucketResetTimestamp->second <= currentTime) {
 				buckets.erase(bucketResetTimestamp);
 			} else {
-				onExceededRateLimit(false, bucketResetTimestamp->second - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
-				response.statusCode = TOO_MANY_REQUESTS;
-				setError(response.statusCode);
-				return response;
+				return continueBeingRateLimited();
 			}
 		}
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
@@ -113,7 +114,7 @@ namespace SleepyDiscord {
 						buckets[bucket] = nextRetry;
 						onDepletedRequestSupply(bucket, retryAfter);
 					}
-					onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters, callback });
+					onExceededRateLimit(isGlobalRateLimited, retryAfter, mode, { *this, method, path, jsonParameters, multipartParameters, callback });
 				}
 			default:
 				{		//error
@@ -187,10 +188,11 @@ namespace SleepyDiscord {
 			*serverCache = getServers().get<Cache>();
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset) {
+	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, RequestMode mode, Request request) {
+		if (mode == Async)
 			schedule(request, timeTilRetry);
 	}
 

@@ -73,7 +73,7 @@ namespace SleepyDiscord {
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
-			RequestCallback callback = nullptr);
+			RequestCallback callback = nullptr, RequestMode mode = Sync);
 		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 
@@ -386,7 +386,7 @@ namespace SleepyDiscord {
 	protected:
 		//Rest events
 		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
-		virtual void onExceededRateLimit(bool global, time_t timeTilRetry, Request request);
+		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, RequestMode mode, Request request);
 
 		/* list of events
 		READY
@@ -694,6 +694,7 @@ namespace SleepyDiscord {
 		const std::string jsonParameters;
 		const std::initializer_list<Part> multipartParameters;
 		const BaseDiscordClient::RequestCallback callback;
+		const RequestMode mode;
 		inline void operator()() {
 			client.request(method, url, jsonParameters, multipartParameters, callback);
 		}
