@@ -24,14 +24,6 @@ namespace SleepyDiscord {
 			return error() ? Type() : Type(&text);
 		}
 
-		Type& operator*() const {
-			return Type();
-		}
-
-		Type* operator->() const {
-			return &Type();
-		}
-
 		inline Type cast() {
 			return operator Type();
 		}
