@@ -68,7 +68,7 @@ if(USE_UWEBSOCKETS)
 		PATHS ${uwebsockets_SOURCE_DIR}/lib
 	)
 	target_include_directories(sleepy-discord PUBLIC ${uwebsockets_SOURCE_DIR}/include)
-	target_link_libraries(sleepy-discord ${LIB_UWS})
+	target_link_libraries(sleepy-discord PUBLIC ${LIB_UWS})
 endif()
 
 if(USE_LIBOPUS)
@@ -76,7 +76,7 @@ if(USE_LIBOPUS)
 		PATHS ${opus_SOURCE_DIR} ${opus_SOURCE_DIR}/.lib
 	)
 	target_include_directories(sleepy-discord PUBLIC ${opus_SOURCE_DIR}/include)
-	target_link_libraries(sleepy-discord ${LIB_OPUS})
+	target_link_libraries(sleepy-discord PUBLIC ${LIB_OPUS})
 endif()
 
 if(USE_LIBSODIUM)
@@ -84,7 +84,7 @@ if(USE_LIBSODIUM)
 		PATHS ${opus_SOURCE_DIR}/libsodium ${opus_SOURCE_DIR}/libsodium/.lib
 	)
 	target_include_directories(sleepy-discord PUBLIC ${opus_SOURCE_DIR}/include)
-	target_link_libraries(sleepy-discord ${LIB_SODIUM})
+	target_link_libraries(sleepy-discord PUBLIC ${LIB_SODIUM})
 endif()
 
 if(NOT Git_FOUND)

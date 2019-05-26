@@ -66,4 +66,4 @@ namespace SleepyDiscord {
 		const char* getMethodName(const RequestMethod& method);
 		
 	};
-};
+}

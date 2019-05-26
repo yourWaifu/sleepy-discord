@@ -190,10 +190,10 @@ namespace SleepyDiscord {
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
-		const bool isReady() { return ready; }
-		const bool isQuiting() { return quiting; }
-		const bool isBot() { return bot; }
-		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
+		bool isReady() const { return ready; }
+		bool isQuiting() const { return quiting; }
+		bool isBot() const { return bot; }
+		bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
@@ -331,7 +331,7 @@ namespace SleepyDiscord {
 		virtual void disconnect(unsigned int code, const std::string reason) {}
 		void reconnect(const unsigned int status = 1000);
 		virtual void runAsync();
-		virtual const time_t getEpochTimeMillisecond();
+		virtual time_t getEpochTimeMillisecond() const;
 		
 	private:
 		int heartbeatInterval = 0;
