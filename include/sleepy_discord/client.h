@@ -387,7 +387,7 @@ namespace SleepyDiscord {
 		void setError(int errorCode);
 
 		//for endpoint functions
-		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
+		std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) const;
 	};
 
 	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
