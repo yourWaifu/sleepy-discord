@@ -104,7 +104,7 @@ namespace SleepyDiscord {
 				if (!isGlobalRateLimited)
 					buckets[bucket] = nextRetry;
 				onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters });
-			}
+			} // fallthrough
 			default:
 			{		//error
 				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
@@ -155,10 +155,10 @@ namespace SleepyDiscord {
 		return Route(source, values);
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(std::time_t timeTilRetry, Request request) {
+	void BaseDiscordClient::onDepletedRequestSupply(std::time_t, Request) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request) {
 		schedule(request, timeTilRetry);
 	}
 

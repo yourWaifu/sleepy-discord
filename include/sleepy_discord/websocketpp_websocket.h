@@ -20,7 +20,7 @@ namespace SleepyDiscord {
 	class WebsocketppDiscordClient : public BaseDiscordClient {
 	public:
 		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 2);
+		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 0);
 		~WebsocketppDiscordClient();
 
 		void run();

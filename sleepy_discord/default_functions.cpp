@@ -149,7 +149,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onMessage(Message message) {
+	void BaseDiscordClient::onMessage(Message) {
 		
 	}
 

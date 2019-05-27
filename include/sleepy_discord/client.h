@@ -204,7 +204,7 @@ namespace SleepyDiscord {
 			EpochTime  = 1,
 		};
 		typedef std::function<void()> TimedTask;
-		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return Timer([](){}); }
+		virtual Timer  schedule(TimedTask, const time_t) { return Timer([](){}); }
 		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
 			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
 		}
@@ -325,10 +325,10 @@ namespace SleepyDiscord {
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2, int _shardID = 0, int _shardCount = 0);
-		virtual bool connect(const std::string & uri) { return false; }
+		virtual bool connect(const std::string &) { return false; }
 		void handleFailToConnect() { schedule([=]() { reconnect(); }, 10000); }
-		virtual void send(std::string message) {}
-		virtual void disconnect(unsigned int code, const std::string reason) {}
+		virtual void send(std::string) {}
+		virtual void disconnect(unsigned int, const std::string) {}
 		void reconnect(const unsigned int status = 1000);
 		virtual void runAsync();
 		virtual time_t getEpochTimeMillisecond() const;
@@ -402,7 +402,7 @@ namespace SleepyDiscord {
 	protected:
 		void resumeMainLoop();
 		virtual int setDoAssignmentTimer(const time_t milliseconds); //call doAssignment in x milliseconds
-		virtual void stopDoAssignmentTimer(const int jobID) {}
+		virtual void stopDoAssignmentTimer(const int) {}
 		void doAssignment();
 	private:
 		struct Assignment {
