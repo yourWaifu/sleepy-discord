@@ -169,7 +169,7 @@ namespace SleepyDiscord {
 			static inline std::string toType(const Value& value) {
 				return toStdString(value);
 			}
-			static inline Value fromType(const std::string& value, Value::AllocatorType& allocator) {
+			static inline Value fromType(const std::string& value, Value::AllocatorType&) {
 				return Value(value.c_str(), value.length());
 			}
 		};
@@ -179,7 +179,7 @@ namespace SleepyDiscord {
 			static inline nonstd::string_view toType(const Value& value) {
 				return toStdStringView(value);
 			}
-			static inline Value fromType(const nonstd::string_view& value, Value::AllocatorType& allocator) {
+			static inline Value fromType(const nonstd::string_view& value, Value::AllocatorType&) {
 				return Value(value.data(), value.length());
 			}
 		};
@@ -192,7 +192,7 @@ namespace SleepyDiscord {
 			static inline bool empty(const PrimitiveType& value) {
 				return value == static_cast<PrimitiveType>(defaultValue);
 			}
-			static inline Value fromType(const PrimitiveType& value, Value::AllocatorType& allocator) {
+			static inline Value fromType(const PrimitiveType& value, Value::AllocatorType& /*allocator*/) {
 				return Value(value);
 			}
 		};
@@ -302,7 +302,7 @@ namespace SleepyDiscord {
 
 		template<class ResultingObject, size_t i = 0>
 		inline typename std::enable_if<i == std::tuple_size<decltype(ResultingObject::JSONStruct)>::value, void>::type
-			fromJSON(ResultingObject& object, const Value& value) {
+			fromJSON(ResultingObject&, const Value&) {
 		}
 
 		template<class ResultingObject, size_t i = 0>
@@ -347,7 +347,7 @@ namespace SleepyDiscord {
 
 		template<class SourceObject, size_t i = 0>
 		inline typename std::enable_if<i == std::tuple_size<decltype(SourceObject::JSONStruct)>::value, void>::type
-			toJSON(const SourceObject& object, Value& value, Value::AllocatorType& allocator) {
+			toJSON(const SourceObject& /*object*/, Value& /*value*/, Value::AllocatorType& /*allocator*/) {
 		}
 
 		template<class SourceObject, size_t i = 0>

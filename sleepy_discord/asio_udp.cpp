@@ -32,12 +32,12 @@ namespace SleepyDiscord {
 	}
 
 	void ASIOUDPClient::send(
-		const uint8_t* buffer,
+		const uint8_t* _buffer,
 		size_t bufferLength,
 		SendHandler handler
 	) {
 		if (iOService == nullptr) return;
-		uDPSocket.async_send_to(asio::buffer(buffer, bufferLength), endpoint,
+		uDPSocket.async_send_to(asio::buffer(_buffer, bufferLength), endpoint,
 			std::bind(&handle_send, std::placeholders::_1, std::placeholders::_2, handler)
 		);
 	}

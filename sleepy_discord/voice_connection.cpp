@@ -449,6 +449,6 @@ namespace SleepyDiscord {
 }
 #else
 void SleepyDiscord::VoiceConnection::initialize() {}
-void SleepyDiscord::VoiceConnection::processMessage(const std::string &message) {}
-void SleepyDiscord::VoiceConnection::processCloseCode(const int16_t code) {}
+void SleepyDiscord::VoiceConnection::processMessage(const std::string &/*message*/) {}
+void SleepyDiscord::VoiceConnection::processCloseCode(const int16_t /*code*/) {}
 #endif

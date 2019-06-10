@@ -38,8 +38,6 @@ namespace SleepyDiscord {
 #endif
 	}
 
-	BaseDiscordClient::BaseDiscordClient() : shardID(0), shardCount(0), ready(false), quiting(false), bot(true), messagesRemaining(0) {}
-
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
 		if (heart.isValid()) heart.stop();
@@ -47,18 +45,22 @@ namespace SleepyDiscord {
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
 		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters,
-		RequestCallback callback) {
+		RequestCallback callback, RequestMode mode) {
 		//check if rate limited
 		Response response;
 		const time_t currentTime = getEpochTimeMillisecond();
+		response.birth = currentTime;
+		const auto continueBeingRateLimited = [&]() {
+			onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, mode, { *this, method, path, jsonParameters, multipartParameters, callback });
+			response.statusCode = TOO_MANY_REQUESTS;
+			setError(response.statusCode);
+			return response;
+		};
 		if (isGlobalRateLimited) {
 			if (nextRetry <= currentTime) {
 				isGlobalRateLimited = false;
 			} else {
-				onExceededRateLimit(isGlobalRateLimited, nextRetry - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
-				response.statusCode = TOO_MANY_REQUESTS;
-				setError(response.statusCode);
-				return response;
+				return continueBeingRateLimited();
 			}
 		}
 		const std::string bucket = path.bucket(method);
@@ -67,10 +69,7 @@ namespace SleepyDiscord {
 			if (bucketResetTimestamp->second <= currentTime) {
 				buckets.erase(bucketResetTimestamp);
 			} else {
-				onExceededRateLimit(false, bucketResetTimestamp->second - currentTime, { *this, method, path, jsonParameters, multipartParameters, callback });
-				response.statusCode = TOO_MANY_REQUESTS;
-				setError(response.statusCode);
-				return response;
+				return continueBeingRateLimited();
 			}
 		}
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
@@ -117,7 +116,7 @@ namespace SleepyDiscord {
 						buckets[bucket] = nextRetry;
 						onDepletedRequestSupply(bucket, retryAfter);
 					}
-					onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters, callback });
+					onExceededRateLimit(isGlobalRateLimited, retryAfter, mode, { *this, method, path, jsonParameters, multipartParameters, callback });
 				}
 			default:
 				{		//error
@@ -191,11 +190,12 @@ namespace SleepyDiscord {
 			*serverCache = getServers().get<Cache>();
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset) {
+	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
-		schedule(request, timeTilRetry);
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, RequestMode mode, Request request) {
+		if (mode == Async)
+			schedule(request, timeTilRetry);
 	}
 
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {
@@ -461,7 +461,7 @@ namespace SleepyDiscord {
 				const json::Value& nickValue = d["nick"];
 				std::string nick = nickValue.IsString() ? json::toStdString(d["nick"]) : "";
 				accessObjectFromCache(serverID, &Server::members, user.ID,
-					[user, roles, nick](Server& server, ServerMember& member) {
+					[user, roles, nick](Server&, ServerMember& member) {
 						member.user = user;
 						member.roles = roles;
 						member.nick = nick;
@@ -481,7 +481,7 @@ namespace SleepyDiscord {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
 				accessObjectFromCache(serverID, &Server::roles, role.ID,
-					[role](Server& server, Role& foundRole) {
+					[role](Server&, Role& foundRole) {
 						foundRole = role;
 					}
 				);
@@ -502,7 +502,7 @@ namespace SleepyDiscord {
 			case hash("CHANNEL_UPDATE"             ): {
 				Channel channel = d;
 				accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
-					[channel](Server& server, Channel& foundChannel) {
+					[channel](Server&, Channel& foundChannel) {
 						foundChannel = channel;
 					}
 				);

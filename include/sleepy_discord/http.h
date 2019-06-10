@@ -20,14 +20,15 @@ namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	struct Response {
-		int32_t statusCode;
 		std::string text;
+		int32_t statusCode = 0;
 		std::map<std::string, std::string> header;
+		time_t birth;
 		inline bool error() const {
 			return BAD_REQUEST <= statusCode;
 		}
-		Response(int32_t _statusCode) : statusCode(_statusCode) {}
 		Response() {}
+		Response(int32_t _statusCode) : statusCode(_statusCode) {}
 	};
 
 	struct filePathPart {

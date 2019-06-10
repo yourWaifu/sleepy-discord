@@ -146,7 +146,7 @@ public:
 
 	void onMessage(SleepyDiscord::Message message) override
 	{
-		if (message.isMentioned(getID()) && message.author.ID == "99259409045143552")
+		if (message.isMentioned(getID()))
 		{
 			std::queue<std::string> parameters = split(message.content);
 			const std::string mention = "<@" + getID().string() + ">";
