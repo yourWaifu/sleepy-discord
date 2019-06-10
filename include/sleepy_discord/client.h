@@ -93,7 +93,7 @@ namespace SleepyDiscord {
 			const std::initializer_list<Part>& multipartParameters = {}) {
 			postTask(static_cast<PostableTask>(
 				Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
-				callback(static_cast<ParmType>(r));
+					callback(static_cast<ParmType>(r));
 				} }
 			));
 		}
@@ -387,6 +387,11 @@ namespace SleepyDiscord {
 			});
 		}
 
+		inline void disconnectServerVoiceConnections(Snowflake<Server>& serverID) {
+			disconnectVoiceConnection_if([&serverID](VoiceConnection& connection) {
+				return connection.getContext().getServerID() == serverID;
+			});
+		}
 #endif
 
 		//Caching
