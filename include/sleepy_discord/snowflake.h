@@ -9,6 +9,8 @@
 #include "json_wrapper.h"
 
 namespace SleepyDiscord {
+	using Time = int64_t;
+
 	//Stops you from mixing up different types of ids, like using a message_id as a user_id
 	template <typename DiscordObject>
 	struct Snowflake {
@@ -90,7 +92,7 @@ namespace SleepyDiscord {
 
 	private:
 		RawType raw;
-		static const time_t discordEpoch = 1420070400000;	//the first second of 2015 since epoch
+		static const Time discordEpoch = 1420070400000;	//the first second of 2015 since epoch
 	};
 
 	template <typename DiscordOject>
