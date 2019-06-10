@@ -31,6 +31,14 @@ endif()
 
 # Find and Download libraries
 if(AUTO_DOWNLOAD_LIBRARY)
+
+	if(NOT Git_FOUND)
+		string(CONCAT GIT_NOT_FOUND_WARNING
+			"GIT was not found, CMake list will likely fail. "
+			"Please make sure that GIT is inside your PATH variable")
+		message(WARNING GIT_NOT_FOUND_WARNING)
+	endif()
+
 	include(ExternalProject)
 	include(buildtools/cmake/DownloadProject.cmake)
 	if(USE_CPR)
@@ -133,7 +141,6 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
 			UPDATE_DISCONNECTED 1
 		)
-		#I would like use libsodium_BINARY_DIR as the BINARY_DIR but for some reason, that doesn't work
 		ExternalProject_Add(libsodium-make
 			SOURCE_DIR          "${libsodium_SOURCE_DIR}"
 			BINARY_DIR          "${libsodium_BINARY_DIR}"
