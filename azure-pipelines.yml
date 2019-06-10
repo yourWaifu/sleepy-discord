@@ -12,7 +12,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-#Do both 32 bit and 64 bit
+#To Do: Do both 32 bit and 64 bit
 
 - script: |
     git clone https://github.com/Microsoft/vcpkg.git
