@@ -8,9 +8,10 @@
 namespace SleepyDiscord {
 	//This is basicity an unordered_map made to work with the library
 	//only works with Discord Object with an id
-	template<class Type>
-	struct Cache : public std::unordered_map<typename Snowflake<Type>::RawType, Type> {
+	template<class _Type>
+	struct Cache : public std::unordered_map<typename Snowflake<_Type>::RawType, _Type> {
 	public:
+		using Type = _Type;
 		using Parent = std::unordered_map<typename Snowflake<Type>::RawType, Type>;
 		using Parent::unordered_map;
 		using Key = typename Snowflake<Type>::RawType;
