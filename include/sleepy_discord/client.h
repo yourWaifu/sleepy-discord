@@ -76,13 +76,26 @@ namespace SleepyDiscord {
 			RequestCallback callback = nullptr);
 		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
 		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
+		struct Request {
+			BaseDiscordClient& client;
+			const RequestMethod method;
+			const Route url;
+			const std::string jsonParameters;
+			const std::initializer_list<Part> multipartParameters;
+			const BaseDiscordClient::RequestCallback callback;
+			inline void operator()() const {
+				client.request(method, url, jsonParameters, multipartParameters, callback);
+			}
+		};
 
 		template<class ParmType, class Callback>
 		void requestAsync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {}) {
-			postTask(static_cast<PostableTask>(Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
+			postTask(static_cast<PostableTask>(
+				Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			} }));
+				} }
+			));
 		}
 
 		template<class ParmType, class Callback>
@@ -685,21 +698,6 @@ namespace SleepyDiscord {
 		std::forward_list<Assignment> assignments;
 
 		void unschedule(const int jobID);
-	};
-
-	struct Request {
-		BaseDiscordClient& client;
-		const RequestMethod method;
-		const Route url;
-		const std::string jsonParameters;
-		const std::initializer_list<Part> multipartParameters;
-		const BaseDiscordClient::RequestCallback callback;
-		inline void operator()() {
-			client.request(method, url, jsonParameters, multipartParameters, callback);
-		}
-		//inline operator std::function<void()>() {
-		//	return std::bind(&Request::operator(), this);
-		//}
 	};
 
 	template<> struct BaseDiscordClient::RequestModeType<Async> : BaseDiscordClient::RawRequestModeTypeHelper<Async, void> {
