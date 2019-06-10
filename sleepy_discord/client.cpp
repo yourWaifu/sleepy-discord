@@ -108,7 +108,9 @@ namespace SleepyDiscord {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
 			case TOO_MANY_REQUESTS:
 				{   //this should fall down to default
-						int retryAfter = std::stoi(response.header["Retry-After"]);
+					std::string rawRetryAfter = response.header["Retry-After"];
+					//the 5 is an arbitrary number, and there's 1000 ms in a second
+					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
 					isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
 					nextRetry = getEpochTimeMillisecond() + retryAfter;
 					if (!isGlobalRateLimited) {
