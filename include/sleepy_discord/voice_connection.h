@@ -12,6 +12,8 @@
 #include "timer.h"
 
 namespace SleepyDiscord {
+	using AudioSample = int16_t;
+
 	class BaseDiscordClient;
 	class VoiceConnection;
 
@@ -21,6 +23,7 @@ namespace SleepyDiscord {
 		virtual void onReady(VoiceConnection&) {}
 		virtual void onSpeaking(VoiceConnection&) {}
 		virtual void onEndSpeaking(VoiceConnection&) {}
+		virtual void onFinishedSpeaking(VoiceConnection&) {}
 		virtual void onHeartbeat(VoiceConnection&) {}
 		virtual void onHeartbeatAck(VoiceConnection&) {}
 	};
@@ -32,6 +35,7 @@ namespace SleepyDiscord {
 		inline Snowflake<Channel> getChannelID() {
 			return channelID;
 		}
+
 		inline Snowflake<Server> getServerID() {
 			return serverID;
 		}
@@ -40,12 +44,21 @@ namespace SleepyDiscord {
 			return this == &right;
 		}
 
-		inline void setVoiceHandler(BaseVoiceEventHandler& handler) {
-			eventHandler = &handler;
+		inline void setVoiceHandler(BaseVoiceEventHandler* source) {
+			eventHandler = std::unique_ptr<BaseVoiceEventHandler>(source);
 		}
 
-		inline void setVoiceHandler(BaseVoiceEventHandler* handler) {
-			eventHandler = handler;
+		inline const bool hasVoiceHandler() {
+			return eventHandler != nullptr;
+		}
+
+		inline BaseVoiceEventHandler& getVoiceHandler() {
+			return *(eventHandler.get());
+		}
+
+		template<class EventHandler, class... Types>
+		inline void startVoiceHandler(Types&&... arguments) {
+			setVoiceHandler(new EventHandler(std::forward<Types>(arguments)...));
 		}
 
 	private:
@@ -58,7 +71,7 @@ namespace SleepyDiscord {
 		std::string sessionID = "";
 		std::string endpoint = "";
 		std::string token;
-		BaseVoiceEventHandler* eventHandler;
+		std::unique_ptr<BaseVoiceEventHandler> eventHandler;
 	};
 
 	enum AudioSourceType {
@@ -93,7 +106,7 @@ namespace SleepyDiscord {
 		static inline constexpr std::size_t proposedLength() {
 			return static_cast<std::size_t>(
 				bitrate() * channels() * (
-					static_cast<float>(proposedLengthOfTime()) * /*1 millisecond*/0.001
+					static_cast<float>(proposedLengthOfTime()) / 1000 /*millisecond conversion*/
 				)
 			);
 		}
@@ -118,11 +131,11 @@ namespace SleepyDiscord {
 		const AudioSourceType type;
 		virtual ~BaseAudioSource() {}
 		//This function below is here in case the user uses this class
-		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
+		virtual void read(AudioTransmissionDetails& details, AudioSample*& buffer, std::size_t& length) {};
 	};
 
 	struct BaseAudioOutput {
-		using Container = std::array<int16_t, AudioTransmissionDetails::proposedLength()>;
+		using Container = std::array<AudioSample, AudioTransmissionDetails::proposedLength()>;
 		BaseAudioOutput() {}
 		virtual void write(Container audio, AudioTransmissionDetails& details) {}
 		private:
@@ -209,7 +222,7 @@ namespace SleepyDiscord {
 			return context;
 		}
 
-		void speak(int16_t*& audioData, const std::size_t& length);
+		void speak(AudioSample*& audioData, const std::size_t& length);
 
 		void disconnect();
 
@@ -276,6 +289,12 @@ namespace SleepyDiscord {
 		unsigned char secretKey[SECRET_KEY_SIZE];
 		static constexpr int nonceSize = 24;
 
+		//to do use this for events
+		template<class... Types>
+		inline void callEvent(void (BaseVoiceEventHandler::*member)(Types...), Types&&... arguments){
+			if(context.eventHandler != nullptr)
+				((*context.eventHandler).*member)(arguments...);
+		}
 		void heartbeat();
 		inline void scheduleNextTime(AudioTimer& timer, TimedTask code, const time_t interval);
 		inline void stopSpeaking() {
@@ -294,7 +313,7 @@ namespace SleepyDiscord {
 
 	struct BasicAudioSourceForContainers : public BaseAudioSource {
 		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
-		void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) override {}
+		void read(AudioTransmissionDetails& details, AudioSample*& buffer, std::size_t& length) override {}
 		virtual void speak(
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,
@@ -307,9 +326,7 @@ namespace SleepyDiscord {
 	public:
 		using Container = _Container;
 		AudioSource() : BasicAudioSourceForContainers() {}
-		virtual Container read(AudioTransmissionDetails& details) {
-			return Container();
-		};
+		virtual void read(AudioTransmissionDetails& details, Container& target) {};
 	private:
 		friend VoiceConnection;
 		void speak(
@@ -317,13 +334,21 @@ namespace SleepyDiscord {
 			AudioTransmissionDetails& details,
 			std::size_t& length
 		) override {
-			Container audioData = read(details);
-			int16_t* audioBuffer = audioData.data();
-			length = audioData.size();
+			read(details, containedAudioData);
+			int16_t* audioBuffer = containedAudioData.data();
+			length = containedAudioData.size();
 			connection.speak(audioBuffer, length);
+		}
+	protected:
+		Container containedAudioData;
+	};
+
+	struct AudioVectorSource : public AudioSource<std::vector<AudioSample>> {
+	public:
+		AudioVectorSource() : AudioSource<std::vector<AudioSample>>() {
+			containedAudioData.resize(AudioTransmissionDetails::proposedLength());
 		}
 	};
 
 	using AudioPointerSource = BaseAudioSource;
-	using AudioVectorSource = AudioSource<std::vector<int16_t>>;
 }

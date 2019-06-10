@@ -166,11 +166,13 @@ namespace SleepyDiscord {
 				context.eventHandler->onReady(*this);
 			break;
 		case SPEAKING:
-			context.eventHandler->onSpeaking(*this);
+			if (context.eventHandler != nullptr)
+				context.eventHandler->onSpeaking(*this);
 		case RESUMED:
 			break;
 		case HEARTBEAT_ACK:
-			context.eventHandler->onHeartbeatAck(*this);
+			if (context.eventHandler != nullptr)
+				context.eventHandler->onHeartbeatAck(*this);
 			break;
 		default:
 			break;
@@ -202,7 +204,8 @@ namespace SleepyDiscord {
 			'}';
 		origin->send(heartbeat, connection);
 
-		context.eventHandler->onHeartbeat(*this);
+		if (context.eventHandler != nullptr)
+			context.eventHandler->onHeartbeat(*this);
 
 		heart = origin->schedule([this]() {
 			this->heartbeat();
@@ -251,7 +254,7 @@ namespace SleepyDiscord {
 		//say something
 		sendSpeaking(true);
 		state = static_cast<State>(state | State::SENDING_AUDIO);
-		nextTime = origin->getEpochTimeMillisecond();
+		speechTimer.nextTime = origin->getEpochTimeMillisecond();
 		speak();
 	}
 
@@ -288,7 +291,7 @@ namespace SleepyDiscord {
 			auto audioVectorSource = &static_cast<BasicAudioSourceForContainers&>(*audioSource);
 			audioVectorSource->speak(*this, details, length);
 		} else {
-			int16_t * audioBuffer = nullptr;
+			AudioSample* audioBuffer = nullptr;
 			audioSource->read(details, audioBuffer, length);
 			speak(audioBuffer, length);
 		}
@@ -305,6 +308,7 @@ namespace SleepyDiscord {
 				AudioTransmissionDetails::bitrate() * AudioTransmissionDetails::channels()
 			)) * 1000.0f
 		);
+
 		scheduleNextTime(speechTimer,
 			[this]() {
 				this->speak();
@@ -312,7 +316,7 @@ namespace SleepyDiscord {
 		);
 	}
 
-	void VoiceConnection::speak(int16_t*& audioData, const std::size_t & length)  {
+	void VoiceConnection::speak(AudioSample*& audioData, const std::size_t & length)  {
 		samplesSentLastTime = 0;
 		//This is only called in speak() so already checked that we can still send audio data
 
