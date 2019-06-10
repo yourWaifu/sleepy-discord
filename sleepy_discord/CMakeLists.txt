@@ -36,9 +36,7 @@ target_include_directories(sleepy-discord
 #The codebase is c++11 but both clang and visual c++ have issues with c++11
 #These issues are fixed by using preprocessor defines to replace code that
 #cause issues with c++14 code
-set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
-target_compile_features(sleepy-discord PUBLIC cxx_std_14)
 
 target_compile_options(sleepy-discord PUBLIC -Wall)
 if (NOT ONLY_SLEEPY_DISCORD)
@@ -80,19 +78,20 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	endif()
 
 	if(USE_LIBSODIUM)
-		#NO_DEFAULT_PATH is used to force cmake to look at the path provided first
-		find_library(LIB_SODIUM sodium
-			PATHS ${libsodium_BINARY_DIR}/src/libsodium/.libs/
-			NO_DEFAULT_PATH
+		add_dependencies(sleepy-discord libsodium-make)
+		ExternalProject_Get_property(libsodium-make BINARY_DIR)
+		set(libsodium-make_BINARY_DIR ${BINARY_DIR})
+		message(WARNING ${libsodium-make_BINARY_DIR})
+		set(
+			LIB_SODIUM_BUILDS 
+			${libsodium-make_BINARY_DIR}/src/libsodium/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}sodium${CMAKE_STATIC_LIBRARY_SUFFIX}
 		)
-		find_library(LIB_SODIUM sodium)
-		#for some reason, it keeps wanting to use libsodium_SOURCE_DIR instead of libsodium_BINARY_DIR
-		#so replace libsodium_SOURCE_DIR when it's detected
-		if(LIB_SODIUM MATCHES "${libsodium_SOURCE_DIR}")
-			string(REPLACE "${libsodium_SOURCE_DIR}" "${libsodium_BINARY_DIR}" LIB_SODIUM ${LIB_SODIUM})
-		endif()
-		target_include_directories(sleepy-discord PUBLIC ${libsodium_SOURCE_DIR}/src/libsodium/include)
-		list(APPEND LIBRARIES_TO_LINK "${LIB_SODIUM}")
+		target_include_directories(
+			sleepy-discord PUBLIC
+			${libsodium_SOURCE_DIR}/src/libsodium/include
+			${libsodium-make_BINARY_DIR}/src/libsodium/include
+		)
+		list(APPEND LIBRARIES_TO_LINK "${LIB_SODIUM_BUILDS}")
 	endif()
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
 endif()
@@ -102,7 +101,7 @@ if(NOT Git_FOUND)
 endif()
 
 if(ENABLE_VOICE)
-	target_compile_definitions(sleepy-discord PRIVATE SLEEPY_VOICE_ENABLED)
+	target_compile_definitions(sleepy-discord PUBLIC SLEEPY_VOICE_ENABLED)
 endif()
 
 target_include_directories(sleepy-discord
