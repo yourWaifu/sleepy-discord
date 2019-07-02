@@ -517,6 +517,7 @@ namespace SleepyDiscord {
 		virtual void send(std::string /*message*/, WebsocketConnection& /*connection*/) {}
 		virtual void disconnect(unsigned int /*code*/, const std::string /*reason*/, WebsocketConnection& /*connection*/) {}
 		void reconnect(const unsigned int status = 1000);
+		void stopClient() {}
 		//the next 3 functions are part of BaseDiscordClient because VoiceConnection is a private nested class
 		inline void initialize(GenericMessageReceiver*& messageProcessor) const {
 			messageProcessor->initialize();
@@ -726,5 +727,6 @@ namespace SleepyDiscord {
                                      using BaseDiscordClient::initialize;      \
                                      using BaseDiscordClient::processCloseCode;\
                                      using BaseDiscordClient::reconnect;       \
+                                     using BaseDiscordClient::stopClient;      \
 
 //This comment stops a warning

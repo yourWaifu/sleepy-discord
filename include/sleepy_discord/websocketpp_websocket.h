@@ -64,6 +64,9 @@ namespace SleepyDiscord {
 			websocketpp::config::asio_client::message_type::ptr msg, 
 			GenericMessageReceiver* messageProcessor
 		);
+		void stopClient() {
+			this_client.stop();
+		}
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
