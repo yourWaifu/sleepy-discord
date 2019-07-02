@@ -47,15 +47,11 @@ namespace SleepyDiscord {
 			return target;
 		}
 
-		struct BaseArrayWrapper {
-			virtual Array getArray() = 0;
-		};
-
-		struct ArrayStringWrapper : public BaseArrayWrapper {
+		struct ArrayStringWrapper {
 			const Value& json;
 			ArrayStringWrapper(const Value& json) : json(json) {}
-			operator const Value&() const { return json; }
-			inline Array getArray() override { return json.GetArray(); }
+			inline const Value& getDoc() const { return json; }
+			operator const Value&() const { return getDoc(); }
 		};
 
 		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
@@ -63,7 +59,8 @@ namespace SleepyDiscord {
 			using Base::Base;
 			template<template<class...> class Container, typename Type = TypeToConvertTo>
 			Container<Type> get() {
-				Array jsonArray = Base::getArray();
+				auto&& doc = Base::getDoc();
+				Array jsonArray = doc.template Get<Array>();
 				return Container<Type>(jsonArray.begin(), jsonArray.end());
 			}
 
@@ -245,7 +242,7 @@ namespace SleepyDiscord {
 			static inline StdArray toType(const Value& value) {
 				ArrayWrapper<typename StdArray::value_type> arrayWrapper(value);
 				std::array<typename StdArray::value_type, std::tuple_size<StdArray>::value> arr;
-				Array jsonArray = arrayWrapper.getArray();
+				Array jsonArray = arrayWrapper.getDoc().template Get<Array>();
 				Value::ConstValueIterator iterator = jsonArray.Begin();
 				for (typename StdArray::value_type& v : arr) {
 					if (iterator == jsonArray.End())
