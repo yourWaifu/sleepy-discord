@@ -1,5 +1,7 @@
 #pragma once
+#if !defined(NONEXISTENT_UWEBSOCKETS) | defined(EXISTENT_UWEBSOCKETS)
 #include <uWS/uWS.h>
+#endif
 #ifndef NONEXISTENT_UWEBSOCKETS
 #include <thread>
 #define SLEEPY_UWEBSOCKETS 563146 //random number that's only used once in the code

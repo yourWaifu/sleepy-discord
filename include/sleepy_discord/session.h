@@ -15,6 +15,12 @@
 		#endif
 
 	//defaults
+#elif defined(SLEEPY_DISCORD_CMAKE)
+	#if defined(EXISTENT_CPR)
+		#include "cpr_session.h"
+	#else
+		#include "custom_session.h"
+	#endif
 #else
 	#include "cpr_session.h"
 	#ifdef NONEXISTENT_CPR

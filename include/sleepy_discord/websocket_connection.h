@@ -13,6 +13,15 @@
 		typedef SLEEPY_SESSION Session
 	#endif
 
+#elif defined(SLEEPY_DISCORD_CMAKE)
+	#if defined(EXISTENT_WEBSOCKETPP)
+		#include "websocketpp_connection.h"
+	#elif defined(EXISTENT_UWEBSOCKETS)
+		#include "uwebsockets_connection.h"
+	#else
+		#include "custom_connection.h"
+	#endif
+
 //defaults
 #else
 	#ifndef SLEEPY_LOCK_EXISTENT_TO
