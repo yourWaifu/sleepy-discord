@@ -371,11 +371,25 @@ namespace SleepyDiscord {
 			return obj;
 		}
 
+		template<class Object>
+		inline rapidjson::Document toJSON(const Object& object) {
+			rapidjson::Document doc;
+			doc.SetObject();
+			toJSON(object, doc, doc.GetAllocator());
+			return doc;
+		}
+
 		inline std::string stringify(const Value& value) {
 			rapidjson::StringBuffer buffer;
 			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 			value.Accept(writer);
 			return std::string(buffer.GetString(), buffer.GetSize());
+		}
+
+		template<class Object>
+		inline std::string stringifyObj(const Object& object) {
+			rapidjson::Allocator allocator;
+			return stringify(toJSON(object, allocator));
 		}
 	}
 }
