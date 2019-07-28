@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.6)
 project(sleepy-discord)
 
 option(BUILD_EXAMPLES                "Build examples of Sleepy Discord and all dependencies"              OFF)
-option(BUILD_SLEEPY_DISCORD_EXAMPLES "Build examples of Sleepy Discord"                                   OFF)
+option(SLEEPY_DISCORD_BUILD_EXAMPLES "Build examples of Sleepy Discord"                                   OFF)
 option(ONLY_SLEEPY_DISCORD           "Sleepy Discord but none of the dependencies, except build in onces" OFF)
 option(ENABLE_VOICE                  "Enable voice support"                                               OFF)
 if (NOT ONLY_SLEEPY_DISCORD)
@@ -20,7 +20,7 @@ set(SLEEPY_DISCORD_CMAKE ON)
 
 #set variables based on other variables
 if(BUILD_EXAMPLES)
-	set(BUILD_SLEEPY_DISCORD_EXAMPLES ON)
+	set(SLEEPY_DISCORD_BUILD_EXAMPLES ON)
 endif()
 
 if(ENABLE_VOICE)
@@ -234,6 +234,9 @@ endif()
 
 # Add Subdirectories
 add_subdirectory(sleepy_discord)
-if (BUILD_SLEEPY_DISCORD_EXAMPLES)
+if (SLEEPY_DISCORD_BUILD_EXAMPLES)
 	add_subdirectory(examples/hello)
+	if (ENABLE_VOICE)
+		add_subdirectory(examples/sound-player)
+	endif()
 endif()
