@@ -16,7 +16,7 @@ namespace SleepyDiscord {
 	struct Snowflake {
 		using RawType = std::string;
 		
-		Snowflake(                                  ) : raw(""                            ) {}
+		Snowflake(                                  ) = default;
 		Snowflake(const std::string         & snow  ) : raw( snow                         ) {}
 		Snowflake(const std::string         * snow  ) : raw(*snow                         ) {}
 		Snowflake(const char                * snow  ) : raw( snow                         ) {}
@@ -26,7 +26,7 @@ namespace SleepyDiscord {
 		Snowflake(const DiscordObject       * object) : Snowflake(object->ID              ) {}
 		Snowflake(const int64_t               number) : Snowflake(std::to_string(number  )) {}
 		Snowflake(const json::Value         & value ) : Snowflake(json::toStdString(value)) {}
-		//Snowflake(const std::pair<const RawType, DiscordObject>& pair  ) : Snowflake(pair.first              ) {}
+		~Snowflake() = default;
 
 		inline bool operator==(const Snowflake& right) const {
 			return raw == right.raw;
@@ -91,7 +91,7 @@ namespace SleepyDiscord {
 		}
 
 	private:
-		RawType raw;
+		RawType raw = {};
 		static const Time discordEpoch = 1420070400000;	//the first second of 2015 since epoch
 	};
 
