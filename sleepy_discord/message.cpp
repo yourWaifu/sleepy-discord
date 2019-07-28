@@ -2,9 +2,6 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	Message::~Message() {
-	}
-
 	Message::Message(const json::Value& json) :
 		Message(json::fromJSON<Message>(json))
 	{}

@@ -74,8 +74,6 @@ namespace SleepyDiscord {
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
 			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
 			RequestCallback callback = nullptr, RequestMode mode = Sync);
-		Response request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters);
-		/*Response request(const RequestMethod method, std::string url, cpr::Parameters httpParameters);*/
 		struct Request {
 			BaseDiscordClient& client;
 			const RequestMethod method;
@@ -88,22 +86,22 @@ namespace SleepyDiscord {
 			}
 		};
 
-		template<class ParmType, class Callback>
-		void requestAsync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
+		template<class ParmType>
+		void requestAsync(const RequestMethod method, Route path, std::function<void(ParmType)> callback, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {}) {
 			postTask(static_cast<PostableTask>(
-				Request{ *this, method, path, jsonParameters, multipartParameters, [callback](Response r) {
+				Request{ *this, method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 					callback(static_cast<ParmType>(r));
-				} }
+				}) : RequestCallback(nullptr) }
 			));
 		}
 
-		template<class ParmType, class Callback>
-		Response requestSync(const RequestMethod method, Route path, Callback callback, const std::string jsonParameters = "",
+		template<class ParmType>
+		Response requestSync(const RequestMethod method, Route path, std::function<void(ParmType)> callback, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {}) {
-			return request(method, path, jsonParameters, multipartParameters, [callback](Response r) {
+			return request(method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			});
+			}) : RequestCallback(nullptr) );
 		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
@@ -137,14 +135,14 @@ namespace SleepyDiscord {
 			switch (settings.mode) {
 			case Async:
 				requestAsync<
-					typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback
+					typename RequestSettingsClass::ParmType
 				>(method, path, settings.callback, jsonParameters, multipartParameters);
 				break;
 			case Sync:
 				if (settings.callback)
 					//having an invalid callback here would cause bugs
 					return requestSync<
-						typename RequestSettingsClass::ParmType, typename RequestSettingsClass::Callback
+						typename RequestSettingsClass::ParmType
 					>(method, path, settings.callback, jsonParameters, multipartParameters);
 				else
 					return request(method, path, jsonParameters, multipartParameters);
@@ -162,7 +160,7 @@ namespace SleepyDiscord {
 			static type doRequest() {}
 		};
 
-#define RequestModeRequestDefine template<class ParmType, class Callback> \
+		#define RequestModeRequestDefine template<class ParmType, class Callback> \
 		static ReturnType doRequest(BaseDiscordClient& client, const RequestMethod method, Route path, \
 			const std::string jsonParameters, const std::initializer_list<Part>& multipartParameters, Callback callback) 
 
@@ -170,59 +168,45 @@ namespace SleepyDiscord {
 
 		template<RequestMode mode, class ParmType = void, class Callback = RequestCallback>
 		typename RequestModeType<mode>::ReturnType request(const RequestMethod method, Route path, Callback callback,
-			const std::string jsonParameters = ""/*,
-			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {}
+			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}
 			) {
 			return RequestModeType<mode>::template doRequest<ParmType, Callback>(*this, method, path, jsonParameters, multipartParameters, callback);
-		}
-
-		template<class RequestSettingsClass>
-		typename RequestSettingsClass::ReturnType request(const RequestMethod method, Route path, RequestSettingsClass& settings,
-			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
-			switch (settings.mode) {
-			case Async:        requestAsync<
-			                   	typename RequestSettingsClass::ParmType,
-			                   	typename RequestSettingsClass::Callback
-			                   >(method, path, settings.callback, jsonParameters, multipartParameters); break;
-			case Sync:  return requestSync                     (method, path, settings.callback, jsonParameters, multipartParameters); break;
-			default:    return Response(BAD_REQUEST); break;
-			}
-			return Response();
 		}
 
 		void testFunction(std::string teststring);
 
 		//channel functions
-		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID, RequestSettings<ObjectResponse<Channel>> settings = {});
-		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = "");
-		ObjectResponse<Channel     > editChannelName         (Snowflake<Channel> channelID, std::string name);
-		ObjectResponse<Channel     > editChannelTopic        (Snowflake<Channel> channelID, std::string topic);
-		ObjectResponse<Channel     > deleteChannel           (Snowflake<Channel> channelID);
+		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID                                                                                 , RequestSettings<ObjectResponse<Channel>> settings = {});
+		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = ""                                  , RequestSettings<ObjectResponse<Channel>> settings = {});
+		ObjectResponse<Channel     > editChannelName         (Snowflake<Channel> channelID, std::string name                                                               , RequestSettings<ObjectResponse<Channel>> settings = {});
+		ObjectResponse<Channel     > editChannelTopic        (Snowflake<Channel> channelID, std::string topic                                                              , RequestSettings<ObjectResponse<Channel>> settings = {});
+		ObjectResponse<Channel     > deleteChannel           (Snowflake<Channel> channelID                                                                                 , RequestSettings<ObjectResponse<Channel>> settings = {});
 		enum GetMessagesKey {na, around, before, after, limit};
 		ArrayResponse <Message     > getMessages             (Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t limit = 0);
-		ObjectResponse<Message     > getMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID);                                                    //to do add more then one message return
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, bool tts = false);
-		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message);
-		BoolResponse                 addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
+		ObjectResponse<Message     > getMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<ObjectResponse<Message>> settings = {});  //to do add more then one message return
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, bool tts = false, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message                                  , RequestSettings<ObjectResponse<Message>> settings = {});
+		BoolResponse                 addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<BoolResponse           > settings = {});
 		BoolResponse                 removeReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID = "@me");
-		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji);
-		StandardResponse             removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID);
-		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage);
-		BoolResponse                 deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID);
-		BoolResponse                 bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs);
+		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<ArrayResponse<Reaction>> settings = {});
+		StandardResponse             removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<StandardResponse       > settings = {});
+		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage                           , RequestSettings<ObjectResponse<Message>> settings = {});
+		BoolResponse                 deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
+		BoolResponse                 bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs                                     , RequestSettings<BoolResponse           > settings = {});
 		/*allow is a bitwise value of all allowed permissions
 		deny is a bitwise value of all deisallowed permissions
 		type is "member" for a user or "role" for a role*/
 		BoolResponse                 editChannelPermissions  (Snowflake<Channel> channelID, Snowflake<Overwrite> overwriteID, int allow, int deny, std::string type);           //to do test this
-		ArrayResponse <Invite      > getChannelInvites       (Snowflake<Channel> channelID);
+		ArrayResponse <Invite      > getChannelInvites       (Snowflake<Channel> channelID                                                                                 , RequestSettings<ArrayResponse<Invite  >> settings = {});
 		ObjectResponse<Invite      > createChannelInvite     (Snowflake<Channel> channelID, const uint64_t maxAge = 0, const uint64_t maxUses = 0, const bool temporary = false, const bool unique = false);
-		BoolResponse                 removeChannelPermission (Snowflake<Channel> channelID, std::string ID);
-		BoolResponse                 sendTyping              (Snowflake<Channel> channelID);
-		ArrayResponse <Message     > getPinnedMessages       (Snowflake<Channel> channelID);
-		BoolResponse                 pinMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID);
-		BoolResponse                 unpinMessage            (Snowflake<Channel> channelID, Snowflake<Message> messageID);
-		StandardResponse             addRecipient            (Snowflake<Channel> channelID, Snowflake<User> userID);
-		StandardResponse             removeRecipient         (Snowflake<Channel> channelID, Snowflake<User> userID);
+		BoolResponse                 removeChannelPermission (Snowflake<Channel> channelID, std::string ID                                                                 , RequestSettings<BoolResponse           > settings = {});
+		BoolResponse                 sendTyping              (Snowflake<Channel> channelID                                                                                 , RequestSettings<BoolResponse           > settings = {});
+		ArrayResponse <Message     > getPinnedMessages       (Snowflake<Channel> channelID                                                                                 , RequestSettings<ArrayResponse<Message >> settings = {});
+		BoolResponse                 pinMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
+		BoolResponse                 unpinMessage            (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
+		StandardResponse             addRecipient            (Snowflake<Channel> channelID, Snowflake<User> userID                                                         , RequestSettings<StandardResponse       > settings = {});
+		StandardResponse             removeRecipient         (Snowflake<Channel> channelID, Snowflake<User> userID                                                         , RequestSettings<StandardResponse       > settings = {});
 		//IntelliSense Help
 		/*functions with more then one name to make life easy for users that use IntelliSense*/
 		inline BoolResponse          deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction         (channelID, messageID, emoji); }
@@ -231,71 +215,74 @@ namespace SleepyDiscord {
 		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    _userID                  ) { return removeRecipient        (channelID,   _userID       ); }
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
+		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
+			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, false, settings);
+		}
 
 		//server functions
-		//ObjectResponse<Server      > createServer            (std::string name, std::string region, std::string icon, int verificationLevel, int defaultMessageNotifications, int explicitContentLevel, std::vector<Role> roles, std::vector<Channel> channels);
-		ObjectResponse<Server      > getServer               (Snowflake<Server> serverID);
-		//edit Server		//ask discord api server about what the default values should be
-		ObjectResponse<Server      > deleteServer            (Snowflake<Server> serverID);
-		ArrayResponse <Channel     > getServerChannels       (Snowflake<Server> serverID);
-		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name);
-		ArrayResponse <Channel     > editChannelPositions    (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions);
-		ObjectResponse<ServerMember> getMember               (Snowflake<Server> serverID, Snowflake<User> userID);
-		ArrayResponse <ServerMember> listMembers             (Snowflake<Server> serverID, uint16_t limit = 0, std::string after = "");
+		//ObjectResponse<Server      > createServer to do add this
+		ObjectResponse<Server      > getServer               (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<Server      >> settings = {});
+		//edit Server		//to do add this
+		ObjectResponse<Server      > deleteServer            (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<Server      >> settings = {});
+		ArrayResponse <Channel     > getServerChannels       (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Channel      >> settings = {});
+		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name                                       , RequestSettings<ObjectResponse<Channel     >> settings = {});
+		ArrayResponse <Channel     > editChannelPositions    (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Channel      >> settings = {});
+		ObjectResponse<ServerMember> getMember               (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<ObjectResponse<ServerMember>> settings = {});
+		ArrayResponse <ServerMember> listMembers             (Snowflake<Server> serverID, uint16_t limit = 0, std::string after = ""             , RequestSettings<ArrayResponse<ServerMember >> settings = {});
 		ObjectResponse<ServerMember> addMember               (Snowflake<Server> serverID, Snowflake<User> userID, std::string accesToken, std::string nick = "", std::vector<Role> roles = {}, bool mute = false, bool deaf = false); //to do test this
 		BoolResponse                 editMember              (Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname = "", std::vector<Snowflake<Role>> roles = {}, int8_t mute = -1, int8_t deaf = -1, Snowflake<Channel> channelID = {});
-		BoolResponse                 muteServerMember        (Snowflake<Server> serverID, Snowflake<User> userID, bool mute = true);                                  //to do test this
-		BoolResponse                 editNickname            (Snowflake<Server> serverID, std::string newNickname);
-		BoolResponse                 addRole                 (Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);
-		BoolResponse                 removeRole              (Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID);   //removes role from member
-		BoolResponse                 kickMember              (Snowflake<Server> serverID, Snowflake<User> userID);
-		ArrayResponse <User        > getBans                 (Snowflake<Server> serverID);                                                                     //to do test this
-		BoolResponse                 banMember               (Snowflake<Server> serverID, Snowflake<User> userID);
-		BoolResponse                 unbanMember             (Snowflake<Server> serverID, Snowflake<User> userID);
-		ArrayResponse <Role        > getRoles                (Snowflake<Server> serverID);
+		BoolResponse                 muteServerMember        (Snowflake<Server> serverID, Snowflake<User> userID, bool mute = true               , RequestSettings<BoolResponse                 > settings = {});  //to do test this
+		BoolResponse                 editNickname            (Snowflake<Server> serverID, std::string newNickname                                , RequestSettings<BoolResponse                 > settings = {});
+		BoolResponse                 addRole                 (Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID         , RequestSettings<BoolResponse                 > settings = {});
+		BoolResponse                 removeRole              (Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID         , RequestSettings<BoolResponse                 > settings = {});
+		BoolResponse                 kickMember              (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
+		ArrayResponse <User        > getBans                 (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<User          >> settings = {});  //to do test this
+		BoolResponse                 banMember               (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
+		BoolResponse                 unbanMember             (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
+		ArrayResponse <Role        > getRoles                (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Role          >> settings = {});
 		ObjectResponse<Role        > createRole              (Snowflake<Server> serverID, std::string name = "", Permission permissions = Permission::NONE, unsigned int color = 0, bool hoist = false, bool mentionable = false);
-		ArrayResponse <Role        > editRolePosition        (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions);                //to do test this
+		ArrayResponse <Role        > editRolePosition        (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Role>> settings = {});  //to do test this
 		StringResponse               editRole                (Snowflake<Server> serverID, Snowflake<Role> roleID, std::string name = "", Permission permissions = Permission::NONE, uint32_t color = 1 << 24, int8_t hoist = -1, int8_t mentionable = -1);
-		BoolResponse                 deleteRole              (Snowflake<Server> serverID, Snowflake<Role> roleID);
+		BoolResponse                 deleteRole              (Snowflake<Server> serverID, Snowflake<Role> roleID                                 , RequestSettings<BoolResponse                 > settings = {});
 		//get prune count	needs testing to know what object they are talking about
-		StandardResponse             pruneMembers            (Snowflake<Server> serverID, const unsigned int numOfDays);                                               //to do test
-		ArrayResponse <VoiceRegion > getVoiceRegions         ();  //needs voice region class
-		ArrayResponse <Invite      > getServerInvites        (Snowflake<Server> serverID);
-		StringResponse               getIntegrations         (Snowflake<Server> serverID);    //needs whatever a integration class is                        //to do test
-		BoolResponse                 createIntegration       (Snowflake<Server> serverID, std::string type, std::string integrationID);                          //to do test
+		StandardResponse             pruneMembers            (Snowflake<Server> serverID, const unsigned int numOfDays                           , RequestSettings<StandardResponse             > settings = {});  //to do test
+		ArrayResponse <VoiceRegion > getVoiceRegions         (                                                                                     RequestSettings<ArrayResponse<VoiceRegion   >> settings = {});
+		ArrayResponse <Invite      > getServerInvites        (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Invite        >> settings = {});
+		StringResponse               getIntegrations         (Snowflake<Server> serverID                                                         , RequestSettings<StringResponse               > settings = {});  //needs whatever a integration class is  //to do test
+		BoolResponse                 createIntegration       (Snowflake<Server> serverID, std::string type, std::string integrationID            , RequestSettings<BoolResponse                 > settings = {});  //to do test
 		BoolResponse                 editIntergration        (Snowflake<Server> serverID, std::string integrationID, int expireBegavior, int expireGracePeriod, bool enbleEmoticons); //to do test
-		BoolResponse                 deleteIntegration       (Snowflake<Server> serverID, std::string integrationID);                                            //to do test this
-		BoolResponse                 syncIntegration         (Snowflake<Server> serverID, std::string integrationID);                                              //to do test this
-		ObjectResponse<ServerEmbed > getServerEmbed          (Snowflake<Server> serverID);
+		BoolResponse                 deleteIntegration       (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
+		BoolResponse                 syncIntegration         (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
+		ObjectResponse<ServerEmbed > getServerEmbed          (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<ServerEmbed  >> settings = {});
 		//edit server embed   I don't know what the perms are
 
 		//Invite functions
-		ObjectResponse<Invite      > inviteEndpoint          (RequestMethod method, std::string inviteCode);
-		ObjectResponse<Invite      > getInvite               (std::string inviteCode);                                                                //to do test this
-		ObjectResponse<Invite      > deleteInvite            (std::string inviteCode);                                                             //to do test this
-		ObjectResponse<Invite      > acceptInvite            (std::string inviteCode);	//not available to bot accounts                          //to do test this
+		ObjectResponse<Invite      > inviteEndpoint          (RequestMethod method, std::string inviteCode, RequestSettings<ObjectResponse<Invite>> settings = {});
+		ObjectResponse<Invite      > getInvite               (std::string inviteCode                      , RequestSettings<ObjectResponse<Invite>> settings = {});  //to do test this
+		ObjectResponse<Invite      > deleteInvite            (std::string inviteCode                      , RequestSettings<ObjectResponse<Invite>> settings = {});  //to do test this
+		ObjectResponse<Invite      > acceptInvite            (std::string inviteCode                      , RequestSettings<ObjectResponse<Invite>> settings = {});	//not available to bot accounts  //to do test this
 
 		//User functions
-		ObjectResponse<User        > getCurrentUser();
-		ObjectResponse<User        > getUser                 (Snowflake<User> userID);
-		//User editCurrentUser();		//needs Avatar data thing?
-		ArrayResponse <Server>     getServers                ();
-		BoolResponse               leaveServer               (Snowflake<Server> serverID);
-		ArrayResponse <Channel   > getDirectMessageChannels  ();
-		ObjectResponse<Channel   > createDirectMessageChannel(std::string recipientID);
-		//ObjectResponse<DMChannel > createGroupDirectMessageChannel(std:vector<std::string> accessTokens, )   what is a dict???
-		ArrayResponse <Connection> getUserConnections        ();
+		ObjectResponse<User        > getCurrentUser          (                            RequestSettings<ObjectResponse<User     >> settings = {});
+		ObjectResponse<User        > getUser                 (Snowflake<User> userID    , RequestSettings<ObjectResponse<User     >> settings = {});
+		//User editCurrentUser();
+		ArrayResponse <Server>     getServers                (                            RequestSettings<ArrayResponse<Server    >> settings = {});
+		BoolResponse               leaveServer               (Snowflake<Server> serverID, RequestSettings<BoolResponse             > settings = {});
+		ArrayResponse <Channel   > getDirectMessageChannels  (                            RequestSettings<ArrayResponse<Channel   >> settings = {});
+		ObjectResponse<Channel   > createDirectMessageChannel(std::string recipientID   , RequestSettings<ObjectResponse<Channel  >> settings = {});
+		//ObjectResponse<DMChannel > createGroupDirectMessageChannel(std:vector<std::string> accessTokens, ) to do add this
+		ArrayResponse <Connection> getUserConnections        (                            RequestSettings<ArrayResponse<Connection>> settings = {});
 
 		//Voice Functions
 		//getVoiceRegions
 
 		//Webhook functions
-		ObjectResponse<Webhook> createWebhook                (Snowflake<Channel> channelID, std::string name, std::string avatar = "");          //to do test this
-		ArrayResponse <Webhook> getChannelWebhooks           (Snowflake<Channel> channelID);
-		ArrayResponse <Webhook> getServerWebhooks            (Snowflake<Server> serverID);
-		ObjectResponse<Webhook> getWebhook                   (Snowflake<Webhook> webhookID, std::string webhookToken = "");                         //to do test this
+		ObjectResponse<Webhook> createWebhook                (Snowflake<Channel> channelID, std::string name, std::string avatar = "", RequestSettings<ObjectResponse<Webhook>> settings = {});  //to do test this
+		ArrayResponse <Webhook> getChannelWebhooks           (Snowflake<Channel> channelID                                           , RequestSettings<ArrayResponse <Webhook>> settings = {});
+		ArrayResponse <Webhook> getServerWebhooks            (Snowflake<Server> serverID                                             , RequestSettings<ArrayResponse <Webhook>> settings = {});
+		ObjectResponse<Webhook> getWebhook                   (Snowflake<Webhook> webhookID, std::string webhookToken = ""            , RequestSettings<ObjectResponse<Webhook>> settings = {});  //to do test this
 		ObjectResponse<Webhook> editWebhook                  (Snowflake<Webhook> webhookID, std::string webhookToken = "", std::string name = "", std::string avatar = "");    //you can leave token or name as null //to do test this
-		BoolResponse            deleteWebhook                (Snowflake<Webhook> webhookID, std::string webhookToken = "");
+		BoolResponse            deleteWebhook                (Snowflake<Webhook> webhookID, std::string webhookToken = ""            , RequestSettings<BoolResponse           > settings = {});
 		ObjectResponse<Webhook> requestExecuteWebhook        (Snowflake<Webhook> webhookID, std::string webhookToken, std::pair<std::string, std::string> pair, bool wait, std::string username, std::string avatar_url, bool tts);     //note: it's possiable to have both a file and embeds
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, std::string content, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);       //to do test this
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, std::vector<Embed> embeds, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false); //to do test this

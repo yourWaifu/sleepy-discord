@@ -27,7 +27,7 @@ namespace SleepyDiscord {
 		//Value getValue(const char* source, const char * name);
 
 		const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json);
-		const std::string string(const std::string s);
+		const std::string string(const std::string& s);
 		const std::string UInteger(const uint64_t num);
 		const std::string optionalUInteger(const uint64_t num);
 		const std::string integer(const int64_t num);

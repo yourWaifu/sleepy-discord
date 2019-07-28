@@ -3,6 +3,8 @@
 #include "discord_object_interface.h"
 
 namespace SleepyDiscord {
+	struct SendMessageParams;
+
 	struct EmbedThumbnail : public DiscordObject {
 	public:
 		EmbedThumbnail() = default;
@@ -215,6 +217,7 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	private:
 		friend BaseDiscordClient;
+		friend SendMessageParams;
 
 		enum class Flag {
 			INVALID_EMBED = 0,

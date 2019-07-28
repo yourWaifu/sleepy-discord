@@ -167,14 +167,6 @@ namespace SleepyDiscord {
 		return response;
 	}
 
-	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::initializer_list<Part>& multipartParameters) {
-		return request(method, path, "", /*cpr::Parameters{},*/ multipartParameters);
-	}/*
-
-	Response BaseDiscordClient::request(RequestMethod method, std::string url, cpr::Parameters httpParameters) {
-		return request(method, url, "", httpParameters);
-	}*/
-
 	const Route BaseDiscordClient::path(const char * source, std::initializer_list<std::string> values) {
 		return Route(source, values);
 	}

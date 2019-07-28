@@ -23,11 +23,11 @@ namespace SleepyDiscord {
 		std::string text;
 		int32_t statusCode = 0;
 		std::map<std::string, std::string> header;
-		time_t birth;
+		time_t birth = 0;
 		inline bool error() const {
 			return BAD_REQUEST <= statusCode;
 		}
-		Response() {}
+		Response() = default;
 		Response(int32_t _statusCode) : statusCode(_statusCode) {}
 	};
 

@@ -6,7 +6,7 @@
 
 namespace SleepyDiscord {
 	struct StandardResponse : Response {	//This is here for possiable future use
-		StandardResponse(const Response& response) : Response(response) {}
+		explicit StandardResponse(const Response& response) : Response(response) {}
 	};
 
 	struct BooleanResponse : public StandardResponse {
@@ -20,7 +20,7 @@ namespace SleepyDiscord {
 		inline operator Type() const {
 			return wasSuccessful(*this) || !error();
 		}
-		
+
 		Type operator*() const {
 			return operator Type();
 		}
@@ -55,6 +55,7 @@ namespace SleepyDiscord {
 	struct ObjectResponse : public StandardResponse {
 		using StandardResponse::StandardResponse;
 		using Type = _Type;
+
 		operator Type() { //to do use references instead of pointers
 			return error() ? Type() : Type(text);
 		}

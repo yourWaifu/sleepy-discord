@@ -68,7 +68,7 @@ namespace SleepyDiscord {
 	struct Message : public IdentifiableDiscordObject<Message> {
 	public:
 		Message() = default;
-		~Message();
+		~Message() = default;
 		//Message(const json::Values values);
 		//Message(const std::string * rawJson);
 		Message(const json::Value& json);
@@ -129,6 +129,21 @@ namespace SleepyDiscord {
 				json::pair                           (&Message::pinned         , "pinned"          , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::webhookID      , "webhook_id"      , json::OPTIONAL_FIELD         ),
 				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        )
+			);
+		JSONStructEnd
+	};
+
+	struct SendMessageParams : public DiscordObject {
+	public:
+		Snowflake<Channel> channelID;
+		std::string content = {};
+		bool tts = false;
+		Embed embed = Embed::Flag::INVALID_EMBED;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&SendMessageParams::content, "content", json::REQUIRIED_FIELD),
+				json::pair(&SendMessageParams::tts    , "tts"    , json::OPTIONAL_FIELD),
+				json::pair(&SendMessageParams::embed  , "embed"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
