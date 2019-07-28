@@ -62,7 +62,7 @@ struct RawPCMAudioFile : public SleepyDiscord::AudioPointerSource
 		SleepyDiscord::AudioTransmissionDetails &details,
 		SleepyDiscord::AudioSample *&buffer, std::size_t &length) override
 	{
-		const std::size_t proposedLength = details.proposedLength();
+		constexpr std::size_t proposedLength = SleepyDiscord::AudioTransmissionDetails::proposedLength();
 		buffer = &music[progress];
 		//if song isn't over, read proposedLength amount of samples
 		//else use a length of 0 to stop listening
@@ -71,7 +71,7 @@ struct RawPCMAudioFile : public SleepyDiscord::AudioPointerSource
 	}
 	std::size_t progress = 0;
 	std::vector<SleepyDiscord::AudioSample> music;
-	std::size_t musicLength;
+	std::size_t musicLength = 0;
 };
 
 template<class _OnReadyCallback>
@@ -168,7 +168,7 @@ public:
 			Command::MappedCommands::iterator foundCommand =
 				Command::all.find(parameters.front());
 			if (foundCommand == Command::all.end()) {
-				sendMessage(message.channelID, "Error: Command not found");
+				sendMessage(message.channelID, "Error: Command not found", SleepyDiscord::Async);
 				return;
 			}
 			parameters.pop();
@@ -176,7 +176,7 @@ public:
 				parameters.size() <
 					foundCommand->second.params.size()
 			) {
-				sendMessage(message.channelID, "Error: Too few parameters");
+				sendMessage(message.channelID, "Error: Too few parameters", SleepyDiscord::Async);
 				return;
 			}
 
@@ -266,6 +266,7 @@ int main()
 					length += parmaName.size();
 				}
 			}
+			
 			std::string output;
 			output.reserve(length);
 			output += start;
@@ -280,7 +281,7 @@ int main()
 				output += '\n';
 			}
 			output += theEnd;
-			client.sendMessage(message.channelID, output);
+			client.sendMessage(message.channelID, output, SleepyDiscord::Async);
 		}
 	});
 	Command::addCommand({
@@ -297,7 +298,7 @@ int main()
 			SleepyDiscord::Message& message,
 			std::queue<std::string>& params
 		) {
-			std::string& songParam = params.front();
+			std::string songParam = params.front();
 			params.pop();
 			createSimpleCommandVerbForVoiceSource<RawPCMAudioFile>(songParam)(
 				client, message, params
