@@ -262,6 +262,10 @@ ModelManifest.xml
 *.db
 *.opendb
 
+# Visual Studio CMake files
+out/
+CMakeSettings.json
+
 #my files
 deps/
 /discord token.txt
