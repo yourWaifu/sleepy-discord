@@ -15,8 +15,13 @@ namespace SleepyDiscord { namespace json {
 		return target;
 	}
 
-	const std::string string(const std::string s) {
-		return s != "" ? '\"' + s + '\"' : "";
+	const std::string string(const std::string& s) {
+		if (s.empty())
+			return "";
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.String(s.data(), s.length());
+		return std::string(buffer.GetString(), buffer.GetSize());
 	}
 
 	const std::string UInteger(const uint64_t num) {
