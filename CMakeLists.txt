@@ -15,6 +15,9 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 endif()
 
+#Define a variable to use to check if this file has been executed
+set(SLEEPY_DISCORD_CMAKE ON)
+
 #set variables based on other variables
 if(BUILD_EXAMPLES)
 	set(BUILD_SLEEPY_DISCORD_EXAMPLES ON)
@@ -29,6 +32,8 @@ if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
 	set(USE_ASIO ON)
 endif()
 
+find_package(Git)
+
 # Find and Download libraries
 if(AUTO_DOWNLOAD_LIBRARY)
 
@@ -36,42 +41,15 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		string(CONCAT GIT_NOT_FOUND_WARNING
 			"GIT was not found, CMake list will likely fail. "
 			"Please make sure that GIT is inside your PATH variable")
-		message(WARNING GIT_NOT_FOUND_WARNING)
+		message(WARNING ${GIT_NOT_FOUND_WARNING})
 	endif()
+
+	#to do find librarys before downloading them
 
 	include(ExternalProject)
 	include(buildtools/cmake/DownloadProject.cmake)
 	if(USE_CPR)
 		#to do install libssl-dev
-
-		#the cmake test has issues on visual studio so disable them
-		if(NOT DEFINED BUILD_CPR_TESTS)
-			set(BUILD_CPR_TESTS OFF CACHE BOOL "")
-		endif()
-
-		set(BUILD_CURL_EXE OFF CACHE BOOL "")
-		set(CURL_STATICLIB ON CACHE BOOL "")
-		set(CURL_ZLIB OFF CACHE BOOL "")
-
-		#set what ssl library to use for curl based on OS
-		#this fixes
-		if(NOT DEFINED CMAKE_USE_OPENSSL)
-			if(WIN32)
-				set(CMAKE_USE_WINSSL ON CACHE BOOL "")
-				set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-			elseif(APPLE)
-				set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
-				set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-			endif()
-			#to do, set one for linux
-		endif()
-		if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-			#using cmake to configure curl on linux has issues
-			#so use system curl
-			set(USE_SYSTEM_CURL ON CACHE BOOL "")
-			set(USE_SYSTEM_CURL ON CACHE INTERNAL BOOL "")
-		endif()
-
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
@@ -79,8 +57,6 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
-
-		add_subdirectory(deps/cpr)
 	endif()
 
 	if(USE_ASIO)
@@ -103,10 +79,6 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
 			UPDATE_DISCONNECTED 1
 		)
-
-		set(THREADS_PREFER_PTHREAD_FLAG ON)
-		find_package(Threads REQUIRED)
-		add_subdirectory(deps/websocketpp)
 	endif()
 
 	if(USE_UWEBSOCKETS)
@@ -130,10 +102,9 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
 			UPDATE_DISCONNECTED 1
 		)
-		add_subdirectory(deps/opus)
 	endif()
 
-	if(USE_LIBSODIUM)
+	if(USE_LIBSODIUM AND NOT WIN32)
 		download_project(
 			PROJ           libsodium
 			GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
@@ -151,10 +122,71 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			TEST_COMMAND        ""
 		)
 	endif()
+else()
+	if(USE_CPR)
+		set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
+	endif()
+	if(USE_ASIO)
+		set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
+	endif()
+	if(USE_WEBSOCKETPP)
+		set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
+	endif()
+	if(USE_UWEBSOCKETS)
+		set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
+	endif()
+	if(USE_LIBOPUS)
+		set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
+	endif()
+	if(USE_LIBSODIUM AND NOT WIN32)
+		set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
+	endif()
+endif()
+
+# Configure libraries
+if(USE_CPR)
+	#the cmake test has issues on visual studio so disable them
+	if(NOT DEFINED BUILD_CPR_TESTS)
+		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
+	endif()
+
+	set(BUILD_CURL_EXE OFF CACHE BOOL "")
+	set(CURL_STATICLIB ON CACHE BOOL "")
+	set(CURL_ZLIB OFF CACHE BOOL "")
+
+	#set what ssl library to use for curl based on OS
+	#this fixes
+	if(NOT DEFINED CMAKE_USE_OPENSSL)
+		if(WIN32)
+			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		elseif(APPLE)
+			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		endif()
+		#to do, set one for linux
+	endif()
+	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		#using cmake to configure curl on linux has issues
+		#so use system curl
+		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+		set(USE_SYSTEM_CURL ON CACHE INTERNAL BOOL "")
+	endif()
+
+	add_subdirectory(deps/cpr)
+endif()
+
+if(USE_WEBSOCKETPP)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	find_package(Threads REQUIRED)
+	add_subdirectory(deps/websocketpp)
+endif()
+
+if(USE_LIBOPUS)
+	add_subdirectory(deps/opus)
 endif()
 
 # Get Version Info
-find_package(Git)
 if(Git_FOUND)
 	execute_process(
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
@@ -196,6 +228,8 @@ if(Git_FOUND)
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h.in"
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
 	)
+else()
+	add_compile_definitions(NONEXISTANT_VERSION_H)
 endif()
 
 # Add Subdirectories
