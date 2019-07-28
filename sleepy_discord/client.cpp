@@ -630,7 +630,7 @@ namespace SleepyDiscord {
 		//if time and timer are out of sync, trust time
 		time_t currentTime = getEpochTimeMillisecond();
 		time_t nextHeartbest;
-		if (currentTime <= (nextHeartbest = lastHeartbeat + heartbeatInterval)) {
+		if (currentTime < (nextHeartbest = lastHeartbeat + heartbeatInterval)) {
 			heart = schedule(&BaseDiscordClient::heartbeat, nextHeartbest - currentTime);
 			return;
 		}
@@ -723,7 +723,7 @@ namespace SleepyDiscord {
 
 		//Add a new connection to the list of connections
 		voiceConnections.emplace_front( this, context );
-		VoiceConnection& voiceConnection = voiceConnections.back();
+		VoiceConnection& voiceConnection = voiceConnections.front();
 
 		connect(endpoint, &voiceConnection, voiceConnection.connection);
 
