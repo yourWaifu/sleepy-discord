@@ -113,10 +113,12 @@ namespace SleepyDiscord {
 			//{ "ssrc", "port" });
 			sSRC = d["ssrc"].GetUint();
 			port = static_cast<uint16_t>(d["port"].GetUint());
+			const json::Value& ipValue = d["ip"];
+			std::string ip(ipValue.GetString(), ipValue.GetStringLength());
 			//start heartbeating
 			heartbeat();
 			//connect to UDP
-			UDP.connect(context.endpoint, port);
+			UDP.connect(ip, port);
 			//IP Discovery
 			unsigned char packet[70] = { 0 };
 			packet[0] = (sSRC >> 24) & 0xff;
@@ -180,11 +182,8 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processCloseCode(const int16_t code) {
-		switch (code) {
-		default:
-			getDiscordClient().removeVoiceConnectionAndContext(*this);
-			break;
-		}
+		//to do deal with close codes
+		getDiscordClient().removeVoiceConnectionAndContext(*this);
 	}
 
 	void VoiceConnection::heartbeat() {
@@ -243,10 +242,6 @@ namespace SleepyDiscord {
 				if (opusError) {//error check
 					return;
 				}
-				//opusError = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
-				//if (opusError) {
-				//	return;
-				//}
 				state = static_cast<State>(state | State::CAN_ENCODE);
 			}
 #endif
@@ -336,10 +331,10 @@ namespace SleepyDiscord {
 #else
 			//encode data
 			constexpr opus_int32 encodedAudioMaxLength =
-				AudioTransmissionDetails::proposedLength();
+				static_cast<opus_int32>(AudioTransmissionDetails::proposedLength());
 			unsigned char encodedAudioData[encodedAudioMaxLength]; //11.52 kilobytes
 			opus_int32 encodedAudioLength = opus_encode(
-				encoder, audioData, frameSize,
+				encoder, audioData, static_cast<int>(frameSize),
 				encodedAudioData, encodedAudioMaxLength);
 			//send it
 			uint8_t * encodedAudioDataPointer = encodedAudioData;
@@ -388,7 +383,9 @@ namespace SleepyDiscord {
 
 		UDP.send(audioDataPacket.data(), audioDataPacket.size());
 		samplesSentLastTime = frameSize << 1;
-		timestamp += frameSize;
+		timestamp += static_cast<uint32_t>(frameSize);
+#else
+	#error Can not use voice without libsodium, libsodium not detected.
 #endif
 	}
 
@@ -421,6 +418,7 @@ namespace SleepyDiscord {
 
 	void VoiceConnection::processIncomingAudio(const std::vector<uint8_t>& data)
 	{
+#if !defined(NONEXISTENT_SODIUM) || !defined(NONEXISTENT_OPUS)
 		//get nonce
 		uint8_t nonce[nonceSize];
 		std::memcpy(nonce, data.data(), sizeof nonce);
@@ -436,15 +434,17 @@ namespace SleepyDiscord {
 		if (isForged)
 			return;
 		//decode
-		constexpr std::size_t frameSize = AudioTransmissionDetails::proposedLength();
+		constexpr opus_int32 frameSize = 
+			static_cast<opus_int32>(AudioTransmissionDetails::proposedLength());
 		BaseAudioOutput::Container decodedAudioData;
 		opus_int32 decodedAudioLength = opus_decode(
-			decoder, decryptedData.data(), decryptedData.size(),
+			decoder, decryptedData.data(), static_cast<int>(decryptedData.size()),
 			decodedAudioData.data(), frameSize, 1);
 		if(decodedAudioLength < OPUS_OK || !hasAudioOutput())
 			return;
 		AudioTransmissionDetails details(context, 0);
 		audioOutput->write(decodedAudioData, details);
+#endif
 	}
 }
 #else
