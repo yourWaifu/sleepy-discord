@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.12)
 project(sleepy-discord)
 
 option(BUILD_EXAMPLES                "Build examples of Sleepy Discord and all dependencies"              OFF)
@@ -229,7 +229,7 @@ if(Git_FOUND)
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
 	)
 else()
-	add_compile_definitions(NONEXISTANT_VERSION_H)
+	target_compile_definitions(sleepy-discord PUBLIC NONEXISTANT_VERSION_H)
 endif()
 
 # Add Subdirectories
