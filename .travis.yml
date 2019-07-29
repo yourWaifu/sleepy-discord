@@ -9,7 +9,7 @@ addons:
     packages:
     - gcc-5
     - g++-5
-	- cmake
+    - cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
