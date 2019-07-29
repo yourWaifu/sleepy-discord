@@ -17,6 +17,7 @@ endif()
 
 #Define a variable to use to check if this file has been executed
 set(SLEEPY_DISCORD_CMAKE ON)
+target_compile_definitions(sleepy-discord PUBLIC SLEEPY_DISCORD_CMAKE)
 
 #set variables based on other variables
 if(BUILD_EXAMPLES)
@@ -229,7 +230,7 @@ if(Git_FOUND)
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
 	)
 else()
-	add_compile_definitions(NONEXISTANT_VERSION_H)
+	target_compile_definitions(sleepy-discord PUBLIC NONEXISTANT_VERSION_H)
 endif()
 
 # Add Subdirectories
