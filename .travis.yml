@@ -16,5 +16,5 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
-- cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+- cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make

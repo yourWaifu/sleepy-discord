@@ -29,7 +29,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake
+    CMakeArgs: .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 - task: VSBuild@1
   inputs:
