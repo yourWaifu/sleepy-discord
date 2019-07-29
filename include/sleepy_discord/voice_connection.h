@@ -3,7 +3,9 @@
 #include <array>
 #include <cstdint>
 #include <list>
+#if !defined(NONEXISTENT_UWEBSOCKETS) || defined(EXISTENT_OPUS)
 #include <opus.h>
+#endif
 #include "udp_client.h"
 #include "snowflake.h"
 #include "server.h"

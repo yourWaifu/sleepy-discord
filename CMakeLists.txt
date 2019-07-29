@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.12)
 project(sleepy-discord)
 
 option(BUILD_EXAMPLES                "Build examples of Sleepy Discord and all dependencies"              OFF)
