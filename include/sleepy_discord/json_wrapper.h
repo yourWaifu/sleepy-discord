@@ -388,7 +388,7 @@ namespace SleepyDiscord {
 
 		template<class Object>
 		inline std::string stringifyObj(const Object& object) {
-			rapidjson::Allocator allocator;
+			rapidjson::MemoryPoolAllocator<> allocator;
 			return stringify(toJSON(object, allocator));
 		}
 	}
