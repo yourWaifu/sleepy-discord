@@ -506,7 +506,14 @@ namespace SleepyDiscord {
 				eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
 				onDeleteChannel(d);
 				} break;
-			case hash("CHANNEL_PINS_UPDATE"        ): onPinMessage        (d["channel_id"], json::toStdString(d["last_pin_timestamp"])); break;
+			case hash("CHANNEL_PINS_UPDATE"): {
+				const json::Value& lastPinTimeValue = d["last_pin_timestamp"];
+				onPinMessage(
+					d["channel_id"],
+					lastPinTimeValue.IsString() ?
+					json::toStdString(d["last_pin_timestamp"]) : ""
+				);
+			} break;
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
 			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
