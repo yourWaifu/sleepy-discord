@@ -25,7 +25,8 @@ namespace SleepyDiscord {
 		Snowflake(const DiscordObject       & object) : Snowflake(object. ID              ) {}
 		Snowflake(const DiscordObject       * object) : Snowflake(object->ID              ) {}
 		Snowflake(const int64_t               number) : Snowflake(std::to_string(number  )) {}
-		Snowflake(const json::Value         & value ) : Snowflake(json::toStdString(value)) {}
+		Snowflake(const json::Value         & value ) :
+			Snowflake(value.IsString() ? json::toStdString(value) : Snowflake()) {}
 		~Snowflake() = default;
 
 		inline bool operator==(const Snowflake& right) const {
