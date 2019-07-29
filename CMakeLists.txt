@@ -17,7 +17,6 @@ endif()
 
 #Define a variable to use to check if this file has been executed
 set(SLEEPY_DISCORD_CMAKE ON)
-target_compile_definitions(sleepy-discord PUBLIC SLEEPY_DISCORD_CMAKE)
 
 #set variables based on other variables
 if(BUILD_EXAMPLES)
