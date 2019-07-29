@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <list>
-#if !defined(NONEXISTENT_UWEBSOCKETS) || defined(EXISTENT_OPUS)
+#if (!defined(NONEXISTENT_OPUS) && !defined(SLEEPY_DISCORD_CMAKE)) || defined(EXISTENT_OPUS)
 #include <opus.h>
 #endif
 #include "udp_client.h"
