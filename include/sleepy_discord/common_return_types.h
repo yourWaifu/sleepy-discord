@@ -73,12 +73,11 @@ namespace SleepyDiscord {
 	struct ArrayResponseWrapper : public StandardResponse {
 		using StandardResponse::StandardResponse;
 		using Type = std::string;
-		//ARR, I'm a pirate, values returned from getArray will become invalid without arr being alive
 		inline operator const std::string&() const {
 			return text;
 		}
 		inline rapidjson::Document getDoc() {
-			rapidjson::Document arr;
+			rapidjson::Document arr; //ARR, I'm a pirate
 			arr.Parse(text.data(), text.length());
 			return arr;
 		}

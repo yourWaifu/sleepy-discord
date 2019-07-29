@@ -163,14 +163,14 @@ if(USE_CPR)
 		elseif(APPLE)
 			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+		elseif(UNIX)
+			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		endif()
-		#to do, set one for linux
 	endif()
 	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		#using cmake to configure curl on linux has issues
 		#so use system curl
 		set(USE_SYSTEM_CURL ON CACHE BOOL "")
-		set(USE_SYSTEM_CURL ON CACHE INTERNAL BOOL "")
 	endif()
 
 	add_subdirectory(deps/cpr)
