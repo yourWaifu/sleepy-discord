@@ -223,7 +223,7 @@ namespace SleepyDiscord {
 			INVALID_EMBED = 0,
 			VALID_EMBED = 1
 		};
-		const Flag flags = Flag::VALID_EMBED;
+		Flag flags = Flag::VALID_EMBED;
 		Embed(const Flag f) : flags(f) {}
 	};
 }
