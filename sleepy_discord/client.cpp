@@ -334,8 +334,8 @@ namespace SleepyDiscord {
 #endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
 		if (!isDisconnected) disconnectWebsocket(1000);
-		if (quiting) onQuit();
 		stopClient();
+		if (quiting) onQuit();
 	}
 
 	void BaseDiscordClient::restart() {
