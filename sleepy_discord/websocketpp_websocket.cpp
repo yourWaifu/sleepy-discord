@@ -45,6 +45,9 @@ namespace SleepyDiscord {
 
 		// Initialize the Asio transport policy
 		this_client.init_asio();
+
+		work = std::unique_ptr<asio::io_service::work>(
+			new asio::io_service::work(this_client.get_io_service()));
 	}
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri,
@@ -94,9 +97,7 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::run() {
-		do {
-			this_client.run();
-		} while (!isQuiting());
+		this_client.run();
 	}
 
 	void handleTimers(const websocketpp::lib::error_code &ec, std::function<void()>& code, _client::timer_ptr timer) {
