@@ -18,7 +18,7 @@ namespace SleepyDiscord {
 		case GATEWAY_UNAVAILABLE: onError(code, "There was not a gateway available to process your request. Wait a bit and retry"); break;
 		default:
 			if (500 <= errorCode && errorCode < 600) onError(code, "The server had an error processing your request (these are rare)");
-			else onError(code, "Unknown");
+			else onError(code, "Unknown " + std::to_string(errorCode));
 			break;
 
 		//JSON Error Response
