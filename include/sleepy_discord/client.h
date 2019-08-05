@@ -436,9 +436,9 @@ namespace SleepyDiscord {
 		*/
 		//TODO: use references, using them now will break other's code
 		virtual void onReady             (Ready              readyData  );
-		virtual void onResumed           (const json::Value& jsonMessage);
-		virtual void onDeleteServer      (UnavailableServer  server);
-		virtual void onEditServer        (Server             server);
+		virtual void onResumed           (                              );
+		virtual void onDeleteServer      (UnavailableServer server      );
+		virtual void onEditServer        (Server            server      );
 		virtual void onBan               (Snowflake<Server> serverID, User user);
 		virtual void onUnban             (Snowflake<Server> serverID, User user);
 		virtual void onMember            (Snowflake<Server> serverID, ServerMember member);

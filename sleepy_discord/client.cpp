@@ -409,7 +409,7 @@ namespace SleepyDiscord {
 				onReady(readyData);
 				ready = true;
 				} break;
-			case hash("RESUMED"                    ): onResumed           (d); break;
+			case hash("RESUMED"                    ): onResumed            (); break;
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)
