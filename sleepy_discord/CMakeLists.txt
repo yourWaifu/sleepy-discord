@@ -6,7 +6,6 @@ add_library(sleepy-discord
 	client.cpp
 	cpr_session.cpp
 	default_functions.cpp
-	discord_object_interface.cpp
 	embed.cpp
 	endpoints.cpp
 	gateway.cpp
