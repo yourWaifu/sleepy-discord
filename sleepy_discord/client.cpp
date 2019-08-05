@@ -133,7 +133,7 @@ namespace SleepyDiscord {
 							static_cast<ErrorCode>(errorCode->value.GetInt()),
 							{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
 					);
-					else
+					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 					throw code;
@@ -334,8 +334,8 @@ namespace SleepyDiscord {
 #endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
 		if (!isDisconnected) disconnectWebsocket(1000);
-		if (quiting) onQuit();
 		stopClient();
+		if (quiting) onQuit();
 	}
 
 	void BaseDiscordClient::restart() {
@@ -409,7 +409,7 @@ namespace SleepyDiscord {
 				onReady(readyData);
 				ready = true;
 				} break;
-			case hash("RESUMED"                    ): onResumed           (d); break;
+			case hash("RESUMED"                    ): onResumed            (); break;
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)

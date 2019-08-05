@@ -436,9 +436,9 @@ namespace SleepyDiscord {
 		*/
 		//TODO: use references, using them now will break other's code
 		virtual void onReady             (Ready              readyData  );
-		virtual void onResumed           (const json::Value& jsonMessage);
-		virtual void onDeleteServer      (UnavailableServer  server);
-		virtual void onEditServer        (Server             server);
+		virtual void onResumed           (                              );
+		virtual void onDeleteServer      (UnavailableServer server      );
+		virtual void onEditServer        (Server            server      );
 		virtual void onBan               (Snowflake<Server> serverID, User user);
 		virtual void onUnban             (Snowflake<Server> serverID, User user);
 		virtual void onMember            (Snowflake<Server> serverID, ServerMember member);
@@ -449,17 +449,17 @@ namespace SleepyDiscord {
 		virtual void onEditRole          (Snowflake<Server> serverID, Role role);
 		virtual void onEditEmojis        (Snowflake<Server> serverID, std::vector<Emoji> emojis);
 		virtual void onMemberChunk       (Snowflake<Server> serverID, std::vector<ServerMember> members);
-		virtual void onDeleteChannel     (Channel channel);
-		virtual void onEditChannel       (Channel channel);
+		virtual void onDeleteChannel     (Channel            channel    );
+		virtual void onEditChannel       (Channel            channel    );
 		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);
 		virtual void onPresenceUpdate    (PresenceUpdate     presenseUpdate);
-		virtual void onEditUser          (User user);
+		virtual void onEditUser          (User               user       );
 		virtual void onEditUserNote      (const json::Value& jsonMessage);
 		virtual void onEditUserSettings  (const json::Value& jsonMessage);
 		virtual void onEditVoiceState    (VoiceState&        state      );
 		virtual void onTyping            (Snowflake<Channel> channelID, Snowflake<User> userID, time_t timestamp);
 		virtual void onDeleteMessages    (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messages);
-		virtual void onEditMessage       (const json::Value& jsonMessage);
+		virtual void onEditMessage       (MessageRevisions   revisioins );
 		virtual void onEditVoiceServer   (VoiceServerUpdate& update     );
 		virtual void onServerSync        (const json::Value& jsonMessage);
 		virtual void onRelationship      (const json::Value& jsonMessage);
@@ -504,7 +504,7 @@ namespace SleepyDiscord {
 		virtual void send(std::string /*message*/, WebsocketConnection& /*connection*/) {}
 		virtual void disconnect(unsigned int /*code*/, const std::string /*reason*/, WebsocketConnection& /*connection*/) {}
 		void reconnect(const unsigned int status = 1000);
-		void stopClient() {}
+		virtual void stopClient() {}
 		//the next 3 functions are part of BaseDiscordClient because VoiceConnection is a private nested class
 		inline void initialize(GenericMessageReceiver*& messageProcessor) const {
 			messageProcessor->initialize();

@@ -133,6 +133,19 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	struct MessageRevisions {
+		MessageRevisions(const json::Value& json) :
+			RevisionsJSON(json), messageID(json["id"]), channelID(json["channel_id"])
+		{}
+		inline void applyChanges(Message& outOfDateMessage) {
+			assert(outOfDateMessage.ID == messageID);
+			json::fromJSON(outOfDateMessage, RevisionsJSON);
+		}
+		Snowflake<Message> messageID;
+		Snowflake<Channel> channelID;
+		const json::Value& RevisionsJSON;
+	};
+
 	struct SendMessageParams : public DiscordObject {
 	public:
 		Snowflake<Channel> channelID;
@@ -142,8 +155,8 @@ namespace SleepyDiscord {
 		JSONStructStart
 			std::make_tuple(
 				json::pair(&SendMessageParams::content, "content", json::REQUIRIED_FIELD),
-				json::pair(&SendMessageParams::tts    , "tts"    , json::OPTIONAL_FIELD),
-				json::pair(&SendMessageParams::embed  , "embed"  , json::OPTIONAL_FIELD)
+				json::pair(&SendMessageParams::tts    , "tts"    , json::OPTIONAL_FIELD ),
+				json::pair(&SendMessageParams::embed  , "embed"  , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

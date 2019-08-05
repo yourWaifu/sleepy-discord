@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onResumed(const json::Value& jsonMessage) {
+	void BaseDiscordClient::onResumed() {
 
 	}
 
@@ -103,9 +103,8 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onEditMessage(const json::Value& jsonMessage) {
-		//because of the fact that on edited messages it'll contain only a subset of the full message object payload
-		//We need a way to edit a message without editing the whole thing
+	void BaseDiscordClient::onEditMessage(MessageRevisions revisioins) {
+
 	}
 
 	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate& voiceServerUpdate) {
