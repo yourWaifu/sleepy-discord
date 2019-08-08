@@ -43,6 +43,26 @@ namespace SleepyDiscord {
 		if (heart.isValid()) heart.stop();
 	}
 
+	void RateLimitBuckets::limitBucket(Route::Bucket& bucket, time_t timestamp) {
+		std::lock_guard<std::mutex> lock(bucketsMutex);
+		buckets[bucket] = timestamp;
+		bucketsCondition.notify_one();
+	}
+
+	bool RateLimitBuckets::isLimited(Route::Bucket& bucket, const time_t& currentTime) {
+		std::unique_lock<std::mutex> lock(bucketsMutex);
+		auto bucketResetTimestamp = buckets.find(bucket);
+		if (bucketResetTimestamp != buckets.end()) {
+			if (currentTime <= bucketResetTimestamp->second) {
+				lock.unlock();
+				return true;
+			}
+			buckets.erase(bucketResetTimestamp);
+		}
+		lock.unlock();
+		return false;
+	}
+
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters/*,
 		cpr::Parameters httpParameters*/, const std::initializer_list<Part>& multipartParameters,
 		RequestCallback callback, RequestMode mode) {
@@ -63,15 +83,9 @@ namespace SleepyDiscord {
 				return continueBeingRateLimited();
 			}
 		}
-		const std::string bucket = path.bucket(method);
-		auto bucketResetTimestamp = buckets.find(bucket);
-		if (bucketResetTimestamp != buckets.end()) {
-			if (bucketResetTimestamp->second <= currentTime) {
-				buckets.erase(bucketResetTimestamp);
-			} else {
-				return continueBeingRateLimited();
-			}
-		}
+		Route::Bucket bucket = path.bucket(method);
+		if (buckets.isLimited(bucket, currentTime))
+			return continueBeingRateLimited();
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
@@ -113,7 +127,7 @@ namespace SleepyDiscord {
 					isGlobalRateLimited = response.header["X-RateLimit-Global"] == "true";
 					nextRetry = getEpochTimeMillisecond() + retryAfter;
 					if (!isGlobalRateLimited) {
-						buckets[bucket] = nextRetry;
+						buckets.limitBucket(bucket, nextRetry);
 						onDepletedRequestSupply(bucket, retryAfter);
 					}
 					onExceededRateLimit(isGlobalRateLimited, retryAfter, mode, { *this, method, path, jsonParameters, multipartParameters, callback });
@@ -156,7 +170,7 @@ namespace SleepyDiscord {
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
 				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				buckets[bucket] = resetDelta + getEpochTimeMillisecond();
+				buckets.limitBucket(bucket, resetDelta + getEpochTimeMillisecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
 

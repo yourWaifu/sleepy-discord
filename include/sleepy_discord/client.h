@@ -59,6 +59,14 @@ namespace SleepyDiscord {
 		Snowflake<Server> serverID;
 	};
 
+	struct RateLimitBuckets {
+		std::unordered_map<Route::Bucket, time_t> buckets;
+		std::mutex bucketsMutex;
+		std::condition_variable bucketsCondition;
+		void limitBucket(Route::Bucket& bucket, time_t timestamp);
+		bool isLimited(Route::Bucket& bucket, const time_t& currentTime);
+	};
+
 	enum RequestMode {
 		Async,
 		Sync
@@ -570,7 +578,7 @@ namespace SleepyDiscord {
 		int8_t messagesRemaining = 0;
 		bool isGlobalRateLimited = false;
 		time_t nextRetry = 0;
-		std::unordered_map<Route::Bucket, time_t> buckets;
+		RateLimitBuckets buckets;
 
 		//error handling
 		void setError(int errorCode);
