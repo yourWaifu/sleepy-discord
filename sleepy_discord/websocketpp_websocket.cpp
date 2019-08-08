@@ -45,9 +45,7 @@ namespace SleepyDiscord {
 
 		// Initialize the Asio transport policy
 		this_client.init_asio();
-
-		work = std::unique_ptr<asio::io_service::work>(
-			new asio::io_service::work(this_client.get_io_service()));
+		this_client.start_perpetual();
 	}
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri,
