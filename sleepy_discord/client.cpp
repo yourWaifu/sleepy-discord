@@ -143,9 +143,6 @@ namespace SleepyDiscord {
 					);
 					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-					throw code;
-#endif
 				} break;
 			}
 
