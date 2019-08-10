@@ -48,18 +48,18 @@ namespace SleepyDiscord {
 		buckets[bucket] = timestamp;
 	}
 
-	bool RateLimiter::isLimited(Route::Bucket& bucket, const time_t& currentTime) {
-		if (isGlobalRateLimited && currentTime <= nextRetry)
-				return true;
+	const time_t RateLimiter::getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
+		if (isGlobalRateLimited && currentTime < nextRetry)
+				return nextRetry;
 		isGlobalRateLimited = false;
 		std::lock_guard<std::mutex> lock(mutex);
 		auto bucketResetTimestamp = buckets.find(bucket);
 		if (bucketResetTimestamp != buckets.end()) {
-			if (currentTime <= bucketResetTimestamp->second)
-				return true;
+			if (currentTime < bucketResetTimestamp->second)
+				return bucketResetTimestamp->second;
 			buckets.erase(bucketResetTimestamp);
 		}
-		return false;
+		return 0;
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
@@ -70,10 +70,11 @@ namespace SleepyDiscord {
 		const time_t currentTime = getEpochTimeMillisecond();
 		response.birth = currentTime;
 		Route::Bucket bucket = path.bucket(method);
-		if (rateLimiter.isLimited(bucket, currentTime)) {
+		time_t nextTry = rateLimiter.getLiftTime(bucket, currentTime);
+		if (0 < nextTry) {
 			onExceededRateLimit(
-				rateLimiter.isGlobalRateLimited, rateLimiter.nextRetry - currentTime,
-				mode, { *this, method, path, jsonParameters, multipartParameters, callback }
+				rateLimiter.isGlobalRateLimited, nextTry - currentTime,
+				{ *this, method, path, jsonParameters, multipartParameters, callback, mode }
 			);
 			response.statusCode = TOO_MANY_REQUESTS;
 			setError(response.statusCode);
@@ -123,7 +124,7 @@ namespace SleepyDiscord {
 					}
 					onExceededRateLimit(
 						rateLimiter.isGlobalRateLimited, retryAfter,
-						mode, { *this, method, path, jsonParameters, multipartParameters, callback }
+						{ *this, method, path, jsonParameters, multipartParameters, callback, mode }
 					);
 				}
 			default:
@@ -190,8 +191,8 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, RequestMode mode, Request request) {
-		if (mode == Async)
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request) {
+		if (request.mode == Async)
 			schedule(request, timeTilRetry);
 	}
 

@@ -63,7 +63,8 @@ namespace SleepyDiscord {
 		std::atomic<bool> isGlobalRateLimited = false;
 		std::atomic<time_t> nextRetry = 0;
 		void limitBucket(Route::Bucket& bucket, time_t timestamp);
-		bool isLimited(Route::Bucket& bucket, const time_t& currentTime);
+		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
+		//isLimited also returns the next Retry timestamp
 	private:
 		std::unordered_map<Route::Bucket, time_t> buckets;
 		std::mutex mutex;
@@ -91,8 +92,9 @@ namespace SleepyDiscord {
 			const std::string jsonParameters;
 			const std::initializer_list<Part> multipartParameters;
 			const BaseDiscordClient::RequestCallback callback;
+			const RequestMode mode;
 			inline void operator()() const {
-				client.request(method, url, jsonParameters, multipartParameters, callback);
+				client.request(method, url, jsonParameters, multipartParameters, callback, mode);
 			}
 		};
 
@@ -102,7 +104,7 @@ namespace SleepyDiscord {
 			postTask(static_cast<PostableTask>(
 				Request{ *this, method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 					callback(static_cast<ParmType>(r));
-				}) : RequestCallback(nullptr) }
+				}) : RequestCallback(nullptr), Async }
 			));
 		}
 
@@ -111,7 +113,7 @@ namespace SleepyDiscord {
 			const std::initializer_list<Part>& multipartParameters = {}) {
 			return request(method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			}) : RequestCallback(nullptr) );
+			}) : RequestCallback(nullptr), Sync );
 		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
@@ -401,7 +403,7 @@ namespace SleepyDiscord {
 	protected:
 		//Rest events
 		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
-		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, RequestMode mode, Request request);
+		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request);
 
 		/* list of events
 		READY
