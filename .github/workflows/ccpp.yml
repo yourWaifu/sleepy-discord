@@ -1,0 +1,27 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: build folder
+      run:  |
+      mkdir build
+      cd build
+    - name: configure
+      run:  cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
