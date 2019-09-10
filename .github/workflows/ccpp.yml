@@ -14,11 +14,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: build folder
-      run: |
-        mkdir build
-        cd build
+      run:  mkdir build
     - name: configure
-      run:  cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+      run: |
+        cd build
+        cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
     - name: make
       run: make
     - name: make check
