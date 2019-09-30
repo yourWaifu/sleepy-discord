@@ -13,8 +13,8 @@ search: true
 [⮌ Go back to documentation](documentation.html)
 
 #How to Compile
-<aside class="notice">
-The first step to using Sleepy Discord
+<aside class="warning">
+Unless you need to compile the library yourself, it's recommended you use <a href="setup-standard">the standard configuration</a> which automates most of those steps.
 </aside>
 
 ##Downloading Sleepy Discord
