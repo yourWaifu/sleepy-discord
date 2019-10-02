@@ -36,6 +36,6 @@ Choose a CMake Generator to use. [Here's a list of them](https://cmake.org/cmake
 Generate build configuration files using CMake on the previous directory with your chosen CMake Generator.
 
 ```shell
-cmake .. -G Visual Studio 15 2017 Win64
+cmake .. -G "Visual Studio 15 2017" -A x64
 ```
 
