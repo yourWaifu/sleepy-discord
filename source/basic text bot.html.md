@@ -15,7 +15,7 @@ search: true
 #How to make a Basic Text Bot
 
 <aside class="notice">
-For this tutorial, I'm going to assume that you everything set up. If not, please read <a href="compile.html">How To Compile Sleepy Discord</a>.
+For this tutorial, I'm going to assume that you everything set up. If not, please read <a href="setup.html">Getting Started</a>.
 </aside>
 
 ## Including Sleepy Discord
