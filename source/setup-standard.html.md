@@ -72,6 +72,6 @@ target_link_libraries(light-blob sleepy-discord)
 
 Using CMake to Generate build configuration files.
 
- * [CMake Graphical User Interface (GUI)](setup-standard-gui)
- * [CMake Command line Interface (CLI)](setup-standard-cli)
+ * [CMake App (GUI)](setup-standard-gui)
+ * [CMake Command (CLI)](setup-standard-cli)
  * [Visual Studio CMake](setup-standard-vs-cmake)
