@@ -16,7 +16,7 @@ search: true
 
  2. If you haven't already installed git, do so now. Type in the command ``git --version`` to make sure it's installed. You may also use a git gui if you like.
 
- 3. Clone the git repository, ``https://github.com/yourWaifu/sleepy-discord.git``, to somewhere around your source code, preferably a subdirectory with all your dependencies.
+ 3. Clone the git repository, ``https://github.com/yourWaifu/sleepy-discord.git``, to somewhere around your source code, preferably a [subdirectory](https://en.wikipedia.org/wiki/Directory_(computing)) with all your dependencies.
 
 ```shell
 cd my-project-example
