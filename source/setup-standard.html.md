@@ -54,6 +54,20 @@ target_link_libraries(replace-me sleepy-discord)
 In ``add_subdirectory``, using a directory that isn't a subdirectory to the current folder will require you to add a path to the binary folder for sleepy-discord as the 2nd parameter. It is recommended that you don't do this.
 </aside>
 
+## Example
+
+```cmake
+cmake_minimum_required (VERSION 3.6)
+project(light-blob)
+
+add_executable(light-blob light.cpp blob.cpp
+main.cpp ui/switch.cpp
+material/metal.cpp material/plastic.cpp material/glass.cpp)
+
+add_subdirectory(deps/sleepy-discord)
+target_link_libraries(light-blob sleepy-discord)
+```
+
 ## Next Step
 
 Using CMake to Generate build configuration files.
