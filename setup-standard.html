@@ -281,20 +281,31 @@
 </code></pre>
 <ol>
 <li><p>Add these two lines to the CMakeList.txt so that Sleepy Discord will be linked.</p></li>
-<li><p>Replace path/to/sleepy-discord with the relative path to the sleepy-discord directory or folder. Windows users, remember to use <code class="prettyprint">/</code>. Also remember to replace replace-me with the name of your executable.</p></li>
+<li><p>Replace path/to/sleepy-discord with the <a href="https://en.wikipedia.org/wiki/Path_(computing)#Absolute_and_relative_paths">relative path</a> to the sleepy-discord directory or folder. For example, if your CMakeList is in <code class="prettyprint">project/</code> and sleepy-discord is in <code class="prettyprint">project/externals/</code>, then the relative path is <code class="prettyprint">externals/sleepy-discord</code>. Windows users, remember to use <code class="prettyprint">/</code>. Also remember to replace replace-me with the name of your executable.</p></li>
 </ol>
 
 <aside class="note">
 In &ldquo;add_subdirectory&rdquo;, using a directory that isn&rsquo;t a subdirectory to the current folder will require you to add a path to the binary folder for sleepy-discord as the 2nd parameter. It is recommended that you don&rsquo;t do this.
 </aside>
 
+<h2 id="example">Example</h2>
+<pre class="highlight cmake tab-cmake"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 3.6<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span>light-blob<span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span>light-blob light.cpp blob.cpp
+main.cpp ui/switch.cpp
+material/metal.cpp material/plastic.cpp material/glass.cpp<span class="p">)</span>
+
+<span class="nb">add_subdirectory</span><span class="p">(</span>deps/sleepy-discord<span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span>light-blob sleepy-discord<span class="p">)</span>
+</code></pre>
 <h2 id="next-step">Next Step</h2>
 
 <p>Using CMake to Generate build configuration files.</p>
 
 <ul>
-<li><a href="setup-standard-gui.html">CMake Graphical User Interface (GUI)</a></li>
-<li><a href="setup-standard-cli.html">CMake Command line Interface (CLI)</a></li>
+<li><a href="setup-standard-gui.html">CMake App (GUI)</a></li>
+<li><a href="setup-standard-cli.html">CMake Command (CLI)</a></li>
 <li><a href="setup-standard-vs-cmake.html">Visual Studio CMake</a></li>
 </ul>
 
