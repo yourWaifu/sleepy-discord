@@ -104,7 +104,7 @@ namespace SleepyDiscord {
 				if (!isGlobalRateLimited)
 					buckets[bucket] = nextRetry;
 				onExceededRateLimit(isGlobalRateLimited, retryAfter, { *this, method, path, jsonParameters, multipartParameters });
-			}
+			} // fallthrough
 			default:
 			{		//error
 				const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
@@ -155,10 +155,10 @@ namespace SleepyDiscord {
 		return Route(source, values);
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(std::time_t timeTilRetry, Request request) {
+	void BaseDiscordClient::onDepletedRequestSupply(std::time_t, Request) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request) {
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request) {
 		schedule(request, timeTilRetry);
 	}
 
@@ -527,12 +527,12 @@ namespace SleepyDiscord {
 		heartbeatInterval = 0;
 	}
 
-	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
+	time_t BaseDiscordClient::getEpochTimeMillisecond() const {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
 	}
 
-	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) {
+	std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) const {
 		std::vector<std::string> params(positions.size());
 		for (auto& value : positions) {
 			params.push_back(json::createJSON({

@@ -11,7 +11,7 @@ namespace SleepyDiscord {
 				break;
 	}
 
-	int AssignmentBasedDiscordClient::setDoAssignmentTimer(const time_t milliseconds) {
+	int AssignmentBasedDiscordClient::setDoAssignmentTimer(const time_t) {
 		static unsigned int uniqueNumber = 0;
 		return ++uniqueNumber;
 	}

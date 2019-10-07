@@ -177,7 +177,7 @@ namespace SleepyDiscord {
 		return request(Get, path("guilds/{guild.id}/members{limit}{after}", { serverID, limitParm, afterParm }));
 	}
 
-	ObjectResponse<ServerMember> BaseDiscordClient::addMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string accesToken, std::string nick, std::vector<Role> roles, bool mute, bool deaf) {
+	ObjectResponse<ServerMember> BaseDiscordClient::addMember(Snowflake<Server>, Snowflake<User>, std::string accesToken, std::string nick, std::vector<Role> roles, bool mute, bool deaf) {
 		std::string rolesString = "";
 		if (roles.empty()){
 			rolesString = "";
@@ -438,7 +438,7 @@ namespace SleepyDiscord {
 	//	return requestExecuteWebhook(webhookID, webhookToken, { "embeds", crazy stuff happens here }, wait, username, avatar_url, tts);
 	//}
 	
-	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait, std::string username, std::string avatar_url, bool tts) {
+	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool, std::string username, std::string avatar_url, bool tts) {
 		return request(Post, path("webhooks/{webhook.id}/{webhook.token}", { webhookID, webhookToken }), {
 			{ "file"      , filePathPart(file)  },
 			{ "username"  , username            },

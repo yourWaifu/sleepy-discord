@@ -109,20 +109,20 @@ namespace SleepyDiscord {
 		}
 
 		template<class DiscordObject>
-		inline bool operator==(Snowflake<DiscordObject> right) {
+		inline bool operator==(Snowflake<DiscordObject> right) const {
 			return ID == static_cast<Snowflake<DiscordObject>>(right);
 		}
 		
 		template<class DiscordObject>
-		inline bool operator!=(Snowflake<DiscordObject> right) {
+		inline bool operator!=(Snowflake<DiscordObject> right) const {
 			return ID != static_cast<Snowflake<DiscordObject>>(right);
 		}
 
-		inline bool operator==(Snowflake<Derived> right) {
+		inline bool operator==(Snowflake<Derived> right) const {
 			return operator==<Derived>(right);
 		}
 
-		inline const time_t getTimestamp() {
+		inline time_t getTimestamp() const {
 			return ID.timestamp();
 		}
 	};

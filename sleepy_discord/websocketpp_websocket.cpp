@@ -22,14 +22,14 @@ namespace SleepyDiscord {
 		this_client.set_access_channels(websocketpp::log::alevel::disconnect);
 		this_client.set_access_channels(websocketpp::log::alevel::app);
 
-		this_client.set_tls_init_handler([this](websocketpp::connection_hdl) {
+		this_client.set_tls_init_handler([](websocketpp::connection_hdl) {
 			return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
 		});
 
 		// Initialize the Asio transport policy
 		this_client.init_asio();
 
-		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+		this_client.set_message_handler(std::bind(&WebsocketppDiscordClient::onWebSocketMessage, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
 		
 		this_client.set_close_handler(std::bind(&WebsocketppDiscordClient::onClose, this,
 			websocketpp::lib::placeholders::_1));
@@ -83,7 +83,7 @@ namespace SleepyDiscord {
 		if (!_thread) _thread.reset(new websocketpp::lib::thread(&WebsocketppDiscordClient::run, this));
 	}
 
-	void WebsocketppDiscordClient::onFail(websocketpp::connection_hdl handle) {
+	void WebsocketppDiscordClient::onFail(websocketpp::connection_hdl) {
 		handleFailToConnect();
 	}
 
@@ -94,7 +94,7 @@ namespace SleepyDiscord {
 		//Besides the library can detect bad connections by itself anyway
 	}
 
-	void WebsocketppDiscordClient::onMessage(websocketpp::connection_hdl hdl, websocketpp::config::asio_client::message_type::ptr msg) {
+	void WebsocketppDiscordClient::onWebSocketMessage(websocketpp::connection_hdl, websocketpp::config::asio_client::message_type::ptr msg) {
 		processMessage(msg->get_payload());
 	}
 	

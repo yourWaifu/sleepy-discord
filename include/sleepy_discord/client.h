@@ -190,10 +190,10 @@ namespace SleepyDiscord {
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0);
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
-		const bool isReady() { return ready; }
-		const bool isQuiting() { return quiting; }
-		const bool isBot() { return bot; }
-		const bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
+		bool isReady() const { return ready; }
+		bool isQuiting() const { return quiting; }
+		bool isBot() const { return bot; }
+		bool isRateLimited() { return messagesRemaining <= 0 || request(Get, "gateway").statusCode == TOO_MANY_REQUESTS; }
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
@@ -204,7 +204,7 @@ namespace SleepyDiscord {
 			EpochTime  = 1,
 		};
 		typedef std::function<void()> TimedTask;
-		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return Timer([](){}); }
+		virtual Timer  schedule(TimedTask, const time_t) { return Timer([](){}); }
 		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
 			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
 		}
@@ -325,13 +325,13 @@ namespace SleepyDiscord {
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2, int _shardID = 0, int _shardCount = 0);
-		virtual bool connect(const std::string & uri) { return false; }
+		virtual bool connect(const std::string &) { return false; }
 		void handleFailToConnect() { schedule([=]() { reconnect(); }, 10000); }
-		virtual void send(std::string message) {}
-		virtual void disconnect(unsigned int code, const std::string reason) {}
+		virtual void send(std::string) {}
+		virtual void disconnect(unsigned int, const std::string) {}
 		void reconnect(const unsigned int status = 1000);
 		virtual void runAsync();
-		virtual const time_t getEpochTimeMillisecond();
+		virtual time_t getEpochTimeMillisecond() const;
 		
 	private:
 		int heartbeatInterval = 0;
@@ -387,7 +387,7 @@ namespace SleepyDiscord {
 		void setError(int errorCode);
 
 		//for endpoint functions
-		const std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions);
+		std::string getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) const;
 	};
 
 	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
@@ -402,7 +402,7 @@ namespace SleepyDiscord {
 	protected:
 		void resumeMainLoop();
 		virtual int setDoAssignmentTimer(const time_t milliseconds); //call doAssignment in x milliseconds
-		virtual void stopDoAssignmentTimer(const int jobID) {}
+		virtual void stopDoAssignmentTimer(const int) {}
 		void doAssignment();
 	private:
 		struct Assignment {
