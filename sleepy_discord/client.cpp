@@ -235,6 +235,8 @@ namespace SleepyDiscord {
 			quit(false, true);
 			return setError(GATEWAY_FAILED);
 		}
+		if (!theGateway.empty())
+			theGateway.clear();
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
 			if (a.text[position] == '"')
