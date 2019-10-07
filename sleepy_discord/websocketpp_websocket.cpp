@@ -41,7 +41,7 @@ namespace SleepyDiscord {
 	bool WebsocketppDiscordClient::connect(const std::string & uri) {
 		// Create a new connection to the given URI
 		websocketpp::lib::error_code ec;
-		// Note: there's might be a memory leak caused by get_connection
+		// Note: there might be a memory leak caused by get_connection
 		_client::connection_ptr con = this_client.get_connection(uri, ec);
 
 		if (ec) {
