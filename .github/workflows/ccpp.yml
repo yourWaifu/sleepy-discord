@@ -20,7 +20,9 @@ jobs:
         cd build
         cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
     - name: make
-      run: make
+      run: |
+        cd build
+        make
     - name: make check
       run: make check
     - name: make distcheck
