@@ -23,11 +23,3 @@ jobs:
       run: |
         cd build
         make
-    - name: make check
-      run: |
-        cd build
-        make check
-    - name: make distcheck
-      run: |
-        cd build
-        make distcheck
