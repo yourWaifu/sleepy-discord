@@ -18,8 +18,8 @@ jobs:
     - name: configure
       run: |
         cd build
-        cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
-    - name: make
+        CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake .. -G Ninja -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+    - name: ninja
       run: |
         cd build
-        make
+        ninja
