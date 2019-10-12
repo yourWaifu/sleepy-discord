@@ -13,12 +13,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: install dependency packages
+      run: apt install -y clang libc++-dev libc++abi-dev ninja-build
     - name: build folder
       run:  mkdir build
     - name: configure
       run: |
         cd build
-        CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake .. -G Ninja -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+        CC=/usr/bin/clang CXX=/usr/bin/clang++ CXXFLAGS=-stdlib=libc++ cmake .. -G Ninja -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
     - name: ninja
       run: |
         cd build
