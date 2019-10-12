@@ -1,0 +1,25 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: build folder
+      run:  mkdir build
+    - name: configure
+      run: |
+        cd build
+        cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+    - name: make
+      run: |
+        cd build
+        make
