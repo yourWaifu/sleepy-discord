@@ -180,7 +180,7 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 									case '-': case '0': case '1': case '2': case '3': case '4':
 									case '5': case '6': case '7': case '8': case '9':
 										break;
-									default: loop = false; break;
+									default: innerloop = false; break;
 									}
 								}
 								values[index].valueLength = position - start;
