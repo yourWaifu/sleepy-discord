@@ -37,7 +37,8 @@ target_include_directories(sleepy-discord
 #cause issues with c++14 code
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
 set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
-target_compile_features(sleepy-discord PUBLIC cxx_std_14)
+set(CMAKE_CXX_STANDARD 14)
+
 
 target_compile_options(sleepy-discord PUBLIC -Wall)
 
