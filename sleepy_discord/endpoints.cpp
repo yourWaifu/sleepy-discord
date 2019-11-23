@@ -157,7 +157,7 @@ namespace SleepyDiscord {
 	//server functions
 	//
 	ObjectResponse<Channel> BaseDiscordClient::createTextChannel(Snowflake<Server> serverID, std::string name) {
-		return request(Post, path("guilds/{guild.id}/channels", { serverID }), "{\"name\": \"" + name + "\", \"type\": \"text\"}");
+		return request(Post, path("guilds/{guild.id}/channels", { serverID }), "{\"name\": \"" + name + "\", \"type\": \"0\"}");
 	}
 
 	ArrayResponse<Channel> BaseDiscordClient::editChannelPositions(Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions) {
