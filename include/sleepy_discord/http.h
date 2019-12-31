@@ -37,12 +37,16 @@ namespace SleepyDiscord {
 
 	struct Part {
 		Part(const std::string _name, const std::string _value) :
-			name(_name), value(_value), isFile(false) {}
+			name(_name), value(_value), isFile(false), buffer(nullptr), buffer_len(0) {}
 		Part(const std::string _name, const filePathPart _file) :
-			name(_name), value(_file.filePath), isFile(true) {}
+			name(_name), value(_file.filePath), isFile(true), buffer(nullptr), buffer_len(0) {}
+		Part(const std::string _name, uint8_t* buffer, size_t len) :
+			name(_name), buffer(buffer), buffer_len(len), isFile(false) {}
 		const std::string name;
 		const std::string value;
 		const bool isFile;   //if isFile is true then value is the filepath
+		const uint8_t* buffer;
+		const size_t buffer_len;
 	};
 
 	typedef std::initializer_list<Part> Multipart;

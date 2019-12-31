@@ -60,6 +60,15 @@ namespace SleepyDiscord {
 		};
 	}
 
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, uint8_t* buffer, size_t buffer_len,  std::string message, std::string filename, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{
+			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
+				{ "content", message },
+				{ filename, buffer, buffer_len }
+			})
+		};
+	}
+
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, RequestSettings<ObjectResponse<Message>> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();

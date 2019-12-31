@@ -52,7 +52,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		#to do install libssl-dev
 		download_project(
 			PROJ           cpr
-			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
+			GIT_REPOSITORY https://github.com/MacDue/cpr
 			GIT_TAG        master
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
@@ -167,6 +167,7 @@ if(USE_CPR)
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		endif()
 	endif()
+	set(CMAKE_USE_OPENSSL ON)
 	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		#using cmake to configure curl on linux has issues
 		#so use system curl

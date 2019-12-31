@@ -12,8 +12,14 @@ namespace SleepyDiscord {
 	void CPRSession::setMultipart(const std::initializer_list<Part>& parts) {
 		std::vector<cpr::Part> cprParts;
 		for (Part m : parts) {
-			if (m.isFile) cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
-			else          cprParts.push_back(cpr::Part(m.name, m.value));
+			if (m.isFile) 
+				cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
+			else if (m.buffer_len > 0) {
+				auto buffer = cpr::Buffer(m.buffer, m.buffer + m.buffer_len, m.name);
+				cprParts.push_back(cpr::Part(m.name, buffer));
+			}
+			else
+				cprParts.push_back(cpr::Part(m.name, m.value));
 		}
 
 		muiltpart.parts = cprParts;

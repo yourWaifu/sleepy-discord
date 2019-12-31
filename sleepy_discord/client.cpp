@@ -1,3 +1,4 @@
+#define SLEEPY_USE_HARD_CODED_GATEWAY
 #if _MSC_VER && !__INTEL_COMPILER
 #pragma warning( disable: 4307 )  //ignore integer overflow, becuase we are taking advantage of it
 #endif
