@@ -10,6 +10,7 @@ typedef std::size_t SizeType;
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/istreamwrapper.h"
 #include "nonstd/string_view.hpp"
 //#include "json.h"
 
