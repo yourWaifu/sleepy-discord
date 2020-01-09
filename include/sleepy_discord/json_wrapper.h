@@ -1,7 +1,9 @@
 #pragma once
 #include <list>
 #include <utility>
+#include <array>
 #include <vector>
+#include <tuple>
 //for errrors
 #include <iostream>
 
