@@ -124,9 +124,9 @@ namespace SleepyDiscord {
 					setError(code);		//https error
 					//json::Values values = json::getValues(response.text.c_str(),
 					//{ "code", "message" });	//parse json to get code and message
-          if(!response.text.empty()) {
-            rapidjson::Document document;
-            document.Parse(response.text.c_str());
+          rapidjson::Document document;
+          document.Parse(response.text.c_str());
+          if(!document.HasParseError()) {
             auto errorCode = document.FindMember("code");
             auto errorMessage = document.FindMember("message");
             if (errorCode != document.MemberEnd())
@@ -134,8 +134,8 @@ namespace SleepyDiscord {
                 static_cast<ErrorCode>(errorCode->value.GetInt()),
                 { errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
             );
-            else
-              onError(ERROR_NOTE, response.text);
+          } else if (!response.text.empty()) {
+            onError(ERROR_NOTE, response.text);
           }
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
           throw code;
