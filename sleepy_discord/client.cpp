@@ -124,21 +124,21 @@ namespace SleepyDiscord {
 					setError(code);		//https error
 					//json::Values values = json::getValues(response.text.c_str(),
 					//{ "code", "message" });	//parse json to get code and message
-          rapidjson::Document document;
-          document.Parse(response.text.c_str());
-          if(!document.HasParseError()) {
-            auto errorCode = document.FindMember("code");
-            auto errorMessage = document.FindMember("message");
-            if (errorCode != document.MemberEnd())
-              onError(
-                static_cast<ErrorCode>(errorCode->value.GetInt()),
-                { errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-            );
-          } else if (!response.text.empty()) {
-            onError(ERROR_NOTE, response.text);
-          }
+					rapidjson::Document document;
+					document.Parse(response.text.c_str());
+					if(!document.HasParseError()) {
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != document.MemberEnd())
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
+						);
+					} else if (!response.text.empty()) {
+						onError(ERROR_NOTE, response.text);
+					}
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-          throw code;
+					throw code;
 #endif
 				} break;
 			}
@@ -231,7 +231,7 @@ namespace SleepyDiscord {
 			quit(false, true);
 			return setError(GATEWAY_FAILED);
 		}
-    if (!theGateway.empty())
+		if (!theGateway.empty())
 			theGateway.clear();
 		//getting the gateway
 		for (unsigned int position = 0, j = 0; ; ++position) {
@@ -688,9 +688,9 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings) {
 		std::string voiceState;
 		/*The number 131 came from the number of letters in this string:
-		  {"op": 4,"d" : {"guild_id": "18446744073709551615",
-		  "channel_id" : "18446744073709551615","self_mute" : false,"self_deaf" : false}}
-		  plus one
+			{"op": 4,"d" : {"guild_id": "18446744073709551615",
+			"channel_id" : "18446744073709551615","self_mute" : false,"self_deaf" : false}}
+			plus one
 		*/
 		voiceState.reserve(131);  //remember to update this when making changes to voice status
 		voiceState +=
@@ -705,9 +705,9 @@ namespace SleepyDiscord {
 			"}";
 		sendL(voiceState);
 		/*Discord will response by sending a VOICE_STATE_UPDATE and a
-		  VOICE_SERVER_UPDATE payload. Take a look at processMessage
-		  function at case VOICE_STATE_UPDATE and voiceServerUpdate
-		  */
+			VOICE_SERVER_UPDATE payload. Take a look at processMessage
+			function at case VOICE_STATE_UPDATE and voiceServerUpdate
+			*/
 	}
 
 	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings) {
