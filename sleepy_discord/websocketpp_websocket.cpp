@@ -167,7 +167,7 @@ namespace SleepyDiscord {
 	//UDPClient WebsocketppDiscordClient::createUDPClient() {
 	//	return UDPClient(this_client.get_io_service());
 	//}
-	
+
 	void WebsocketppDiscordClient::disconnect(
 		unsigned int code,
 		const std::string reason,

@@ -9,7 +9,7 @@
 namespace SleepyDiscord {
 	enum Permission : int64_t;
 	struct Role;
-	
+
 	/*Guild Member Structure
 	Field     Type     Description
 	user      object   user object
@@ -72,12 +72,12 @@ namespace SleepyDiscord {
 		//voice_states
 		//emojis
 		//features
-		bool unavailable;
+		int unavailable = -1;
 
 		//presences
 		int MFALevel;
 		std::string joinedAt;
-		
+
 		//those are only filled in from the onServer event
 		bool large;
 
@@ -122,10 +122,13 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
+		int unavailable = -1;
+
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&UnavailableServer::ID, "id", json::REQUIRIED_FIELD)
+				json::pair(&UnavailableServer::ID, 				"id", 			json::REQUIRIED_FIELD),
+				json::pair(&UnavailableServer::unavailable, 	"unavailable", 	json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};
