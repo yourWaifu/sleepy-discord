@@ -49,6 +49,28 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	enum class Unavailable {
+		NOT_PRESENT = -1,
+		FALSE = 0,
+		TRUE = 1,
+	};
+
+	namespace json {
+		template<>
+		struct EnumTypeHelper<Unavailable> {
+			static inline Unavailable toType(const json::Value& value) {
+			  Unavailable unavailable = static_cast<Unavailable>(json::toBool(value));
+			  return unavailable;
+			}
+
+			static inline json::Value fromType(
+			  const Unavailable& value, json::Value::AllocatorType&
+			) {
+			  return json::Value(value != Unavailable::FALSE);
+			}
+		};
+	}
+
 	struct Server : public IdentifiableDiscordObject<Server> {
 		//~Server();
 		Server() = default;
@@ -72,7 +94,7 @@ namespace SleepyDiscord {
 		//voice_states
 		//emojis
 		//features
-		int unavailable = -1;
+		Unavailable unavailable = Unavailable::NOT_PRESENT;
 
 		//presences
 		int MFALevel;
@@ -105,7 +127,7 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
+				json::pair<json::EnumTypeHelper     >(&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::MFALevel                   , "mfa_level"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
@@ -122,13 +144,13 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		int unavailable = -1;
+		Unavailable unavailable = Unavailable::NOT_PRESENT;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&UnavailableServer::ID, 				"id", 			json::REQUIRIED_FIELD),
-				json::pair(&UnavailableServer::unavailable, 	"unavailable", 	json::OPTIONAL_FIELD )
+				json::pair                      (&UnavailableServer::ID,           "id"         ,  json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>(&UnavailableServer::unavailable,  "unavailable",  json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};
