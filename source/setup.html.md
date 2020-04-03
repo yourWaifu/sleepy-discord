@@ -12,7 +12,7 @@ search: true
 
 # Getting Started
 
- 1. In case you haven't already have any source code, create a cpp file and copy and paste [this example code](https://github.com/yourWaifu/sleepy-discord/blob/master/examples/hello/example0.cpp).
+ 1. In case you do not already have any source code, create a cpp file and copy and paste [this example code](https://github.com/yourWaifu/sleepy-discord/blob/master/examples/hello/example0.cpp).
 
  2. If you haven't already installed git, do so now. Type in the command ``git --version`` to make sure it's installed. You may also use a git gui if you like.
 
