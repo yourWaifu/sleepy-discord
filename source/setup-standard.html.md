@@ -21,6 +21,9 @@ search: true
  * A C++ Compiler
    * [Go here for build status](https://github.com/yourWaifu/sleepy-discord#build-status).
    * For Visual Studio users, Visual Studio has a c++ compiler.
+ * libCurl (Linux only)
+   * install a package like ``libcurl4-openssl-dev`` on your package manager
+   * on Windows, the cmake script should compile cmake for you. So you should all set already.
 
 ## Instructions
 
