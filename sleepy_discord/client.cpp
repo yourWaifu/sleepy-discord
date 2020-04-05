@@ -204,7 +204,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {
 		std::string statusString[] = {
-			"online", "dnd", "idle", "invisible", "offline"
+			"", "online", "dnd", "idle", "invisible", "offline"
 		};
 
 		sendL(json::createJSON({
@@ -313,6 +313,14 @@ namespace SleepyDiscord {
 					std::to_string(shardCount);
 			identity +=
 				"],";
+		}
+		if (hasIntents()) {
+			identity +=
+				"\"intents\":";
+			identity +=
+				std::to_string(intents);
+		identity +=
+				',';
 		}
 		identity +=
 				"\"large_threshold\":250"

@@ -84,6 +84,26 @@ namespace SleepyDiscord {
 		Sync
 	};
 
+	using IntentsRaw = int32_t;
+
+	enum Intent : IntentsRaw {
+		SERVERS                  = 1 << 0,
+		SERVER_MEMBERS           = 1 << 1,
+		SERVER_BANS              = 1 << 2,
+		SERVER_EMOJIS            = 1 << 3,
+		SERVER_INTEGRATIONS      = 1 << 4,
+		SERVER_WEBHOOKS          = 1 << 5,
+		SERVER_INVITES           = 1 << 6,
+		SERVER_VOICE_STATES      = 1 << 7,
+		SERVER_PRESENCES         = 1 << 8,
+		SERVER_MESSAGES          = 1 << 9,
+		SERVER_MESSAGE_REACTIONS = 1 << 10,
+		SERVER_MESSAGE_TYPING    = 1 << 11,
+		DIRECT_MESSAGES          = 1 << 12,
+		DIRECT_MESSAGE_REACTIONS = 1 << 13,
+		DIRECT_MESSAGE_TYPING    = 1 << 14,
+	};
+
 	class BaseDiscordClient : public GenericMessageReceiver {
 	public:
 		BaseDiscordClient() = default;
@@ -320,9 +340,20 @@ namespace SleepyDiscord {
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		const int getShardID() { return shardID; }
 		const int getShardCount() { return shardCount; }
+		const bool hasIntents() { return hasIntents; }
+		const IntentsRaw getIntents() { return intents; }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
 		
+		//array of intents
+		template<template<class...> class Container>
+		void setIntents(Container<Intent> listOfIntents) {
+			IntentsRaw target = 0;
+			for (Intent intent : listOfIntents)
+				target = target | static_cast<IntentsRaw>(intent);
+			setIntents(target);
+		}
+
 		//time
 		template <class Handler, class... Types>
 		inline void setScheduleHandler(Types&&... arguments) {
@@ -568,6 +599,8 @@ namespace SleepyDiscord {
 		std::string sessionID;	//TODO: replace this with a Ready object
 		int shardID = 0;
 		int shardCount = 0;
+		Intent intents;
+		bool hasIntents = false;
 		Snowflake<User> userID;
 		void getTheGateway();
 		std::string theGateway;
