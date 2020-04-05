@@ -131,10 +131,15 @@ namespace SleepyDiscord {
 				{		//error
 					const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
 					setError(code);		//https error
+					if (!response.text.empty()) {
 					//json::Values values = json::getValues(response.text.c_str(),
 					//{ "code", "message" });	//parse json to get code and message
 					rapidjson::Document document;
 					document.Parse(response.text.c_str());
+						if (!document.IsObject()) {
+							onError(GENERAL_ERROR, "No error code or message from Discord");
+						}
+
 					auto errorCode = document.FindMember("code");
 					auto errorMessage = document.FindMember("message");
 					if (errorCode != document.MemberEnd())
@@ -144,6 +149,7 @@ namespace SleepyDiscord {
 					);
 					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);
+					}
 				} break;
 			}
 
