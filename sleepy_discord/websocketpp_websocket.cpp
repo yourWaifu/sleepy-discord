@@ -158,7 +158,7 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl hdl,
 		websocketpp::config::asio_client::message_type::ptr msg,
 		GenericMessageReceiver* messageProcessor) {
-		std::async([=]() { messageProcessor->processMessage(msg->get_payload()); });
+		postTask([=]() { messageProcessor->processMessage(msg->get_payload()); });
 		//messageProcessor->processMessage(msg->get_payload());
 	}
 

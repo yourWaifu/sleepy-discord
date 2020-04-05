@@ -31,6 +31,15 @@ namespace SleepyDiscord {
 
 	struct Request;
 
+	//to dos
+	//intents
+	//custom rapid json error
+	//detect cloudflare error
+	//emojis rate limits
+	//async
+	//merge to master
+	//cache
+
 	//Modes
 	enum Mode : char {
 		USER_CONTROLED_THREADS = 1,
@@ -60,8 +69,8 @@ namespace SleepyDiscord {
 	};
 
 	struct RateLimiter {
-		std::atomic<bool> isGlobalRateLimited = false;
-		std::atomic<time_t> nextRetry = 0;
+		std::atomic<bool> isGlobalRateLimited = { false };
+		std::atomic<time_t> nextRetry = { 0 };
 		void limitBucket(Route::Bucket& bucket, time_t timestamp);
 		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
 		//isLimited also returns the next Retry timestamp
