@@ -31,7 +31,10 @@ namespace SleepyDiscord {
 			"}";
 		origin->send(update, origin->connection);
 
-		if (state & State::CONNECTED)
+		State oldState = state;
+		state = static_cast<State>(state & ~State::CONNECTED);
+
+		if (oldState & State::CONNECTED)
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
@@ -39,6 +42,7 @@ namespace SleepyDiscord {
 		listenTimer.stop();
 		//deal with raw pointers
 		//Sorry about this c code, we are dealing with c libraries
+#ifndef NONEXISTENT_OPUS
 		if (encoder != nullptr) {
 			opus_encoder_destroy(encoder);
 			encoder = nullptr;
@@ -47,7 +51,7 @@ namespace SleepyDiscord {
 			opus_decoder_destroy(decoder);
 			decoder = nullptr;
 		}
-		state = static_cast<State>(state & ~State::CONNECTED);
+#endif // !NONEXISTENT_OPUS
 	}
 
 	void VoiceConnection::initialize() {
@@ -156,6 +160,7 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | State::OPEN);
 			break;
 		case SESSION_DESCRIPTION: {
+			consecutiveReconnectsCount = 0;  //succusful connection
 			const json::Value& secretKeyJSON = d["secret_key"];
 			json::Array secretKeyJSONArray = secretKeyJSON.GetArray();
 			const std::size_t secretKeyJSONArraySize = secretKeyJSONArray.Size();
@@ -171,6 +176,8 @@ namespace SleepyDiscord {
 			if (context.eventHandler != nullptr)
 				context.eventHandler->onSpeaking(*this);
 		case RESUMED:
+			consecutiveReconnectsCount = 0;
+			heartbeat();
 			break;
 		case HEARTBEAT_ACK:
 			if (context.eventHandler != nullptr)
@@ -182,8 +189,29 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processCloseCode(const int16_t code) {
-		//to do deal with close codes
-		getDiscordClient().removeVoiceConnectionAndContext(*this);
+		State oldState = state;
+		state = static_cast<State>(state & ~State::CONNECTED);
+
+		switch (code) {
+		case 1000                : //normal closure
+		case DISCONNECTED        : //deleted voice channel
+		case VOICE_SERVER_CRASHED:
+			if (oldState & State::CONNECTED)
+				disconnect();
+			getDiscordClient().removeVoiceConnectionAndContext(*this);
+			return;
+		default: break;
+		}
+
+		if (heart.isValid())
+			heart.stop(); //Kill
+
+		if (reconnectTimer.isValid()) //overwrite reconnect timer
+			reconnectTimer.stop();
+		reconnectTimer = origin->schedule([this]() {
+			origin->connect(getWebSocketURI(context.endpoint), this, connection);
+		}, getRetryDelay());
+		++consecutiveReconnectsCount;
 	}
 
 	void VoiceConnection::heartbeat() {

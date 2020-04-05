@@ -363,8 +363,12 @@ namespace SleepyDiscord {
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
 			connect(theGateway, this, connection);
-		}, consecutiveReconnectsCount < 50 ? consecutiveReconnectsCount * 5000 : 5000 * 50);
+		}, getRetryDelay());
 		++consecutiveReconnectsCount;
+
+		for (VoiceConnection& voiceConnection : voiceConnections) {
+			disconnect(1001, "", voiceConnection.connection);
+	}
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -728,13 +732,7 @@ namespace SleepyDiscord {
 		std::string& givenEndpoint = context.endpoint;
 		givenEndpoint = givenEndpoint.substr(0, givenEndpoint.find(':'));
 
-		std::string endpoint;
-		//Discord doens't gives the endpoint with wss:// or ?v=3, so it's done here
-		//length of wss:///?v=3 is 11, plus one equals 12
-		endpoint.reserve(12 + givenEndpoint.length());
-		endpoint += "wss://";
-		endpoint += givenEndpoint;
-		endpoint += "/?v=3";
+		std::string endpoint = VoiceConnection::getWebSocketURI(givenEndpoint);
 
 		//Add a new connection to the list of connections
 		voiceConnections.emplace_front( this, context );

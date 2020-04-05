@@ -229,6 +229,16 @@ namespace SleepyDiscord {
 
 		void disconnect();
 
+		//Discord doens't gives the endpoint with wss:// or ?v=3, so it's done here
+		static std::string getWebSocketURI(const std::string& givenEndpoint) {
+			std::string endpoint;
+			//length of wss:///?v=3 is 11, plus one equals 12
+			endpoint.reserve(12 + givenEndpoint.length());
+			endpoint += "wss://";
+			endpoint += givenEndpoint;
+			endpoint += "/?v=3";
+			return endpoint;
+		}
 	private:
 		friend BaseDiscordClient;
 
