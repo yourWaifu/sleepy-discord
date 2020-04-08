@@ -216,6 +216,10 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::heartbeat() {
+		//don't continue if not connected
+		if (!(state & CONNECTED))
+			return;
+
 		//timestamp int
 		const uint64_t bitMask52 = 0x1FFFFFFFFFFFFF;
 		const uint64_t currentTime = static_cast<uint16_t>(origin->getEpochTimeMillisecond());
