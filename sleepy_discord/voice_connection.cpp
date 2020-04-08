@@ -132,7 +132,8 @@ namespace SleepyDiscord {
 			UDP.send(packet, 70);
 			UDP.receive([&](const std::vector<uint8_t>& iPDiscovery) {
 				//find start of string. 0x60 is a bitmask that should filter out non-letters
-				std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 2;
+				//the ip is in ascii starting with the 4th byte and is null terminated
+				std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 4;
 				const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0));
 				//send Select Protocol Payload
 				std::string protocol;
