@@ -131,7 +131,6 @@ namespace SleepyDiscord {
 				{		//error
 					const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
 					setError(code);		//https error
-					if (!response.text.empty()) {
 					//json::Values values = json::getValues(response.text.c_str(),
 					//{ "code", "message" });	//parse json to get code and message
 					rapidjson::Document document;
