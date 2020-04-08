@@ -755,7 +755,11 @@ namespace SleepyDiscord {
 		connect(endpoint, &voiceConnection, voiceConnection.connection);
 
 		//remove from wait list
-		waitingVoiceContexts.remove(&context);
+		waitingVoiceContexts.remove_if(
+			[&context](VoiceContext* right) {
+				return &context == right;
+			}
+		);
 	}
 
 	void BaseDiscordClient::removeVoiceConnectionAndContext(VoiceConnection & connection) {
@@ -765,7 +769,11 @@ namespace SleepyDiscord {
 				return connection == right;
 			}
 		);
-		voiceContexts.remove(context);
+		voiceContexts.remove_if(
+			[&context](VoiceContext& right) {
+				return &context == &right;
+			}
+		);
 	}
 
 #endif
