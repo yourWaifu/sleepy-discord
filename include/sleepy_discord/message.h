@@ -135,7 +135,7 @@ namespace SleepyDiscord {
 
 	struct MessageRevisions {
 		MessageRevisions(const json::Value& json) :
-			RevisionsJSON(json), messageID(json["id"]), channelID(json["channel_id"])
+			messageID(json["id"]), channelID(json["channel_id"]), RevisionsJSON(json)
 		{}
 		inline void applyChanges(Message& outOfDateMessage) {
 			assert(outOfDateMessage.ID == messageID);

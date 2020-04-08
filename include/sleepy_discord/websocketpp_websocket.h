@@ -65,6 +65,7 @@ namespace SleepyDiscord {
 			GenericMessageReceiver* messageProcessor
 		);
 		void stopClient() override {
+			this_client.stop_perpetual();
 			this_client.stop();
 			work->get_io_service().stop();
 		}
