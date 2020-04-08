@@ -135,6 +135,14 @@ namespace SleepyDiscord {
 		virtual ~BaseAudioSource() {}
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
+
+		using SpeakingFlagRaw = int;
+		enum SpeakingFlag : SpeakingFlagRaw {
+			Microphone = 1 << 0,
+			Soundshare = 1 << 1,
+			Priority = 1 << 2,
+		};
+		SpeakingFlag speakingFlag = Microphone;
 	};
 
 	struct BaseAudioOutput {

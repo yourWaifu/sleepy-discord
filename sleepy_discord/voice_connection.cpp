@@ -288,12 +288,15 @@ namespace SleepyDiscord {
 			{"op":5,"d":{"speaking":false,"delay":0,"ssrc":}}
 		*/
 		std::string speaking;
+		BasicAudioSourceForContainers::SpeakingFlag speakingFlag =
+			isNowSpeaking ? audioSource->speakingFlag :
+			static_cast< BasicAudioSourceForContainers::SpeakingFlag>(0);
 		speaking.reserve(49 + ssrc.length());
 		speaking +=
 			"{"
 				"\"op\":5,"
 				"\"d\":{"
-					"\"speaking\":"; speaking += json::boolean(isNowSpeaking); speaking += ","
+					"\"speaking\":"; speaking += json::integer(speakingFlag); speaking += ","
 					"\"delay\":0,"
 					"\"ssrc\":"; speaking += ssrc; speaking +=
 				"}"
