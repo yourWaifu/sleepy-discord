@@ -45,9 +45,7 @@ namespace SleepyDiscord {
 
 		// Initialize the Asio transport policy
 		this_client.init_asio();
-
-		work = std::unique_ptr<asio::io_service::work>(
-			new asio::io_service::work(this_client.get_io_service()));
+		this_client.start_perpetual();
 	}
 
 	bool WebsocketppDiscordClient::connect(const std::string & uri,
@@ -160,7 +158,7 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl hdl,
 		websocketpp::config::asio_client::message_type::ptr msg,
 		GenericMessageReceiver* messageProcessor) {
-		std::async([=]() { messageProcessor->processMessage(msg->get_payload()); });
+		postTask([=]() { messageProcessor->processMessage(msg->get_payload()); });
 		//messageProcessor->processMessage(msg->get_payload());
 	}
 

@@ -31,6 +31,15 @@ namespace SleepyDiscord {
 
 	struct Request;
 
+	//to dos
+	//intents
+	//custom rapid json error
+	//detect cloudflare error
+	//emojis rate limits
+	//async
+	//merge to master
+	//cache
+
 	//Modes
 	enum Mode : char {
 		USER_CONTROLED_THREADS = 1,
@@ -59,9 +68,40 @@ namespace SleepyDiscord {
 		Snowflake<Server> serverID;
 	};
 
+	struct RateLimiter {
+		std::atomic<bool> isGlobalRateLimited = { false };
+		std::atomic<time_t> nextRetry = { 0 };
+		void limitBucket(Route::Bucket& bucket, time_t timestamp);
+		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
+		//isLimited also returns the next Retry timestamp
+	private:
+		std::unordered_map<Route::Bucket, time_t> buckets;
+		std::mutex mutex;
+	};
+
 	enum RequestMode {
 		Async,
 		Sync
+	};
+
+	using IntentsRaw = int32_t;
+
+	enum Intent : IntentsRaw {
+		SERVERS                  = 1 << 0,
+		SERVER_MEMBERS           = 1 << 1,
+		SERVER_BANS              = 1 << 2,
+		SERVER_EMOJIS            = 1 << 3,
+		SERVER_INTEGRATIONS      = 1 << 4,
+		SERVER_WEBHOOKS          = 1 << 5,
+		SERVER_INVITES           = 1 << 6,
+		SERVER_VOICE_STATES      = 1 << 7,
+		SERVER_PRESENCES         = 1 << 8,
+		SERVER_MESSAGES          = 1 << 9,
+		SERVER_MESSAGE_REACTIONS = 1 << 10,
+		SERVER_MESSAGE_TYPING    = 1 << 11,
+		DIRECT_MESSAGES          = 1 << 12,
+		DIRECT_MESSAGE_REACTIONS = 1 << 13,
+		DIRECT_MESSAGE_TYPING    = 1 << 14,
 	};
 
 	class BaseDiscordClient : public GenericMessageReceiver {
@@ -71,8 +111,8 @@ namespace SleepyDiscord {
 		~BaseDiscordClient();
 
 		using RequestCallback = std::function<void(Response)>;
-		Response request(const RequestMethod method, Route path, const std::string jsonParameters = ""/*,
-			cpr::Parameters httpParameters = cpr::Parameters{}*/, const std::initializer_list<Part>& multipartParameters = {},
+		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
+			const std::initializer_list<Part>& multipartParameters = {},
 			RequestCallback callback = nullptr, RequestMode mode = Sync);
 		struct Request {
 			BaseDiscordClient& client;
@@ -81,8 +121,9 @@ namespace SleepyDiscord {
 			const std::string jsonParameters;
 			const std::initializer_list<Part> multipartParameters;
 			const BaseDiscordClient::RequestCallback callback;
+			const RequestMode mode;
 			inline void operator()() const {
-				client.request(method, url, jsonParameters, multipartParameters, callback);
+				client.request(method, url, jsonParameters, multipartParameters, callback, mode);
 			}
 		};
 
@@ -92,7 +133,7 @@ namespace SleepyDiscord {
 			postTask(static_cast<PostableTask>(
 				Request{ *this, method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 					callback(static_cast<ParmType>(r));
-				}) : RequestCallback(nullptr) }
+				}) : RequestCallback(nullptr), Async }
 			));
 		}
 
@@ -101,7 +142,7 @@ namespace SleepyDiscord {
 			const std::initializer_list<Part>& multipartParameters = {}) {
 			return request(method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			}) : RequestCallback(nullptr) );
+			}) : RequestCallback(nullptr), Sync );
 		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
@@ -299,9 +340,21 @@ namespace SleepyDiscord {
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		const int getShardID() { return shardID; }
 		const int getShardCount() { return shardCount; }
+		const bool hasIntents() { return intentsIsSet; }
+		const IntentsRaw getIntents() { return intents; }
+		void setIntents(IntentsRaw newIntents) { intentsIsSet = true; intents = static_cast<Intent>(newIntents); }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
 		
+		//array of intents
+		template<template<class...> class Container>
+		void setIntents(Container<Intent> listOfIntents) {
+			IntentsRaw target = 0;
+			for (Intent intent : listOfIntents)
+				target = target | static_cast<IntentsRaw>(intent);
+			setIntents(target);
+		}
+
 		//time
 		template <class Handler, class... Types>
 		inline void setScheduleHandler(Types&&... arguments) {
@@ -391,7 +444,7 @@ namespace SleepyDiscord {
 	protected:
 		//Rest events
 		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
-		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, RequestMode mode, Request request);
+		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request);
 
 		/* list of events
 		READY
@@ -547,14 +600,14 @@ namespace SleepyDiscord {
 		std::string sessionID;	//TODO: replace this with a Ready object
 		int shardID = 0;
 		int shardCount = 0;
+		Intent intents;
+		bool intentsIsSet = false;
 		Snowflake<User> userID;
 		void getTheGateway();
 		std::string theGateway;
 		bool ready = false;
 		bool quiting = false;
 		bool bot = true;
-		int consecutiveReconnectsCount = 0;
-		Timer reconnectTimer;
 		void sendIdentity();
 		void sendResume();
 		void quit(bool isRestarting, bool isDisconnected = false);
@@ -568,9 +621,7 @@ namespace SleepyDiscord {
 
 		//rate limiting
 		int8_t messagesRemaining = 0;
-		bool isGlobalRateLimited = false;
-		time_t nextRetry = 0;
-		std::unordered_map<Route::Bucket, time_t> buckets;
+		RateLimiter rateLimiter;
 
 		//error handling
 		void setError(int errorCode);

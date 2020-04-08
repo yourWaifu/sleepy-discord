@@ -135,6 +135,14 @@ namespace SleepyDiscord {
 		virtual ~BaseAudioSource() {}
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
+
+		using SpeakingFlagRaw = int;
+		enum SpeakingFlag : SpeakingFlagRaw {
+			Microphone = 1 << 0,
+			Soundshare = 1 << 1,
+			Priority = 1 << 2,
+		};
+		SpeakingFlag speakingFlag = Microphone;
 	};
 
 	struct BaseAudioOutput {
@@ -229,6 +237,16 @@ namespace SleepyDiscord {
 
 		void disconnect();
 
+		//Discord doens't gives the endpoint with wss:// or ?v=3, so it's done here
+		static std::string getWebSocketURI(const std::string& givenEndpoint) {
+			std::string endpoint;
+			//length of wss:///?v=3 is 11, plus one equals 12
+			endpoint.reserve(12 + givenEndpoint.length());
+			endpoint += "wss://";
+			endpoint += givenEndpoint;
+			endpoint += "/?v=3";
+			return endpoint;
+		}
 	private:
 		friend BaseDiscordClient;
 

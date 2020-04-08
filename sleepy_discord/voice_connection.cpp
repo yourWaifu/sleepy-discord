@@ -31,7 +31,10 @@ namespace SleepyDiscord {
 			"}";
 		origin->send(update, origin->connection);
 
-		if (state & State::CONNECTED)
+		State oldState = state;
+		state = static_cast<State>(state & ~State::CONNECTED);
+
+		if (oldState & State::CONNECTED)
 			origin->disconnect(1000, "", connection);
 		if (heart.isValid())
 			heart.stop(); //Kill
@@ -39,6 +42,7 @@ namespace SleepyDiscord {
 		listenTimer.stop();
 		//deal with raw pointers
 		//Sorry about this c code, we are dealing with c libraries
+#ifndef NONEXISTENT_OPUS
 		if (encoder != nullptr) {
 			opus_encoder_destroy(encoder);
 			encoder = nullptr;
@@ -47,7 +51,7 @@ namespace SleepyDiscord {
 			opus_decoder_destroy(decoder);
 			decoder = nullptr;
 		}
-		state = static_cast<State>(state & ~State::CONNECTED);
+#endif // !NONEXISTENT_OPUS
 	}
 
 	void VoiceConnection::initialize() {
@@ -128,7 +132,8 @@ namespace SleepyDiscord {
 			UDP.send(packet, 70);
 			UDP.receive([&](const std::vector<uint8_t>& iPDiscovery) {
 				//find start of string. 0x60 is a bitmask that should filter out non-letters
-				std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 2;
+				//the ip is in ascii starting with the 4th byte and is null terminated
+				std::vector<uint8_t>::const_iterator iPStart = iPDiscovery.begin() + 4;
 				const std::string iPAddress(iPStart, std::find(iPStart, iPDiscovery.end(), 0));
 				//send Select Protocol Payload
 				std::string protocol;
@@ -156,6 +161,7 @@ namespace SleepyDiscord {
 			state = static_cast<State>(state | State::OPEN);
 			break;
 		case SESSION_DESCRIPTION: {
+			consecutiveReconnectsCount = 0;  //succusful connection
 			const json::Value& secretKeyJSON = d["secret_key"];
 			json::Array secretKeyJSONArray = secretKeyJSON.GetArray();
 			const std::size_t secretKeyJSONArraySize = secretKeyJSONArray.Size();
@@ -171,6 +177,8 @@ namespace SleepyDiscord {
 			if (context.eventHandler != nullptr)
 				context.eventHandler->onSpeaking(*this);
 		case RESUMED:
+			consecutiveReconnectsCount = 0;
+			heartbeat();
 			break;
 		case HEARTBEAT_ACK:
 			if (context.eventHandler != nullptr)
@@ -182,11 +190,36 @@ namespace SleepyDiscord {
 	}
 
 	void VoiceConnection::processCloseCode(const int16_t code) {
-		//to do deal with close codes
-		getDiscordClient().removeVoiceConnectionAndContext(*this);
+		State oldState = state;
+		state = static_cast<State>(state & ~State::CONNECTED);
+
+		switch (code) {
+		case 1000                : //normal closure
+		case DISCONNECTED        : //deleted voice channel
+		case VOICE_SERVER_CRASHED:
+			if (oldState & State::CONNECTED)
+				disconnect();
+			getDiscordClient().removeVoiceConnectionAndContext(*this);
+			return;
+		default: break;
+		}
+
+		if (heart.isValid())
+			heart.stop(); //Kill
+
+		if (reconnectTimer.isValid()) //overwrite reconnect timer
+			reconnectTimer.stop();
+		reconnectTimer = origin->schedule([this]() {
+			origin->connect(getWebSocketURI(context.endpoint), this, connection);
+		}, getRetryDelay());
+		++consecutiveReconnectsCount;
 	}
 
 	void VoiceConnection::heartbeat() {
+		//don't continue if not connected
+		if (!(state & CONNECTED))
+			return;
+
 		//timestamp int
 		const uint64_t bitMask52 = 0x1FFFFFFFFFFFFF;
 		const uint64_t currentTime = static_cast<uint16_t>(origin->getEpochTimeMillisecond());
@@ -259,12 +292,15 @@ namespace SleepyDiscord {
 			{"op":5,"d":{"speaking":false,"delay":0,"ssrc":}}
 		*/
 		std::string speaking;
+		BasicAudioSourceForContainers::SpeakingFlag speakingFlag =
+			isNowSpeaking ? audioSource->speakingFlag :
+			static_cast< BasicAudioSourceForContainers::SpeakingFlag>(0);
 		speaking.reserve(49 + ssrc.length());
 		speaking +=
 			"{"
 				"\"op\":5,"
 				"\"d\":{"
-					"\"speaking\":"; speaking += json::boolean(isNowSpeaking); speaking += ","
+					"\"speaking\":"; speaking += json::integer(speakingFlag); speaking += ","
 					"\"delay\":0,"
 					"\"ssrc\":"; speaking += ssrc; speaking +=
 				"}"
