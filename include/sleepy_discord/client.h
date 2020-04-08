@@ -340,8 +340,9 @@ namespace SleepyDiscord {
 		void setShardID(int _shardID, int _shardCount); //Note: must be called before run or reconnect
 		const int getShardID() { return shardID; }
 		const int getShardCount() { return shardCount; }
-		const bool hasIntents() { return hasIntents; }
+		const bool hasIntents() { return intentsIsSet; }
 		const IntentsRaw getIntents() { return intents; }
+		void setIntents(IntentsRaw newIntents) { intentsIsSet = true; intents = static_cast<Intent>(newIntents); }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
 		
@@ -600,7 +601,7 @@ namespace SleepyDiscord {
 		int shardID = 0;
 		int shardCount = 0;
 		Intent intents;
-		bool hasIntents = false;
+		bool intentsIsSet = false;
 		Snowflake<User> userID;
 		void getTheGateway();
 		std::string theGateway;

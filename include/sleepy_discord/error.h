@@ -35,6 +35,7 @@ namespace SleepyDiscord {
 		INVALID_SHARD           = 4010, //You sent us an invalid shard when identifying.
 		SHARDING_REQUIRED       = 4011, //The session would have handled too many guilds - you are required to shard your connection in order to connect.
 		UNKNOWN_PROTOCOL        = 4012, //We didn't recognize the protocol you sent.
+		INVALID_INTENTS         = 4013, //You sent an invalid version for the gateway.
 		DISCONNECTED            = 4014, //Oh no! You've been disconnected! Try resuming.
 		VOICE_SERVER_CRASHED    = 4015, //The server crashed. Our bad! Try resuming.
 		UNKNOWN_ENCRYPTION_MODE = 4016, //We didn't recognize your encryption.
