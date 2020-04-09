@@ -67,13 +67,11 @@ namespace SleepyDiscord {
 		void stopClient() override {
 			this_client.stop_perpetual();
 			this_client.stop();
-			work->get_io_service().stop();
 		}
 		_client this_client;
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
 		const char maxNumOfThreads;
-		std::unique_ptr<asio::io_service::work> work;
 	};
 	typedef WebsocketppDiscordClient DiscordClient;
 }
