@@ -153,6 +153,8 @@ namespace SleepyDiscord {
 		EmbedField() = default;
 		EmbedField(const json::Value & json);
 		EmbedField(const nonstd::string_view & json);
+		EmbedField(std::string _name, std::string _value, bool _isInline = false)
+			: name(_name), value(_value), isInline(_isInline) {}
 		std::string name = "";
 		std::string value = "";
 		bool isInline = false;
