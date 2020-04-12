@@ -79,7 +79,7 @@ namespace SleepyDiscord {
 		case SHARDING_REQUIRED      : onError(code, "sharding required - The session would have handled too many guilds - you are required to shard your connection in order to connect."); break;
 		case UNKNOWN_PROTOCOL       : onError(code, "We didn't recognize the protocol you sent."                                                                                         ); break;
 		case INVALID_INTENTS        : onError(code, "You sent an invalid intent for a Gateway Intent."                                                                                   ); break;
-		case DISCONNECTED           : onError(code, "Oh no! You've been disconnected! Try resuming."                                                                                     ); break;
+		case DISALLOWED_INTENTS     : onError(code, "You sent a disallowed intent for a Gateway Intent. You may have tried to specify an intent that you have not enabled for."          ); break;
 		case VOICE_SERVER_CRASHED   : onError(code, "The server crashed. Our bad! Try resuming."                                                                                         ); break;
 		case UNKNOWN_ENCRYPTION_MODE: onError(code, "We didn't recognize your encryption."                                                                                               ); break;
 

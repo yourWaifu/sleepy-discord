@@ -652,6 +652,8 @@ namespace SleepyDiscord {
 		case AUTHENTICATION_FAILED:
 		case INVALID_SHARD:
 		case SHARDING_REQUIRED:
+		case INVALID_INTENTS:
+		case DISALLOWED_INTENTS:
 			return quit(false, true);
 			break;
 		}
