@@ -50,7 +50,7 @@ namespace SleepyDiscord {
 			eventHandler = std::unique_ptr<BaseVoiceEventHandler>(source);
 		}
 
-		inline const bool hasVoiceHandler() {
+		inline bool hasVoiceHandler() {
 			return eventHandler != nullptr;
 		}
 
@@ -129,15 +129,14 @@ namespace SleepyDiscord {
 
 	struct BaseAudioSource {
 		BaseAudioSource() : type(AUDIO_BASE_TYPE) {}
-		BaseAudioSource(AudioSourceType typ) : type(typ) {}
+		explicit BaseAudioSource(AudioSourceType typ) : type(typ) {}
 		virtual inline bool isOpusEncoded() { return false; }
 		const AudioSourceType type;
 		virtual ~BaseAudioSource() = default;
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
 
-		using SpeakingFlagRaw = int;
-		enum SpeakingFlag : SpeakingFlagRaw {
+		enum SpeakingFlag : int {
 			Microphone = 1 << 0,
 			Soundshare = 1 << 1,
 			Priority = 1 << 2,
@@ -147,7 +146,7 @@ namespace SleepyDiscord {
 
 	struct BaseAudioOutput {
 		using Container = std::array<AudioSample, AudioTransmissionDetails::proposedLength()>;
-		BaseAudioOutput() {}
+		BaseAudioOutput() = default;
 		virtual void write(Container audio, AudioTransmissionDetails& details) {}
 		private:
 		friend VoiceConnection;
@@ -173,7 +172,7 @@ namespace SleepyDiscord {
 			return this == &right;
 		}
 
-		inline const bool isReady() {
+		inline bool isReady() const {
 			return state & State::ABLE;
 		}
 
@@ -181,12 +180,12 @@ namespace SleepyDiscord {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
 		}
 
-		inline const bool hasAudioSource() {
+		inline bool hasAudioSource() const {
 			return audioSource != nullptr;
 		}
 
 		inline BaseAudioSource& getAudioSource() {
-			return *(audioSource.get());
+			return *audioSource;
 		}
 
 		/*To do there might be a way to prevent code reuse here*/
@@ -195,12 +194,12 @@ namespace SleepyDiscord {
 			audioOutput = std::unique_ptr<BaseAudioOutput>(output);
 		} 
 
-		inline const bool hasAudioOutput() {
+		inline bool hasAudioOutput() const {
 			return audioOutput != nullptr;
 		}
 
 		inline BaseAudioOutput& getAudioOutput() {
-			return *(audioOutput.get());
+			return *audioOutput;
 		}
 
 		//=== startSpeaking functions ===
@@ -334,7 +333,7 @@ namespace SleepyDiscord {
 
 	struct BasicAudioSourceForContainers : public BaseAudioSource {
 		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
-		void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) override {}
+		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) override {}
 		virtual void speak(
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,
