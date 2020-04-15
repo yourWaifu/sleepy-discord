@@ -132,7 +132,7 @@ namespace SleepyDiscord {
 		BaseAudioSource(AudioSourceType typ) : type(typ) {}
 		virtual inline bool isOpusEncoded() { return false; }
 		const AudioSourceType type;
-		virtual ~BaseAudioSource() {}
+		virtual ~BaseAudioSource() = default;
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
 
