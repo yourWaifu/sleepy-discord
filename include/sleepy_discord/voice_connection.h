@@ -334,7 +334,6 @@ namespace SleepyDiscord {
 
 	struct BasicAudioSourceForContainers : public BaseAudioSource {
 		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
-		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) override {}
 		virtual void speak(
 			VoiceConnection& connection,
 			AudioTransmissionDetails& details,
