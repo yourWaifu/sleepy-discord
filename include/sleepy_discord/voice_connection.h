@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 
 	class BaseVoiceEventHandler {
 	public:
-
+		virtual ~BaseVoiceEventHandler() = default;
 		virtual void onReady(VoiceConnection&) {}
 		virtual void onSpeaking(VoiceConnection&) {}
 		virtual void onEndSpeaking(VoiceConnection&) {}
@@ -147,15 +147,16 @@ namespace SleepyDiscord {
 	struct BaseAudioOutput {
 		using Container = std::array<AudioSample, AudioTransmissionDetails::proposedLength()>;
 		BaseAudioOutput() = default;
+		virtual ~BaseAudioOutput() = default;
 		virtual void write(Container audio, AudioTransmissionDetails& details) {}
-		private:
+	private:
 		friend VoiceConnection;
 	};
 
 	struct AudioTimer {
 		Timer timer;
 		time_t nextTime = 0;
-		void stop() {
+		void stop() const {
 			if (timer.isValid())
 				timer.stop();
 		}
