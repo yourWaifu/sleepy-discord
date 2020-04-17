@@ -306,8 +306,7 @@ namespace SleepyDiscord {
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
 
-		#define SECRET_KEY_SIZE 32
-		unsigned char secretKey[SECRET_KEY_SIZE];
+		std::array<unsigned char, 32> secretKey;
 		static constexpr int nonceSize = 24;
 
 		//to do use this for events
@@ -346,6 +345,7 @@ namespace SleepyDiscord {
 	public:
 		using Container = _Container;
 		AudioSource() : BasicAudioSourceForContainers() {}
+		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/)  override {};
 		virtual void read(AudioTransmissionDetails& details, Container& target) {};
 	private:
 		friend VoiceConnection;
