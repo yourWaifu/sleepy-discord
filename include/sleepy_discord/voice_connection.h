@@ -136,10 +136,10 @@ namespace SleepyDiscord {
 		//This function below is here in case the user uses this class
 		virtual void read(AudioTransmissionDetails& /*details*/, int16_t*& /*buffer*/, std::size_t& /*length*/) {};
 
-		enum SpeakingFlag : int {
-			Microphone = 1 << 0,
-			Soundshare = 1 << 1,
-			Priority = 1 << 2,
+		enum SpeakingFlag : unsigned int {
+			Microphone = 1u << 0u,
+			Soundshare = 1u << 1u,
+			Priority = 1u << 2u,
 		};
 		SpeakingFlag speakingFlag = Microphone;
 	};
