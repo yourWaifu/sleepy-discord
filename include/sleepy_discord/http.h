@@ -60,12 +60,12 @@ namespace SleepyDiscord {
 		virtual void setUrl(const std::string& url) = 0;
 		virtual void setBody(const std::string* jsonParameters) = 0;
 		virtual void setHeader(const std::vector<HeaderPair>& header) = 0;
-		virtual void setMultipart(const std::initializer_list<Part>& parts) = 0;
+		virtual void setMultipart(const std::vector<Part>& parts) = 0;
 		virtual void setResponseCallback(const ResponseCallback& callback) = 0;
 		virtual Response request(RequestMethod method) = 0;
 	protected:
 		//Use this to convert RequestMethod into a string
 		const char* getMethodName(const RequestMethod& method);
-		
+
 	};
 };

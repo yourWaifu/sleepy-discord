@@ -9,7 +9,7 @@ namespace SleepyDiscord {
 		session.SetHeader(head);
 	}
 
-	void CPRSession::setMultipart(const std::initializer_list<Part>& parts) {
+	void CPRSession::setMultipart(const std::vector<Part>& parts) {
 		std::vector<cpr::Part> cprParts;
 		for (Part m : parts) {
 			if (m.isFile) cprParts.push_back(cpr::Part(m.name, cpr::File(m.value)));
