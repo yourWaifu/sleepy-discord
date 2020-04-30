@@ -15,7 +15,7 @@ namespace SleepyDiscord {
 		inline void setHeader(const std::vector<HeaderPair>& header) {
 			session->setHeader(header);
 		}
-		inline void setMultipart(const std::initializer_list<Part>& parts) {
+		inline void setMultipart(const std::vector<Part>& parts) {
 			session->setMultipart(parts);
 		}
 		inline void setResponseCallback(const ResponseCallback& callback) {
