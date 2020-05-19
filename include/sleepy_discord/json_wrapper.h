@@ -2,6 +2,8 @@
 #include <list>
 #include <utility>
 #include <vector>
+#include <array>
+#include <tuple>
 //for errrors
 #include <iostream>
 
