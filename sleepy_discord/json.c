@@ -9,7 +9,8 @@ void JSON_parseUTF16(const char *source, char *_target, size_t * position, size_
 	const char *sourceStart = source + *position;
 	char *targetStart = _target + *targetPosition;
 	char c;
-	for (int i = 0; i < 4; i++) {
+	int i;
+	for (i = 0; i < 4; i++) {
 		c = sourceStart[i];
 		switch (c) {
 		case '0': case '1': case '2': case '3': case '4':
@@ -85,7 +86,8 @@ void JSON_skipObject(const char * JSONstring, size_t *position) {
 		if (JSONstring[*position] == '"') {
 			JSON_skipString(JSONstring, position);
 			if (JSONstring[*position + 1] == ':') {
-				for (bool loop = true; loop;) {
+				bool loop;
+				for (loop = true; loop;) {
 					loop = false;
 					switch (JSONstring[++*position + 1]) {
 					case '{':
@@ -128,7 +130,8 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 
 	size_t sourceLength = strlen(source);
 	size_t smallestNameLength = -1;	//-1 is the largest size_t
-	for (size_t i = 0; i < numberOfNames; i++) {
+	size_t i;
+	for (i = 0; i < numberOfNames; i++) {
 		if (values[i].nameLength < smallestNameLength)
 			smallestNameLength = values[i].nameLength;
 	}
@@ -137,7 +140,8 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 	if (sourceLength < smallestNameLength) {
 		return; //we don't need this but it could save us some time
 	}
-	for (size_t position = 1; position < sourceLength; ++position) {
+	size_t position;
+	for (position = 1; position < sourceLength; ++position) {
 		switch (source[position]) {
 		case '"': {
 			bool found = false;				//if one of the names is the same as the string then this is true
@@ -152,7 +156,8 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 					) {
 					found = true;
 					JSON_skipString(source, &position);
-					for (int loop = true; loop; ++position) {
+					bool loop;
+					for (loop = true; loop; ++position) {
 						switch (source[position]) {
 						case ':':
 							while (source[++position] == ' ');
@@ -169,12 +174,13 @@ void JSON_find(const size_t numberOfNames, const char* source, JSON_findMuitiple
 							case '-': case '0': case '1': case '2': case '3': case '4':         //for numbers, loop til the end of the number
 							case '5': case '6': case '7': case '8': case '9': {
 								size_t start = position;
-								for (bool loop = true; loop;) {
+								bool innerloop;
+								for (innerloop = true; innerloop;) {
 									switch (source[++position]) {
 									case '-': case '0': case '1': case '2': case '3': case '4':
 									case '5': case '6': case '7': case '8': case '9':
 										break;
-									default: loop = false; break;
+									default: innerloop = false; break;
 									}
 								}
 								values[index].valueLength = position - start;

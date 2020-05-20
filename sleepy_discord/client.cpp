@@ -123,20 +123,21 @@ namespace SleepyDiscord {
 			//rate limit check
 			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
 				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
+				// std::get_time isn't backwards compatible with older gcc. Support for older gcc is simple as using strptime() instead.
 				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				if (strptime(dateStream.str().c_str(), "%a, %d %b %Y %H:%M:%S GMT", &date)) {
+					const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
 #if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
+					std::tm gmTM;
+					std::tm*const resetGM = &gmTM;
+					gmtime_s(resetGM, &reset);
 #else
-				std::tm* resetGM = std::gmtime(&reset);
+					std::tm* resetGM = std::gmtime(&reset);
 #endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				buckets[bucket] = resetDelta + getEpochTimeMillisecond();
-				onDepletedRequestSupply(resetDelta, { *this, method, path, jsonParameters, multipartParameters });
+					const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+					buckets[bucket] = resetDelta + getEpochTimeMillisecond();
+					onDepletedRequestSupply(resetDelta, { *this, method, path, jsonParameters, multipartParameters });
+				}
 			}
 		}
 		onResponse(response);
