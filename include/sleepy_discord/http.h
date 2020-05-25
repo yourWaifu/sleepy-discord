@@ -6,6 +6,8 @@
 #include <functional>
 #include "error.h"
 
+//important note, all requests on sync mode throw on an http error
+
 namespace SleepyDiscord {
 	//http variables and functions
 	//request functions

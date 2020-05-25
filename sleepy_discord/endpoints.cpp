@@ -7,6 +7,8 @@
 #pragma warning( disable: 4458 ) //warns about variables that hide class members
 #endif
 
+//important note, all requests on sync mode throw on an http error
+
 namespace SleepyDiscord {
 	void BaseDiscordClient::testFunction(std::string teststring) {
 		//request(Post, path("guilds/{guild.id}/roles", std::string("202917641101246465")), json::createJSON({

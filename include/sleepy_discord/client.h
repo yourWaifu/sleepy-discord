@@ -123,6 +123,8 @@ namespace SleepyDiscord {
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
+		//important note, all requests on sync mode throw on an http error
+
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {},
