@@ -149,6 +149,10 @@ namespace SleepyDiscord {
 					);
 					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+						if (static_cast<int>(mode) & static_cast<int>(ThrowError))
+							throw code;
+#endif
 					}
 				} break;
 			}
@@ -198,8 +202,11 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request) {
-		if (request.mode == Async)
+		if (static_cast<int>(request.mode) & static_cast<int>(AsyncQueue)) {
+			//since we are scheduling the request, I think we should make it async
+			request.mode = Async;
 			schedule(request, timeTilRetry);
+		}
 	}
 
 	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {

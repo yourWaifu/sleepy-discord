@@ -86,8 +86,15 @@ namespace SleepyDiscord {
 	};
 
 	enum RequestMode {
-		Async,
-		Sync
+		UseRequestAsync = 1 << 0,
+		UseRequestSync = 0 << 0,
+
+		ThrowError = 1 << 4,
+		AsyncQueue = 1 << 5,
+
+		Async           = UseRequestAsync | AsyncQueue,
+		Sync            = UseRequestSync | ThrowError,
+		Sync_AsyncQueue = UseRequestSync | ThrowError | AsyncQueue, //old behavior for backwards compat
 	};
 
 	using IntentsRaw = int32_t;
@@ -119,7 +126,7 @@ namespace SleepyDiscord {
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
 			const std::initializer_list<Part>& multipartParameters = {},
-			RequestCallback callback = nullptr, RequestMode mode = Sync);
+			RequestCallback callback = nullptr, RequestMode mode = Sync_AsyncQueue);
 		struct Request {
 			BaseDiscordClient& client;
 			const RequestMethod method;
@@ -127,7 +134,7 @@ namespace SleepyDiscord {
 			const std::string jsonParameters;
 			const std::initializer_list<Part> multipartParameters;
 			const BaseDiscordClient::RequestCallback callback;
-			const RequestMode mode;
+			RequestMode mode;
 			inline void operator()() const {
 				client.request(method, url, jsonParameters, multipartParameters, callback, mode);
 			}
@@ -159,7 +166,7 @@ namespace SleepyDiscord {
 	#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
 		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
 	#else
-		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
+		#define SLEEPY_DEFAULT_REQUEST_MODE Sync_AsyncQueue;
 	#endif
 #endif
 
@@ -185,7 +192,7 @@ namespace SleepyDiscord {
 					typename RequestSettingsClass::ParmType
 				>(method, path, settings.callback, jsonParameters, multipartParameters);
 				break;
-			case Sync:
+			case Sync: case Sync_AsyncQueue:
 				if (settings.callback)
 					//having an invalid callback here would cause bugs
 					return requestSync<
