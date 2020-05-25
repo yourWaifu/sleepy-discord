@@ -21,10 +21,15 @@ namespace SleepyDiscord {
 
 	class BaseDiscordClient;
 
+	//copied from cpr
+	struct caseInsensitiveCompare {
+		bool operator()(const std::string& a, const std::string& b) const noexcept;
+	};
+
 	struct Response {
 		std::string text;
 		int32_t statusCode = 0;
-		std::map<std::string, std::string> header;
+		std::map<std::string, std::string, caseInsensitiveCompare> header;
 		time_t birth = 0;
 		inline bool error() const {
 			return BAD_REQUEST <= statusCode;
