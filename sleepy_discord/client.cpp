@@ -154,12 +154,12 @@ namespace SleepyDiscord {
 			}
 
 			//rate limit check
-			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+			if (response.header["x-ratelimit-remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
 				std::tm date = {};
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const time_t reset = std::stoi(response.header["x-ratelimit-reset"]);
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
 				std::tm*const resetGM = &gmTM;
