@@ -71,7 +71,7 @@ namespace SleepyDiscord {
 			{ "channel.id", {} },
 			{ "guild.id"  , {} },
 			{ "webhook.id", {} }
-	};
+		};
 	};
 
 	struct RateLimiter {
@@ -360,12 +360,19 @@ namespace SleepyDiscord {
 		virtual void run();
 		
 		//array of intents
-		template<template<class...> class Container>
-		void setIntents(Container<Intent> listOfIntents) {
+		template<class Container, typename T = typename Container::value_type>
+		void setIntents(const Container& listOfIntents) {
 			IntentsRaw target = 0;
 			for (Intent intent : listOfIntents)
 				target = target | static_cast<IntentsRaw>(intent);
 			setIntents(target);
+		}
+
+		//parameter pack of intents
+		template<typename... Types>
+		void setIntents(Intent first, Intent second, Types... others) {
+			std::initializer_list<Intent> intents = { first, second, others... };
+			setIntents(intents);
 		}
 
 		//time
