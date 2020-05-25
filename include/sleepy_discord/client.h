@@ -59,13 +59,19 @@ namespace SleepyDiscord {
 		inline operator const std::string&() {
 			return url();
 		}
+
 	private:
 		const std::string path;
 		std::string _url;
 		const std::initializer_list<std::string>& values;
-		//major parameters
-		Snowflake<Channel> channelID;
-		Snowflake<Server> serverID;
+
+		//for the snowflake part, discord class should do
+		std::unordered_map<const char*, Snowflake<User>::RawType>
+			majorParameters = {
+			{ "channel.id", {} },
+			{ "guild.id"  , {} },
+			{ "webhook.id", {} }
+	};
 	};
 
 	struct RateLimiter {

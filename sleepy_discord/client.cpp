@@ -800,9 +800,6 @@ namespace SleepyDiscord {
 	Route::Route(const std::string route, const std::initializer_list<std::string>& _values)
 		: path(route), values(_values)
 	{
-		constexpr char channelIDIdentifier[] = "channel.id";
-		constexpr char serverIDIdentifier[] = "guild.id";
-
 		size_t targetSize = path.length();
 		for (std::string replacement : values)
 			targetSize += replacement.length();
@@ -818,10 +815,10 @@ namespace SleepyDiscord {
 			//the +1 and -1 removes the { and }
 			const std::string identifier = path.substr(start + 1, end - start - 1);
 
-			if (identifier == channelIDIdentifier)
-				channelID = replacement;
-			else if (identifier == serverIDIdentifier)
-				serverID = replacement;
+			auto foundParam = majorParameters.find(identifier.c_str());
+			if (foundParam != majorParameters.end()) {
+				foundParam->second = replacement;
+			}
 
 			_url += path.substr(offset, start - offset);
 			_url += replacement;
@@ -836,11 +833,16 @@ namespace SleepyDiscord {
 	const std::string Route::bucket(RequestMethod method) {
 		std::string target;
 		std::string methodString = std::to_string(method);
-		target.reserve(methodString.length() + channelID.string().length()
-			+ serverID.string().length() + path.length());
+		size_t targetLength = methodString.length();
+		for (auto param : majorParameters) {
+			targetLength += param.second.length();
+		}
+		targetLength = path.length();
+		target.reserve(targetLength);
 		target += methodString;
-		target += channelID;
-		target += serverID;
+		for (auto param : majorParameters) {
+			target += param.second;
+		}
 		target += path;
 		return target;
 	}
