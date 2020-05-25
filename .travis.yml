@@ -10,6 +10,7 @@ addons:
     - gcc-5
     - g++-5
     - cmake
+    - libcurl4-openssl-dev
 
 install:
   - export CXX="g++-5" CC="gcc-5";
