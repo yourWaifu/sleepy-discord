@@ -72,7 +72,7 @@ namespace SleepyDiscord {
 		websocketpp::lib::shared_ptr<websocketpp::lib::thread> _thread;
 		websocketpp::connection_hdl handle;
 		const char maxNumOfThreads;
-		std::unique_ptr<asio::io_service::work> work;
+
 	};
 	typedef WebsocketppDiscordClient DiscordClient;
 }
