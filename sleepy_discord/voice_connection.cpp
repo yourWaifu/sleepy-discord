@@ -194,8 +194,8 @@ namespace SleepyDiscord {
 		state = static_cast<State>(state & ~State::CONNECTED);
 
 		switch (code) {
-		case 1000                : //normal closure
-		case DISCONNECTED        : //deleted voice channel
+		case 1000: //normal closure
+		case 1001:
 		case VOICE_SERVER_CRASHED:
 			if (oldState & State::CONNECTED)
 				disconnect();
