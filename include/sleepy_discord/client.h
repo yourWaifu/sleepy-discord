@@ -59,13 +59,19 @@ namespace SleepyDiscord {
 		inline operator const std::string&() {
 			return url();
 		}
+
 	private:
 		const std::string path;
 		std::string _url;
 		const std::initializer_list<std::string>& values;
-		//major parameters
-		Snowflake<Channel> channelID;
-		Snowflake<Server> serverID;
+
+		//for the snowflake part, discord class should do
+		std::unordered_map<const char*, Snowflake<User>::RawType>
+			majorParameters = {
+			{ "channel.id", {} },
+			{ "guild.id"  , {} },
+			{ "webhook.id", {} }
+		};
 	};
 
 	struct RateLimiter {
@@ -80,8 +86,15 @@ namespace SleepyDiscord {
 	};
 
 	enum RequestMode {
-		Async,
-		Sync
+		UseRequestAsync = 1 << 0,
+		UseRequestSync = 0 << 0,
+
+		ThrowError = 1 << 4,
+		AsyncQueue = 1 << 5,
+
+		Async           = UseRequestAsync | AsyncQueue,
+		Sync            = UseRequestSync | ThrowError,
+		Sync_AsyncQueue = UseRequestSync | ThrowError | AsyncQueue, //old behavior for backwards compat
 	};
 
 	using IntentsRaw = int32_t;
@@ -110,21 +123,20 @@ namespace SleepyDiscord {
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		~BaseDiscordClient();
 
+		//important note, all requests on sync mode throw on an http error
+
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
 			const std::vector<Part>& multipartParameters = {},
-			RequestCallback callback = nullptr, RequestMode mode = Sync);
+			RequestCallback callback = nullptr, RequestMode mode = Sync_AsyncQueue);
 		struct Request {
 			BaseDiscordClient& client;
 			const RequestMethod method;
 			const Route url;
 			const std::string jsonParameters;
-			const std::vector<Part> multipartParameters {
-        std::make_move_iterator(std::begin(multipartParameters)),
-        std::make_move_iterator(std::end(multipartParameters))
-      };
+			const std::vector<Part> multipartParameters;
 			const BaseDiscordClient::RequestCallback callback;
-			const RequestMode mode;
+			RequestMode mode;
 			inline void operator()() const {
 				client.request(method, url, jsonParameters, multipartParameters, callback, mode);
 			}
@@ -156,7 +168,7 @@ namespace SleepyDiscord {
 	#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
 		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
 	#else
-		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
+		#define SLEEPY_DEFAULT_REQUEST_MODE Sync_AsyncQueue;
 	#endif
 #endif
 
@@ -182,7 +194,7 @@ namespace SleepyDiscord {
 					typename RequestSettingsClass::ParmType
 				>(method, path, settings.callback, jsonParameters, multipartParameters);
 				break;
-			case Sync:
+			case Sync: case Sync_AsyncQueue:
 				if (settings.callback)
 					//having an invalid callback here would cause bugs
 					return requestSync<
@@ -351,12 +363,19 @@ namespace SleepyDiscord {
 		virtual void run();
 
 		//array of intents
-		template<template<class...> class Container>
-		void setIntents(Container<Intent> listOfIntents) {
+		template<class Container, typename T = typename Container::value_type>
+		void setIntents(const Container& listOfIntents) {
 			IntentsRaw target = 0;
 			for (Intent intent : listOfIntents)
 				target = target | static_cast<IntentsRaw>(intent);
 			setIntents(target);
+		}
+
+		//parameter pack of intents
+		template<typename... Types>
+		void setIntents(Intent first, Intent second, Types... others) {
+			std::initializer_list<Intent> intents = { first, second, others... };
+			setIntents(intents);
 		}
 
 		//time

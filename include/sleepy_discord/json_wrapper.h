@@ -230,7 +230,7 @@ namespace SleepyDiscord {
 				for (const typename Container::value_type& value : values)
 					arr.PushBack(TypeHelper<typename Container::value_type>::fromType(value, allocator), allocator);
 				return arr;
-			} 
+			}
 		};
 
 		template<class Container, template<class...> class TypeHelper>
@@ -317,7 +317,7 @@ namespace SleepyDiscord {
 					object.*(field.member) = Helper::toType(iterator->value);
 			} else if (field.type == REQUIRIED_FIELD) {
 				//error
-				std::cout << 
+				std::cout <<
 				"JSON Parse Error: "
 				"variable #" << i << ": \"" << field.name << "\" not found. "
 				"Please look at call stack from your debugger for more details.";

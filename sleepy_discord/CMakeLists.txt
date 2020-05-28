@@ -35,9 +35,11 @@ target_include_directories(sleepy-discord
 #The codebase is c++11 but both clang and visual c++ have issues with c++11
 #These issues are fixed by using preprocessor defines to replace code that
 #cause issues with c++14 code
-set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 20)
-set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
-target_compile_features(sleepy-discord PUBLIC cxx_std_20)
+if (CXX_STANDARD LESS 14)
+	set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
+	set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
+	target_compile_features(sleepy-discord PUBLIC cxx_std_14)
+endif()
 target_compile_definitions(sleepy-discord PUBLIC SLEEPY_DISCORD_CMAKE)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -119,7 +121,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 			set(libsodium-make_BINARY_DIR ${BINARY_DIR})
 			message(WARNING ${libsodium-make_BINARY_DIR})
 			set(
-				LIB_SODIUM_BUILDS 
+				LIB_SODIUM_BUILDS
 				${libsodium-make_BINARY_DIR}/src/libsodium/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}sodium${CMAKE_STATIC_LIBRARY_SUFFIX}
 			)
 			target_include_directories(

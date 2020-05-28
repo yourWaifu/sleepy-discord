@@ -95,8 +95,8 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		#needs libtool
 		download_project(
 			PROJ           opus
-			GIT_REPOSITORY https://git.xiph.org/opus.git
-			GIT_TAG        master
+			GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
+			GIT_TAG        7628d844
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
 			UPDATE_DISCONNECTED 1
 		)

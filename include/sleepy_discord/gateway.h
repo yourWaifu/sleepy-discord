@@ -227,7 +227,7 @@ namespace SleepyDiscord {
 				json::pair                           (&PresenceUpdate::user           , "user"      , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::roleIDs        , "roles"     , json::REQUIRIED_FIELD),
 				json::pair                           (&PresenceUpdate::currentActivity, "game"      , json::NULLABLE_FIELD ),
-				json::pair                           (&PresenceUpdate::serverID       , "guild_id"  , json::REQUIRIED_FIELD),
+				json::pair                           (&PresenceUpdate::serverID       , "guild_id"  , json::OPTIONAL_FIELD ),
 				json::pair                           (&PresenceUpdate::status         , "status"    , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::activities     , "activities", json::REQUIRIED_FIELD)
 			);
