@@ -243,6 +243,7 @@ namespace SleepyDiscord {
 		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, bool tts = false, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message                                  , RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, Buffer buffer, std::string message, std::string filename                                 , RequestSettings<ObjectResponse<Message>> settings = {});
 		BoolResponse                 addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<BoolResponse           > settings = {});
 		BoolResponse                 removeReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID = "@me");
 		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<ArrayResponse<Reaction>> settings = {});

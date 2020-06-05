@@ -38,7 +38,7 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
-	
+
 	struct Reaction : public DiscordObject {
 	public:
 		Reaction() = default;
@@ -141,9 +141,9 @@ namespace SleepyDiscord {
 			assert(outOfDateMessage.ID == messageID);
 			json::fromJSON(outOfDateMessage, RevisionsJSON);
 		}
+		const json::Value& RevisionsJSON;
 		Snowflake<Message> messageID;
 		Snowflake<Channel> channelID;
-		const json::Value& RevisionsJSON;
 	};
 
 	struct SendMessageParams : public DiscordObject {

@@ -22,7 +22,7 @@ namespace SleepyDiscord {
 			setError(CANT_SCHEDULE);
 			return;
 		}
-		
+
 		ready = false;
 		quiting = false;
 		bot = true;
@@ -131,29 +131,28 @@ namespace SleepyDiscord {
 				{		//error
 					const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
 					setError(code);		//https error
-					if (!response.text.empty()) {
 					//json::Values values = json::getValues(response.text.c_str(),
 					//{ "code", "message" });	//parse json to get code and message
 					rapidjson::Document document;
 					document.Parse(response.text.c_str());
-						if (!document.IsObject()) {
-							onError(GENERAL_ERROR, "No error code or message from Discord");
-						}
-
-					auto errorCode = document.FindMember("code");
-					auto errorMessage = document.FindMember("message");
-					if (errorCode != document.MemberEnd())
-						onError(
-							static_cast<ErrorCode>(errorCode->value.GetInt()),
-							{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-					);
-					else if (!response.text.empty())
+					if(!document.HasParseError()) {
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != document.MemberEnd())
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
+						);
+					} else if (!response.text.empty()) {
 						onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 						if (static_cast<int>(mode) & static_cast<int>(ThrowError))
 							throw code;
 #endif
 					}
+// #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+// 					throw code;
+// #endif
 				} break;
 			}
 
@@ -298,7 +297,7 @@ namespace SleepyDiscord {
 #endif
 		std::string identity;
 		identity.reserve(272); //remember to change this number when editing identity
-		identity += 
+		identity +=
 		"{"
 			"\"op\":2,"
 			"\"d\":{"
@@ -314,7 +313,7 @@ namespace SleepyDiscord {
 		if (shardCount != 0 && shardID <= shardCount) {
 			identity +=
 				"\"shard\":[";
-			identity +=	
+			identity +=
 					std::to_string(shardID); identity += ",";
 			identity +=
 					std::to_string(shardCount);
@@ -533,7 +532,7 @@ namespace SleepyDiscord {
 						foundChannel = channel;
 					}
 				);
-				onEditChannel(d); 
+				onEditChannel(d);
 				} break;
 			case hash("CHANNEL_DELETE"             ): {
 				Channel channel = d;
@@ -558,7 +557,7 @@ namespace SleepyDiscord {
 #ifdef SLEEPY_VOICE_ENABLED
 				if (!waitingVoiceContexts.empty()) {
 					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&state](const VoiceContext* w) { 
+						[&state](const VoiceContext* w) {
 						return state.channelID == w->channelID && w->sessionID == "";
 					});
 					if (iterator != waitingVoiceContexts.end()) {
@@ -599,7 +598,7 @@ namespace SleepyDiscord {
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
-			default: 
+			default:
 				setError(EVENT_UNKNOWN);
 				onError(ERROR_NOTE, json::toStdString(t));
 				break;
@@ -669,7 +668,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::heartbeat() {
 		if (heartbeatInterval <= 0 || isQuiting()) return; //sanity test
-		
+
 		//if time and timer are out of sync, trust time
 		time_t currentTime = getEpochTimeMillisecond();
 		time_t nextHeartbest;
@@ -694,7 +693,7 @@ namespace SleepyDiscord {
 		std::string heartbeat;
 		//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
 		heartbeat.reserve(18 + str.length());
-		heartbeat += 
+		heartbeat +=
 			"{"
 				"\"op\":1,"
 				"\"d\":"; heartbeat += str; heartbeat +=
@@ -720,9 +719,9 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings) {
 		std::string voiceState;
 		/*The number 131 came from the number of letters in this string:
-		  {"op": 4,"d" : {"guild_id": "18446744073709551615",
-		  "channel_id" : "18446744073709551615","self_mute" : false,"self_deaf" : false}}
-		  plus one
+			{"op": 4,"d" : {"guild_id": "18446744073709551615",
+			"channel_id" : "18446744073709551615","self_mute" : false,"self_deaf" : false}}
+			plus one
 		*/
 		voiceState.reserve(131);  //remember to update this when making changes to voice status
 		voiceState +=
@@ -737,9 +736,9 @@ namespace SleepyDiscord {
 			"}";
 		sendL(voiceState);
 		/*Discord will response by sending a VOICE_STATE_UPDATE and a
-		  VOICE_SERVER_UPDATE payload. Take a look at processMessage
-		  function at case VOICE_STATE_UPDATE and voiceServerUpdate
-		  */
+			VOICE_SERVER_UPDATE payload. Take a look at processMessage
+			function at case VOICE_STATE_UPDATE and voiceServerUpdate
+			*/
 	}
 
 	VoiceContext& BaseDiscordClient::connectToVoiceChannel(Snowflake<Server> server, Snowflake<Channel> channel, VoiceMode settings) {

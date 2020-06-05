@@ -60,12 +60,10 @@ if(AUTO_DOWNLOAD_LIBRARY)
 	endif()
 
 	if(USE_ASIO)
-		# Note websocketpp doesn't work with the latest version of asio
-		# Remember to go back to the master version after they are fixed
 		download_project(
 			PROJ           asio
 			GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-			GIT_TAG        22afb86
+			GIT_TAG        master
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
 			UPDATE_DISCONNECTED 1
 		)
@@ -167,6 +165,7 @@ if(USE_CPR)
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		endif()
 	endif()
+	set(CMAKE_USE_OPENSSL ON)
 	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		#using cmake to configure curl on linux has issues
 		#so use system curl
@@ -189,19 +188,19 @@ endif()
 # Get Version Info
 if(Git_FOUND)
 	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
 		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BUILD
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
 		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BRANCH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
 		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_HASH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -212,7 +211,7 @@ if(Git_FOUND)
 		set(SLEEPY_DISCORD_VERSION_IS_MASTER "0")
 	endif()
 	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		COMMAND ${GIT_EXECUTABLE} describe --always --long --dirty
 		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_DESCRIPTION
 		OUTPUT_STRIP_TRAILING_WHITESPACE

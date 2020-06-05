@@ -3,6 +3,7 @@
 #include <utility>
 #include <map>
 #include <vector>
+#include <memory>
 #include <functional>
 #include "error.h"
 
@@ -42,14 +43,22 @@ namespace SleepyDiscord {
 		const std::string filePath;
 	};
 
+  struct Buffer {
+    std::shared_ptr<uint8_t> data = nullptr;
+    size_t length = 0;
+  };
+
 	struct Part {
 		Part(const std::string _name, const std::string _value) :
 			name(_name), value(_value), isFile(false) {}
 		Part(const std::string _name, const filePathPart _file) :
 			name(_name), value(_file.filePath), isFile(true) {}
+		Part(const std::string _name, Buffer buffer) :
+			name(_name), value{}, isFile(false), buffer(buffer) {}
 		const std::string name;
 		const std::string value;
 		const bool isFile;   //if isFile is true then value is the filepath
+		const Buffer buffer;
 	};
 
 	typedef std::initializer_list<Part> Multipart;

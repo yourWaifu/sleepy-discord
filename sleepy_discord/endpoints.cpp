@@ -24,9 +24,9 @@ namespace SleepyDiscord {
 		//}
 
 		//sendMessage(createDirectMessageChannel("99259409045143552")->ID, "Hey, How's it going?");
-		
+
 		//uploadFile("202917641101246465", "C:/Users/steve/Documents/nsprojects/sleepy_discord/test/test_windows/hello.png", "Hello World");
-		
+
 		editNickname("202917641101246465", "Testing 123");
 	}
 	//
@@ -58,6 +58,15 @@ namespace SleepyDiscord {
 			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
 				{ "content", message },
 				{ "file", filePathPart{fileLocation} }
+			})
+		};
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, Buffer buffer, std::string message, std::string filename, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{
+			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
+				{ "content", message },
+				{ filename, buffer }
 			})
 		};
 	}
@@ -269,7 +278,7 @@ namespace SleepyDiscord {
 				{ "roles"       , rolesString               },
 				{ "mute"        , json::boolean(mute)       },
 				{ "deaf"        , json::boolean(deaf)       }
-			})) 
+			}))
 		};
 	}
 
@@ -532,10 +541,10 @@ namespace SleepyDiscord {
 	}
 
 	//Webhook SleepyDiscord::BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, std::vector<Embed> embeds, bool wait, std::string username, std::string avatar_url bool tts) {
-	//	
+	//
 	//	return requestExecuteWebhook(webhookID, webhookToken, { "embeds", crazy stuff happens here }, wait, username, avatar_url, tts);
 	//}
-	
+
 	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool /*wait*/, std::string username, std::string avatar_url, bool tts) {
 		return ObjectResponse<Webhook>{ request(Post, path("webhooks/{webhook.id}/{webhook.token}", { webhookID, webhookToken }), "", {
 			{ "file"      , filePathPart(file)  },

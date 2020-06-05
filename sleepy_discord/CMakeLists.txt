@@ -121,7 +121,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 			set(libsodium-make_BINARY_DIR ${BINARY_DIR})
 			message(WARNING ${libsodium-make_BINARY_DIR})
 			set(
-				LIB_SODIUM_BUILDS 
+				LIB_SODIUM_BUILDS
 				${libsodium-make_BINARY_DIR}/src/libsodium/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}sodium${CMAKE_STATIC_LIBRARY_SUFFIX}
 			)
 			target_include_directories(

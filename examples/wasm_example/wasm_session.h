@@ -63,14 +63,14 @@ public:
 	}
 	inline void setUrl(const std::string& _url) { url = &_url; }
 	inline void setBody(const std::string* jsonParamters) { body = jsonParamters; }
-	inline void setHeader(const std::vector<SleepyDiscord::HeaderPair>& _header) { 
+	inline void setHeader(const std::vector<SleepyDiscord::HeaderPair>& _header) {
 		header.reserve(_header.size() * 2);
 		for (unsigned int i = 0; i < _header.size(); ++i) {
 			header.push_back(_header[i].name);
 			header.push_back(_header[i].value.data());
 		}
 	}
-	inline void setMultipart(const std::initializer_list<SleepyDiscord::Part>& parts) {}
+	inline void setMultipart(const std::vector<SleepyDiscord::Part>& parts) {}
 	inline SleepyDiscord::Response Post  () { return request(SleepyDiscord::Post  ); }
 	inline SleepyDiscord::Response Patch () { return request(SleepyDiscord::Patch ); }
 	inline SleepyDiscord::Response Delete() { return request(SleepyDiscord::Delete); }
@@ -79,5 +79,5 @@ public:
 };
 
 //init the custom session
-SleepyDiscord::CustomInit SleepyDiscord::Session::init = 
+SleepyDiscord::CustomInit SleepyDiscord::Session::init =
 []()->SleepyDiscord::GenericSession* { return new WebSession; };
