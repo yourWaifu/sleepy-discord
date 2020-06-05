@@ -11,11 +11,6 @@ namespace SleepyDiscord {
 				break;
 	}
 
-	int AssignmentBasedDiscordClient::setDoAssignmentTimer(const time_t) {
-		static unsigned int uniqueNumber = 0;
-		return ++uniqueNumber;
-	}
-
 	void AssignmentBasedDiscordClient::doAssignment() {
 		Assignment assignment = assignments.front();
 		assignment.function();
@@ -25,7 +20,8 @@ namespace SleepyDiscord {
 	Timer AssignmentBasedDiscordClient::schedule(TimedTask code, const time_t milliseconds) {
 		const time_t millisecondsEpochTime = getEpochTimeMillisecond() + milliseconds;
 
-		const int newJobID = setDoAssignmentTimer(milliseconds);
+		static unsigned int uniqueNumber = 0;
+		const int newJobID = ++uniqueNumber;
 
 		const Assignment newAssignemt = {
 			newJobID,
@@ -48,7 +44,9 @@ namespace SleepyDiscord {
 			assignments.insert_after(lastAssignment, newAssignemt);
 		}
 
-		return Timer(std::bind(&AssignmentBasedDiscordClient::unschedule, this, newJobID));
+		return Timer(
+			std::bind(&AssignmentBasedDiscordClient::unschedule, this, newJobID)
+		);
 	}
 
 	void AssignmentBasedDiscordClient::unschedule(const int jobID) {
@@ -59,7 +57,6 @@ namespace SleepyDiscord {
 			++assignment) {
 			if (assignment->jobID == jobID) {
 				assignments.erase_after(lastAssignment);
-				stopDoAssignmentTimer(assignment->jobID);
 				break;
 			}
 			lastAssignment = assignment;

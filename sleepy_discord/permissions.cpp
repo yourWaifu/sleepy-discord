@@ -1,28 +1,8 @@
 #include "permissions.h"
-#include "json.h"
 #include "server.h"
 #include "channel.h"
 
 namespace SleepyDiscord {
-	Role::Role(const std::string * rawJSON) : Role(json::getValues(rawJSON->c_str(), fields)) {}
-
-	Role::Role(const std::vector<std::string> values) :
-		//variable  modifier                           value                     felid
-		Parent     (                                   values[index(fields, "id"         )]  ),
-		name       (                                   values[index(fields, "name"       )]  ),
-		color      (                        std::stol (values[index(fields, "color"      )]) ),
-		hoist      (                        getBool   (values[index(fields, "hoist"      )]) ),
-		position   (                        std::stol (values[index(fields, "position"   )]) ),
-		permissions(static_cast<Permission>(std::stoll(values[index(fields, "permissions")]))),
-		managed    (                        getBool   (values[index(fields, "managed"    )]) ),
-		mantionable(                        getBool   (values[index(fields, "mentionable")]) )
-	{}
-
-	const std::initializer_list<const char*const> Role::fields = {
-		"id", "name", "color", "hoist", "position", "permissions",
-		"managed", "mentionable"
-	};
-
 	Permission getBasePermissions(const Server& server, const ServerMember& member) {
 		if (server.ownerID == member.user.ID)
 			return Permission::ALL;
@@ -40,7 +20,7 @@ namespace SleepyDiscord {
 				permissions = permissions | rolePermissions->permissions;
 		}
 
-		if (hasPermission(permissions, Permission::ADMINISTRATOR))
+		if (hasPremission(permissions, Permission::ADMINISTRATOR))
 			return Permission::ALL;
 		return permissions;
 	}
@@ -54,7 +34,7 @@ namespace SleepyDiscord {
 	}
 
 	Permission overwritePermissions(const Permission basePermissions, const Server& server, const ServerMember& member, const Channel& channel) {
-		if (hasPermission(basePermissions, Permission::ADMINISTRATOR))
+		if (hasPremission(basePermissions, Permission::ADMINISTRATOR))
 			return Permission::ALL;
 
 		Permission permissions = basePermissions;
@@ -87,5 +67,12 @@ namespace SleepyDiscord {
 
 	Permission getPermissions(const Server& server, const ServerMember& member, const Channel& channel) {
 		return overwritePermissions(getBasePermissions(server, member), server, member, channel);
+	}
+
+	Role::Role(const json::Value & json) :
+		Role(json::fromJSON<Role>(json)) {
+	}
+	Role::Role(const nonstd::string_view & json) :
+		Role(json::fromJSON<Role>(json)) {
 	}
 }

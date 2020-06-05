@@ -1,6 +1,6 @@
 function _performRequest(methodName, url, header, headerSize, sizeofPointer, body) {
 	var handle = Module.HTTPRequestList.length;
-	Module.HTTPRequestList.push(new XMLHttpRequest);
+	Module.HTTPRequestList.push(new XMLHttpRequest());
 	Module.HTTPRequestList[handle].open(Pointer_stringify(methodName), Pointer_stringify(url), false);
 	
 	//add headers
@@ -41,5 +41,5 @@ mergeInto(LibraryManager.library, {
 	getResponseStatusCode: _getResponseStatusCode,
 	getResponseBody      : _getResponseBody      ,
 	getResponseHeader    : _getResponseHeaders   ,
-	destroySession       : _destroySession       ,
+	destroySession       : _destroySession
 });

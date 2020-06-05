@@ -9,6 +9,8 @@ addons:
     packages:
     - gcc-5
     - g++-5
+    - cmake
+    - libcurl4-openssl-dev
 
 install:
   - export CXX="g++-5" CC="gcc-5";
@@ -16,5 +18,5 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
-- cmake .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+- cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make

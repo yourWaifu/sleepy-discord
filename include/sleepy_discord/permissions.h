@@ -54,6 +54,10 @@ namespace SleepyDiscord {
 		return static_cast<Permission>(permission);
 	}
 
+	inline Permission toPermission(const json::Value& value) {
+		return toPermission(value.GetInt64());
+	}
+
 	inline constexpr Permission operator|(const Permission& a, const Permission& b) {
 		return static_cast<Permission>(static_cast<int64_t>(a) | static_cast<int64_t>(b));
 	}
@@ -66,7 +70,7 @@ namespace SleepyDiscord {
 		return static_cast<Permission>(static_cast<int64_t>(a) ^ static_cast<int64_t>(b));
 	}
 	
-	inline constexpr bool hasPermission(const Permission& target, const Permission& permission) {
+	inline constexpr bool hasPremission(const Permission& target, const Permission& permission) {
 		return (target & permission) == permission;
 	}
 
@@ -90,22 +94,35 @@ namespace SleepyDiscord {
 	mentionable bool      whether this role is mentionable
 	*/
 	struct Role : public IdentifiableDiscordObject<Role> {
-		Role();
+		Role() = default;
 		~Role() {}
-		Role(const std::string * rawJson);
-		Role(const std::vector<std::string> values);
+		//Role(const std::string * rawJson);
+		Role(const json::Value & rawJSON);
+		Role(const nonstd::string_view& json);
+		//Role(const json::Values values);
 		std::string name;
-		int color;		//I don't know if this should be 64 bit. ask the api server!!!
-		bool hoist;
-		int position;
-		Permission permissions;
-		bool managed;
-		bool mantionable;
+		int color = -1;
+		bool hoist = false;
+		int position = 0;
+		Permission permissions = NONE;
+		bool managed = false;
+		bool mentionable = false;
 
 		inline bool operator==(Role& right) {
 			return ID == right.ID;
 		}
-	private:
-		const static std::initializer_list<const char*const> fields;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair                      (&Role::ID         , "id"         , json::REQUIRIED_FIELD),
+				json::pair                      (&Role::name       , "name"       , json::REQUIRIED_FIELD),
+				json::pair                      (&Role::color      , "color"      , json::REQUIRIED_FIELD),
+				json::pair                      (&Role::hoist      , "hoist"      , json::REQUIRIED_FIELD),
+				json::pair                      (&Role::position   , "position"   , json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>(&Role::permissions, "permissions", json::REQUIRIED_FIELD),
+				json::pair                      (&Role::managed    , "managed"    , json::REQUIRIED_FIELD),
+				json::pair                      (&Role::mentionable, "mentionable", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 }

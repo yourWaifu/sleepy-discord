@@ -262,8 +262,11 @@ ModelManifest.xml
 *.db
 *.opendb
 
+# Visual Studio CMake files
+out/
+CMakeSettings.json
+
 #my files
-/deps/
-/thirdparty/
+deps/
 /discord token.txt
-include/sleepy_discord/version\.h
+include/sleepy_discord/version.h

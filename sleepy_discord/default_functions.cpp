@@ -1,162 +1,142 @@
 #include "client.h"
 
+#if _MSC_VER && !__INTEL_COMPILER
+#pragma warning( disable: 4100 ) //warns about unused parameters with names
+#pragma warning( disable: 4458 ) //warns about variables that hide class members
+#endif
+
 namespace SleepyDiscord {
-	void BaseDiscordClient::onReady(std::string *) {
+	void BaseDiscordClient::onReady(Ready readyData) {
 
 	}
 
-	void BaseDiscordClient::onResumed(std::string *) {
+	void BaseDiscordClient::onResumed() {
 
 	}
 
-	void BaseDiscordClient::onDeleteServer(std::string *) {
+	void BaseDiscordClient::onDeleteServer(UnavailableServer server) {
 
 	}
 
-	void BaseDiscordClient::onEditServer(std::string *) {
+	void BaseDiscordClient::onEditServer(Server server) {
 
 	}
 
-	void BaseDiscordClient::onBan(std::string *) {
+	void BaseDiscordClient::onBan(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onUnban(std::string *) {
+	void BaseDiscordClient::onUnban(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onMember(std::string *) {
+	void BaseDiscordClient::onMember(Snowflake<Server> serverID, ServerMember member) {
 
 	}
 
-	void BaseDiscordClient::onRemoveMember(std::string *) {
-
-	}
-	
-	void BaseDiscordClient::onDeleteMember(std::string *) {
+	void BaseDiscordClient::onRemoveMember(Snowflake<Server> serverID, User user) {
 
 	}
 
-	void BaseDiscordClient::onEditMember(std::string *) {
+
+	void BaseDiscordClient::onEditMember(Snowflake<Server> serverID, User user, std::vector<Snowflake<Role>> roles, std::string nick) {
 
 	}
 
-	void BaseDiscordClient::onRole(std::string *) {
+	void BaseDiscordClient::onRole(Snowflake<Server> serverID, Role role) {
 
 	}
 
-	void BaseDiscordClient::onDeleteRole(std::string *) {
+	void BaseDiscordClient::onDeleteRole(Snowflake<Server> serverID, Snowflake<Role> roleID) {
 
 	}
 
-	void BaseDiscordClient::onEditRole(std::string *) {
+	void BaseDiscordClient::onEditRole(Snowflake<Server> serverID, Role role) {
 
 	}
 
-	void BaseDiscordClient::onEditEmojis(std::string *) {
+	void BaseDiscordClient::onEditEmojis(Snowflake<Server> serverID, std::vector<Emoji> emojis) {
 
 	}
 
-	void BaseDiscordClient::onMemberChunk(std::string *) {
+	void BaseDiscordClient::onMemberChunk(Snowflake<Server> serverID, std::vector<ServerMember> members) {
 
 	}
 
-	void BaseDiscordClient::onDeleteChannel(std::string *) {
+	void BaseDiscordClient::onDeleteChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onEditChannel(std::string *) {
+	void BaseDiscordClient::onEditChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onPinMessage(std::string *) {
+	void BaseDiscordClient::onPinMessage(Snowflake<Channel> channelID, std::string lastPinTimestamp) {
 
 	}
 
-	void BaseDiscordClient::onPresenceUpdate(std::string *) {
+	void BaseDiscordClient::onPresenceUpdate(PresenceUpdate presenseUpdate) {
 
 	}
 
-	void BaseDiscordClient::onEditUser(std::string *) {
+	void BaseDiscordClient::onEditUser(User user) {
 
 	}
 
-	void BaseDiscordClient::onEditUserNote(std::string *) {
+	void BaseDiscordClient::onEditUserNote(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditUserSettings(std::string *) {
+	void BaseDiscordClient::onEditUserSettings(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceState(std::string * ) {
+	void BaseDiscordClient::onEditVoiceState(VoiceState& state) {
 
 	}
 
-	void BaseDiscordClient::onTyping(std::string *) {
+	void BaseDiscordClient::onTyping(Snowflake<Channel> channelID, Snowflake<User> userID, time_t timestamp) {
 
 	}
 
-	void BaseDiscordClient::onDeleteMessage(std::string *) {
+	void BaseDiscordClient::onDeleteMessages(Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messages) {
 
 	}
 
-	void BaseDiscordClient::onEditMessage(std::string *) {
+	void BaseDiscordClient::onEditMessage(MessageRevisions revisioins) {
 
 	}
 
-	void BaseDiscordClient::onBulkDelete(std::string *) {
+	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate& voiceServerUpdate) {
 
 	}
 
-	void BaseDiscordClient::onEditVoiceServer(std::string *) {
+	void BaseDiscordClient::onServerSync(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onServerSync(std::string *) {
+	void BaseDiscordClient::onRelationship(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onRelationship(std::string *) {
+	void BaseDiscordClient::onDeleteRelationship(const json::Value& jsonMessage) {
 
 	}
 
-	void BaseDiscordClient::onRemoveRelationship(std::string *) {
+	void BaseDiscordClient::onReaction(Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji) {
 
 	}
 
-	void BaseDiscordClient::onDeleteRelationship(std::string *) {
+	void BaseDiscordClient::onDeleteReaction(Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji) {
 
 	}
 
-	void BaseDiscordClient::onReaction(std::string *) {
+	void BaseDiscordClient::onDeleteAllReaction(Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID) {
 
 	}
 
-	void BaseDiscordClient::onRemoveReaction(std::string *) {
-
-	}
-
-	void BaseDiscordClient::onDeleteReaction(std::string *) {
-
-	}
-
-	void BaseDiscordClient::onRemoveAllReaction(std::string *) {
-
-	}
-
-	void BaseDiscordClient::onDeleteAllReaction(std::string *) {
-
-	}
-
-	void BaseDiscordClient::onMessage(Message) {
+	void BaseDiscordClient::onMessage(Message message) {
 		
-	}
-
-	void BaseDiscordClient::onEditedMessage(std::string*) {
-		//onMessage(jsonMessage); 
-		//because of the fact that on edited messages it'll contain only a subset of the full message object payload
-		//this is will crash the client
 	}
 
 	void BaseDiscordClient::onHeartbeat() {
@@ -167,19 +147,15 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onServer(Server) {
+	void BaseDiscordClient::onServer(Server jsonMessage) {
 	
 	}
 
-	void BaseDiscordClient::onChannel(std::string *) {
+	void BaseDiscordClient::onChannel(Channel channel) {
 
 	}
 
-	void BaseDiscordClient::onEditedRole(std::string *) {
-
-	}
-
-	void BaseDiscordClient::onDispatch(std::string *) {
+	void BaseDiscordClient::onDispatch(const json::Value& jsonMessage) {
 
 	}
 
@@ -207,22 +183,26 @@ namespace SleepyDiscord {
 
 	}
 
-	void SleepyDiscord::BaseDiscordClient::onResponse(Response) {
+	void SleepyDiscord::BaseDiscordClient::onResponse(Response response) {
 	}
 
-	void BaseDiscordClient::sleep(const unsigned int) {
+	void BaseDiscordClient::sleep(const unsigned int milliseconds) {
 	
 	}
 	
-	void BaseDiscordClient::fileRead(const char*, std::string*const) {
+	void BaseDiscordClient::fileRead(const char* path, std::string*const file) {
 
 	}
 
-	void BaseDiscordClient::tick(float) {
+	void BaseDiscordClient::tick(float deltaTime) {
 	
 	}
 	
-	void BaseDiscordClient::onError(ErrorCode, std::string) {
+	void BaseDiscordClient::onError(ErrorCode errorCode, std::string errorMessage) {
 		
+	}
+
+	Timer BaseDiscordClient::schedule(TimedTask code, const time_t millisecondsTilDueTime) {
+		return Timer([]() {});
 	}
 }

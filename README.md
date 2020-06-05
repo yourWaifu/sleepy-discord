@@ -22,7 +22,7 @@ Just for the novelty of using a C++ library for Discord. I would also love for t
 
 # Example
 ```cpp
-#include "sleepy_discord/websocketpp_websocket.h"
+#include "sleepy_discord/sleepy_discord.h"
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
@@ -34,7 +34,7 @@ public:
 };
 
 int main() {
-	MyClientClass client("token", 2);
+	myClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.run();
 }
 ```

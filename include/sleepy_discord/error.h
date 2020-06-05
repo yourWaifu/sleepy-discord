@@ -35,16 +35,20 @@ namespace SleepyDiscord {
 		INVALID_SHARD           = 4010, //You sent us an invalid shard when identifying.
 		SHARDING_REQUIRED       = 4011, //The session would have handled too many guilds - you are required to shard your connection in order to connect.
 		UNKNOWN_PROTOCOL        = 4012, //We didn't recognize the protocol you sent.
-		DISCONNECTED            = 4014, //Oh no! You've been disconnected! Try resuming.
+		INVALID_INTENTS         = 4013, //You sent an invalid version for the gateway.
+		DISALLOWED_INTENTS      = 4014, //You sent a disallowed intent for a Gateway Intent.
 		VOICE_SERVER_CRASHED    = 4015, //The server crashed. Our bad! Try resuming.
 		UNKNOWN_ENCRYPTION_MODE = 4016, //We didn't recognize your encryption.
 
 		//Sleepy Errors
-		CONNECT_FAILED = 5000, //Failed to connect to the Discord api after 4 trys
-		EVENT_UNKNOWN  = 5001, //Unexpected or unknown event occurred
-		GATEWAY_FAILED = 5002, //Could not get the gateway
-		GENERAL_ERROR  = 5003, //Used when you are too lazy to use a error code
-		LAZY_ERROR     = 5004, //Used when you are too lazy to use a error code and message
-		ERROR_NOTE     = 5005, //Comes after an error to give more detail about an error in the message
+		CONNECT_FAILED  = 5000, //Failed to connect to the Discord api after 4 trys
+		EVENT_UNKNOWN   = 5001, //Unexpected or unknown event occurred
+		GATEWAY_FAILED  = 5002, //Could not get the gateway
+		GENERAL_ERROR   = 5003, //Used when you are too lazy to use a error code
+		LAZY_ERROR      = 5004, //Used when you are too lazy to use a error code and message
+		ERROR_NOTE      = 5005, //Comes after an error to give more detail about an error in the message
+		VOICE_NO_SODIUM = 5006, //Failed to init libsodium. Try linking libsodium?
+		VOICE_NO_OPUS   = 5007, //Failed to init libopus. Try linking libopus?
+		CANT_SCHEDULE   = 5008, //The Discord Client's scheduleHandler is not set
 	};
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
@@ -234,7 +234,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -251,7 +251,12 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -267,7 +272,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;_DEBUG;CMAKE_INTDIR="Debug";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
@@ -284,7 +289,12 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions>/machine:X64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -318,6 +328,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Make|Win32'">
     <ClCompile>
@@ -429,7 +442,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -447,9 +460,14 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -462,7 +480,7 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SODIUM_STATIC;NDEBUG;CMAKE_INTDIR="Release";CURL_STATICLIB;SLEEPY_VOICE_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -480,9 +498,14 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Midl>
     <Lib>
       <AdditionalOptions>/machine:X64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
@@ -516,6 +539,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     </Lib>
     <ProjectReference />
     <ProjectReference />
+    <PreBuildEvent>
+      <Command>cscript /nologo /e:JScript "make_version.h.js"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Make|Win32'">
     <ClCompile>
@@ -815,20 +841,8 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\deps\cpr\cpr\auth.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\cookies.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\cprtypes.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\digest.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\error.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\multipart.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\parameters.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\payload.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\proxies.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\session.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp" />
-    <ClCompile Include="..\deps\cpr\cpr\util.cpp" />
     <ClCompile Include="asignments_client.cpp" />
+    <ClCompile Include="asio_udp.cpp" />
     <ClCompile Include="attachment.cpp" />
     <ClCompile Include="channel.cpp" />
     <ClCompile Include="client.cpp" />
@@ -837,11 +851,9 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="discord_object_interface.cpp" />
     <ClCompile Include="embed.cpp" />
     <ClCompile Include="endpoints.cpp" />
-    <ClCompile Include="experimental.cpp" />
     <ClCompile Include="gateway.cpp" />
     <ClCompile Include="http.cpp" />
     <ClCompile Include="invite.cpp" />
-    <ClCompile Include="json.c" />
     <ClCompile Include="json_wrapper.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="permissions.cpp" />
@@ -850,24 +862,37 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClCompile Include="user.cpp" />
     <ClCompile Include="uwebsockets_websocket.cpp" />
     <ClCompile Include="voice.cpp" />
+    <ClCompile Include="voice_connection.cpp" />
     <ClCompile Include="webhook.cpp" />
     <ClCompile Include="websocketpp_websocket.cpp" />
+    <ClInclude Include="..\include\sleepy_discord\asio_include.h" />
+    <ClInclude Include="..\include\sleepy_discord\asio_schedule.h" />
+    <ClInclude Include="..\include\sleepy_discord\asio_udp.h" />
     <ClInclude Include="..\include\sleepy_discord\attachment.h" />
+    <ClInclude Include="..\include\sleepy_discord\cache.h" />
     <ClInclude Include="..\include\sleepy_discord\channel.h" />
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
     <ClInclude Include="..\include\sleepy_discord\cpr_session.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\custom_session.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\gateway.h" />
+    <ClInclude Include="..\include\sleepy_discord\json_wrapper.h" />
+    <ClInclude Include="..\include\sleepy_discord\message_receiver.h" />
     <ClInclude Include="..\include\sleepy_discord\http.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\boost\asio.hpp" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\cpr\cpr.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h" />
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\sodium.h" />
+    <ClInclude Include="..\include\sleepy_discord\rest.h" />
     <ClInclude Include="..\include\sleepy_discord\session.h" />
     <ClInclude Include="..\include\sleepy_discord\snowflake.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
     <ClInclude Include="..\include\sleepy_discord\discord_object_interface.h" />
     <ClInclude Include="..\include\sleepy_discord\embed.h" />
     <ClInclude Include="..\include\sleepy_discord\error.h" />
-    <ClInclude Include="..\include\sleepy_discord\experimental.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\uWS\uWS.h" />
     <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\websocketpp\config\asio_client.hpp" />
     <ClInclude Include="..\include\sleepy_discord\invite.h" />
@@ -876,16 +901,28 @@ xcopy ..\include C:\devkitPro\portlibs\3ds\include /y /e</NMakeBuildCommandLine>
     <ClInclude Include="..\include\sleepy_discord\permissions.h" />
     <ClInclude Include="..\include\sleepy_discord\server.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
+    <ClInclude Include="..\include\sleepy_discord\timer.h" />
+    <ClInclude Include="..\include\sleepy_discord\udp.h" />
+    <ClInclude Include="..\include\sleepy_discord\udp_client.h" />
     <ClInclude Include="..\include\sleepy_discord\user.h" />
+    <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\uwebsockets_websocket.h" />
+    <ClInclude Include="..\include\sleepy_discord\version_helper.h" />
     <ClInclude Include="..\include\sleepy_discord\voice.h" />
+    <ClInclude Include="..\include\sleepy_discord\voice_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_common.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_connection.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket_connection.h" />
     <ClInclude Include="..\include\sleepy_discord\websocketpp_websocket.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\buildtools\Makefile" />
     <None Include="..\buildtools\Makefile.3ds" />
+    <None Include="..\buildtools\Makefile.linux" />
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
+    <None Include="make_version.h.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

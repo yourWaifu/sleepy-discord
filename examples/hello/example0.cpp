@@ -1,6 +1,4 @@
-/*If you are using uWebSockets,
-  remember to change this to uwebsockets_websocket.h*/
-#include "sleepy_discord/websocketpp_websocket.h"
+#include "sleepy_discord/sleepy_discord.h"
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
 public:
@@ -12,6 +10,6 @@ public:
 };
 
 int main() {
-	MyClientClass client("token", 2);
+	MyClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.run();
 }

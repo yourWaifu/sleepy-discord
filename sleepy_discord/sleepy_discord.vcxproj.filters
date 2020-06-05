@@ -1,10 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="client.cpp" />
     <ClCompile Include="default_functions.cpp" />
-    <ClCompile Include="experimental.cpp" />
-    <ClCompile Include="json.c" />
     <ClCompile Include="json_wrapper.cpp" />
     <ClCompile Include="sd_error.cpp" />
     <ClCompile Include="attachment.cpp">
@@ -34,39 +32,6 @@
     <ClCompile Include="webhook.cpp">
       <Filter>discord objects</Filter>
     </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\auth.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\cookies.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\cprtypes.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\digest.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\error.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\parameters.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\multipart.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\payload.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\util.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\session.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\proxies.cpp">
-      <Filter>cpr</Filter>
-    </ClCompile>
     <ClCompile Include="endpoints.cpp" />
     <ClCompile Include="discord_object_interface.cpp">
       <Filter>discord objects</Filter>
@@ -89,17 +54,17 @@
     <ClCompile Include="http.cpp">
       <Filter>http</Filter>
     </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\timeout.cpp">
-      <Filter>cpr</Filter>
+    <ClCompile Include="asignments_client.cpp" />
+    <ClCompile Include="asio_udp.cpp">
+      <Filter>udp\asio</Filter>
     </ClCompile>
-    <ClCompile Include="..\deps\cpr\cpr\ssl_options.cpp">
-      <Filter>cpr</Filter>
+    <ClCompile Include="voice_connection.cpp">
+      <Filter>voice</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\sleepy_discord\client.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config.h" />
-    <ClInclude Include="..\include\sleepy_discord\experimental.h" />
     <ClInclude Include="..\include\sleepy_discord\json.h" />
     <ClInclude Include="..\include\sleepy_discord\standard_config_header.h" />
     <ClInclude Include="..\include\sleepy_discord\webhook.h">
@@ -170,6 +135,63 @@
       <Filter>http</Filter>
     </ClInclude>
     <ClInclude Include="..\include\sleepy_discord\common_return_types.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\udp_client.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\udp.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\custom_udp_client.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\asio_udp.h">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\asio.hpp">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\asio_include.h">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\boost\asio.hpp">
+      <Filter>udp\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\sodium.h" />
+    <ClInclude Include="..\include\sleepy_discord\websocket_connection.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_connection.h">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\websocketpp_common.h">
+      <Filter>websocket\websocketpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\uwebsockets_connection.h">
+      <Filter>websocket\uwebsocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\message_receiver.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\timer.h" />
+    <ClInclude Include="..\include\sleepy_discord\custom_connection.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\json_wrapper.h" />
+    <ClInclude Include="..\include\sleepy_discord\rest.h" />
+    <ClInclude Include="..\include\sleepy_discord\cache.h" />
+    <ClInclude Include="..\include\sleepy_discord\voice_connection.h">
+      <Filter>voice</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\IncludeNonexistent\opus.h">
+      <Filter>voice</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\asio_schedule.h">
+      <Filter>schedule\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sleepy_discord\version_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\sleepy_discord\sleepy_discord.h" />
@@ -179,6 +201,10 @@
     <None Include="..\buildtools\Makefile">
       <Filter>buildtools</Filter>
     </None>
+    <None Include="..\buildtools\Makefile.linux">
+      <Filter>buildtools</Filter>
+    </None>
+    <None Include="make_version.h.js" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="websocket">
@@ -186,9 +212,6 @@
     </Filter>
     <Filter Include="discord objects">
       <UniqueIdentifier>{f88c318c-4324-4221-8af2-3a2131793f6d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="cpr">
-      <UniqueIdentifier>{89d0c5e4-e7b1-4953-8d50-49cabd028852}</UniqueIdentifier>
     </Filter>
     <Filter Include="http">
       <UniqueIdentifier>{a4b7f2aa-2364-40b3-8110-fcb8574b778f}</UniqueIdentifier>
@@ -204,6 +227,21 @@
     </Filter>
     <Filter Include="http\cpr">
       <UniqueIdentifier>{ebefac73-a71e-4c11-ad6a-e5174432f14e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="udp">
+      <UniqueIdentifier>{3498c3ab-fc17-43ab-a500-e6878ae8bdf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="udp\asio">
+      <UniqueIdentifier>{84414c41-10ce-47bf-8339-93909cc116b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="voice">
+      <UniqueIdentifier>{e0b29698-13dd-4aa4-9c37-702b3e7bca09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="schedule">
+      <UniqueIdentifier>{5c275617-7d48-4167-9cbf-41e214e3bc11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="schedule\asio">
+      <UniqueIdentifier>{61174dbb-8bf9-4121-9974-00b515893252}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

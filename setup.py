@@ -57,8 +57,8 @@ class unzip():
 		except:
 			pass
 
-def convertFromZip(filename, path=None):
-	with unzip(filename, path):
+def unzipDownload(url, path=None):
+	with unzip(download(url), path):
 		pass
 
 def mergeDirectories(source, target):
@@ -67,14 +67,12 @@ def mergeDirectories(source, target):
 
 def installCPR():
 	#download and unzip cpr to deps
-	filename = download("https://github.com/whoshuu/cpr/archive/master.zip", "cpr-master.zip")
-	convertFromZip(filename, "deps")
+	unzipDownload("https://github.com/whoshuu/cpr/archive/master.zip", "deps")
 	os.rename("deps/cpr-master", "deps/cpr")
 	shutil.move("deps/cpr/include/cpr", "deps/include")
 	#download and overwrite curl folder and build config and compile
-	filename = download("https://github.com/curl/curl/archive/master.zip", "curl-master.zip")
 	os.rmdir("deps/cpr/opt/curl")
-	convertFromZip(filename, "deps/cpr/opt")
+	unzipDownload("https://github.com/curl/curl/archive/master.zip", "deps/cpr/opt")
 	os.rename("deps/cpr/opt/curl-master", "deps/cpr/opt/curl")
 	global windows
 	global linux
@@ -89,13 +87,11 @@ def installCPR():
 
 def installWebsocketPP():
 	#download and unzip websocketpp
-	filename = download("https://github.com/zaphoyd/websocketpp/archive/master.zip", "websocketpp-master.zip")
-	convertFromZip(filename, "deps")
+	unzipDownload("https://github.com/zaphoyd/websocketpp/archive/master.zip", "deps")
 	shutil.move("deps/websocketpp-master/websocketpp", "deps/include")
 	shutil.rmtree("deps/websocketpp-master")
 	#download and upzip asio
-	filename = download("https://github.com/chriskohlhoff/asio/archive/master.zip", "asio-master.zip")
-	convertFromZip(filename, "deps")
+	unzipDownload("https://github.com/chriskohlhoff/asio/archive/master.zip", "deps")
 	shutil.move("deps/asio-master/asio/include/asio", "deps/include")
 	shutil.move("deps/asio-master/asio/include/asio.hpp", "deps/include")
 	shutil.rmtree("deps/asio-master")
@@ -103,16 +99,30 @@ def installWebsocketPP():
 	global windows
 	if windows:
 		#add support for 64 bit
-		filename = download("https://www.npcglib.org/~stathis/downloads/openssl-1.1.0f-vs2015.7z")
-		convertFromZip(filename, "deps")
+		unzipDownload("https://www.npcglib.org/~stathis/downloads/openssl-1.1.0f-vs2015.7z", "deps")
 		shutil.move("deps/openssl-1.1.0f-vs2015/include/openssl", "deps/include")
 		mergeDirectories("deps/openssl-1.1.0f-vs2015/lib", "deps/lib")
 		shutil.rmtree("deps/openssl-1.1.0f-vs2015")
 
-
 def installUWebsockets():
-	print("setup.py doesn't support uWebSockets yet")
+	unzipDownload("https://github.com/uNetworking/uWebSockets/archive/master.zip", "deps")
+	unzipDownload("https://github.com/madler/zlib/archive/master.zip")
+
+def installOpus():
+	#to do unzip and compile to a lib file from the script
+	unzipDownload("https://archive.mozilla.org/pub/opus/opus-1.2.1.tar.gz", "deps")
 	return
+
+def installSodium():
+	global windows
+	if windows:
+		mkdir("deps/libsodium")
+		#download and upzip libSodium
+		unzipDownload("https://download.libsodium.org/libsodium/releases/libsodium-1.0.16-msvc.zip", "deps/libsodium")
+		mergeDirectories("deps/libsodium/include", "deps/include")
+		#to do add support for 64 bit
+		mergeDirectories("deps/libsodium/Win32/Release/v141/static", "deps/lib")
+		shutil.rmtree("deps/libsodium")
 
 #questions
 Option   = namedtuple("Option", ["name", "function"])
@@ -161,9 +171,13 @@ ask("What OS are you using right now?", [
 ],
 None)
 if windows or linux:
-	ask("What libraries do you want to use?", [
-		Option("CPR"        , installCPR        ),
-		Option("Websocket++", installWebsocketPP),
-		Option("uWebSockets", installUWebsockets) 
+	ask("What libraries do you want to use?\n\
+		You will most likly want a WebSocket and a HTTP library\n\
+		If you plan on using voice, you'll need Opus and Sodium", [
+		Option("CPR         : HTTP"        , installCPR        ),
+		Option("Websocket++ : WebSocket"   , installWebsocketPP),
+		Option("uWebSockets : WebSocket"   , installUWebsockets),
+		Option("Opus        : Audio Codec" , installOpus       ),
+		Option("Sodium      : Cryptography", installSodium     ),
 	],
 	None)

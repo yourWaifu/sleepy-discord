@@ -9,89 +9,89 @@ namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	class DiscordObject {
-	public:
-		DiscordObject() {}
-
-	protected:
-		//functions for parsing JSON
-		inline bool getBool(const std::string& string) {
-			return string[0] == 't';
-		}
-		
-		//for optional fields
-		inline bool isSpecified(const std::string& string) {
-			return string[0] != 0;
-		}
-
-		//for nullable and opinional fields
-		inline bool isDefined(const std::string& string) {
-			return isSpecified(string) && string != "null";
-		}
-
-		//for nullable fields
-		inline bool isDefault(const std::string& string) {	
-			return isSpecified(string) && string == "null";
-		}
-		
-		//pointer to referance convertion, needed or you will get an error
-		inline bool isSpecified(const std::string* string) {
-			return isSpecified(*string);
-		}
-
-		inline bool isDefined(const std::string* string) {
-			return isDefined(*string);
-		}
-
-		inline bool isDefault(const std::string* string) {
-			return isDefault(*string);
-		}
-
-		//some of those function declarations got so long that
-		//I gave them muitiple lines
+//	public:
+//		DiscordObject() {}
+//
+//	protected:
+//		//functions for parsing JSON
+//		inline bool getBool(const json::Value& string) {
+//			return string[0] == 't';
+//		}
+//		
+//		//for optional fields
+//		inline bool isSpecified(const json::Value& string) {
+//			return string.length() != 0;
+//		}
+//
+//		//for nullable and opinional fields
+//		inline bool isDefined(const json::Value& string) {
+//			return isSpecified(string) && string != "null";
+//		}
+//
+//		//for nullable fields
+//		inline bool isDefault(const json::Value& string) {
+//			return isSpecified(string) && string == "null";
+//		}
+//		
+//		//pointer to referance convertion, needed or you will get an error
+//		inline bool isSpecified(const json::Value* string) {
+//			return isSpecified(*string);
+//		}
+//
+//		inline bool isDefined(const json::Value* string) {
+//			return isDefined(*string);
+//		}
+//
+//		inline bool isDefault(const json::Value* string) {
+//			return isDefault(*string);
+//		}
+//
+//		//some of those function declarations got so long that
+//		//I gave them muitiple lines
 /*#define \
 		modIf(condition, variable, modifier, value) \
 			if (condition(value)) variable = modifier(value)*/
 #define \
 		modIfElse(condition, modifier, value, el) \
 			condition(value) ? modifier(value) : el
-
-		////this doesn't work, but the above does
-		//template<typename Type>
-		//void modIf(
-		//	bool (*condition)(const std::string&),
-		//	Type& variable, 
-		//	Type (*function)(const std::string& _source),
-		//	std::string& value
-		//) {
-		//	if (condition(value)) variable = function(value);
-		//}
-
+//
+//		////this doesn't work, but the above does
+//		//template<typename Type>
+//		//void modIf(
+//		//	bool (*condition)(const std::string&),
+//		//	Type& variable, 
+//		//	Type (*function)(const std::string& _source),
+//		//	std::string& value
+//		//) {
+//		//	if (condition(value)) variable = function(value);
+//		//}
+//
 /*#define \
 		setIf(condition, variable, value) \
 			if (condition(value)) variable = value*/
 #define \
 		setIfElse(condition, value, el) \
 			condition(value) ? value : el
-
-		template<typename Number>
-		inline Number toNumber(
-			Number (*convertFunction)(const std::string&, size_t*, int),
-			const std::string& value
-			) {
-			return isDefined(value) ? convertFunction(value, 0, 10) : 0;
-		}
-
-		inline int toInt(const std::string& value) {
-			return toNumber(std::stoi, value);
-		}
-
-		inline long long toLongLong(const std::string& value) {
-			return toNumber(std::stoll, value);
-		}
-
-		inline unsigned long toUnsignedLong(const std::string& value) {
-			return toNumber(std::stoul, value);
-		}
+//
+//		template<typename Number>
+//		inline Number toNumber(
+//			Number (*convertFunction)(const std::string&, size_t*, int),
+//			const json::Value& value
+//			) {
+//			return isDefined(value) ? convertFunction(value.to_string(), 0, 10) : 0;
+//		}
+//
+//		inline int toInt(const json::Value& value) {
+//			return toNumber(std::stoi, value);
+//		}
+//
+//		inline long long toLongLong(const json::Value& value) {
+//			return toNumber(std::stoll, value);
+//		}
+//
+//		inline unsigned long toUnsignedLong(const json::Value& value) {
+//			return toNumber(std::stoul, value);
+//		}
 	};
 
 	template <class Derived>
@@ -108,21 +108,37 @@ namespace SleepyDiscord {
 			return ID;
 		}
 
+		inline bool empty() const {
+			return ID.empty();
+		}
+
 		template<class DiscordObject>
-		inline bool operator==(Snowflake<DiscordObject> right) const {
+		inline bool operator==(const Snowflake<DiscordObject>& right) const {
 			return ID == static_cast<Snowflake<DiscordObject>>(right);
 		}
 		
 		template<class DiscordObject>
-		inline bool operator!=(Snowflake<DiscordObject> right) const {
+		inline bool operator!=(const Snowflake<DiscordObject>& right) const {
 			return ID != static_cast<Snowflake<DiscordObject>>(right);
 		}
 
-		inline bool operator==(Snowflake<Derived> right) const {
+		inline bool operator==(const Snowflake<Derived>& right) const {
 			return operator==<Derived>(right);
 		}
 
-		inline time_t getTimestamp() const {
+		inline bool operator!=(const Snowflake<Derived>& right) const {
+			return operator!=<Derived>(right);
+		}
+
+		inline bool operator==(const IdentifiableDiscordObject<Derived>& right) const {
+			return ID == right.ID;
+		}
+
+		inline bool operator!=(const IdentifiableDiscordObject<Derived>& right) const {
+			return ID != right.ID;
+		}
+
+		inline const Time getTimestamp() {
 			return ID.timestamp();
 		}
 	};
@@ -145,13 +161,13 @@ namespace SleepyDiscord {
 	}
 
 	//somethings I need it to be a reference
-	template <class _DiscordObject>
-	inline std::vector<_DiscordObject> JSON_getArray(const std::string& _source) {
+	template <class _DiscordObject, class Type>
+	inline std::vector<_DiscordObject> JSON_getArray(const Type& _source) {
 		return json::ArrayWrapper<_DiscordObject>(_source);
 	}
 
-	template <class _DiscordObject>
-	inline std::list<_DiscordObject> JSON_getList(const std::string& _source) {
+	template <class _DiscordObject, class Type>
+	inline std::list<_DiscordObject> JSON_getList(const Type& _source) {
 		return json::ArrayWrapper<_DiscordObject>(_source);
 	}
 }

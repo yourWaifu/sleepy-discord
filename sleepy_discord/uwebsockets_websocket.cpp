@@ -10,10 +10,10 @@ namespace SleepyDiscord {
 	UWebSocketsDiscordClient::UWebSocketsDiscordClient(const std::string token, const char numOfThreads) :
 		maxNumOfThreads(numOfThreads) {
 		hub.onConnection([=](uWS::WebSocket<uWS::CLIENT>* ws, uWS::HttpRequest req) {
-			theClient = ws;
+			auto connection = static_cast<uWS::WebSocket<uWS::CLIENT>**>(ws->getUserData());
+			*connection = ws;
 		});
 		hub.onMessage([=](uWS::WebSocket<uWS::CLIENT>* ws, char * message, size_t length, uWS::OpCode opCode) {
-			theClient = ws;
 			processMessage(message);
 		});
 		hub.onError([=](void *user) {
@@ -23,11 +23,10 @@ namespace SleepyDiscord {
 		start(token, numOfThreads);
 	}
 
-	bool UWebSocketsDiscordClient::connect(const std::string & uri) {
+	bool UWebSocketsDiscordClient::connect(const std::string & uri, GenericMessageReceiver* messageProcessor, WebsocketConnection* connection) {
 		isConnectionBad = false;
-		hub.connect(uri, nullptr);
-		if (isConnectionBad) return false;
-		return true;
+		hub.connect(uri, connection);
+		return !isConnectionBad;
 	}
 
 	void UWebSocketsDiscordClient::run() {
@@ -41,22 +40,27 @@ namespace SleepyDiscord {
 			(*static_cast<std::function<void()>*>(timer->getData()))();
 			timer->close();
 		}, milliseconds, 0);
-		return [timer]() {
-			timer->stop();
-			timer->close();
-		};
+		return Timer(
+			[timer]() {
+				timer->stop();
+				timer->close();
+			}
+		);
 	}
 
 	void UWebSocketsDiscordClient::runAsync() {
 		thread = std::thread([this]() { hub.run(); });
 	}
 
-	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason) {
-		theClient->close();
+	void UWebSocketsDiscordClient::disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection) {
+		/*the static cast should do a compile time check that WebsocketConnection
+		  is the correct type*/
+		static_cast<uWS::WebSocket<uWS::CLIENT>*>(*connection)->close();
 	}
 
-	void UWebSocketsDiscordClient::send(std::string message) {
-		theClient->send(message.c_str());
+	void UWebSocketsDiscordClient::send(std::string message, WebsocketConnection* connection) {
+		//if disconnect doesn't give an error then this should also be fine
+		(*connection)->send(message.c_str());
 	}
 
 #include "standard_config.h"
