@@ -32,7 +32,7 @@ namespace SleepyDiscord {
 			}
 		}
 
-		inline Timer schedule(TimedTask code, const time_t milliseconds) {
+		inline Timer schedule(TimedTask code, const time_t milliseconds) override {
 			auto timer = std::make_shared<asio::steady_timer>(io, asio::chrono::milliseconds(milliseconds));
 			timer->async_wait(std::bind(&handleTimer, std::placeholders::_1, code));
 			return Timer([timer]() {

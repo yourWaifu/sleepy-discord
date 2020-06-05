@@ -52,8 +52,8 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		#to do install libssl-dev
 		download_project(
 			PROJ           cpr
-			GIT_REPOSITORY https://github.com/MacDue/cpr
-			GIT_TAG        master
+			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
+			GIT_TAG        b748095
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)

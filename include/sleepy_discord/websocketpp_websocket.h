@@ -36,8 +36,8 @@ namespace SleepyDiscord {
 
 		using TimerPointer = std::weak_ptr<websocketpp::lib::asio::steady_timer>;
 
-		void run();
-		Timer schedule(TimedTask code, const time_t milliseconds);
+		void run() override;
+		Timer schedule(TimedTask code, const time_t milliseconds) override;
 		void postTask(PostableTask code) override {
 			asio::post(code);
 		}
@@ -50,14 +50,14 @@ namespace SleepyDiscord {
 			GenericMessageReceiver* messageProcessor,
 			WebsocketConnection& connection
 		) override;
-		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection);
+		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection) override;
 		void onClose(
 			websocketpp::connection_hdl handle,
 			GenericMessageReceiver* messageProcessor
 		);
 		void onFail(websocketpp::connection_hdl handle, GenericMessageReceiver* messageProcessor);
-		void send(std::string message, WebsocketConnection& connection);
-		void runAsync();
+		void send(std::string message, WebsocketConnection& connection) override;
+		void runAsync() override;
 		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);
 		void onMessage(
 			websocketpp::connection_hdl hdl,
