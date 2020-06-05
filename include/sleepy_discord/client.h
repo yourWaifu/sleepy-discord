@@ -127,14 +127,14 @@ namespace SleepyDiscord {
 
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
-			const std::initializer_list<Part>& multipartParameters = {},
+			const std::vector<Part>& multipartParameters = {},
 			RequestCallback callback = nullptr, RequestMode mode = Sync_AsyncQueue);
 		struct Request {
 			BaseDiscordClient& client;
 			const RequestMethod method;
 			const Route url;
 			const std::string jsonParameters;
-			const std::initializer_list<Part> multipartParameters;
+			const std::vector<Part> multipartParameters;
 			const BaseDiscordClient::RequestCallback callback;
 			RequestMode mode;
 			inline void operator()() const {
@@ -218,7 +218,7 @@ namespace SleepyDiscord {
 
 		#define RequestModeRequestDefine template<class ParmType, class Callback> \
 		static ReturnType doRequest(BaseDiscordClient& client, const RequestMethod method, Route path, \
-			const std::string jsonParameters, const std::initializer_list<Part>& multipartParameters, Callback callback) 
+			const std::string jsonParameters, const std::initializer_list<Part>& multipartParameters, Callback callback)
 
 		template<RequestMode mode> struct RequestModeType : RawRequestModeTypeHelper<Sync, void> {};
 
@@ -360,7 +360,7 @@ namespace SleepyDiscord {
 		void setIntents(IntentsRaw newIntents) { intentsIsSet = true; intents = static_cast<Intent>(newIntents); }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
-		
+
 		//array of intents
 		template<class Container, typename T = typename Container::value_type>
 		void setIntents(const Container& listOfIntents) {
@@ -384,7 +384,7 @@ namespace SleepyDiscord {
 				new Handler(std::forward<Types>(arguments)...)
 			);
 		}
-		inline GenericScheduleHandler& getScheduleHandler() { return *scheduleHandler; } 
+		inline GenericScheduleHandler& getScheduleHandler() { return *scheduleHandler; }
 
 		enum AssignmentType : bool {
 			TilDueTime = 0,
@@ -398,7 +398,7 @@ namespace SleepyDiscord {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
 		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
-		
+
 		typedef TimedTask PostableTask;
 		virtual void postTask(PostableTask code) {
 			schedule(code, 0);
@@ -429,7 +429,7 @@ namespace SleepyDiscord {
 		inline void disconnectVoiceConnection(VoiceConnection & connection) {
 			connection.disconnect();
 		}
-		
+
 		template<class Function>
 		void disconnectVoiceConnection_if(Function function) {
 			auto i = std::find_if(voiceConnections.begin(), voiceConnections.end(), function);
@@ -728,7 +728,7 @@ namespace SleepyDiscord {
 		void eraseObjectFromCache(
 			Snowflake<Server> serverID, Container Server::* container, Type ID
 		) {
-			accessIteratorFromCache(serverID, container, ID, 
+			accessIteratorFromCache(serverID, container, ID,
 				[container](Server& server, typename Container::iterator& found) {
 					(server.*(container)).erase(found);
 				}
@@ -743,7 +743,7 @@ namespace SleepyDiscord {
 	//	return static_cast<BaseDiscordClient::AssignmentType>(static_cast<char>(left) & static_cast<char>(right));
 	//}
 
-	/*Used when you like to have the DiscordClient to handle the timer via a loop but 
+	/*Used when you like to have the DiscordClient to handle the timer via a loop but
 	  don't want to do yourself. I plan on somehow merging this with the baseClient
 	  somehow
 
