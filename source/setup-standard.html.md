@@ -1,5 +1,5 @@
 ---
-title: Standard Configuration
+title: Standard Configuration For Sleepy Discord
 
 language_tabs:
 

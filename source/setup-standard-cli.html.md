@@ -1,5 +1,5 @@
 ---
-title: CMake Command Line Interface
+title: Using CMake Command Line Interface WIth Sleepy Discord
 
 language_tabs:
 

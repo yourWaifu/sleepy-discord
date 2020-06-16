@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Getting Started With Sleepy Discord
 
 language_tabs:
 

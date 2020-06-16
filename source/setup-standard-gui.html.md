@@ -1,5 +1,5 @@
 ---
-title: CMake Graphical User Interface
+title: Using CMake Graphical User Interface With Sleepy Discord
 
 language_tabs:
 

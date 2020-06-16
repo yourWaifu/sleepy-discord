@@ -1,5 +1,5 @@
 ---
-title: Standard Configuration
+title: Using Visual Studio With Sleepy Discord
 
 language_tabs:
 
