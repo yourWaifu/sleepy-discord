@@ -122,12 +122,33 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		//const static std::initializer_list<const char*const> fields;
+		enum class AvailableFlag : char {
+			NotSet = -2,
+			Unavaiable = true,
+			avaiable = false,
+		};
+		AvailableFlag unavailable = AvailableFlag::NotSet;
+
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&UnavailableServer::ID, "id", json::REQUIRIED_FIELD)
+				json::pair(&UnavailableServer::ID, "id", json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>
+				(&UnavailableServer::unavailable, "unavailable", json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
+	};
+
+	template<>
+	struct GetDefault<UnavailableServer::AvailableFlag> {
+		static inline const UnavailableServer::AvailableFlag get() {
+			return UnavailableServer::AvailableFlag::NotSet;
+		} 
+	};
+
+	template<>
+	struct GetEnumBaseType<UnavailableServer::AvailableFlag> {
+		//this makes the json wrapper know to use getBool instead of getInt
+		using Value = bool; 
 	};
 
 	class ServerCache : public Cache<Server> {

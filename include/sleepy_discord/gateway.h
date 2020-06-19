@@ -209,6 +209,13 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	template<>
+	struct GetDefault<Activity::ActivityType> {
+		static inline const Activity::ActivityType get() {
+			return Activity::ActivityType::ACTIVITY_TYPE_NONE;
+		}
+	};
+
 	struct PresenceUpdate : public DiscordObject {
 	public:
 		PresenceUpdate() = default;
