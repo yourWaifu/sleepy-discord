@@ -21,14 +21,14 @@ namespace SleepyDiscord {
 	//	return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringifyObj(params)) };
 	//}
 
-	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, bool tts, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
 		auto& allocator = doc.GetAllocator();
 		content.SetString(message.c_str(), message.length());
 		doc.AddMember("content", content, allocator);
-		if (tts == true) doc.AddMember("tts", true, allocator);
+		if (tts == TTS::EnableTTS) doc.AddMember("tts", true, allocator);
 		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, json::stringify(doc)) };
 	}
