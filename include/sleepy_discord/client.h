@@ -240,7 +240,16 @@ namespace SleepyDiscord {
 		enum GetMessagesKey {na, around, before, after, limit};
 		ArrayResponse <Message     > getMessages             (Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t limit = 0);
 		ObjectResponse<Message     > getMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<ObjectResponse<Message>> settings = {});  //to do add more then one message return
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, bool tts = false, RequestSettings<ObjectResponse<Message>> settings = {});
+		const Embed createInvalidEmbed() {
+			return Embed::Flag::INVALID_EMBED;
+		}
+		//maybe move this to message.h
+		enum class TTS : char {
+			DisableTTS,
+			EnableTTS,
+			Default = DisableTTS,
+		};
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message                                  , RequestSettings<ObjectResponse<Message>> settings = {});
 		BoolResponse                 addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<BoolResponse           > settings = {});
@@ -272,7 +281,7 @@ namespace SleepyDiscord {
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
 		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
-			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, false, settings);
+			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, TTS::Default, settings);
 		}
 
 		//server functions
