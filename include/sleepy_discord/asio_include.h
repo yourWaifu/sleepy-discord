@@ -9,7 +9,7 @@
 
 #if defined(SLEEPY_DISCORD_CMAKE) && defined(EXISTENT_ASIO)
 	#include <asio.hpp>
-#else
+#elif !defined(SLEEPY_DISCORD_CMAKE)
 	#include <asio.hpp>
 	#ifdef NONEXISTENT_ASIO
 		#undef ASIO_STANDALONE

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <functional>
 #include <forward_list>
+#include <atomic>
+#include <mutex>
 
 //objects
 #include "message.h"
