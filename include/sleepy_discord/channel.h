@@ -69,7 +69,7 @@ namespace SleepyDiscord {
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&Channel::ID                   , "id"                   , json::REQUIRIED_FIELD        ),
-				json::pair<json::EnumTypeHelper      >(&Channel::type                 , "type"                 , json::REQUIRIED_FIELD        ),
+				json::pair<json::EnumTypeHelper     >(&Channel::type                 , "type"                 , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Channel::serverID             , "guild_id"             , json::OPTIONAL_FIELD         ),
 				json::pair                           (&Channel::position             , "position"             , json::OPTIONAL_FIELD         ),
 				json::pair<json::ContainerTypeHelper>(&Channel::permissionOverwrites , "permission_overwrites", json::OPTIONAL_FIELD         ),

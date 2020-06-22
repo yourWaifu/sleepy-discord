@@ -65,7 +65,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	if(USE_ASIO)
 		target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
 		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ASIO)
-	else()
+	elif(USE_BOOST_ASIO)
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ASIO)
 		#Look for boost as an alt
 		find_package(Boost)
@@ -136,6 +136,15 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_SODIUM)
 	endif()
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
+else()
+	target_compile_definitions(sleepy-discord PUBLIC
+		NONEXISTENT_CPR
+		NONEXISTENT_ASIO
+		NONEXISTENT_BOOST_ASIO
+		NONEXISTENT_WEBSOCKETPP
+		NONEXISTENT_UWEBSOCKETS
+		NONEXISTENT_OPUS
+		NONEXISTENT_SODIUM)
 endif()
 
 if(NOT Git_FOUND)
