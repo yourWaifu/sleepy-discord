@@ -68,7 +68,7 @@ namespace SleepyDiscord {
 		const std::initializer_list<std::string>& values;
 
 		//for the snowflake part, discord class should do
-		std::unordered_map<const char*, Snowflake<User>::RawType>
+		std::unordered_map<std::string, Snowflake<User>::RawType>
 			majorParameters = {
 			{ "channel.id", {} },
 			{ "guild.id"  , {} },
