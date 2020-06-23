@@ -65,7 +65,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	if(USE_ASIO)
 		target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
 		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ASIO)
-	elif(USE_BOOST_ASIO)
+	elseif(USE_BOOST_ASIO)
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ASIO)
 		#Look for boost as an alt
 		find_package(Boost)
