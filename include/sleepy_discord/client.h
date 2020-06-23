@@ -87,6 +87,12 @@ namespace SleepyDiscord {
 		std::mutex mutex;
 	};
 
+	enum class TTS : char {
+		DisableTTS,
+		EnableTTS,
+		Default = DisableTTS,
+	};
+
 	enum RequestMode {
 		UseRequestAsync = 1 << 0,
 		UseRequestSync = 0 << 0,
@@ -246,11 +252,6 @@ namespace SleepyDiscord {
 			return Embed::Flag::INVALID_EMBED;
 		}
 		//maybe move this to message.h
-		enum class TTS : char {
-			DisableTTS,
-			EnableTTS,
-			Default = DisableTTS,
-		};
 		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message                                  , RequestSettings<ObjectResponse<Message>> settings = {});
