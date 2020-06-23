@@ -822,7 +822,7 @@ namespace SleepyDiscord {
 			//the +1 and -1 removes the { and }
 			const std::string identifier = path.substr(start + 1, end - start - 1);
 
-			auto foundParam = majorParameters.find(identifier.c_str());
+			auto foundParam = majorParameters.find(identifier);
 			if (foundParam != majorParameters.end()) {
 				foundParam->second = replacement;
 			}
