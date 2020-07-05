@@ -474,7 +474,7 @@ namespace SleepyDiscord {
 	protected:
 		//Rest events
 		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
-		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request);
+		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request, bool& continueRequest);
 
 		/* list of events
 		READY
