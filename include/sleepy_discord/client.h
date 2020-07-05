@@ -136,7 +136,7 @@ namespace SleepyDiscord {
 		using RequestCallback = std::function<void(Response)>;
 		Response request(const RequestMethod method, Route path, const std::string jsonParameters = "",
 			const std::vector<Part>& multipartParameters = {},
-			RequestCallback callback = nullptr, RequestMode mode = Sync_AsyncQueue);
+			RequestCallback callback = nullptr, const RequestMode mode = Sync_AsyncQueue);
 		struct Request {
 			BaseDiscordClient& client;
 			const RequestMethod method;
@@ -152,20 +152,20 @@ namespace SleepyDiscord {
 
 		template<class ParmType>
 		void requestAsync(const RequestMethod method, Route path, std::function<void(ParmType)> callback, const std::string jsonParameters = "",
-			const std::initializer_list<Part>& multipartParameters = {}) {
+			const std::initializer_list<Part>& multipartParameters = {}, const RequestMode mode = Async) {
 			postTask(static_cast<PostableTask>(
 				Request{ *this, method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 					callback(static_cast<ParmType>(r));
-				}) : RequestCallback(nullptr), Async }
+				}) : RequestCallback(nullptr), mode }
 			));
 		}
 
 		template<class ParmType>
 		Response requestSync(const RequestMethod method, Route path, std::function<void(ParmType)> callback, const std::string jsonParameters = "",
-			const std::initializer_list<Part>& multipartParameters = {}) {
+			const std::initializer_list<Part>& multipartParameters = {}, const RequestMode mode = Sync) {
 			return request(method, path, jsonParameters, multipartParameters, callback ? RequestCallback([callback](Response r) {
 				callback(static_cast<ParmType>(r));
-			}) : RequestCallback(nullptr), Sync );
+			}) : RequestCallback(nullptr), mode );
 		}
 
 		const Route path(const char* source, std::initializer_list<std::string> values = {});
@@ -196,24 +196,20 @@ namespace SleepyDiscord {
 		template<class RequestSettingsClass>
 		Response request(const RequestMethod method, Route path, RequestSettingsClass& settings,
 			const std::string jsonParameters = "", const std::initializer_list<Part>& multipartParameters = {}) {
-			switch (settings.mode) {
-			case Async:
+			if (settings.mode & UseRequestAsync) {
 				requestAsync<
 					typename RequestSettingsClass::ParmType
-				>(method, path, settings.callback, jsonParameters, multipartParameters);
-				break;
-			case Sync: case Sync_AsyncQueue:
+				>(method, path, settings.callback, jsonParameters, multipartParameters, settings.mode);
+			} else if (settings.mode & UseRequestSync) {
 				if (settings.callback)
 					//having an invalid callback here would cause bugs
 					return requestSync<
 						typename RequestSettingsClass::ParmType
-					>(method, path, settings.callback, jsonParameters, multipartParameters);
+					>(method, path, settings.callback, jsonParameters, multipartParameters, settings.mode);
 				else
-					return request(method, path, jsonParameters, multipartParameters);
-				break;
-			default:
+					return request(method, path, jsonParameters, multipartParameters, nullptr, settings.mode);
+			} else {
 				return Response(BAD_REQUEST);
-				break;
 			}
 			return Response();
 		}
