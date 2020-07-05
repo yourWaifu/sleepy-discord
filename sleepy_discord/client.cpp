@@ -63,7 +63,7 @@ namespace SleepyDiscord {
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
-		const std::vector<Part>& multipartParameters, RequestCallback callback, RequestMode mode
+		const std::vector<Part>& multipartParameters, RequestCallback callback, const RequestMode mode
 	) {
 		//check if rate limited
 		Response response;
