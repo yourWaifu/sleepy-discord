@@ -394,9 +394,11 @@ namespace SleepyDiscord {
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
-			connect(theGateway, this, connection);
+			//if not a successful reconnection
+			if (consecutiveReconnectsCount != 0)
+				connect(theGateway, this, connection);
 		}, getRetryDelay());
-		++consecutiveReconnectsCount;
+		consecutiveReconnectsCount += 1;
 
 		for (VoiceConnection& voiceConnection : voiceConnections) {
 			disconnect(1001, "", voiceConnection.connection);
