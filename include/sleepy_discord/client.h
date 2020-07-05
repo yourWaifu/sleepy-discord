@@ -200,7 +200,7 @@ namespace SleepyDiscord {
 				requestAsync<
 					typename RequestSettingsClass::ParmType
 				>(method, path, settings.callback, jsonParameters, multipartParameters, settings.mode);
-			} else if (settings.mode & UseRequestSync) {
+			} else {
 				if (settings.callback)
 					//having an invalid callback here would cause bugs
 					return requestSync<
@@ -208,8 +208,6 @@ namespace SleepyDiscord {
 					>(method, path, settings.callback, jsonParameters, multipartParameters, settings.mode);
 				else
 					return request(method, path, jsonParameters, multipartParameters, nullptr, settings.mode);
-			} else {
-				return Response(BAD_REQUEST);
 			}
 			return Response();
 		}
