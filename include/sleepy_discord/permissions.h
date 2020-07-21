@@ -69,7 +69,7 @@ namespace SleepyDiscord {
 	inline constexpr Permission operator^(const Permission& a, const Permission& b) {
 		return static_cast<Permission>(static_cast<int64_t>(a) ^ static_cast<int64_t>(b));
 	}
-	
+	//
 	inline constexpr bool hasPermission(const Permission& target, const Permission& permission) {
 		return (target & permission) == permission;
 	}
