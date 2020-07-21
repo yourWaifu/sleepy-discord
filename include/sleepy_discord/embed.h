@@ -174,6 +174,12 @@ namespace SleepyDiscord {
 
 	struct Embed : public DiscordObject {
 	public:
+		enum class Flag {
+		    INVALID_EMBED = 0,
+		    VALID_EMBED = 1
+		};
+		Flag flags = Flag::VALID_EMBED;
+		Embed(const Flag f) : flags(f) {}
 		Embed() = default;
 		//Embed(const std::string * rawJSON);
 		Embed(const json::Value & json);
@@ -220,12 +226,5 @@ namespace SleepyDiscord {
 	private:
 		friend BaseDiscordClient;
 		friend SendMessageParams;
-
-		enum class Flag {
-			INVALID_EMBED = 0,
-			VALID_EMBED = 1
-		};
-		Flag flags = Flag::VALID_EMBED;
-		Embed(const Flag f) : flags(f) {}
 	};
 }
