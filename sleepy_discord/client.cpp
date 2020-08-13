@@ -72,7 +72,7 @@ namespace SleepyDiscord {
 		Route::Bucket bucket = path.bucket(method);
 
 		bool shouldCallCallback = true;
-		const auto handleCallbackCall = [=]() {
+		const auto handleCallbackCall = [&]() {
 			if (shouldCallCallback && callback)
 				callback(response);
 		};
