@@ -66,7 +66,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           asio
 			GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-			GIT_TAG        22afb86
+			GIT_TAG        master
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
 			UPDATE_DISCONNECTED 1
 		)
