@@ -253,7 +253,7 @@ namespace SleepyDiscord {
 		theGateway = "wss://gateway.discord.gg/?v=6";	//This is needed for when session is disabled
 #else
 		Session session;
-		session.setUrl("https://discordapp.com/api/gateway");
+		session.setUrl("https://discord.com/api/gateway");
 		Response a = session.request(Get);	//todo change this back to a post
 		if (!a.text.length()) {	//error check
 			quit(false, true);
