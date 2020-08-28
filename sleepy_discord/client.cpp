@@ -448,7 +448,6 @@ namespace SleepyDiscord {
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
-			consecutiveReconnectsCount = 0; //Successfully connected
 			switch (hash(json::toStdString(t).c_str())) {
 			case hash("READY"                      ): {
 				Ready readyData = d;
@@ -457,8 +456,12 @@ namespace SleepyDiscord {
 				userID = readyData.user;
 				onReady(readyData);
 				ready = true;
+				consecutiveReconnectsCount = 0; //Successfully connected
 				} break;
-			case hash("RESUMED"                    ): onResumed            (); break;
+			case hash("RESUMED"                    ): 
+				consecutiveReconnectsCount = 0; //Successfully connected
+				onResumed();
+				break;
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)
