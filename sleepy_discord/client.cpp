@@ -389,6 +389,9 @@ namespace SleepyDiscord {
 			heartbeatInterval = 0;    //stop heartbeating
 			wasHeartbeatAcked = true; //stops the library from spamming discord
 		}
+		//before disconnecting, heartbeats need to stop or it'll crash
+		//and if it doesn't, it'll cause another reconnect
+		if (heart.isValid()) heart.stop();
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
 		if (reconnectTimer.isValid())
