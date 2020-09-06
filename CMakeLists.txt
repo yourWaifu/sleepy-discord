@@ -54,7 +54,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        b748095
+			GIT_TAG        e627e47
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
