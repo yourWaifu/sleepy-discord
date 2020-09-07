@@ -265,6 +265,7 @@ namespace SleepyDiscord {
 			RESUME              = 7,  //client resume a connection
 			HELLO               = 8,  //server the continuous interval in milliseconds after which the client should send a heartbeat
 			RESUMED             = 9,  //server acknowledge Resume
+			DISPATCH_STREAM		= 12, //update sources for audio and video streams
 			CLIENT_DISCONNECT   = 13  //server a client has disconnected from the voice channel
 		};
 			

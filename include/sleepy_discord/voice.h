@@ -21,9 +21,13 @@ namespace SleepyDiscord {
 		bool mute = false;
 		bool selfDeaf = false;
 		bool selfMute = false;
+		bool selfVideo = false;
+		bool selfStream = false;
 		bool suppress = false;
 		JSONStructStart
 			std::make_tuple(
+				json::pair(&VoiceState::selfVideo, "self_video",  json::OPTIONAL_FIELD ),
+				json::pair(&VoiceState::selfStream,"self_stream", json::OPTIONAL_FIELD ),
 				json::pair(&VoiceState::serverID , "guild_id"  , json::OPTIONAL_FIELD ),
 				json::pair(&VoiceState::channelID, "channel_id", json::NULLABLE_FIELD ),
 				json::pair(&VoiceState::userID   , "user_id"   , json::REQUIRIED_FIELD),
