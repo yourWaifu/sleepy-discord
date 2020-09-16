@@ -21,6 +21,12 @@
 	#include <boost/asio.hpp>
 	#ifndef NONEXISTENT_BOOST_ASIO
 		#undef NONEXISTENT_ASIO
-		namespace asio = boost::asio;
+		namespace asio {
+			using namespace boost::asio;
+			using boost::system::error_code;
+		}
+		#ifdef ASIO_STANDALONE
+			#undef ASIO_STANDALONE
+		#endif
 	#endif
 #endif

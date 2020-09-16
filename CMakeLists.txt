@@ -30,7 +30,12 @@ if(ENABLE_VOICE)
 endif()
 
 if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
-	set(USE_ASIO ON)
+	find_package(Boost)
+	if(Boost_FOUND)
+		set(USE_BOOST_ASIO ON)
+	else()
+		set(USE_ASIO ON)
+	endif()
 endif()
 
 find_package(Git)
