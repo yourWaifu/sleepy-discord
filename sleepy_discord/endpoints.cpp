@@ -46,12 +46,14 @@ namespace SleepyDiscord {
 		};
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
 		content.SetString(newMessage.c_str(), newMessage.length());
-		doc.AddMember("content", content, doc.GetAllocator());
+		auto& allocator = doc.GetAllocator();
+		doc.AddMember("content", content, allocator);
+		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
 		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, json::stringify(doc)) };
 	}
 

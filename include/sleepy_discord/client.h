@@ -253,7 +253,7 @@ namespace SleepyDiscord {
 		BoolResponse                 removeReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID = "@me");
 		ArrayResponse <Reaction    > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<ArrayResponse<Reaction>> settings = {});
 		StandardResponse             removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<StandardResponse       > settings = {});
-		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage                           , RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed = Embed::Flag::INVALID_EMBED, RequestSettings<ObjectResponse<Message>> settings = {});
 		BoolResponse                 deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
 		BoolResponse                 bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs                                     , RequestSettings<BoolResponse           > settings = {});
 		/*allow is a bitwise value of all allowed permissions
