@@ -33,7 +33,7 @@ If other, go to your favorite search engine and look up ``How to compile using X
 
 ### CA path only supported by ...
 
-```
+```console
 CA path only supported by OpenSSL, GnuTLS or mbed TLS.  Set CURL_CA_PATH=none or enable one of those TLS backends.
 ```
 
@@ -43,7 +43,7 @@ The easiest way to fix this is to install libCurl from a package manager. If tha
 
 ### No CMAKE_CXX_COMPILER ...
 
-```
+```console
 No CMAKE_CXX_COMPILER could be found.
 
 Tell CMake where to find the compiler by setting either the environment variable "CXX" or the CMake cache entry CMAKE_CXX_COMPILER to the full path to the compiler, or to the compiler name if it is in the PATH.
@@ -53,7 +53,7 @@ Usually this means you don't have a compiler installed. GCC, Clang, or MSVC are 
 
 ### sleepy-discord/CMakeLists.txt (add_subdirectory)
 
-```
+```console
 CMake Error at dependencies/sleepy-discord/CMakeLists.txt:176 (add_subdirectory):
   The source directory
 
@@ -66,7 +66,7 @@ Usually this means, that something went wrong with the download for one of the l
 
 ### unofficial-sodium
 
-```
+```console
   Could not find a package configuration file provided by "unofficial-sodium" with any of the following names:
 
     unofficial-sodiumConfig.cmake
