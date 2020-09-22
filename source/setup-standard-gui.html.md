@@ -7,6 +7,7 @@ toc_footers:
 
 includes:
  - generator-compile
+ - common-build-errors
 
 search: true
 ---

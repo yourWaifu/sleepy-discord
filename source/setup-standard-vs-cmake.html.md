@@ -6,6 +6,7 @@ language_tabs:
 toc_footers:
 
 includes:
+ - common-build-errors
 
 search: true
 ---
