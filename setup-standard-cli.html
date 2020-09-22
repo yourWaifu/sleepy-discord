@@ -287,6 +287,40 @@ make
 
 <p>If other, go to your favorite search engine and look up <code class="prettyprint">How to compile using X</code> and replace X with whatever generator you chose.</p>
 
+<h2 id="common-errors">Common Errors</h2>
+
+<h3 id="ca-path-only-supported-by">CA path only supported by &hellip;</h3>
+<pre class="highlight shell_session"><code>CA path only supported by OpenSSL, GnuTLS or mbed TLS.  Set CURL_CA_PATH=none or enable one of those TLS backends.
+</code></pre>
+<p>libCurl couldn&rsquo;t set the CURL_CA_PATH variable as it&rsquo;s not supported for the TLS backend that will be used.</p>
+
+<p>The easiest way to fix this is to install libCurl from a package manager. If that doesn&rsquo;t fix it, you&rsquo;ll need to enable a TLS backend for libCurl.</p>
+
+<h3 id="no-cmake_cxx_compiler">No CMAKE_CXX_COMPILER &hellip;</h3>
+<pre class="highlight shell_session"><code>No CMAKE_CXX_COMPILER could be found.
+
+Tell CMake where to find the compiler by setting either the environment variable "CXX" or the CMake cache entry CMAKE_CXX_COMPILER to the full path to the compiler, or to the compiler name if it is in the PATH.
+</code></pre>
+<p>Usually this means you don&rsquo;t have a compiler installed. GCC, Clang, or MSVC are recommend. You can check if you have them installed by run the compiler&rsquo;s command in the terminal. If you have a compiler installed, set the environment variable <code class="prettyprint">CXX</code> to the command for the C++ compiler or the path to the C++ compiler.</p>
+
+<h3 id="sleepy-discord-cmakelists-txt-add_subdirectory">sleepy-discord/CMakeLists.txt (add_subdirectory)</h3>
+<pre class="highlight shell_session"><code>CMake Error at dependencies/sleepy-discord/CMakeLists.txt:176 (add_subdirectory):
+  The source directory
+
+    /path/to/sleepy-discord/deps/lib
+
+  does not contain a CMakeLists.txt file.
+</code></pre>
+<p>Usually this means, that something went wrong with the download for one of the library. The easiest solution is to delete the CMakeCache.txt in your build folder and running CMake again. If you want a different solution that would be to have CMake only download and configure that one lib, you can do this by open the CMakeCache.txt and removing the <code class="prettyprint">lib-name_BINARY_DIR:STATIC</code> and <code class="prettyprint">lib-name_SOURCE_DIR:STATIC</code> from the file. After that, save the file. Now run Cmake with <code class="prettyprint">AUTO_DOWNLOAD_LIBRARY:BOOL</code> set to True, you can set this to False afterwards.</p>
+
+<h3 id="unofficial-sodium">unofficial-sodium</h3>
+<pre class="highlight shell_session"><code>  Could not find a package configuration file provided by "unofficial-sodium" with any of the following names:
+
+    unofficial-sodiumConfig.cmake
+    unofficial-sodium-config.cmake
+</code></pre>
+<p>This error only happens on windows as on Unix, make is used to compile libSodium but on windows things are a bit different. However, you can install libSodium using the unofficial sodium package from VCPKG.</p>
+
       </div>
       <div class="dark-box">
       </div>
