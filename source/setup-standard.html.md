@@ -23,7 +23,7 @@ search: true
    * For Visual Studio users, Visual Studio has a c++ compiler.
  * libCurl (Linux only)
    * install a package like ``libcurl4-openssl-dev`` on your package manager
-   * on Windows, the cmake script should compile cmake for you. So libCurl should be set up for you when you run cmake.
+   * on Windows, the cmake script should compile libCurl for you. So libCurl should be set up for you when you run cmake.
 
 ## Instructions
 
