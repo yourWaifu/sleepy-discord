@@ -20,7 +20,7 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
-- ls -ls /usr/bin/cmake
+- ls -ls /usr/bin/cmake*
 - cmake --version
 - cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make
