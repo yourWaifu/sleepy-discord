@@ -15,8 +15,11 @@ addons:
 
 before_install:
   #travis ci has it's own version of cmake that we need to replace
-  - sudo apt-get remove cmake
-  - sudo apt-get install cmake
+  - mkdir $HOME/usr
+  - export PATH="$HOME/usr/bin:$PATH"
+  - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh --output cmake-install.sh
+  - chmod +x cmake-install.sh
+  - ./cmake-install.sh --prefix=$HOME/usr --exclude-subdir --skip-license
 
 install:
   - export CXX="g++-5" CC="gcc-5";
