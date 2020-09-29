@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 	//	return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringifyObj(params)) };
 	//}
 
-	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+	std::string createMessageBody(std::string& message, Embed& embed, TTS tts) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
@@ -30,31 +30,28 @@ namespace SleepyDiscord {
 		doc.AddMember("content", content, allocator);
 		if (tts == TTS::EnableTTS) doc.AddMember("tts", true, allocator);
 		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, json::stringify(doc)) };
+		return json::stringify(doc);
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, tts)) };
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(SendMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringify(json::toJSON(params))) };
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringifyObj(params)) };
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{
 			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
-				{ "content", message },
-				{ "file", filePathPart{fileLocation} }
+				{ "file", filePathPart{fileLocation} },
+				{ "payload_json", createMessageBody(message, embed, TTS::DisableTTS) }
 			})
 		};
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
-		rapidjson::Document doc;
-		doc.SetObject();
-		rapidjson::Value content;
-		content.SetString(newMessage.c_str(), newMessage.length());
-		auto& allocator = doc.GetAllocator();
-		doc.AddMember("content", content, allocator);
-		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
-		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, json::stringify(doc)) };
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, TTS::DisableTTS)) };
 	}
 
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings) {
