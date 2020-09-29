@@ -6,13 +6,12 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - 'deb https://apt.kitware.com/ubuntu/ bionic main'
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
+      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
-    - xdotool
-    - cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
