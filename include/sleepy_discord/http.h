@@ -75,4 +75,6 @@ namespace SleepyDiscord {
 		const char* getMethodName(const RequestMethod& method);
 
 	};
+
+	std::string escapeURL(const std::string& string);
 };
