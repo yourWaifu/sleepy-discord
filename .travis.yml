@@ -6,17 +6,15 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - ppa:hnakamur/cmake
     packages:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
-    - cmake
     - xdotool
 
 before_install:
   - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh --output cmake-script.sh
-  - xdotool key f f | yes N | | bash cmake-script.sh
+  - xdotool key f f | yes | bash cmake-script.sh
 
 install:
   - export CXX="g++-5" CC="gcc-5";
