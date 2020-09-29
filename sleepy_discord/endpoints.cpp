@@ -263,8 +263,8 @@ namespace SleepyDiscord {
 	}
 
 	BoolResponse BaseDiscordClient::editMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname, std::vector<Snowflake<Role>> roles, int8_t mute, int8_t deaf, Snowflake<Channel> channelID) {
-		const std::string muteString = mute == -1 ? json::boolean(mute) : "";
-		const std::string deafString = deaf == -1 ? json::boolean(deaf) : "";
+		const std::string muteString = mute != -1 ? json::boolean(mute) : "";
+		const std::string deafString = deaf != -1 ? json::boolean(deaf) : "";
 
 		return { request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), json::createJSON({
 			{ "nick"      , json::string(nickname)       },
