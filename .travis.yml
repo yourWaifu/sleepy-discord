@@ -20,5 +20,6 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
+- cmake --version
 - cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make
