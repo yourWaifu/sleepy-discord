@@ -53,13 +53,19 @@ namespace SleepyDiscord {
 		template<class Type>
 		const std::string createJSONArray(const std::vector<Type> source) {
 			std::string target;
-			target.reserve(2);	//revents crash
+			target += '[';
 			for (std::string value : source) {
-				if (!value.empty())
-					target += ',' + value;
+				if (!value.empty()) {
+					target += value;
+					target += ',';
+				}
 			}
-			target[0] = '[';
-			target.push_back(']');
+			char& back = s.back();
+			if (back == ',') {
+				back = ']';
+			} else {
+				target += ']';
+			}
 			return target;
 		}
 
