@@ -6,15 +6,13 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - 'deb https://apt.kitware.com/ubuntu/ bionic main'
     packages:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
     - xdotool
-
-before_install:
-  - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh --output cmake-script.sh
-  - DISPLAY=:0.0; xdotool key f f | yes | bash cmake-script.sh
+    - cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
