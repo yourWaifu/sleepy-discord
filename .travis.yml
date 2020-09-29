@@ -12,7 +12,11 @@ addons:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
-    - cmake
+
+before_install:
+  #travis ci has it's own version of cmake that we need to replace
+  - apt-get remove cmake
+  - apt-get install cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
@@ -20,7 +24,6 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
-- ls -ls /usr/bin/cmake*
 - cmake --version
 - cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make
