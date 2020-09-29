@@ -67,6 +67,18 @@ namespace SleepyDiscord {
 		inline Type cast() {
 			return operator Type();
 		}
+
+		inline bool cast(Type& value) {
+			if (error())
+				return false;
+			rapidjson::Document doc;
+			rapidjson::ParseResult isOK =
+				doc.Parse(text.c_str(), text.length());
+			if (!isOK)
+				return false;
+			value = Type(doc);
+			return true;
+		}
 	};
 
 
@@ -80,6 +92,14 @@ namespace SleepyDiscord {
 			rapidjson::Document arr; //ARR, I'm a pirate
 			arr.Parse(text.data(), text.length());
 			return arr;
+		}
+		template<class Callback>
+		inline rapidjson::ParseResult getDoc(Callback& callback) {
+			rapidjson::Document arr;
+			rapidjson::ParseResult isOK =
+				arr.Parse(text.data(), text.length());
+			if (isOK) callback(arr);
+			return isOK;
 		}
 	};
 

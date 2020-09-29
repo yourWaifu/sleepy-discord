@@ -52,6 +52,8 @@ namespace SleepyDiscord {
 
 		template<class Type>
 		const std::string createJSONArray(const std::vector<Type> source) {
+			if (source.empty())
+				return "";
 			std::string target;
 			target += '[';
 			for (std::string value : source) {
@@ -60,7 +62,7 @@ namespace SleepyDiscord {
 					target += ',';
 				}
 			}
-			char& back = s.back();
+			char& back = target.back();
 			if (back == ',') {
 				back = ']';
 			} else {
@@ -74,16 +76,45 @@ namespace SleepyDiscord {
 			ArrayStringWrapper(const Value& json) : json(json) {}
 			inline const Value& getDoc() const { return json; }
 			operator const Value&() const { return getDoc(); }
+			template<class Callback>
+			const bool getDoc(const Callback& callback) const {
+				callback(json);
+				return true;
+			}
 		};
 
 		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
 		struct ArrayWrapper : public Base {
 			using Base::Base;
+			using DocType = decltype(((Base*)nullptr)->getDoc());
+			template<class Container>
+			Container get(DocType doc) {
+				Array jsonArray = doc.template Get<Array>();
+				return Container(jsonArray.begin(), jsonArray.end());
+			}
+
+			template<class Container>
+			Container get() {
+				return get<Container>(Base::getDoc());
+			}
+
 			template<template<class...> class Container, typename Type = TypeToConvertTo>
 			Container<Type> get() {
-				auto&& doc = Base::getDoc();
-				Array jsonArray = doc.template Get<Array>();
-				return Container<Type>(jsonArray.begin(), jsonArray.end());
+				return get<Container<Type>>();
+			}
+
+			template<class Container>
+			bool get(Container& value) {
+				static const auto getter = [&](DocType doc) {
+					value = get<Container>(doc);
+				};
+				if (!Base::getDoc(getter))
+					return false;
+			}
+
+			template<template<class...> class Container, typename Type = TypeToConvertTo>
+			bool get(Container<Type>& value) {
+				return get<Container<Type>>(value);
 			}
 
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
@@ -353,6 +384,15 @@ namespace SleepyDiscord {
 			ResultingObject object;
 			fromJSON(object, value);
 			return object;
+		}
+
+		template<class ResultingObject>
+		inline rapidjson::ParseResult fromJSON(ResultingObject& obj, const nonstd::string_view& json) {
+			rapidjson::Document doc;
+			rapidjson::ParseResult isOK = doc.Parse(json.data(), json.length());
+			if (isOK)
+				obj = ResultingObject{doc};
+			return isOK;
 		}
 
 		template<class ResultingObject>
