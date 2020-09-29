@@ -15,8 +15,8 @@ addons:
 
 before_install:
   #travis ci has it's own version of cmake that we need to replace
-  - apt-get remove cmake
-  - apt-get install cmake
+  - sudo apt-get remove cmake
+  - sudo apt-get install cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
