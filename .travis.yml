@@ -12,6 +12,7 @@ addons:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
+    - cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
