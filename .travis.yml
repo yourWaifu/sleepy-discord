@@ -6,14 +6,12 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - ppa:hnakamur/cmake
     packages:
     - gcc-5
     - g++-5
     - libcurl4-openssl-dev
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y install cmake
+    - cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
