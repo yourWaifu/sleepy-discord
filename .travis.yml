@@ -12,10 +12,11 @@ addons:
     - g++-5
     - libcurl4-openssl-dev
     - cmake
+    - xdotool
 
 before_install:
   - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh --output cmake-script.sh
-  - echo -e "ffy\ny\n" | bash cmake-script.sh
+  - xdotool key f f | yes N | | bash cmake-script.sh
 
 install:
   - export CXX="g++-5" CC="gcc-5";
