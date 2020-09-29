@@ -1,4 +1,5 @@
 #include <cctype>
+#include <array>
 #include "http.h"
 
 namespace SleepyDiscord {
