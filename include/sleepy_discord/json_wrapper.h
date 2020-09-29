@@ -496,9 +496,9 @@ namespace SleepyDiscord {
 			}
 
 			constexpr Maybe() = default;
-			constexpr Maybe(nullptr_t) noexcept : value(nullptr_t{}), flags(defined) {}
-			Maybe& operator=(nullptr_t) noexcept {
-				value = nullptr_t{};
+			constexpr Maybe(std::nullptr_t) noexcept : value(std::nullptr_t{}), flags(defined) {};
+			Maybe& operator=(std::nullptr_t) noexcept {
+				value = std::nullptr_t{};
 				flags |= defined;
 			}
 			constexpr Maybe(UndefinedType) {};
@@ -511,9 +511,9 @@ namespace SleepyDiscord {
 			Maybe(Type* ptr, Deleter deleter, Alloc allocator) noexcept :
 				value(ptr, deleter, allocator), flags(defined) {}
 			template<class Deleter>
-			Maybe(nullptr_t, Deleter deleter) : value(nullptr, deleter), flags(defined) {}
+			Maybe(std::nullptr_t, Deleter deleter) : value(nullptr, deleter), flags(defined) {}
 			template<class Deleter, class Alloc>
-			Maybe(nullptr_t, Deleter deleter, Alloc allocator) noexcept :
+			Maybe(std::nullptr_t, Deleter deleter, Alloc allocator) noexcept :
 				value(nullptr, deleter, allocator), flags(defined) {}
 			template<class Deleter>
 			Maybe(UndefinedType, Deleter deleter) : value(nullptr, deleter) {}
