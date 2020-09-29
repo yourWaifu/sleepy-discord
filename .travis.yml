@@ -14,7 +14,8 @@ addons:
     - cmake
 
 before_install:
-  - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh | sudo bash
+  - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh
+  - echo -e "ffy\ny\n" | sudo bash
 
 install:
   - export CXX="g++-5" CC="gcc-5";
