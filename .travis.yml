@@ -10,8 +10,11 @@ addons:
     packages:
     - gcc-5
     - g++-5
-    - cmake
     - libcurl4-openssl-dev
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install cmake
 
 install:
   - export CXX="g++-5" CC="gcc-5";
