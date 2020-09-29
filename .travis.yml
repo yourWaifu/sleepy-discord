@@ -6,7 +6,6 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - kalakris-cmake
     packages:
     - gcc-5
     - g++-5
