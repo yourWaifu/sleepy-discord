@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <memory>
 //for errrors
 #include <iostream>
 
@@ -457,5 +458,217 @@ namespace SleepyDiscord {
 			rapidjson::MemoryPoolAllocator<> allocator;
 			return stringify(toJSON(object, allocator));
 		}
+
+		//json optional and null emulation
+		struct UndefinedType {};
+
+		template<class Type>
+		struct Maybe {
+			using FlagType = bool;
+			static constexpr FlagType undefined = 0;
+			static constexpr FlagType defined = 1;
+
+			using ValueType = Type;
+			using element_type = Type;
+			using Container = std::shared_ptr<Type>;
+			using weak_ptr = typename Container::weak_ptr;
+
+			const bool isUndefined() const {
+				return ( flags & defined ) == undefined;
+			}
+			const bool isDefined() const {
+				return !isUndefined();
+			}
+			const bool isAvaiable() const {
+				return isDefined() && static_cast<bool>(value);
+			}
+			const bool isNull() const {
+				return isDefined() && !static_cast<bool>(value);
+			}
+			 
+			Type copy(Type& defaultValue) const {
+				return isDefined() ? static_cast<bool>(value) ? *get() : defaultValue : defaultValue;
+			}
+			
+			void copyTo(Type& dest) const {
+				if (isAvaiable())
+					dest = *get();
+			}
+
+			constexpr Maybe() = default;
+			constexpr Maybe(nullptr_t) noexcept : value(nullptr_t{}), flags(defined) {}
+			Maybe& operator=(nullptr_t) noexcept {
+				value = nullptr_t{};
+				flags |= defined;
+			}
+			constexpr Maybe(UndefinedType) {};
+			template<class TypeY>
+			explicit Maybe(TypeY* ptr) noexcept : value(ptr), flags(defined) {}
+			template<class TypeY, class Deleter>
+			Maybe(Type* ptr, Deleter deleter) noexcept :
+				value(ptr, deleter), flags(defined) {}
+			template<class TypeY, class Deleter, class Alloc>
+			Maybe(Type* ptr, Deleter deleter, Alloc allocator) noexcept :
+				value(ptr, deleter, allocator), flags(defined) {}
+			template<class Deleter>
+			Maybe(nullptr_t, Deleter deleter) : value(nullptr, deleter), flags(defined) {}
+			template<class Deleter, class Alloc>
+			Maybe(nullptr_t, Deleter deleter, Alloc allocator) noexcept :
+				value(nullptr, deleter, allocator), flags(defined) {}
+			template<class Deleter>
+			Maybe(UndefinedType, Deleter deleter) : value(nullptr, deleter) {}
+			template<class Deleter, class Alloc>
+			Maybe(UndefinedType, Deleter deleter, Alloc allocator) noexcept :
+				value(nullptr, deleter, allocator) {}
+			template<class Type2>
+			Maybe(const Maybe<Type2>& right, ValueType* pointer) noexcept :
+				value(right.value, pointer), flags(defined) {}
+			template<class Type2>
+			Maybe(const Maybe<Type2>&& right, ValueType* pointer) noexcept :
+				value(std::move(right.value), pointer), flags(defined) {}
+			Maybe(const Maybe& other) noexcept : value(other), flags(other.flags) {}
+			explicit Maybe(Container&& right) noexcept :
+				value(std::move(right)), flags(defined) {}
+			Maybe(Maybe&& right) noexcept :
+				value(std::move(right.value)), flags(right.flags) {}
+			template<class Type2>
+			Maybe(Maybe<Type2>&& right) noexcept :
+				value(std::move(right.value)), flags(right.value) {}
+			template<class Type2>
+			explicit Maybe(std::shared_ptr<Type2>&& right) noexcept :
+				value(std::move(right)), flags(defined) {}
+			template<class Type2>
+			explicit Maybe(const weak_ptr& other) :
+				value(other), flags(defined) {}
+			template<class Type2, class Deleter>
+			Maybe(std::unique_ptr<Type2, Deleter>&& other) :
+				value(std::move(other)), flags(defined) {}
+			
+
+			Maybe& operator=(const Maybe& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			template<class Type2>
+			Maybe& operator=(const Maybe<Type2>& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(Maybe&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			template<class Type2>
+			Maybe& operator=(Maybe<Type2>&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			template<class TypeX, class Deleter>
+			Maybe& operator=(std::unique_ptr<TypeX, Deleter>&& right) {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(const Container& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(Container&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			void swap(Maybe& right) noexcept {
+				value.swap(right.value);
+				std::swap(flags, right.flags);
+			}
+
+			ValueType& operator*() const noexcept {
+				return *value;
+			}
+
+			ValueType* operator->() const noexcept {
+				return value.operator->();
+			}
+
+			ValueType* get() const noexcept {
+				return value.get();
+			}
+
+			explicit operator bool() const noexcept {
+				return isAvaiable();
+			}
+
+			bool empty() const noexcept {
+				return isAvaiable();
+			}
+
+			ValueType* release() noexcept {
+				flags = undefined;
+				return value.release();
+			}
+
+			void reset() noexcept {
+				value.reset();
+			}
+
+			template<class TypeX>
+			void reset(ValueType* ptr) noexcept {
+				value.reset(ptr);
+			}
+
+			template<class TypeX, class Deleter>
+			void reset(ValueType* ptr, Deleter deleter) noexcept {
+				value.reset(ptr, deleter);
+			}
+
+			template<class TypeX, class Deleter, class Alloc>
+			void reset(ValueType* ptr, Deleter deleter, Alloc allocator) noexcept {
+				value.reset(ptr, deleter, allocator);
+			}
+
+			long use_count() const noexcept {
+				return value.use_count();
+			}
+
+			void setToUndefined() noexcept {
+				reset();
+				flags = undefined;
+			}
+
+			Container& getSmartPtr() const noexcept {
+				return value;
+			}
+
+		private:
+			Container value;
+			FlagType flags = undefined;
+		};
+
+		template<class MaybeType, template<class...> class TypeHelper>
+		struct MaybeTypeHelper : public EmptyFunction<MaybeType> {
+			static inline MaybeType toType(const Value& value) {
+				return TypeHelper<typename MaybeType::element_type>::toType(value);
+			}
+			static inline Value fromType(const MaybeType& value, Value::AllocatorType& allocator) {
+				return TypeHelper<typename MaybeType::element_type>::fromType(*value, allocator);
+			}
+		};
+
+		template <template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type,
+			typename = std::enable_if<
+				std::is_same<
+					Type, Maybe<typename Type::ValueType>
+				>::value
+			>
+		>
+		constexpr PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
+			return PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>>{member, name, type};
+		}		
 	}
 }
