@@ -49,6 +49,12 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	enum class AvailableFlag : char {
+		NotSet = -2,
+		Unavaiable = true,
+		Available = false,
+	};
+
 	struct Server : public IdentifiableDiscordObject<Server> {
 		//~Server();
 		Server() = default;
@@ -72,7 +78,7 @@ namespace SleepyDiscord {
 		//voice_states
 		//emojis
 		//features
-		bool unavailable;
+		AvailableFlag unavailable = AvailableFlag::NotSet;
 
 		//presences
 		int MFALevel;
@@ -105,7 +111,7 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
+				json::pair<json::EnumTypeHelper     >(&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::MFALevel                   , "mfa_level"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
@@ -122,11 +128,6 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		enum class AvailableFlag : char {
-			NotSet = -2,
-			Unavaiable = true,
-			avaiable = false,
-		};
 		AvailableFlag unavailable = AvailableFlag::NotSet;
 
 		JSONStructStart
@@ -139,14 +140,14 @@ namespace SleepyDiscord {
 	};
 
 	template<>
-	struct GetDefault<UnavailableServer::AvailableFlag> {
-		static inline const UnavailableServer::AvailableFlag get() {
-			return UnavailableServer::AvailableFlag::NotSet;
+	struct GetDefault<AvailableFlag> {
+		static inline const AvailableFlag get() {
+			return AvailableFlag::NotSet;
 		} 
 	};
 
 	template<>
-	struct GetEnumBaseType<UnavailableServer::AvailableFlag> {
+	struct GetEnumBaseType<AvailableFlag> {
 		//this makes the json wrapper know to use getBool instead of getInt
 		using Value = bool; 
 	};
