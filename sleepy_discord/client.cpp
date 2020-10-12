@@ -740,8 +740,8 @@ namespace SleepyDiscord {
 			trunc /= 10;
 		} while (trunc != 0);
 		
-		const nonstd::string_view d(reverseNext,
-			std::size_t(dBuffer.end() - reverseNext));
+		const nonstd::string_view d{&(*reverseNext),
+			std::size_t(dBuffer.end() - reverseNext)};
 
 		constexpr auto startBuffer =
 		"{"
