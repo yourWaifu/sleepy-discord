@@ -385,13 +385,14 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
-		if (status != 1000) {         //check for a deliberate reconnect
-			heartbeatInterval = 0;    //stop heartbeating
-			wasHeartbeatAcked = true; //stops the library from spamming discord
-		}
 		//before disconnecting, heartbeats need to stop or it'll crash
 		//and if it doesn't, it'll cause another reconnect
 		if (heart.isValid()) heart.stop();
+		//reset some heartbeat values, done so we don't spam discord
+		wasHeartbeatAcked = true;
+		lastHeartbeat = 0;
+		heartbeatInterval = 0;
+
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
 		if (reconnectTimer.isValid())
@@ -404,7 +405,7 @@ namespace SleepyDiscord {
 		consecutiveReconnectsCount += 1;
 
 		for (VoiceConnection& voiceConnection : voiceConnections) {
-			disconnect(1001, "", voiceConnection.connection);
+			disconnect(4900, "", voiceConnection.connection);
 	}
 	}
 
@@ -683,7 +684,7 @@ namespace SleepyDiscord {
 			return quit(false, true);
 			break;
 		}
-		reconnect(1001);
+		reconnect();
 	}
 
 	void BaseDiscordClient::heartbeat() {
@@ -698,11 +699,12 @@ namespace SleepyDiscord {
 		}
 
 		if (!wasHeartbeatAcked) {
-			reconnect(1001);
-		} else {
-			sendHeartbeat();
+			//dead connection
+			reconnect();
+			return; //don't heartbeat
 		}
 
+		sendHeartbeat();
 		lastHeartbeat = currentTime;
 
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
