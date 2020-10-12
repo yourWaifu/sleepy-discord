@@ -740,8 +740,8 @@ namespace SleepyDiscord {
 			trunc /= 10;
 		} while (trunc != 0);
 		
-		const nonstd::string_view d{reverseNext,
-			std::size_t(dBuffer.end() - reverseNext)};
+		const nonstd::string_view d(reverseNext,
+			std::size_t(dBuffer.end() - reverseNext));
 
 		constexpr auto startBuffer =
 		"{"
@@ -780,7 +780,7 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::sendHeartbeat() {
 		const auto heartbeat = generateHeatbeat(lastSReceived);
-		const nonstd::string_view message(heartbeat.buffer.begin(), heartbeat.length);
+		const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
 		//to do switch sendL to string_view
 		sendL(std::string{message.data(), message.length()});
 		wasHeartbeatAcked = false;
