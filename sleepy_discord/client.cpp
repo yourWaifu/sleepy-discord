@@ -242,7 +242,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
 	#ifndef SLEEPY_HARD_CODED_GATEWAY
-		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=6"
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=8"
 	#endif
 		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
@@ -265,7 +265,7 @@ namespace SleepyDiscord {
 				unsigned int size = position - start;
 				theGateway.reserve(32);
 				theGateway.append(a.text, start, size);
-				theGateway += "/?v=6";
+				theGateway += "/?v=8";
 				break;
 			}
 		}
