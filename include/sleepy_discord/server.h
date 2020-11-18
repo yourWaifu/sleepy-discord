@@ -204,6 +204,7 @@ namespace SleepyDiscord {
 	struct ServerMembersRequest {
 		ServerMembersRequest() = default;
 		ServerMembersRequest(const json::Value& json);
+		ServerMembersRequest(const nonstd::string_view & json);
 		Snowflake<Server> serverID;
 		std::string query;
 		int limit;
@@ -211,7 +212,7 @@ namespace SleepyDiscord {
 		std::vector<Snowflake<User>> userIDs;
 		std::string nonce;
 		
-		JSONSuctStart
+		JSONStructStart
 			std::make_tuple(
 				json::pair(&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
 				json::pair(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
