@@ -27,18 +27,18 @@
 #include "timer.h"
 #include "voice_connection.h"
 #include "asio_schedule.h"
+#include "rate_limiter.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 
 	struct Request;
+	class BaseDiscordClient;
 
 	//to dos
-	//intents
 	//custom rapid json error
 	//detect cloudflare error
 	//emojis rate limits
-	//async
 	//merge to master
 	//cache
 
@@ -47,44 +47,6 @@ namespace SleepyDiscord {
 		USER_CONTROLED_THREADS = 1,
 		USE_RUN_THREAD = 3,
 		DEFAULT_THREADS = USER_CONTROLED_THREADS
-	};
-
-	class Route {
-	public:
-		using Bucket = std::string;
-		Route(const std::string route, const std::initializer_list<std::string>& _values = {});
-		Route(const char* route);
-		inline const std::string& url() {
-			return _url;
-		}
-		const Bucket bucket(RequestMethod method);
-		inline operator const std::string&() {
-			return url();
-		}
-
-	private:
-		const std::string path;
-		std::string _url;
-		const std::initializer_list<std::string>& values;
-
-		//for the snowflake part, discord class should do
-		std::unordered_map<std::string, Snowflake<User>::RawType>
-			majorParameters = {
-			{ "channel.id", {} },
-			{ "guild.id"  , {} },
-			{ "webhook.id", {} }
-		};
-	};
-
-	struct RateLimiter {
-		std::atomic<bool> isGlobalRateLimited = { false };
-		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(Route::Bucket& bucket, time_t timestamp);
-		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
-		//isLimited also returns the next Retry timestamp
-	private:
-		std::unordered_map<Route::Bucket, time_t> buckets;
-		std::mutex mutex;
 	};
 
 	enum class TTS : char {
@@ -651,7 +613,7 @@ namespace SleepyDiscord {
 
 		//rate limiting
 		int8_t messagesRemaining = 0;
-		RateLimiter rateLimiter;
+		RateLimiter<BaseDiscordClient> rateLimiter;
 
 		//error handling
 		void setError(int errorCode);

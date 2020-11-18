@@ -43,25 +43,6 @@ namespace SleepyDiscord {
 		if (heart.isValid()) heart.stop();
 	}
 
-	void RateLimiter::limitBucket(Route::Bucket& bucket, time_t timestamp) {
-		std::lock_guard<std::mutex> lock(mutex);
-		buckets[bucket] = timestamp;
-	}
-
-	const time_t RateLimiter::getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
-		if (isGlobalRateLimited && currentTime < nextRetry)
-				return nextRetry;
-		isGlobalRateLimited = false;
-		std::lock_guard<std::mutex> lock(mutex);
-		auto bucketResetTimestamp = buckets.find(bucket);
-		if (bucketResetTimestamp != buckets.end()) {
-			if (currentTime < bucketResetTimestamp->second)
-				return bucketResetTimestamp->second;
-			buckets.erase(bucketResetTimestamp);
-		}
-		return 0;
-	}
-
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
 		const std::vector<Part>& multipartParameters, RequestCallback callback, const RequestMode mode
 	) {
@@ -187,6 +168,8 @@ namespace SleepyDiscord {
 				rateLimiter.limitBucket(bucket, resetDelta + getEpochTimeMillisecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
+
+			//update rate limits
 
 			handleCallbackCall();
 		}
