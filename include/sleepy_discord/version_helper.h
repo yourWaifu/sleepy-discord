@@ -55,7 +55,7 @@ namespace SleepyDiscord {
 #define SLEEPY_FEATURE_AVAILABLE_FEATURE_LIST
 #define SLEEPY_FEATURE_LIST_OF_AVAILABLE_FEATURES //fixed grammer
 	std::unordered_set<std::string> availableFeatures{
-		"Available Feature List"
+		"Available Feature List",
 		"List of Available Features"
 	};
 	inline bool isFeatureAvaiable(std::string& featureName) {
