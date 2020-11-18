@@ -414,8 +414,8 @@ namespace SleepyDiscord {
 		return { request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", { serverID, integrationID }), settings), EmptyRespFn() };
 	}
 
-	ObjectResponse<ServerEmbed> BaseDiscordClient::getServerEmbed(Snowflake<Server> serverID, RequestSettings<ObjectResponse<ServerEmbed>> settings) {
-		return ObjectResponse<ServerEmbed>{ request(Get, path("guilds/{guild.id}/embed", { serverID }), settings) };
+	ObjectResponse<ServerWidget> BaseDiscordClient::getServerWidget(Snowflake<Server> serverID, RequestSettings<ObjectResponse<ServerWidget>> settings) {
+		return ObjectResponse<ServerWidget>{ request(Get, path("guilds/{guild.id}/widget", { serverID }), settings) };
 	}
 
 	//

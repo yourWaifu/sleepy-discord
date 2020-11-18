@@ -183,20 +183,20 @@ namespace SleepyDiscord {
 		}
 	};
 
-	struct ServerEmbed : public DiscordObject {
-		ServerEmbed() = default;
-		//ServerEmbed(const std::string * rawJson);
-		ServerEmbed(const nonstd::string_view & rawJSON);
-		ServerEmbed(const json::Value& json);
-		//ServerEmbed(const json::Values values);
+	struct ServerWidget : public DiscordObject {
+		ServerWidget() = default;
+		//ServerWidget(const std::string * rawJson);
+		ServerWidget(const nonstd::string_view & rawJSON);
+		ServerWidget(const json::Value& json);
+		//ServerWidget(const json::Values values);
 		bool enabled;
-		Snowflake<ServerEmbed> channelID;
+		Snowflake<Channel> channelID;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&ServerEmbed::enabled  , "enabled"   , json::REQUIRIED_FIELD),
-				json::pair(&ServerEmbed::channelID, "channel_id", json::NULLABLE_FIELD )
+				json::pair(&ServerWidget::enabled  , "enabled"   , json::REQUIRIED_FIELD),
+				json::pair(&ServerWidget::channelID, "channel_id", json::NULLABLE_FIELD )
 			);
 		JSONStructEnd
 	};

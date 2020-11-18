@@ -277,7 +277,7 @@ namespace SleepyDiscord {
 		BoolResponse                 editIntergration        (Snowflake<Server> serverID, std::string integrationID, int expireBegavior, int expireGracePeriod, bool enbleEmoticons); //to do test
 		BoolResponse                 deleteIntegration       (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
 		BoolResponse                 syncIntegration         (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
-		ObjectResponse<ServerEmbed > getServerEmbed          (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<ServerEmbed  >> settings = {});
+		ObjectResponse<ServerWidget > getServerWidget          (Snowflake<Server> serverID                                                       , RequestSettings<ObjectResponse<ServerWidget>> settings = {});
 		//edit server embed   I don't know what the perms are
 
 		//Invite functions
