@@ -111,7 +111,8 @@ namespace SleepyDiscord {
 				{   //this should fall down to default
 					std::string rawRetryAfter = response.header["Retry-After"];
 					//the 5 is an arbitrary number, and there's 1000 ms in a second
-					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
+					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
+					retryAfter *= 1000; //convert to milliseconds
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
 					if (!rateLimiter.isGlobalRateLimited) {
@@ -156,13 +157,14 @@ namespace SleepyDiscord {
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const double reset = std::stod(response.header["X-RateLimit-Reset"]);
+				const time_t resetMS = reset * 1000;
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
 				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
+				gmtime_s(resetGM, &resetMS);
 #else
-				std::tm* resetGM = std::gmtime(&reset);
+				std::tm* resetGM = std::gmtime(&resetMS);
 #endif
 				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
 				rateLimiter.limitBucket(bucket, resetDelta + getEpochTimeMillisecond());
