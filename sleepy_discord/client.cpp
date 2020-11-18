@@ -98,7 +98,7 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discord.com/api/v6/" + path.url());
+			session.setUrl("https://discord.com/api/v8/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", userAgent },
