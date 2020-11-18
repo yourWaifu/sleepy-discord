@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 			[](unsigned char ac, unsigned char bc) { return std::tolower(ac) < std::tolower(bc); });
 	}
 
-	const char * GenericSession::getMethodName(const RequestMethod & method) {
+	const char * getMethodName(const RequestMethod & method) {
 		static constexpr char const * methodNames[] = { "POST", "PATCH", "DELETE", "GET", "PUT" };
 		return methodNames[method];
 	}

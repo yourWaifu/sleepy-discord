@@ -88,7 +88,10 @@ namespace SleepyDiscord {
 		if (0 < nextTry) {
 			handleExceededRateLimit(nextTry - currentTime);
 			response.statusCode = TOO_MANY_REQUESTS;
-			setError(response.statusCode);
+			onError(TOO_MANY_REQUESTS,
+				"Too many request going to " +
+					std::string(getMethodName(method)) + " " +
+					path.url());
 			handleCallbackCall();
 			return response;
 		}
