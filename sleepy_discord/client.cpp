@@ -258,7 +258,10 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
-		theGateway = "wss://gateway.discord.gg/?v=6";	//This is needed for when session is disabled
+	#ifndef SLEEPY_HARD_CODED_GATEWAY
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=6"
+	#endif
+		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
 		Session session;
 		session.setUrl("https://discord.com/api/gateway");
