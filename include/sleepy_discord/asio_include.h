@@ -7,13 +7,18 @@
 #include <netinet/in.h>
 #endif
 
-#if defined(SLEEPY_DISCORD_CMAKE) && defined(EXISTENT_ASIO)
-	#include <asio.hpp>
-#elif !defined(SLEEPY_DISCORD_CMAKE)
-	#include <asio.hpp>
-	#ifdef NONEXISTENT_ASIO
-		#undef ASIO_STANDALONE
-		#define SLEEPY_USE_BOOST
+#if !defined(SLEEPY_USE_BOOST) && !defined(EXISTENT_BOOST_ASIO)
+	#include <websocketpp/config/asio_client.hpp>
+	#ifdef NONEXISTENT_WEBSOCKETPP
+		#include <asio.hpp>
+		#ifdef NONEXISTENT_ASIO
+			#undef ASIO_STANDALONE
+			#define SLEEPY_USE_BOOST
+		#endif
+	#else
+		namespace asio {
+			using namespace websocketpp::lib::asio;
+		}
 	#endif
 #endif
 
