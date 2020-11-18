@@ -43,4 +43,10 @@ namespace SleepyDiscord {
 	PresenceUpdate::PresenceUpdate(const nonstd::string_view & json) :
 		PresenceUpdate(json::fromJSON<PresenceUpdate>(json)) {
 	}
+	ServerMembersChunk::ServerMembersChunk(const json::Value & json) :
+		ServerMembersChunk(json::fromJSON<ServerMembersChunk>(json)) {
+	}
+	ServerMembersChunk::ServerMembersChunk(const nonstd::string_view & json) :
+		ServerMembersChunk(json::fromJSON<ServerMembersChunk>(json)) {
+	}
 }

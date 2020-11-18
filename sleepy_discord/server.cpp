@@ -43,4 +43,11 @@ namespace SleepyDiscord {
 	ServerEmbed::ServerEmbed(const nonstd::string_view & json) :
 		ServerEmbed(json::fromJSON<ServerEmbed>(json)) {
 	}
+
+	ServerMembersRequest::ServerMembersRequest(const json::Value& json) :
+		ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {
+	}
+	ServerMembersRequest::ServerMembersRequest(const nonstd::string_view & json) :
+		ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {
+	}
 }

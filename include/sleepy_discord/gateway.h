@@ -240,4 +240,27 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
+
+	struct ServerMembersChunk {
+		ServerMembersChunk() = default;
+		ServerMembersChunk(const json::Value& json);
+		ServerMembersChunk(const nonstd::string_view & json);
+		Snowflake<Server> serverID;
+        std::vector<ServerMember> members;
+		int chunkIndex;
+		int chunkCount;
+		std::vector<PresenceUpdate> presences;
+		std::string nonce;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&ServerMembersChunk::serverID  , "guild_id"   , json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&ServerMembersChunk::members   , "members"    , json::REQUIRIED_FIELD),
+				json::pair                           (&ServerMembersChunk::chunkIndex, "chunk_index", json::REQUIRIED_FIELD),
+				json::pair                           (&ServerMembersChunk::chunkCount, "chunk_count", json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&ServerMembersChunk::presences , "presences"  , json::OPTIONAL_FIELD ),
+				json::pair                           (&ServerMembersChunk::nonce     , "nonce"      , json::OPTIONAL_FIELD )
+			);
+		JSONStructEnd
+	};
 }

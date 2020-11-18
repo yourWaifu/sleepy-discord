@@ -5,6 +5,7 @@
 #include <array>
 #include <tuple>
 #include <memory>
+#include <type_traits>
 //for errrors
 #include <iostream>
 
@@ -205,12 +206,43 @@ namespace SleepyDiscord {
 		template<class Object>
 		inline Value toJSON(const Object& object, Value::AllocatorType& allocator);
 
+		//ClassTypeHelper needs to know some traits of a type
+		template<class Object>
+		struct hasSerialize {
+		private:
+			template<typename T>
+			static constexpr auto check(T*)
+			-> typename
+				std::is_same<
+					decltype( std::declval<T>().serialize(
+						std::declval<Value::AllocatorType&>()
+					) ),
+					Value
+				>::type;
+			
+			template<typename>
+    		static constexpr std::false_type check(...);
+		
+		public:
+			using type = decltype(check<Object>(0));
+			static constexpr bool value = type::value;
+		};
+
 		template <class Type>
 		struct ClassTypeHelper : public EmptyFunction<Type> {
 			static inline Type toType(const Value& value) {
 				return value;
 			}
-			static inline Value fromType(const Type& value, Value::AllocatorType& allocator) {
+
+			template<class T>
+			static inline typename std::enable_if<hasSerialize<T>::value, Value>::type
+			fromType(const T& value, Value::AllocatorType& allocator) {
+				return value.serialize(allocator);
+			}
+
+			template<class T>
+			static inline typename std::enable_if<!hasSerialize<T>::value, Value>::type
+			fromType(const T& value, Value::AllocatorType& allocator) {
 				return toJSON(value, allocator);
 			}
 		};

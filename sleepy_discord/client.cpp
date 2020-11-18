@@ -242,6 +242,11 @@ namespace SleepyDiscord {
 		}));
 	}
 
+	void BaseDiscordClient::requestServerMembers(ServerMembersRequest request) {
+		auto data = json::toJSON(request);
+		sendL(json::stringify(data));
+	}
+
 	void BaseDiscordClient::waitTilReady() {
 		while (!ready) sleep(1000);
 	}
@@ -519,7 +524,7 @@ namespace SleepyDiscord {
 				);
 				onEditMember(serverID, user, roles, nick);
 				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d["guild_id"], json::toArray<ServerMember>(d["members"])); break;
+			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
 			case hash("GUILD_ROLE_CREATE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];

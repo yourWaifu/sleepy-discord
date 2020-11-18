@@ -352,6 +352,7 @@ namespace SleepyDiscord {
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
+		void requestServerMembers(ServerMembersRequest request);
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
@@ -529,7 +530,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteRole        (Snowflake<Server> serverID, Snowflake<Role> roleID);
 		virtual void onEditRole          (Snowflake<Server> serverID, Role role);
 		virtual void onEditEmojis        (Snowflake<Server> serverID, std::vector<Emoji> emojis);
-		virtual void onMemberChunk       (Snowflake<Server> serverID, std::vector<ServerMember> members);
+		virtual void onMemberChunk       (ServerMembersChunk memberChunk);
 		virtual void onDeleteChannel     (Channel            channel    );
 		virtual void onEditChannel       (Channel            channel    );
 		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);

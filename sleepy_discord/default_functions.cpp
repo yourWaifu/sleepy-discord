@@ -59,7 +59,7 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onMemberChunk(Snowflake<Server> serverID, std::vector<ServerMember> members) {
+	void BaseDiscordClient::onMemberChunk(ServerMembersChunk memberChunk) {
 
 	}
 
