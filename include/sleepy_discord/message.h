@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 		Emoji(const nonstd::string_view& json);
 		//Emoji(const json::Values values);
 		std::string name;
-		std::vector<Role> roles;
+		std::vector<Snowflake<Role>> roles;
 		User user;	//optional
 		bool requireColons = false;
 		bool managed = false;
@@ -29,12 +29,12 @@ namespace SleepyDiscord {
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&Emoji::ID           , "id"            , json::NULLABLE_FIELD ),
-				json::pair                           (&Emoji::name         , "name"          , json::REQUIRIED_FIELD),
-				json::pair<json::ContainerTypeHelper>(&Emoji::roles        , "roles"         , json::OPTIONAL_FIELD ),
-				json::pair                           (&Emoji::user         , "user"          , json::OPTIONAL_FIELD ),
-				json::pair                           (&Emoji::requireColons, "require_colons", json::OPTIONAL_FIELD ),
-				json::pair                           (&Emoji::managed      , "managed"       , json::OPTIONAL_FIELD )
+				json::pair                           (&Emoji::ID           , "id"            , json::NULLABLE_FIELD),
+				json::pair                           (&Emoji::name         , "name"          , json::NULLABLE_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Emoji::roles        , "roles"         , json::OPTIONAL_FIELD),
+				json::pair                           (&Emoji::user         , "user"          , json::OPTIONAL_FIELD),
+				json::pair                           (&Emoji::requireColons, "require_colons", json::OPTIONAL_FIELD),
+				json::pair                           (&Emoji::managed      , "managed"       , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};

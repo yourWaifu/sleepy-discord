@@ -768,7 +768,7 @@ namespace SleepyDiscord {
 		constexpr auto end = nonstd::string_view{endBuffer, endLength};
 
 
-		std::array<nonstd::string_view, 3> toConcat {{
+		const std::array<nonstd::string_view, 3> toConcat {{
 			start, d, end
 		}};
 

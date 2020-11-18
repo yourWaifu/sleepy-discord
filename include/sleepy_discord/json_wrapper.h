@@ -206,7 +206,7 @@ namespace SleepyDiscord {
 		template<class Object>
 		inline Value toJSON(const Object& object, Value::AllocatorType& allocator);
 
-		//ClassTypeHelper needs to know some traits of a type
+		//ClassTypeHelper needs to know if object has a serialize member
 		template<class Object>
 		struct hasSerialize {
 		private:
