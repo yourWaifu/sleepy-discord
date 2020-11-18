@@ -8,7 +8,7 @@
 #endif
 
 #if !defined(SLEEPY_USE_BOOST) && !defined(EXISTENT_BOOST_ASIO)
-	#include <websocketpp/config/asio_client.hpp>
+	#include "websocketpp_common.h"
 	#ifdef NONEXISTENT_WEBSOCKETPP
 		#include <asio.hpp>
 		#ifdef NONEXISTENT_ASIO
