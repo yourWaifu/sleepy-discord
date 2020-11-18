@@ -35,6 +35,7 @@ public:
 
 int main() {
 	myClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
+	client.setIntents(SleepyDiscord::Intent::SERVER_MESSAGES);
 	client.run();
 }
 ```
