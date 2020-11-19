@@ -223,7 +223,6 @@ namespace SleepyDiscord {
 		PresenceUpdate(const json::Value & json);
 		PresenceUpdate(const nonstd::string_view & json);
 		User user;
-		std::vector<Snowflake<Role>> roleIDs;
 		Snowflake<Server> serverID;
 		std::string status;
 		std::vector<Activity> activities;
@@ -231,7 +230,6 @@ namespace SleepyDiscord {
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&PresenceUpdate::user           , "user"      , json::REQUIRIED_FIELD),
-				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::roleIDs        , "roles"     , json::REQUIRIED_FIELD),
 				json::pair                           (&PresenceUpdate::serverID       , "guild_id"  , json::OPTIONAL_FIELD ),
 				json::pair                           (&PresenceUpdate::status         , "status"    , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::activities     , "activities", json::REQUIRIED_FIELD)
