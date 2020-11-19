@@ -24,7 +24,10 @@ namespace SleepyDiscord {
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
+				json::pair                      (&Overwrite::ID   , "id"   , json::REQUIRIED_FIELD),
 				json::pair<json::EnumTypeHelper>(&Overwrite::type , "type" , json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::allow, "allow", json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::deny , "deny" , json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};

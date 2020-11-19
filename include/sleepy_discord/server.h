@@ -7,7 +7,7 @@
 #include "cache.h"
 
 namespace SleepyDiscord {
-	enum Permission : int64_t;
+	enum Permission : uint64_t;
 	struct Role;
 	
 	/*Guild Member Structure
@@ -96,12 +96,12 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::icon                       , "icon"                         , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::splash                     , "splash"                       , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::ownerID                    , "owner_id"                     , json::OPTIONAL_FIELD ),
-				json::pair<json::EnumTypeHelper     >(&Server::permissions                , "permissions"                  , json::OPTIONAL_FIELD ),
+				json::pair<UInt64StrTypeHelper      >(&Server::permissions                , "permissions"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::region                     , "region"                       , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::AFKchannelID               , "afk_channel_id"               , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::AFKTimeout                 , "afk_timeout"                  , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::embedEnable                , "embed_enabled"                , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::embedChannelID             , "embed_channel_id"             , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::embedEnable                , "widget_enabled"               , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::embedChannelID             , "widget_channel_id"            , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::OPTIONAL_FIELD ),
