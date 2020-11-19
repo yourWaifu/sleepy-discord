@@ -61,13 +61,27 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	struct StickerPack : public IdentifiableDiscordObject<StickerPack> {
+	public:
+		StickerPack() = default;
+		~StickerPack();
+		StickerPack(const json::Value & json);
+		StickerPack(const nonstd::string_view & json);
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&StickerPack::ID, "id", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
+	};
+
 	struct Sticker : public IdentifiableDiscordObject<Sticker> {
 	public:
 		Sticker() = default;
 		~Sticker();
-		Sticker(const json::Value & rawJSON);
+		Sticker(const json::Value & json);
 		Sticker(const nonstd::string_view & json);
-		Snowflake<void> packID;
+		Snowflake<StickerPack> packID;
 		std::string name;
 		std::string description;
 		std::string tags;
@@ -146,6 +160,7 @@ namespace SleepyDiscord {
 			REPLY                                  = 19
 		} type = DEFAULT;
 		std::vector<Sticker> stickers;
+		
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart

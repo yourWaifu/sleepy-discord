@@ -59,4 +59,20 @@ namespace SleepyDiscord {
 	Reaction::Reaction(const nonstd::string_view& json) :
 		Reaction(json::fromJSON<Reaction>(json)) {
 	}
+
+	StickerPack::~StickerPack() {}
+	StickerPack::StickerPack(const json::Value & json):
+		StickerPack(json::fromJSON<StickerPack>(json))
+	{}
+	StickerPack::StickerPack(const nonstd::string_view & json):
+		StickerPack(json::fromJSON<StickerPack>(json))
+	{}
+
+	Sticker::~Sticker() {}
+	Sticker::Sticker(const json::Value & json):
+		Sticker(json::fromJSON<Sticker>(json))
+	{}
+	Sticker::Sticker(const nonstd::string_view & json):
+		Sticker(json::fromJSON<Sticker>(json))
+	{}
 }
