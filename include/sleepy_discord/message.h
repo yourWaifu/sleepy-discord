@@ -61,6 +61,34 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	struct Sticker : public IdentifiableDiscordObject<Sticker> {
+	public:
+		Sticker() = default;
+		~Sticker();
+		Sticker(const json::Value & rawJSON);
+		Sticker(const nonstd::string_view & json);
+		Snowflake<void> packID;
+		std::string name;
+		std::string description;
+		std::string tags;
+		enum class Type : int {
+			NONE = 0,
+			PNG = 1,
+			APNG = 2,
+			LOTTIE = 3
+		} format;
+		
+		JSONStructStart
+			std::make_tuple(
+				json::pair                      (&Sticker::ID             , "id"              , json::REQUIRIED_FIELD),
+				json::pair                      (&Sticker::name           , "name"            , json::OPTIONAL_FIELD ),
+				json::pair                      (&Sticker::description    , "description"     , json::OPTIONAL_FIELD ),
+				json::pair                      (&Sticker::tags           , "tags"            , json::OPTIONAL_FIELD ),
+				json::pair<json::EnumTypeHelper>(&Sticker::format         , "format_type"     , json::OPTIONAL_FIELD )
+			);
+		JSONStructEnd
+	};
+
 	//forward declearion
 	class BaseDiscordClient;
 	struct Server;
@@ -100,15 +128,24 @@ namespace SleepyDiscord {
 		bool pinned = false;
 		Snowflake<Webhook> webhookID;
 		enum MessageType {
-			DEFAULT                = 0,
-			RECIPIENT_ADD          = 1,
-			RECIPIENT_REMOVE       = 2,
-			CALL                   = 3,
-			CHANNEL_NAME_CHANGE    = 4,
-			CHANNEL_ICON_CHANGE    = 5,
-			CHANNEL_PINNED_MESSAGE = 6,
-			GUILD_MEMBER_JOIN      = 7
+			DEFAULT                                =  0,
+			RECIPIENT_ADD                          =  1,
+			RECIPIENT_REMOVE                       =  2,
+			CALL                                   =  3,
+			CHANNEL_NAME_CHANGE                    =  4,
+			CHANNEL_ICON_CHANGE                    =  5,
+			CHANNEL_PINNED_MESSAGE                 =  6,
+			GUILD_MEMBER_JOIN                      =  7,
+			USER_PREMIUM_GUILD_SUBSCRIPTION        =  8,
+			USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1 =  9,
+			USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2 = 10,
+			USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3 = 11,
+			CHANNEL_FOLLOW_ADD                     = 12,
+			GUILD_DISCOVERY_DISQUALIFIED           = 14,
+			GUILD_DISCOVERY_REQUALIFIED            = 15,
+			REPLY                                  = 19
 		} type = DEFAULT;
+		std::vector<Sticker> stickers;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
@@ -130,7 +167,8 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&Message::reactions      , "reactions"       , json::OPTIONAL_FIELD         ),
 				json::pair                           (&Message::pinned         , "pinned"          , json::REQUIRIED_FIELD        ),
 				json::pair                           (&Message::webhookID      , "webhook_id"      , json::OPTIONAL_FIELD         ),
-				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        )
+				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::stickers       , "stickers"        , json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
 	};
