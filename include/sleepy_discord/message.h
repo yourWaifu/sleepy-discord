@@ -127,6 +127,10 @@ namespace SleepyDiscord {
 				json::pair(&MessageReference::serverID , "guild_id"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
+
+		inline const bool empty() const {
+			return messageID.empty() && channelID.empty() && serverID.empty();
+		}
 	};
 
 	struct Message : public IdentifiableDiscordObject<Message> {
@@ -226,17 +230,60 @@ namespace SleepyDiscord {
 		const json::Value& RevisionsJSON;
 	};
 
+	struct AllowedMentions {
+	public:
+		std::vector<std::string> parse;
+		std::vector<Snowflake<Role>> roles;
+		std::vector<Snowflake<User>> users;
+		enum class MentionReplierFlag : char {
+			NotSet = -2,
+			WillNotMentionReply = false,
+			MentionReply = true
+		};
+		MentionReplierFlag repliedUser = MentionReplierFlag::NotSet;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair<json::ContainerTypeHelper>(&AllowedMentions::parse      , "parse"       , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&AllowedMentions::roles      , "roles"       , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&AllowedMentions::users      , "users"       , json::OPTIONAL_FIELD),
+				json::pair<json::EnumTypeHelper     >(&AllowedMentions::repliedUser, "replied_user", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+
+		inline const bool empty() const {
+			return parse.empty() && repliedUser == MentionReplierFlag::NotSet;
+		}
+	};
+
+	template<>
+	struct GetDefault<AllowedMentions::MentionReplierFlag> {
+		static inline const AllowedMentions::MentionReplierFlag get() {
+			return AllowedMentions::MentionReplierFlag::NotSet;
+		} 
+	};
+
+	template<>
+	struct GetEnumBaseType<AllowedMentions::MentionReplierFlag> {
+		//this makes the json wrapper know to use getBool instead of getInt
+		using Value = bool; 
+	};
+
 	struct SendMessageParams : public DiscordObject {
 	public:
 		Snowflake<Channel> channelID;
 		std::string content = {};
 		bool tts = false;
 		Embed embed = Embed::Flag::INVALID_EMBED;
+		AllowedMentions allowedMentions;
+		MessageReference messageReference;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&SendMessageParams::content, "content", json::REQUIRIED_FIELD),
-				json::pair(&SendMessageParams::tts    , "tts"    , json::OPTIONAL_FIELD ),
-				json::pair(&SendMessageParams::embed  , "embed"  , json::OPTIONAL_FIELD )
+				json::pair(&SendMessageParams::content         , "content"          , json::REQUIRIED_FIELD),
+				json::pair(&SendMessageParams::tts             , "tts"              , json::OPTIONAL_FIELD ),
+				json::pair(&SendMessageParams::embed           , "embed"            , json::OPTIONAL_FIELD ),
+				json::pair(&SendMessageParams::allowedMentions , "allowed_mentions" , json::OPTIONAL_FIELD ),
+				json::pair(&SendMessageParams::messageReference, "message_reference", json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

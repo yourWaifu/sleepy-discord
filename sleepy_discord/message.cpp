@@ -30,7 +30,7 @@ namespace SleepyDiscord {
 	}
 
 	Message Message::send(BaseDiscordClient* client) {
-		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), static_cast<TTS>(tts));
+		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), messageReference, static_cast<TTS>(tts));
 	}
 
 	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed)
