@@ -297,7 +297,7 @@ namespace SleepyDiscord {
 			static inline Type toType(const Value& value) {
 				return toEnum<Type>(value);
 			}
-			static inline Value fromType(const Type& value) {
+			static inline Value fromType(const Type& value, Value::AllocatorType&) {
 				return Value(static_cast<BaseType>(value));
 			}
 			static inline bool empty(const Type& value) {;
@@ -342,6 +342,22 @@ namespace SleepyDiscord {
 				}
 				return arr;
 				//return toArray<typename StdArray::value_type, std::tuple_size<StdArray>::value>(value);
+			}
+		};
+
+		template<class SmartPtr, template<class...> class TypeHelper>
+		struct SmartPtrTypeHelper {
+			static inline SmartPtr toType(const Value& value) {
+				return SmartPtr{new typename SmartPtr::element_type{
+					//copy object to pointer
+					TypeHelper<typename SmartPtr::element_type>::toType(value)
+				}};
+			}
+			static inline Value fromType(const SmartPtr& value, Value::AllocatorType& allocator) {
+				return TypeHelper<typename SmartPtr::element_type>::fromType(*value, allocator);
+			}
+			static inline bool empty(const SmartPtr& value) {;
+				return value;
 			}
 		};
 

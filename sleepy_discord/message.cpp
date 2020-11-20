@@ -75,4 +75,11 @@ namespace SleepyDiscord {
 	Sticker::Sticker(const nonstd::string_view & json):
 		Sticker(json::fromJSON<Sticker>(json))
 	{}
+
+	MessageReference::MessageReference(const json::Value & json):
+		MessageReference(json::fromJSON<MessageReference>(json))
+	{}
+	MessageReference::MessageReference(const nonstd::string_view & json):
+		MessageReference(json::fromJSON<MessageReference>(json))
+	{}
 }

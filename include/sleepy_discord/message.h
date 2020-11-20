@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include <memory>
 #include "user.h"
 #include "attachment.h"
 #include "embed.h"
@@ -106,6 +107,27 @@ namespace SleepyDiscord {
 	//forward declearion
 	class BaseDiscordClient;
 	struct Server;
+	struct Message;
+
+	struct MessageReference {
+	public:
+		MessageReference() = default;
+		~MessageReference() = default;
+		MessageReference(const json::Value& json);
+		MessageReference(const nonstd::string_view& json);
+
+		Snowflake<Message> messageID;
+		Snowflake<Channel> channelID;
+		Snowflake<Server> serverID;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&MessageReference::messageID, "message_id", json::OPTIONAL_FIELD),
+				json::pair(&MessageReference::channelID, "channel_id", json::OPTIONAL_FIELD),
+				json::pair(&MessageReference::serverID , "guild_id"  , json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
 
 	struct Message : public IdentifiableDiscordObject<Message> {
 	public:
@@ -160,30 +182,33 @@ namespace SleepyDiscord {
 			REPLY                                  = 19
 		} type = DEFAULT;
 		std::vector<Sticker> stickers;
-		
+		MessageReference messageReference;
+		std::shared_ptr<Message> referencedMessage;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&Message::ID             , "id"              , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::channelID      , "channel_id"      , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::serverID       , "guild_id"        , json::OPTIONAL_FIELD         ),
-				json::pair                           (&Message::author         , "author"          , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::content        , "content"         , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::member         , "member"          , json::OPTIONAL_FIELD         ),
-				json::pair                           (&Message::timestamp      , "timestamp"       , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::editedTimestamp, "edited_timestamp", json::NULLABLE_FIELD         ),
-				json::pair                           (&Message::tts            , "tts"             , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::mentionEveryone, "mention_everyone", json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::mentions       , "mentions"        , json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::mentionRoles   , "mention_roles"   , json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::attachments    , "attachments"     , json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::embeds         , "embeds"          , json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::reactions      , "reactions"       , json::OPTIONAL_FIELD         ),
-				json::pair                           (&Message::pinned         , "pinned"          , json::REQUIRIED_FIELD        ),
-				json::pair                           (&Message::webhookID      , "webhook_id"      , json::OPTIONAL_FIELD         ),
-				json::pair<json::EnumTypeHelper     >(&Message::type           , "type"            , json::REQUIRIED_FIELD        ),
-				json::pair<json::ContainerTypeHelper>(&Message::stickers       , "stickers"        , json::OPTIONAL_FIELD         )
+				json::pair                           (&Message::ID               , "id"                , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::channelID        , "channel_id"        , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::serverID         , "guild_id"          , json::OPTIONAL_FIELD         ),
+				json::pair                           (&Message::author           , "author"            , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::content          , "content"           , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::member           , "member"            , json::OPTIONAL_FIELD         ),
+				json::pair                           (&Message::timestamp        , "timestamp"         , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::editedTimestamp  , "edited_timestamp"  , json::NULLABLE_FIELD         ),
+				json::pair                           (&Message::tts              , "tts"               , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::mentionEveryone  , "mention_everyone"  , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::mentions         , "mentions"          , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::mentionRoles     , "mention_roles"     , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::attachments      , "attachments"       , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::embeds           , "embeds"            , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::reactions        , "reactions"         , json::OPTIONAL_FIELD         ),
+				json::pair                           (&Message::pinned           , "pinned"            , json::REQUIRIED_FIELD        ),
+				json::pair                           (&Message::webhookID        , "webhook_id"        , json::OPTIONAL_FIELD         ),
+				json::pair<json::EnumTypeHelper     >(&Message::type             , "type"              , json::REQUIRIED_FIELD        ),
+				json::pair<json::ContainerTypeHelper>(&Message::stickers         , "stickers"          , json::OPTIONAL_FIELD         ),
+				json::pair                           (&Message::messageReference , "message_reference" , json::OPTIONAL_FIELD         ),
+				json::pair<json::SmartPtrTypeHelper >(&Message::referencedMessage, "referenced_message", json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
 	};
