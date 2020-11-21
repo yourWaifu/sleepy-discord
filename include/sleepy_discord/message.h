@@ -258,6 +258,7 @@ namespace SleepyDiscord {
 
 		AllowedMentions() = default;
 		~AllowedMentions() = default;
+		AllowedMentions(std::array<int, 0>) : parse({}) {}
 		ParseContainer parse = {""};
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;
