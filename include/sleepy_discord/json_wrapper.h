@@ -320,12 +320,18 @@ namespace SleepyDiscord {
 			} 
 		};
 
-		template<class Container, template<class...> class TypeHelper>
-		struct ContainerTypeHelper : public EmptyFunction<Container>, public FromContainerFunction<Container, TypeHelper> {
+		template<class Container>
+		struct ToContainerFunction {
 			static inline Container toType(const Value& value) {
 				return toArray<typename Container::value_type>(value);
 			}
 		};
+
+		template<class Container, template<class...> class TypeHelper>
+		struct ContainerTypeHelper :
+			public ToContainerFunction<Container>,
+			public EmptyFunction<Container>,
+			public FromContainerFunction<Container, TypeHelper> {};
 
 		template<class StdArray, template<class...> class TypeHelper>
 		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray, TypeHelper> {
