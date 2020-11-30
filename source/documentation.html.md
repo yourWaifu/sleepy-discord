@@ -67,15 +67,15 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <iostream>
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
-	private:
-	void onReady() {
-		SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
-		std::cout << message.content;
-	}
+    private:
+    void onReady() {
+        SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
+        std::cout << message.content;
+    }
 }
 
 int main() {
-	MyClientClass client("token");
+    MyClientClass client("token");
 }
 ```
 >Output: Message sent
@@ -120,13 +120,13 @@ bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Sno
 
 class MyDiscordClient : public SleepyDiscord::DiscordClient {
 public:
-	void onReady(SleepyDiscord::Ready data) {
-		client.addReaction("channel id", "message id", "%F0%9F%98%95");
-	}
+    void onReady(SleepyDiscord::Ready data) {
+        client.addReaction("channel id", "message id", "%F0%9F%98%95");
+    }
 }
 
 int main() {
-	SleepyDiscord::DiscordClient client("token");
+    SleepyDiscord::DiscordClient client("token");
 }
 ```
 >Output: added 😕 reaction
@@ -666,17 +666,17 @@ virtual void onMessage(SleepyDiscord::Message message);
 
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
-	using DiscordClient::DiscordClient;
-	void onMessage(SleepyDiscord::Message m) {
-		if (m.startsWith("whcg hello")) {
-			SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
-			std::cout << message.content;
-		}
-	}
+    using DiscordClient::DiscordClient;
+    void onMessage(SleepyDiscord::Message m) {
+        if (m.startsWith("whcg hello")) {
+            SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
+            std::cout << message.content;
+        }
+    }
 };
 
 int main() {
-	myClientClass client("token", 2);
+    myClientClass client("token", 2);
   client.run();
 }
 ```
@@ -753,7 +753,7 @@ inline  Timer schedule(void (BaseDiscordClient::*code)(), const time_t milliseco
 Snowflake<Channel> channel = message.channelID;
 sendMessage(channel, "Another message will be sent in 5 seconds from now.");
 schedule([this, channel]() {
-	this->sendMessage(channel, "5 seconds has pasted");
+    this->sendMessage(channel, "5 seconds has pasted");
 }, 5000);
 ```
 
@@ -761,16 +761,16 @@ Creates a timer that will execute a function after the timer expires. Based on J
 
 #### Parameters
 <table>
-	<tbody>
-		<tr><td><strong>code</strong></td>
-			<td>Function that will be called when times up</td></tr>
-		<tr><td><strong>millisecondsTilDueTime</strong></td>
-			<td>The amount of milliseconds before execute code</td></tr>
-		<tr><td><strong>milliseconds</strong></td>
-			<td>Depends on mode</td></tr>
-		<tr><td><strong>mode</strong></td>
-			<td>When this is EpochTime, code will execute at milliseconds since epoch. Else, code will execute at milliseconds since schedule was called</td></tr>
-	</tbody>
+    <tbody>
+        <tr><td><strong>code</strong></td>
+            <td>Function that will be called when times up</td></tr>
+        <tr><td><strong>millisecondsTilDueTime</strong></td>
+            <td>The amount of milliseconds before execute code</td></tr>
+        <tr><td><strong>milliseconds</strong></td>
+            <td>Depends on mode</td></tr>
+        <tr><td><strong>mode</strong></td>
+            <td>When this is EpochTime, code will execute at milliseconds since epoch. Else, code will execute at milliseconds since schedule was called</td></tr>
+    </tbody>
 </table>
 
 #### Return
@@ -787,8 +787,8 @@ Stores function that will be called when times up
 
 ```cpp
 enum AssignmentType : bool {
-	TilDueTime = 0,
-	EpochTime  = 1,
+    TilDueTime = 0,
+    EpochTime  = 1,
 };
 ```
 
@@ -902,6 +902,131 @@ Message(BaseDiscordClient* client, std::string channelID, std::string message, b
 ```
 
 Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
+
+### Public Members
+
+#### channelID
+```cpp
+Snowflake<Channel> channelID;
+```
+
+Represents the snowflake (ID) of the channel this message was sent from.
+
+#### serverID
+```cpp
+Snowflake<Server> serverID;
+```
+
+Represents the snowflake (ID) of the server (called guild by discord API) this message was sent from.
+
+#### author
+```cpp
+User author;
+```
+
+The `User` object who sent the message.
+
+#### content
+```cpp
+std::string content;
+```
+
+The content of the message, as a UTF8 encoded string.
+
+#### timestamp
+```cpp
+std::string timestamp;
+```
+
+When the message was sent, as a string.
+
+#### editedTimestamp
+```cpp
+std::sstring editedTimestamp;
+```
+
+Latest time the message was edited, as a string.
+
+#### tts
+```cpp
+bool tts = false;
+```
+
+Whether or not the message is text-to-speech. The default value is `false`.
+
+#### mentionEveryone
+```cpp
+bool mentionEveryone = false;
+```
+
+Whether or not the message mentions `@everyone`. The default value is `false`.
+
+#### mentions
+```cpp
+std::vector<User> mentions;
+```
+
+List of everyone mention in this message.
+
+#### mentionRoles
+```cpp
+std::vector<Snowflake<User>> mentionRoles;
+```
+
+List of the snowflakes (IDs) of the roles mentioned in the message.
+
+#### attachments;
+```cpp
+std::vector<Attachment> attachments;
+```
+
+List of all attachments in this message.
+
+#### embeds
+```cpp
+std::vector<Embed> embeds;
+```
+
+List of all embeds in a message.
+
+#### reactions
+```cpp
+std::vector<Reaction> reactions;
+```
+
+List of all reactions in this message.
+
+#### pinned
+```cpp
+bool pinned = false;
+```
+
+Whether or not this message is pinned. The default value is `false`.
+
+#### webhookID
+```cpp
+Snowflake<Webhook> webhookID;
+```
+
+The snowflake (ID) of the webhook that sent it (if it was sent by a webhook).
+
+#### type
+```cpp
+enum MessageType {
+      DEFAULT                = 0,
+      RECIPIENT_ADD          = 1,
+      RECIPIENT_REMOVE       = 2,
+      CALL                   = 3,
+      CHANNEL_NAME_CHANGE    = 4,
+      CHANNEL_ICON_CHANGE    = 5,
+      CHANNEL_PINNED_MESSAGE = 6,
+      GUILD_MEMBER_JOIN      = 7
+    } type = DEFAULT;
+```
+
+The origin of the message.
+
+
 
 ### startsWith
 ```cpp
@@ -1053,10 +1178,10 @@ Represents the information needed to connect to a voice channel, such as the cha
 ```cpp
 class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
 public:
-	VoiceEventHandler() {}
-	void onReady(SleepyDiscord::VoiceConnection& connection) {
-		connection.getDiscordClient().sendMessage("Connected to a voice channel");
-	}
+    VoiceEventHandler() {}
+    void onReady(SleepyDiscord::VoiceConnection& connection) {
+        connection.getDiscordClient().sendMessage("Connected to a voice channel");
+    }
 }
 VoiceEventHandler voiceEventHandler;
 ```
@@ -1115,9 +1240,9 @@ Declared in ``http.h``
 
 ```cpp
 struct Response {
-	int32_t statusCode;
-	std::string text;
-	std::map<std::string, std::string> header;
+    int32_t statusCode;
+    std::string text;
+    std::map<std::string, std::string> header;
 };
 ```
 
@@ -1335,9 +1460,9 @@ CustomSession() : session(init()) {}
 
 ```cpp
 class mySession : public SleepyDiscord::GenericSession{
-	...  //imagine a filled out Session class
+    ...  //imagine a filled out Session class
 }
-SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };	//init the custom session
+SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };    //init the custom session
 ```
 
 The constructor of the CustomSession class calls init to get a pointer to a new Session.
@@ -1397,7 +1522,7 @@ Runs the websocket client on another thread. This is the function that Sleepy Di
 ```cpp
 class WebSocketDiscordClient : public BaseDiscordClient {
 private:
-	SLEEPY_LOCK_CLIENT_FUNCTIONS
+    SLEEPY_LOCK_CLIENT_FUNCTIONS
 };
 ```
 
