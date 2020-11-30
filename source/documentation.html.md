@@ -942,7 +942,7 @@ When the message was sent, as a string.
 
 #### editedTimestamp
 ```cpp
-std::sstring editedTimestamp;
+std::string editedTimestamp;
 ```
 
 Latest time the message was edited, as a string.
@@ -966,7 +966,7 @@ Whether or not the message mentions `@everyone`. The default value is `false`.
 std::vector<User> mentions;
 ```
 
-List of everyone mention in this message.
+List of people mentioned in this message.
 
 #### mentionRoles
 ```cpp
@@ -1009,24 +1009,6 @@ Snowflake<Webhook> webhookID;
 ```
 
 The snowflake (ID) of the webhook that sent it (if it was sent by a webhook).
-
-#### type
-```cpp
-enum MessageType {
-      DEFAULT                = 0,
-      RECIPIENT_ADD          = 1,
-      RECIPIENT_REMOVE       = 2,
-      CALL                   = 3,
-      CHANNEL_NAME_CHANGE    = 4,
-      CHANNEL_ICON_CHANGE    = 5,
-      CHANNEL_PINNED_MESSAGE = 6,
-      GUILD_MEMBER_JOIN      = 7
-    } type = DEFAULT;
-```
-
-The origin of the message.
-
-
 
 ### startsWith
 ```cpp
