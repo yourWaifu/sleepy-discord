@@ -1016,6 +1016,16 @@ struct User : public DiscordObject {
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
 
+### Public Members
+### ID
+
+```cpp
+Snowflake<Derived> ID;
+```
+Declared in the IdentifiableDiscordObject class which the User class derives from
+#### Return value
+The ID of that user object
+
 <h3 id="user-comparison-operators">operator==</h3>
 
 ```cpp
