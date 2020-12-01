@@ -889,6 +889,113 @@ Returns the snowflake as a string of numbers.
 
 ## Message
 
+## Public Members
+
+#### channelID
+```cpp
+Snowflake<Channel> channelID;
+```
+
+Represents the snowflake (ID) of the channel this message was sent from.
+
+#### serverID
+```cpp
+Snowflake<Server> serverID;
+```
+
+Represents the snowflake (ID) of the server (called guild by discord API) this message was sent from.
+
+#### author
+```cpp
+User author;
+```
+
+The `User` object who sent the message.
+
+#### content
+```cpp
+std::string content;
+```
+
+The content of the message, as a UTF8 encoded string.
+
+#### timestamp
+```cpp
+std::string timestamp;
+```
+
+When the message was sent, as a string.
+
+#### editedTimestamp
+```cpp
+std::string editedTimestamp;
+```
+
+Latest time the message was edited, as a string.
+
+#### tts
+```cpp
+bool tts = false;
+```
+
+Whether or not the message is text-to-speech. The default value is `false`.
+
+#### mentionEveryone
+```cpp
+bool mentionEveryone = false;
+```
+
+Whether or not the message mentions `@everyone`. The default value is `false`.
+
+#### mentions
+```cpp
+std::vector<User> mentions;
+```
+
+List of users mention in this message.
+
+#### mentionRoles
+```cpp
+std::vector<Snowflake<User>> mentionRoles;
+```
+
+List of the snowflakes (IDs) of the roles mentioned in the message.
+
+#### attachments;
+```cpp
+std::vector<Attachment> attachments;
+```
+
+List of all attachments in this message.
+
+#### embeds
+```cpp
+std::vector<Embed> embeds;
+```
+
+List of all embeds in a message.
+
+#### reactions
+```cpp
+std::vector<Reaction> reactions;
+```
+
+List of all reactions in this message.
+
+#### pinned
+```cpp
+bool pinned = false;
+```
+
+Whether or not this message is pinned. The default value is `false`.
+
+#### webhookID
+```cpp
+Snowflake<Webhook> webhookID;
+```
+
+The snowflake (ID) of the webhook that sent it (if it was sent by a webhook).
+
 ```cpp
 struct Message : public DiscordObject {
 ```
