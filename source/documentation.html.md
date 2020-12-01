@@ -67,15 +67,15 @@ ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string me
 #include <iostream>
 
 class MyClientClass : public SleepyDiscord::DiscordClient {
-    private:
-    void onReady() {
-        SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
-        std::cout << message.content;
-    }
+	private:
+	void onReady() {
+		SleepyDiscord::Message message = client.sendMessage("channel id", "Hello");
+		std::cout << message.content;
+	}
 }
 
 int main() {
-    MyClientClass client("token");
+	MyClientClass client("token");
 }
 ```
 >Output: Message sent
@@ -120,13 +120,13 @@ bool SleepyDiscord::DiscordClient::addReaction(Snowflake<Channel> channelID, Sno
 
 class MyDiscordClient : public SleepyDiscord::DiscordClient {
 public:
-    void onReady(SleepyDiscord::Ready data) {
-        client.addReaction("channel id", "message id", "%F0%9F%98%95");
-    }
+	void onReady(SleepyDiscord::Ready data) {
+		client.addReaction("channel id", "message id", "%F0%9F%98%95");
+	}
 }
 
 int main() {
-    SleepyDiscord::DiscordClient client("token");
+	SleepyDiscord::DiscordClient client("token");
 }
 ```
 >Output: added 😕 reaction
@@ -666,17 +666,17 @@ virtual void onMessage(SleepyDiscord::Message message);
 
 class myClientClass : public SleepyDiscord::DiscordClient {
 public:
-    using DiscordClient::DiscordClient;
-    void onMessage(SleepyDiscord::Message m) {
-        if (m.startsWith("whcg hello")) {
-            SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
-            std::cout << message.content;
-        }
-    }
+	using DiscordClient::DiscordClient;
+	void onMessage(SleepyDiscord::Message m) {
+		if (m.startsWith("whcg hello")) {
+			SleepyDiscord::Message message = sendMessage(message.channelID, "Hello " + message.author.username);
+			std::cout << message.content;
+		}
+	}
 };
 
 int main() {
-    myClientClass client("token", 2);
+	myClientClass client("token", 2);
   client.run();
 }
 ```
@@ -753,7 +753,7 @@ inline  Timer schedule(void (BaseDiscordClient::*code)(), const time_t milliseco
 Snowflake<Channel> channel = message.channelID;
 sendMessage(channel, "Another message will be sent in 5 seconds from now.");
 schedule([this, channel]() {
-    this->sendMessage(channel, "5 seconds has pasted");
+	this->sendMessage(channel, "5 seconds has pasted");
 }, 5000);
 ```
 
@@ -761,16 +761,16 @@ Creates a timer that will execute a function after the timer expires. Based on J
 
 #### Parameters
 <table>
-    <tbody>
-        <tr><td><strong>code</strong></td>
-            <td>Function that will be called when times up</td></tr>
-        <tr><td><strong>millisecondsTilDueTime</strong></td>
-            <td>The amount of milliseconds before execute code</td></tr>
-        <tr><td><strong>milliseconds</strong></td>
-            <td>Depends on mode</td></tr>
-        <tr><td><strong>mode</strong></td>
-            <td>When this is EpochTime, code will execute at milliseconds since epoch. Else, code will execute at milliseconds since schedule was called</td></tr>
-    </tbody>
+	<tbody>
+		<tr><td><strong>code</strong></td>
+			<td>Function that will be called when times up</td></tr>
+		<tr><td><strong>millisecondsTilDueTime</strong></td>
+			<td>The amount of milliseconds before execute code</td></tr>
+		<tr><td><strong>milliseconds</strong></td>
+			<td>Depends on mode</td></tr>
+		<tr><td><strong>mode</strong></td>
+			<td>When this is EpochTime, code will execute at milliseconds since epoch. Else, code will execute at milliseconds since schedule was called</td></tr>
+	</tbody>
 </table>
 
 #### Return
@@ -787,8 +787,8 @@ Stores function that will be called when times up
 
 ```cpp
 enum AssignmentType : bool {
-    TilDueTime = 0,
-    EpochTime  = 1,
+	TilDueTime = 0,
+	EpochTime  = 1,
 };
 ```
 
@@ -889,21 +889,7 @@ Returns the snowflake as a string of numbers.
 
 ## Message
 
-```cpp
-struct Message : public DiscordObject {
-```
-
-An object that represents a message from Discord. Also very similar to [the message object from the API](https://discordapp.com/developers/docs/resources/channel#message-object)
-
-<h3 id="message-constructor">(constructor)</h3>
-```cpp
-Message(const std::string * rawJson);
-Message(BaseDiscordClient* client, std::string channelID, std::string message, bool tts = false);
-```
-
-Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
-
-### Public Members
+## Public Members
 
 #### channelID
 ```cpp
@@ -966,7 +952,7 @@ Whether or not the message mentions `@everyone`. The default value is `false`.
 std::vector<User> mentions;
 ```
 
-List of people mentioned in this message.
+List of users mention in this message.
 
 #### mentionRoles
 ```cpp
@@ -1009,6 +995,20 @@ Snowflake<Webhook> webhookID;
 ```
 
 The snowflake (ID) of the webhook that sent it (if it was sent by a webhook).
+
+```cpp
+struct Message : public DiscordObject {
+```
+
+An object that represents a message from Discord. Also very similar to [the message object from the API](https://discordapp.com/developers/docs/resources/channel#message-object)
+
+<h3 id="message-constructor">(constructor)</h3>
+```cpp
+Message(const std::string * rawJson);
+Message(BaseDiscordClient* client, std::string channelID, std::string message, bool tts = false);
+```
+
+Initializes the Message object. However the two constructors do different things. As the 2nd one also sends a message and initializes the message object, the first one just initializes the message object. In the 2nd constructor's implementation, it uses the first constructor to initializes the message object.
 
 ### startsWith
 ```cpp
@@ -1160,10 +1160,10 @@ Represents the information needed to connect to a voice channel, such as the cha
 ```cpp
 class VoiceEventHandler : public SleepyDiscord::BaseVoiceEventHandler {
 public:
-    VoiceEventHandler() {}
-    void onReady(SleepyDiscord::VoiceConnection& connection) {
-        connection.getDiscordClient().sendMessage("Connected to a voice channel");
-    }
+	VoiceEventHandler() {}
+	void onReady(SleepyDiscord::VoiceConnection& connection) {
+		connection.getDiscordClient().sendMessage("Connected to a voice channel");
+	}
 }
 VoiceEventHandler voiceEventHandler;
 ```
@@ -1222,9 +1222,9 @@ Declared in ``http.h``
 
 ```cpp
 struct Response {
-    int32_t statusCode;
-    std::string text;
-    std::map<std::string, std::string> header;
+	int32_t statusCode;
+	std::string text;
+	std::map<std::string, std::string> header;
 };
 ```
 
@@ -1442,9 +1442,9 @@ CustomSession() : session(init()) {}
 
 ```cpp
 class mySession : public SleepyDiscord::GenericSession{
-    ...  //imagine a filled out Session class
+	...  //imagine a filled out Session class
 }
-SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };    //init the custom session
+SleepyDiscord::CustomInit SleepyDiscord::Session::init = []()->SleepyDiscord::GenericSession* { return new mySession; };	//init the custom session
 ```
 
 The constructor of the CustomSession class calls init to get a pointer to a new Session.
@@ -1504,7 +1504,7 @@ Runs the websocket client on another thread. This is the function that Sleepy Di
 ```cpp
 class WebSocketDiscordClient : public BaseDiscordClient {
 private:
-    SLEEPY_LOCK_CLIENT_FUNCTIONS
+	SLEEPY_LOCK_CLIENT_FUNCTIONS
 };
 ```
 
