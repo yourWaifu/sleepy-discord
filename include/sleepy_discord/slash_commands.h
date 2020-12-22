@@ -13,7 +13,7 @@ namespace SleepyDiscord {
 		ApplicationCommand() = default;
 		ApplicationCommand(json::Value & json);
 		ApplicationCommand(const nonstd::string_view & json);
-		
+
 		struct Option : public DiscordObject {
 			Option() = default;
 			Option(json::Value & json);
@@ -37,28 +37,13 @@ namespace SleepyDiscord {
 				Choice(const nonstd::string_view & json);
 
 				std::string name;
-				json::Value value;
-
-				//warning crashes if type isn't correct
-				template<class Type>
-				inline const Type get() {
-					return json::ClassTypeHelper<Type>::toType(value);
-				}
-
-				template<class Type>
-				inline const bool get(Type& target) {
-					return json::castValue<Type, json::ClassTypeHelper<Type>>(target, value);
-				}
-
-				template<class Type>
-				inline void set(Type& val) {
-					value = json::ClassTypeHelper<Type>::fromType(val);
-				}
+				JSON_SIMPLE_VARIANT_FIELD(value, int, std::string);
 
 				JSONStructStart
 					std::make_tuple(
 						json::pair(&ApplicationCommand::Option::Choice::name , "name" , json::REQUIRIED_FIELD),
-						json::pair(&ApplicationCommand::Option::Choice::value, "value", json::REQUIRIED_FIELD)
+						json::pair<SimpleVariantHelper_value>(
+											 &ApplicationCommand::Option::Choice::value, "value", json::REQUIRIED_FIELD)
 					);
 				JSONStructEnd
 			};
@@ -100,24 +85,13 @@ namespace SleepyDiscord {
 				Option(const nonstd::string_view & json);
 
 				std::string name;
-				json::Value value;
+				JSON_SIMPLE_VARIANT_FIELD(value, int, bool, std::string);
 				std::vector<Option> options;
-
-				//warning crashes on type error
-				template<class Type>
-				Type get() {
-					return json::ClassTypeHelper<Type>::toType(value);
-				}
-
-				template<class Type>
-				bool get(Type& target) {
-					return json::castValue<json::ClassTypeHelper<Type>>(target, value);
-				}
 
 				JSONStructStart
 					std::make_tuple(
 						json::pair                           (&ApplicationCommand::InteractionData::Option::name   , "name"   , json::REQUIRIED_FIELD),
-						json::pair                           (&ApplicationCommand::InteractionData::Option::value  , "value"  , json::OPTIONAL_FIELD ),
+						json::pair<SimpleVariantHelper_value>(&ApplicationCommand::InteractionData::Option::value  , "value"  , json::OPTIONAL_FIELD ),
 						json::pair<json::ContainerTypeHelper>(&ApplicationCommand::InteractionData::Option::options, "options", json::OPTIONAL_FIELD )
 					);
 				JSONStructEnd
@@ -159,16 +133,6 @@ namespace SleepyDiscord {
 		}
 	};
 
-	template<>
-	inline void ApplicationCommand::Option::Choice::set<decltype(nullptr)>(decltype(nullptr)&) {
-		value.SetNull();
-	}
-
-	template<>
-	inline void ApplicationCommand::Option::Choice::set<json::Value>(json::Value& _val) {
-		value = _val; //moves
-	}
-
 	struct InteractionApplicationCommandCallbackData : public DiscordObject {
 		InteractionApplicationCommandCallbackData() = default;
 		InteractionApplicationCommandCallbackData(const json::Value & json);
@@ -177,6 +141,11 @@ namespace SleepyDiscord {
 		std::string content;
 		std::vector<Embed> embeds;
 		AllowedMentions allowedMentions;
+
+		inline bool empty() const {
+			// Seems like this is needed. Unsure of a correct impl.
+			return content.empty() && embeds.empty();
+		}
 
 		JSONStructStart
 			std::make_tuple(

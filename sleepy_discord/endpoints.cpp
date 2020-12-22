@@ -260,7 +260,7 @@ namespace SleepyDiscord {
 				{ "roles"       , rolesString               },
 				{ "mute"        , json::boolean(mute)       },
 				{ "deaf"        , json::boolean(deaf)       }
-			})) 
+			}))
 		};
 	}
 
@@ -523,10 +523,10 @@ namespace SleepyDiscord {
 	}
 
 	//Webhook SleepyDiscord::BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, std::vector<Embed> embeds, bool wait, std::string username, std::string avatar_url bool tts) {
-	//	
+	//
 	//	return requestExecuteWebhook(webhookID, webhookToken, { "embeds", crazy stuff happens here }, wait, username, avatar_url, tts);
 	//}
-	
+
 	ObjectResponse<Webhook> BaseDiscordClient::executeWebhook(Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool /*wait*/, std::string username, std::string avatar_url, bool tts) {
 		return ObjectResponse<Webhook>{ request(Post, path("webhooks/{webhook.id}/{webhook.token}", { webhookID, webhookToken }), "", {
 			{ "file"      , filePathPart(file)  },
@@ -535,4 +535,83 @@ namespace SleepyDiscord {
 			{ "tts"       , (tts ? "true" : "") }
 		}) };
 	}
+
+	//
+	//slash commands
+	//
+	static std::string createSlashCommandJson(
+		std::string const & name,
+		std::string const & description,
+		std::vector<ApplicationCommand::Option> const & options
+	) {
+		rapidjson::Document command;
+		command.SetObject();
+		auto& allocator = command.GetAllocator();
+		rapidjson::Value command_name, command_desc;
+		command_name.SetString(name.c_str(), name.length());
+		command.AddMember("name", command_name, allocator);
+		command_desc.SetString(description.c_str(), description.length());
+		command.AddMember("description", command_desc, allocator);
+		if (!options.empty()) {
+			rapidjson::Value command_options;
+			command_options.SetArray();
+			for (auto& option: options) {
+				command_options.PushBack(json::toJSON(option, allocator), allocator);
+			}
+			command.AddMember("options", command_options, allocator);
+		}
+		return json::stringify(command);
+	}
+
+	ObjectResponse<ApplicationCommand> BaseDiscordClient::createServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options) {
+		return ObjectResponse<ApplicationCommand>{ request(Post, path("applications/{application.id}/guilds/{server.id}/commands", { applicationID, serverID }), createSlashCommandJson(name, description, options) )};
+	}
+
+	ObjectResponse<ApplicationCommand> BaseDiscordClient::editServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options) {
+		return ObjectResponse<ApplicationCommand>{ request(Patch, path("applications/{application.id}/guilds/{server.id}/commands/{command.id}", { applicationID, serverID, commandID }), createSlashCommandJson(name, description, options) )};
+	}
+
+	BoolResponse BaseDiscordClient::deleteServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID) {
+		return { request(Delete, path("applications/{application.id}/guilds/{server.id}/commands/{command.id}", { applicationID, serverID, commandID })), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response) {
+		return { request(Post, path("interactions/{interaction.id}/{interaction.token}/callback", { interactionID, token }), json::stringify(json::toJSON(response))), EmptyRespFn() };
+	}
+
+	static std::string createFollowupMessageJson(std::string content, std::vector<Embed> embeds, bool tts) {
+		rapidjson::Document followup;
+		followup.SetObject();
+		auto& allocator = followup.GetAllocator();
+		if (!content.empty()) {
+			rapidjson::Value followup_content;
+			followup_content.SetString(content.c_str(), content.length());
+			followup.AddMember("content", followup_content, allocator);
+		}
+		if (!embeds.empty()) {
+			rapidjson::Value followup_embdes;
+			followup_embdes.SetArray();
+			for (auto& embed: embeds) {
+				followup_embdes.PushBack(json::toJSON(embed, allocator), allocator);
+			}
+			followup.AddMember("embeds", followup_embdes, allocator);
+		}
+		followup.AddMember("tts", tts, allocator);
+		return json::stringify(followup);
+	}
+
+	ObjectResponse<Webhook> BaseDiscordClient::createFollowupMessage(Snowflake<DiscordObject> applicationID, std::string interactionToken, std::string content, std::vector<Embed> embeds, bool wait, bool tts) {
+		return ObjectResponse<Webhook>{
+			request(Post, path("webhooks/{application.id}/{interaction.token}{wait}", { applicationID, interactionToken, (wait ? "?around=true" : "") }), createFollowupMessageJson(content, embeds, tts)) };
+	}
+
+	ObjectResponse<Webhook> BaseDiscordClient::createFollowupFileUpload(Snowflake<DiscordObject> applicationID, std::string interactionToken, Buffer buffer, std::string filename, std::string content, Embed embed, bool wait) {
+		MessageReference noReplyingTo;
+		return ObjectResponse<Webhook>{
+			request(Post, path("webhooks/{application.id}/{interaction.token}{wait}", { applicationID, interactionToken, (wait ? "?around=true" : "") }), "", {
+				{ filename, buffer },
+				{ "payload_json", createMessageBody(content, embed, noReplyingTo, TTS::DisableTTS) }
+			})};
+	}
+
 }

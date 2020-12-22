@@ -5,6 +5,7 @@
 #include <array>
 #include <tuple>
 #include <memory>
+#include <variant>
 #include <type_traits>
 //for errrors
 #include <iostream>
@@ -92,7 +93,7 @@ namespace SleepyDiscord {
 		constexpr auto hasPushBack(int)
 			-> decltype( std::declval<T>().push_back(*(std::declval<T>().begin())),
 							std::true_type() );
-		
+
 		template <typename T>
 		constexpr std::false_type hasPushBack(long);
 
@@ -261,10 +262,10 @@ namespace SleepyDiscord {
 					) ),
 					Value
 				>::type;
-			
+
 			template<typename>
-    		static constexpr std::false_type check(...);
-		
+				static constexpr std::false_type check(...);
+
 		public:
 			using type = decltype(check<Object>(0));
 			static constexpr bool value = type::value;
@@ -282,10 +283,10 @@ namespace SleepyDiscord {
 					) ),
 					bool
 				>::type;
-			
+
 			template<typename>
-    		static constexpr std::false_type check(...);
-		
+				static constexpr std::false_type check(...);
+
 		public:
 			using type = decltype(check<Object>(0));
 			static constexpr bool value = type::value;
@@ -354,26 +355,105 @@ namespace SleepyDiscord {
 		};
 
 		template<>
-		struct ClassTypeHelper<Value> {
+		struct ClassTypeHelper<rapidjson::Document> {
 			static inline rapidjson::Type toType(const Value& value) {
 				//this doesn't really do anything
 				//we can't copy without allocator
 				//we can only have one return type
 				return value.GetType();
 			}
-			static inline Value& toType(Value& value) {
-				return value; // moves
+			static inline rapidjson::Document toType(Value& value) {
+				rapidjson::Document doc;
+				doc.CopyFrom(value, doc.GetAllocator());
+				return doc;
 			}
-			static inline bool empty(const Value& value) {
+			static inline bool empty(const rapidjson::Document& value) {
 				return value.Empty();
 			}
-			static inline Value fromType(const Value& value, Value::AllocatorType& alloc) {
+			static inline Value fromType(const rapidjson::Document& value, Value::AllocatorType& alloc) {
 				return Value{value, alloc}; //copys
 			}
 			static inline bool isType(const Value&) {
 				return true;
 			}
 		};
+
+		template<class ... SimpleType>
+		struct SimpleVariantHelper {
+			using SimpleVariant = std::variant<SimpleType...>;
+
+			template<typename T, typename... Ts>
+			static constexpr bool contains()
+			{ return std::disjunction_v<std::is_same<T, Ts>...>; }
+
+			static inline SimpleVariant toType(const json::Value& value) {
+				if constexpr (contains<bool, SimpleType...>()) {
+					if (value.IsBool()) {
+						return value.GetBool();
+					}
+				}
+				if constexpr (contains<uint64_t, SimpleType...>()) {
+					if (value.IsUint64()) {
+						return value.GetUint64();
+					}
+				}
+				if constexpr (contains<int64_t, SimpleType...>()) {
+					if (value.IsInt64()) {
+						return value.GetInt64();
+					}
+				}
+				if constexpr (contains<int, SimpleType...>()) {
+					if (value.IsInt()) {
+						return value.GetInt();
+					}
+				}
+				if constexpr (contains<double, SimpleType...>()) {
+					if (value.IsDouble()) {
+						return value.GetDouble();
+					}
+				}
+				if constexpr (contains<std::string, SimpleType...>()) {
+					if (value.IsString()) {
+						return toStdString(value);
+					}
+				}
+				return SimpleVariant{}; // TODO: handle no option
+			}
+
+			static inline bool isType(const json::Value& value) {
+				return !value.IsObject() && !value.IsArray();
+			}
+
+			static inline json::Value fromType(
+				const SimpleVariant& value, json::Value::AllocatorType&
+			) {
+				return std::visit([](auto const & v){
+					using T = std::decay_t<decltype(v)>;
+					if constexpr (std::is_same_v<T, std::string>) {
+						return Value(v.c_str(), v.length());
+					} else {
+						return Value(v);
+					}
+				}, value);
+			}
+
+			static inline bool empty(const SimpleVariant & value) {
+				return std::visit([](auto const & v){
+					using T = std::decay_t<decltype(v)>;
+					if constexpr (std::is_same_v<T, std::string>) {
+						return v.empty();
+					} else {
+						return false;
+					}
+				}, value);
+			}
+		};
+
+		#define JSON_SIMPLE_VARIANT_FIELD(name, ...)      \
+			std::variant<__VA_ARGS__> name;                 \
+			template<class Type>                            \
+			struct SimpleVariantHelper_##name               \
+				: public json::SimpleVariantHelper<__VA_ARGS__> {}
 
 		template<class PrimitiveType>
 		struct IsPrimitiveTypeFunction : IsNumberFunction {};
@@ -424,7 +504,8 @@ namespace SleepyDiscord {
 				return value == GetDefault::get();
 			}
 			static inline bool isType(const Value& value) {
-				return ClassTypeHelper<Type>::isType(value);
+				return value.IsInt();
+				// return ClassTypeHelper<Type>::isType(value); // just turns into .IsObject() which makes on sense
 			}
 		};
 
@@ -452,7 +533,7 @@ namespace SleepyDiscord {
 				Container result;
 				std::transform(jsonArray.begin(), jsonArray.end(),
 					std::back_inserter(result),
-					[](Value& value){ 
+					[](Value& value){
 						return Helper::toType(value);
 					}
 				);
@@ -579,13 +660,9 @@ namespace SleepyDiscord {
 			using Helper = typename decltype(field)::Helper;
 			auto iterator = value.FindMember(field.name);
 			if (iterator != value.MemberEnd()) {
-				if (castValue<Helper>(object.*(field.member), iterator->value)) {
-					//success
-				} else if (field.type != REQUIRIED_FIELD && iterator->value.IsNull()) {
-					//ignore
-				} else /*error*/ if (mode == FromJSONMode::ReturnOnError) {
-					return false;
-				}
+				// I don't think this isType stuff is needed
+				if (!iterator->value.IsNull()) //ignore if null
+					object.*(field.member) = Helper::toType(iterator->value);
 			} else if (field.type == REQUIRIED_FIELD) {
 				//error
 				std::cout << 
@@ -703,11 +780,11 @@ namespace SleepyDiscord {
 			const bool isNull() const {
 				return isDefined() && !static_cast<bool>(value);
 			}
-			 
+
 			Type copy(Type& defaultValue) const {
 				return isDefined() ? static_cast<bool>(value) ? *get() : defaultValue : defaultValue;
 			}
-			
+
 			void copyTo(Type& dest) const {
 				if (isAvaiable())
 					dest = *get();
@@ -761,7 +838,7 @@ namespace SleepyDiscord {
 			template<class Type2, class Deleter>
 			Maybe(std::unique_ptr<Type2, Deleter>&& other) :
 				value(std::move(other)), flags(defined) {}
-			
+
 
 			Maybe& operator=(const Maybe& right) noexcept {
 				Maybe(right).swap(*this);
@@ -887,6 +964,6 @@ namespace SleepyDiscord {
 		>
 		constexpr PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
 			return PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>>{member, name, type};
-		}		
+		}
 	}
 }
