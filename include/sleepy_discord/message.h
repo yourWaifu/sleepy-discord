@@ -115,6 +115,7 @@ namespace SleepyDiscord {
 		~MessageReference() = default;
 		MessageReference(const json::Value& json);
 		MessageReference(const nonstd::string_view& json);
+		MessageReference(const Message& message);
 
 		Snowflake<Message> messageID;
 		Snowflake<Channel> channelID;
@@ -217,6 +218,12 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	inline MessageReference::MessageReference(const Message& message) :
+		messageID(message.ID),
+		channelID(message.channelID),
+		serverID(message.serverID)
+	{}
+
 	struct MessageRevisions {
 		MessageRevisions(const json::Value& json) :
 			messageID(json["id"]), channelID(json["channel_id"]), RevisionsJSON(json)
@@ -258,7 +265,7 @@ namespace SleepyDiscord {
 
 		AllowedMentions() = default;
 		~AllowedMentions() = default;
-		AllowedMentions(std::array<int, 0>) : parse({}) {}
+		AllowedMentions(int) : parse({}) {}
 		ParseContainer parse = {""};
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;
