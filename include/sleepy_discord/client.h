@@ -19,6 +19,7 @@
 #include "permissions.h"
 #include "gateway.h"
 #include "voice.h"
+#include "slash_commands.h"
 
 #include "error.h"
 #include "session.h"
@@ -312,6 +313,27 @@ namespace SleepyDiscord {
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, std::vector<Embed> embeds, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false); //to do test this
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
 
+		//slash commands
+		ArrayResponse<ApplicationCommand> getGlobalApplicationCommands(Snowflake<DiscordObject> applicationID);
+		ObjectResponse<ApplicationCommand> createGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		ObjectResponse<ApplicationCommand> editGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		BoolResponse deleteGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<ApplicationCommand> commandID);
+		ArrayResponse<ApplicationCommand> getServerApplicationCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
+		ObjectResponse<ApplicationCommand> createServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		ObjectResponse<ApplicationCommand> editServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		BoolResponse deleteServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID);
+		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response);
+		//Response editOriginalInteractionResponse();
+		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken);
+		//Response createFollowupMessage(std::string interactionToken,)
+		//Response editFollowupMessage(std::string interactionToken, Snowflake<Message> messageID)
+		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID);
+
+		ArrayResponse<ApplicationCommand> getApplicationCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
+		ObjectResponse<ApplicationCommand> createApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		ObjectResponse<ApplicationCommand> editApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
+		BoolResponse deleteApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID);
+
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
 		void requestServerMembers(ServerMembersRequest request);
@@ -515,6 +537,7 @@ namespace SleepyDiscord {
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );
 		virtual void onDispatch          (const json::Value& jsonMessage);
+		virtual void onInteraction       (Interaction        interaction) {}
 
 		//websocket stuff
 		virtual void onHeartbeat();

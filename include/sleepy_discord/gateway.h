@@ -78,6 +78,9 @@ namespace SleepyDiscord {
 		static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
 			return TypeHelper::fromType(value, allocator);
 		}
+		static inline bool isType(const json::Value& value) {
+			return TypeHelper::isType(value);
+		}
 	};
 
 	struct ActivityTimestamp : public DiscordObject {

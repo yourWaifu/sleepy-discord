@@ -73,6 +73,9 @@ namespace SleepyDiscord {
 			return target;
 		}
 
+		template <class Type>
+		struct ClassTypeHelper;
+
 		struct ArrayStringWrapper {
 			const Value& json;
 			ArrayStringWrapper(const Value& json) : json(json) {}
@@ -85,13 +88,22 @@ namespace SleepyDiscord {
 			}
 		};
 
+		template <typename T>
+		constexpr auto hasPushBack(int)
+			-> decltype( std::declval<T>().push_back(*(std::declval<T>().begin())),
+							std::true_type() );
+		
+		template <typename T>
+		constexpr std::false_type hasPushBack(long);
+
 		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
 		struct ArrayWrapper : public Base {
 			using Base::Base;
 			using DocType = decltype(((Base*)nullptr)->getDoc());
+
 			template<class Container>
-			Container get(DocType doc) {
-				Array jsonArray = doc.template Get<Array>();
+			static inline Container get(const Value& value) {
+				Array jsonArray = value.template Get<Array>();
 				return Container(jsonArray.begin(), jsonArray.end());
 			}
 
@@ -202,6 +214,36 @@ namespace SleepyDiscord {
 			}
 		};
 
+		struct IsStringFunction {
+			static inline bool isType(const Value& value) {
+				return value.IsString();
+			}
+		};
+
+		struct IsNumberFunction {
+			static inline bool isType(const Value& value) {
+				return value.IsNumber();
+			}
+		};
+
+		struct IsBoolFunction {
+			static inline bool isType(const Value& value) {
+				return value.IsBool();
+			}
+		};
+
+		struct IsArrayFunction {
+			static inline bool isType(const Value& value) {
+				return value.IsArray();
+			}
+		};
+
+		struct IsObjectFunction {
+			static inline bool isType(const Value& value) {
+				return value.IsObject();
+			}
+		};
+
 		//ClassTypeHelper needs to be able to call toJSON so it's forward decleared
 		template<class Object>
 		inline Value toJSON(const Object& object, Value::AllocatorType& allocator);
@@ -228,9 +270,31 @@ namespace SleepyDiscord {
 			static constexpr bool value = type::value;
 		};
 
+		template<class Object>
+		struct hasIsType {
+		private:
+			template<typename T>
+			static constexpr auto check(T*)
+			-> typename
+				std::is_same<
+					decltype( std::declval<T>().isType(
+						std::declval<Value&>()
+					) ),
+					bool
+				>::type;
+			
+			template<typename>
+    		static constexpr std::false_type check(...);
+		
+		public:
+			using type = decltype(check<Object>(0));
+			static constexpr bool value = type::value;
+		};
+
 		template <class Type>
 		struct ClassTypeHelper : public EmptyFunction<Type> {
-			static inline Type toType(const Value& value) {
+			template<class Value>
+			static inline Type toType(Value& value) {
 				return value;
 			}
 
@@ -245,38 +309,91 @@ namespace SleepyDiscord {
 			fromType(const T& value, Value::AllocatorType& allocator) {
 				return toJSON(value, allocator);
 			}
+
+			template<class T = Type>
+			static inline typename std::enable_if<hasIsType<T>::value, bool>::type
+			isType(const Value& value) {
+				return Type::isType(value);
+			}
+
+			template<class T = Type>
+			static inline typename std::enable_if<!hasIsType<T>::value, bool>::type
+			isType(const Value& value) {
+				return value.IsObject();
+			}
 		};
 
 		template<>
-		struct ClassTypeHelper<std::string> : public EmptyFunction<std::string> {
+		struct ClassTypeHelper<std::string> :
+			public EmptyFunction<std::string>, public IsStringFunction
+		{
 			static inline std::string toType(const Value& value) {
 				return toStdString(value);
 			}
-			static inline Value fromType(const std::string& value, Value::AllocatorType&) {
+			static inline Value fromType(const std::string& value) {
 				return Value(value.c_str(), value.length());
+			}
+			static inline Value fromType(const std::string& value, Value::AllocatorType&) {
+				return fromType(value);
 			}
 		};
 
 		template<>
-		struct ClassTypeHelper<nonstd::string_view> : public EmptyFunction<nonstd::string_view> {
+		struct ClassTypeHelper<nonstd::string_view> :
+			public EmptyFunction<nonstd::string_view>, public IsStringFunction
+		{
 			static inline nonstd::string_view toType(const Value& value) {
 				return toStdStringView(value);
 			}
-			static inline Value fromType(const nonstd::string_view& value, Value::AllocatorType&) {
+			static inline Value fromType(const nonstd::string_view& value) {
 				return Value(value.data(), value.length());
+			}
+			static inline Value fromType(const nonstd::string_view& value, Value::AllocatorType&) {
+				return fromType(value);
 			}
 		};
 
+		template<>
+		struct ClassTypeHelper<Value> {
+			static inline rapidjson::Type toType(const Value& value) {
+				//this doesn't really do anything
+				//we can't copy without allocator
+				//we can only have one return type
+				return value.GetType();
+			}
+			static inline Value& toType(Value& value) {
+				return value; // moves
+			}
+			static inline bool empty(const Value& value) {
+				return value.Empty();
+			}
+			static inline Value fromType(const Value& value, Value::AllocatorType& alloc) {
+				return Value{value, alloc}; //copys
+			}
+			static inline bool isType(const Value&) {
+				return true;
+			}
+		};
+
+		template<class PrimitiveType>
+		struct IsPrimitiveTypeFunction : IsNumberFunction {};
+
+		template<>
+		struct IsPrimitiveTypeFunction<bool> : IsBoolFunction {};
+
 		template <class PrimitiveType, int defaultValue = 0>
-		struct PrimitiveTypeHelper {
+		struct PrimitiveTypeHelper : public IsPrimitiveTypeFunction<PrimitiveType> {
 			static inline PrimitiveType toType(const Value& value) {
 				return value.Get<PrimitiveType>();
 			}
 			static inline bool empty(const PrimitiveType& value) {
 				return value == static_cast<PrimitiveType>(defaultValue);
 			}
-			static inline Value fromType(const PrimitiveType& value, Value::AllocatorType& /*allocator*/) {
+			static inline Value fromType(const PrimitiveType& value) {
 				return Value(value);
+			}
+			static inline Value fromType(const PrimitiveType& value, Value::AllocatorType& /*allocator*/) {
+				return fromType(value);
 			}
 		};
 
@@ -297,11 +414,17 @@ namespace SleepyDiscord {
 			static inline Type toType(const Value& value) {
 				return toEnum<Type>(value);
 			}
-			static inline Value fromType(const Type& value, Value::AllocatorType&) {
+			static inline Value fromType(const Type& value) {
 				return Value(static_cast<BaseType>(value));
 			}
-			static inline bool empty(const Type& value) {;
+			static inline Value fromType(const Type& value, Value::AllocatorType&) {
+				return fromType(value);
+			}
+			static inline bool empty(const Type& value) {
 				return value == GetDefault::get();
+			}
+			static inline bool isType(const Value& value) {
+				return ClassTypeHelper<Type>::isType(value);
 			}
 		};
 
@@ -320,21 +443,36 @@ namespace SleepyDiscord {
 			} 
 		};
 
-		template<class Container>
+		template<class Container, template<class...> class TypeHelper>
 		struct ToContainerFunction {
-			static inline Container toType(const Value& value) {
-				return toArray<typename Container::value_type>(value);
+			template<class Value>
+			static inline Container toType(Value& value) {
+				auto jsonArray = value.GetArray();
+				using Helper = TypeHelper<typename Container::value_type>;
+				Container result;
+				std::transform(jsonArray.begin(), jsonArray.end(),
+					std::back_inserter(result),
+					[](Value& value){ 
+						return Helper::toType(value);
+					}
+				);
+				return result;
 			}
 		};
 
 		template<class Container, template<class...> class TypeHelper>
 		struct ContainerTypeHelper :
-			public ToContainerFunction<Container>,
+			public ToContainerFunction<Container, TypeHelper>,
 			public EmptyFunction<Container>,
-			public FromContainerFunction<Container, TypeHelper> {};
+			public FromContainerFunction<Container, TypeHelper>,
+			public IsArrayFunction {};
 
 		template<class StdArray, template<class...> class TypeHelper>
-		struct StdArrayTypeHelper : public EmptyFunction<StdArray>, public FromContainerFunction<StdArray, TypeHelper> {
+		struct StdArrayTypeHelper :
+			public EmptyFunction<StdArray>,
+			public FromContainerFunction<StdArray, TypeHelper>,
+			public IsArrayFunction
+		{
 			static inline StdArray toType(const Value& value) {
 				ArrayWrapper<typename StdArray::value_type> arrayWrapper(value);
 				std::array<typename StdArray::value_type, std::tuple_size<StdArray>::value> arr;
@@ -362,8 +500,11 @@ namespace SleepyDiscord {
 			static inline Value fromType(const SmartPtr& value, Value::AllocatorType& allocator) {
 				return TypeHelper<typename SmartPtr::element_type>::fromType(*value, allocator);
 			}
-			static inline bool empty(const SmartPtr& value) {;
+			static inline bool empty(const SmartPtr& value) {
 				return value;
+			}
+			static inline bool isType(const Value& value) {
+				return TypeHelper<typename SmartPtr::element_type>::isType(value);
 			}
 		};
 
@@ -409,33 +550,56 @@ namespace SleepyDiscord {
 #define JSONStructEnd
 #endif
 
-		template<class ResultingObject, size_t i = 0>
-		inline typename std::enable_if<i == std::tuple_size<decltype(ResultingObject::JSONStruct)>::value, void>::type
-			fromJSON(ResultingObject&, const Value&) {
+		enum class FromJSONMode {
+			Default = 0,
+			ReturnOnError = 1
+		};
+
+		template<class Helper, class ResultingObject, class Value>
+		inline bool castValue(ResultingObject& result, Value& value) {
+			if (Helper::isType(value))
+				result = Helper::toType(value);
+			else
+				return false;
+			return true;
 		}
 
-		template<class ResultingObject, size_t i = 0>
-		inline typename std::enable_if<i < std::tuple_size<decltype(ResultingObject::JSONStruct)>::value, void>::type
-			fromJSON(ResultingObject& object, const Value& value)
+		template<FromJSONMode mode = FromJSONMode::Default, class ResultingObject, class Value, size_t i = 0>
+		inline typename std::enable_if<i == std::tuple_size<decltype(ResultingObject::JSONStruct)>::value, bool>::type
+			fromJSON(ResultingObject&, Value&)
+		{
+			return true;
+		}
+
+		template<FromJSONMode mode = FromJSONMode::Default, class ResultingObject, class Value, size_t i = 0>
+		inline typename std::enable_if<i < std::tuple_size<decltype(ResultingObject::JSONStruct)>::value, bool>::type
+			fromJSON(ResultingObject& object, Value& value)
 		{
 			constexpr auto field = std::get<i>(ResultingObject::JSONStruct);
 			using Helper = typename decltype(field)::Helper;
-			Value::ConstMemberIterator iterator = value.FindMember(field.name);
+			auto iterator = value.FindMember(field.name);
 			if (iterator != value.MemberEnd()) {
-				if (!iterator->value.IsNull()) //ignore if null
-					object.*(field.member) = Helper::toType(iterator->value);
+				if (castValue<Helper>(object.*(field.member), iterator->value)) {
+					//success
+				} else if (field.type != REQUIRIED_FIELD && iterator->value.IsNull()) {
+					//ignore
+				} else /*error*/ if (mode == FromJSONMode::ReturnOnError) {
+					return false;
+				}
 			} else if (field.type == REQUIRIED_FIELD) {
 				//error
 				std::cout << 
 				"JSON Parse Error: "
 				"variable #" << i << ": \"" << field.name << "\" not found. "
 				"Please look at call stack from your debugger for more details.";
+				if (mode == FromJSONMode::ReturnOnError)
+					return false;
 			}
-			fromJSON<ResultingObject, i + 1>(object, value);
+			return fromJSON<mode, ResultingObject, Value, i + 1>(object, value);
 		}
 
-		template<class ResultingObject>
-		inline ResultingObject fromJSON(const Value& value) {
+		template<class ResultingObject, class Value>
+		inline ResultingObject fromJSON(Value& value) {
 			ResultingObject object;
 			fromJSON(object, value);
 			return object;
@@ -715,11 +879,11 @@ namespace SleepyDiscord {
 		};
 
 		template <template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type,
-			typename = std::enable_if<
+			typename std::enable_if<
 				std::is_same<
 					Type, Maybe<typename Type::ValueType>
 				>::value
-			>
+			>::type = true
 		>
 		constexpr PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
 			return PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>>{member, name, type};

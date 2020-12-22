@@ -82,4 +82,10 @@ namespace SleepyDiscord {
 	MessageReference::MessageReference(const nonstd::string_view & json):
 		MessageReference(json::fromJSON<MessageReference>(json))
 	{}
+	AllowedMentions::AllowedMentions(const json::Value & json):
+		AllowedMentions(json::fromJSON<AllowedMentions>(json))
+	{}
+	AllowedMentions::AllowedMentions(const nonstd::string_view & json):
+		AllowedMentions(json::fromJSON<AllowedMentions>(json))
+	{}
 }

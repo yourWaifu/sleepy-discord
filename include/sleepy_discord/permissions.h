@@ -96,6 +96,9 @@ namespace SleepyDiscord {
 		static inline bool empty(const Type& value) {;
 			return value == Type(0);
 		}
+		static inline bool isType(const json::Value& value) {
+			return value.IsString();
+		}
 	};
 
 	/*

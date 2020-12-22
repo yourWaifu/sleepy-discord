@@ -16,6 +16,7 @@ add_library(sleepy-discord
 	permissions.cpp
 	sd_error.cpp
 	server.cpp
+	slash_commands.cpp
 	user.cpp
 	uwebsockets_websocket.cpp
 	voice.cpp
