@@ -157,14 +157,14 @@ namespace SleepyDiscord {
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const double reset = std::stod(response.header["X-RateLimit-Reset"]);
-				const time_t resetMS = reset * 1000;
+				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
+				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
 				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &resetMS);
+				gmtime_s(resetGM, &reset);
 #else
-				std::tm* resetGM = std::gmtime(&resetMS);
+				std::tm* resetGM = std::gmtime(&reset);
 #endif
 				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
 				rateLimiter.limitBucket(bucket, resetDelta + getEpochTimeMillisecond());
