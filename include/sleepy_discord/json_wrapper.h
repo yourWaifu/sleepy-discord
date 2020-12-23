@@ -392,9 +392,15 @@ namespace SleepyDiscord {
 						return value.GetBool();
 					}
 				}
-				if constexpr (contains<uint64_t, SimpleType...>()) {
-					if (value.IsUint64()) {
-						return value.GetUint64();
+				// Check int types in order: https://stackoverflow.com/a/30013532/3818491
+				if constexpr (contains<int, SimpleType...>()) {
+					if (value.IsInt()) {
+						return value.GetInt();
+					}
+				}
+				if constexpr (contains<uint, SimpleType...>()) {
+					if (value.IsUint()) {
+						return value.GetUint();
 					}
 				}
 				if constexpr (contains<int64_t, SimpleType...>()) {
@@ -402,9 +408,9 @@ namespace SleepyDiscord {
 						return value.GetInt64();
 					}
 				}
-				if constexpr (contains<int, SimpleType...>()) {
-					if (value.IsInt()) {
-						return value.GetInt();
+				if constexpr (contains<uint64_t, SimpleType...>()) {
+					if (value.IsUint64()) {
+						return value.GetUint64();
 					}
 				}
 				if constexpr (contains<double, SimpleType...>()) {
