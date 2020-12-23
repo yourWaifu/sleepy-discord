@@ -325,7 +325,7 @@ namespace SleepyDiscord {
 		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response);
 		//Response editOriginalInteractionResponse();
 		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken);
-		ObjectResponse<Webhook> createFollowupMessage(Snowflake<DiscordObject> applicationID, std::string interactionToken, std::string content, std::vector<Embed> embeds, bool wait = false, bool tts = true);
+		ObjectResponse<Webhook> createFollowupMessage(Snowflake<DiscordObject> applicationID, std::string interactionToken, std::string content, std::vector<Embed> embeds, bool wait = false, bool tts = false);
 
 		//Response editFollowupMessage(std::string interactionToken, Snowflake<Message> messageID)
 		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID);
