@@ -604,14 +604,4 @@ namespace SleepyDiscord {
 		return ObjectResponse<Webhook>{
 			request(Post, path("webhooks/{application.id}/{interaction.token}{wait}", { applicationID, interactionToken, (wait ? "?around=true" : "") }), createFollowupMessageJson(content, embeds, tts)) };
 	}
-
-	ObjectResponse<Webhook> BaseDiscordClient::createFollowupFileUpload(Snowflake<DiscordObject> applicationID, std::string interactionToken, Buffer buffer, std::string filename, std::string content, Embed embed, bool wait) {
-		MessageReference noReplyingTo;
-		return ObjectResponse<Webhook>{
-			request(Post, path("webhooks/{application.id}/{interaction.token}{wait}", { applicationID, interactionToken, (wait ? "?around=true" : "") }), "", {
-				{ filename, buffer },
-				{ "payload_json", createMessageBody(content, embed, noReplyingTo, TTS::DisableTTS) }
-			})};
-	}
-
 }

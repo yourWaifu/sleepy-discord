@@ -326,7 +326,6 @@ namespace SleepyDiscord {
 		//Response editOriginalInteractionResponse();
 		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken);
 		ObjectResponse<Webhook> createFollowupMessage(Snowflake<DiscordObject> applicationID, std::string interactionToken, std::string content, std::vector<Embed> embeds, bool wait = false, bool tts = true);
-    ObjectResponse<Webhook> createFollowupFileUpload(Snowflake<DiscordObject> applicationID, std::string interactionToken, Buffer buffer, std::string filename, std::string content = "", Embed embeds = {}, bool wait = false);
 
 		//Response editFollowupMessage(std::string interactionToken, Snowflake<Message> messageID)
 		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID);
@@ -539,7 +538,7 @@ namespace SleepyDiscord {
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );
 		virtual void onDispatch          (const json::Value& jsonMessage);
-		virtual void onInteraction       (Interaction interaction) {}
+		virtual void onInteraction       (Interaction        interaction) {}
 
 		//websocket stuff
 		virtual void onHeartbeat();
