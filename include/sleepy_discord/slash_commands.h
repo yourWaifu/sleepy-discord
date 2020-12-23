@@ -142,11 +142,11 @@ namespace SleepyDiscord {
 		std::vector<Embed> embeds;
 		AllowedMentions allowedMentions;
 
-    int flags = 0;
+		int flags = 0;
 
-    void setEphemeral() {
-      flags |= 1 << 6;
-    }
+		void setEphemeral() {
+			flags |= 1 << 6;
+		}
 
 		inline bool empty() const {
 			// Seems like this is needed. Unsure of a correct impl.
@@ -159,7 +159,7 @@ namespace SleepyDiscord {
 				json::pair                           (&InteractionApplicationCommandCallbackData::content        , "content"         , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&InteractionApplicationCommandCallbackData::embeds         , "embeds"          , json::OPTIONAL_FIELD ),
 				json::pair                           (&InteractionApplicationCommandCallbackData::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD ),
-        json::pair                           (&InteractionApplicationCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD )
+				json::pair                           (&InteractionApplicationCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

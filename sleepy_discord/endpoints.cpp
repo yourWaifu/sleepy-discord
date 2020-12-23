@@ -564,7 +564,6 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<ApplicationCommand> BaseDiscordClient::createServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options) {
-		std::cout << createSlashCommandJson(name, description, options) << '\n';
     return ObjectResponse<ApplicationCommand>{ request(Post, path("applications/{application.id}/guilds/{server.id}/commands", { applicationID, serverID }), createSlashCommandJson(name, description, options) )};
 	}
 
