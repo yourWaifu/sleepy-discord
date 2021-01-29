@@ -271,7 +271,7 @@ namespace SleepyDiscord {
 			{ "roles"     , json::createJSONArray(roles) },
 			{ "mute"      , muteString                   },
 			{ "deaf"      , deafString                   },
-			{ "channel_id", channelID                    },
+			{ "channel_id", json::string(channelID)      },
 		})), EmptyRespFn() };
 	}
 

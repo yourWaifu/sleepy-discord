@@ -276,7 +276,7 @@ namespace SleepyDiscord {
 		inline BoolResponse          deleteChannelPermission (Snowflake<Channel> channelID, std::string               ID                   ) { return removeChannelPermission(channelID,        ID       ); }
 		inline StandardResponse      deleteRecipient         (Snowflake<Channel> channelID, Snowflake<User   >    _userID                  ) { return removeRecipient        (channelID,   _userID       ); }
 		//For Convenience
-		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage) { return editMessage(message.channelID, message.ID, newMessage); }
+		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage, Embed embed = Embed::Flag::INVALID_EMBED) { return editMessage(message.channelID, message.ID, newMessage, embed); }
 		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
 			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, TTS::Default, settings);
 		}
