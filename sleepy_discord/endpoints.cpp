@@ -350,8 +350,18 @@ namespace SleepyDiscord {
 		return ArrayResponse<User>{ request(Get, path("guilds/{guild.id}/bans", { serverID }), settings) };
 	}
 
-	BoolResponse BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID, RequestSettings<BoolResponse> settings) {
-		return { request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID }), settings), EmptyRespFn() };
+	BoolResponse BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID, int deleteMessageDays, std::string reason, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		if (deleteMessageDays == -1)
+			doc.AddMember("delete_message_days", deleteMessageDays, allocator);
+		if (!reason.empty()) {
+			rapidjson::Value reasonValue;
+			reasonValue.SetString(reason.c_str(), reason.length());
+			doc.AddMember("reason", reasonValue, allocator);
+		}
+		return { request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID }), settings, json::stringify(doc)), EmptyRespFn() };
 	}
 
 	BoolResponse BaseDiscordClient::unbanMember(Snowflake<Server> serverID, Snowflake<User> userID, RequestSettings<BoolResponse> settings) {

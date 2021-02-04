@@ -299,7 +299,7 @@ namespace SleepyDiscord {
 		BoolResponse                 removeRole              (Snowflake<Server> serverID, Snowflake<User> userID, Snowflake<Role> roleID         , RequestSettings<BoolResponse                 > settings = {});
 		BoolResponse                 kickMember              (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
 		ArrayResponse <User        > getBans                 (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<User          >> settings = {});  //to do test this
-		BoolResponse                 banMember               (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
+		BoolResponse                 banMember               (Snowflake<Server> serverID, Snowflake<User> userID, int deleteMessageDays = -1, std::string reason = "", RequestSettings<BoolResponse> settings = {});
 		BoolResponse                 unbanMember             (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<BoolResponse                 > settings = {});
 		ArrayResponse <Role        > getRoles                (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Role          >> settings = {});
 		ObjectResponse<Role        > createRole              (Snowflake<Server> serverID, std::string name = "", Permission permissions = Permission::NONE, unsigned int color = 0, bool hoist = false, bool mentionable = false);
