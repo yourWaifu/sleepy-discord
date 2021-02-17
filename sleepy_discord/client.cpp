@@ -61,8 +61,8 @@ namespace SleepyDiscord {
 				if (currentTime < bucketResetTimestamp->second)
 					return bucketResetTimestamp->second;
 				limits.erase(bucketResetTimestamp);
-				buckets.erase(actualBucket);
 			}
+			buckets.erase(actualBucket);
 		}
 		return 0;
 	}
@@ -138,7 +138,7 @@ namespace SleepyDiscord {
 					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
-					const std::string& xBucket = response.header["X-RateLimit-Reset"];
+					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
 						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
 						onDepletedRequestSupply(bucket, retryAfter);
@@ -182,7 +182,7 @@ namespace SleepyDiscord {
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
 				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
-				const std::string& xBucket = response.header["X-RateLimit-Reset"];
+				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
 				std::tm*const resetGM = &gmTM;

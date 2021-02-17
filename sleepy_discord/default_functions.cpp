@@ -83,9 +83,6 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onEditUserNote(const json::Value& jsonMessage) {
-
-	}
 
 	void BaseDiscordClient::onEditUserSettings(const json::Value& jsonMessage) {
 
@@ -108,18 +105,6 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::onEditVoiceServer(VoiceServerUpdate& voiceServerUpdate) {
-
-	}
-
-	void BaseDiscordClient::onServerSync(const json::Value& jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onRelationship(const json::Value& jsonMessage) {
-
-	}
-
-	void BaseDiscordClient::onDeleteRelationship(const json::Value& jsonMessage) {
 
 	}
 
@@ -152,6 +137,10 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::onChannel(Channel channel) {
+
+	}
+
+	void BaseDiscordClient::onUnknownEvent(std::string name, const json::Value& data) {
 
 	}
 
