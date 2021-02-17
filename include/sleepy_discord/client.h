@@ -79,11 +79,12 @@ namespace SleepyDiscord {
 	struct RateLimiter {
 		std::atomic<bool> isGlobalRateLimited = { false };
 		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(Route::Bucket& bucket, time_t timestamp);
+		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp);
 		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
 		//isLimited also returns the next Retry timestamp
 	private:
-		std::unordered_map<Route::Bucket, time_t> buckets;
+		std::unordered_map<Route::Bucket, std::string> buckets;
+		std::unordered_map<std::string, time_t> limits;
 		std::mutex mutex;
 	};
 
