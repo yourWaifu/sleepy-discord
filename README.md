@@ -5,11 +5,10 @@ Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actu
 
 [![Discord Server](https://discordapp.com/api/guilds/566681036935790615/embed.png?style=banner2)](https://discord.gg/5VDrVfK)
 
-# [Documentation](https://yourWaifu.github.io/sleepy-discord/documentation.html)
-[:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/setup.html.md "Edit Documentation") [Getting Started](https://yourwaifu.dev/sleepy-discord/setup.html)<br />
-[:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/basic%20text%20bot.html.md "Edit Documentation") [How to make a Basic Text Bot](https://yourwaifu.github.io/sleepy-discord/basic%20text%20bot.html)<br />
+# [Documentation](https://yourwaifu.dev/sleepy-discord/docs/)
+[Getting Started](https://yourwaifu.dev/sleepy-discord/docs/)<br />
 
-If you like to edit them, [please check out the docs branch](https://github.com/yourWaifu/sleepy-discord/tree/docs) or click on the [:pencil:](https://github.com/yourWaifu/sleepy-discord/edit/docs/source/documentation.html.md "Edit Documentation").
+If you like to edit them, [please check out the docs repo](https://github.com/yourWaifu/sleepy-discord-docs).
 
 ## Build Status
 | OS | Windows | Ubuntu
