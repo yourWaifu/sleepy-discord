@@ -241,7 +241,7 @@ namespace SleepyDiscord {
 			}
 
 			template<class T>
-			static inline typename std::enable_if<!hasSerialize<T>::value, Value>::type
+			static inline typename std::enable_if<not(hasSerialize<T>::value), Value>::type
 			fromType(const T& value, Value::AllocatorType& allocator) {
 				return toJSON(value, allocator);
 			}

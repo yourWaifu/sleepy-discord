@@ -122,8 +122,8 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		enum class AvailableFlag : char {
-			NotSet = -2,
+		enum class AvailableFlag : int8_t {
+			NotSet = static_cast<char>(-2),
 			Unavaiable = true,
 			avaiable = false,
 		};
