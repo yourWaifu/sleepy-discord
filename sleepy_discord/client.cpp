@@ -115,7 +115,7 @@ namespace SleepyDiscord {
 					retryAfter *= 1000; //convert to milliseconds
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
-					const std::string& xBucket = response.header["X-RateLimit-Reset"];
+					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
 						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
 						onDepletedRequestSupply(bucket, retryAfter);
@@ -160,7 +160,7 @@ namespace SleepyDiscord {
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
 				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
 				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
-				const std::string& xBucket = response.header["X-RateLimit-Reset"];
+				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
 				std::tm*const resetGM = &gmTM;
