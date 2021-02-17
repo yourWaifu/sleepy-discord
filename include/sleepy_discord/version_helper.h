@@ -1,5 +1,7 @@
 #pragma once
-#include "version.h"
+#ifndef NONEXISTANT_GIT_INFO
+	#include "version.h"
+#endif
 #include <unordered_set>
 namespace SleepyDiscord {
 
