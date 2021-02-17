@@ -1,5 +1,4 @@
 add_library(sleepy-discord STATIC
-	asignments_client.cpp
 	asio_udp.cpp
 	attachment.cpp
 	channel.cpp
@@ -148,7 +147,6 @@ endif()
 
 if(NOT Git_FOUND)
 	target_compile_definitions(sleepy-discord PRIVATE NONEXISTANT_GIT_INFO)
-
 endif()
 
 if(ENABLE_VOICE)

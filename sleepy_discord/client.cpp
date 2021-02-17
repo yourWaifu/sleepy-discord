@@ -283,8 +283,6 @@ namespace SleepyDiscord {
 		//			$os":"windows 10",
 		//			"$browser":"Sleepy_Discord",
 		//			"$device":"Sleepy_Discord",
-		//			"$referrer":"",			//I don't know what this does
-		//			"$referring_domain":""		//I don't know what this does
 		//		},
 		//		"compress":false,
 		//		"large_threshold":250			/I don't know what this does
@@ -314,8 +312,6 @@ namespace SleepyDiscord {
 					"\"$os\":\""; identity += os; identity += "\","
 					"\"$browser\":\"Sleepy_Discord\","
 					"\"$device\":\"Sleepy_Discord\","
-					"\"$referrer\":\"\","
-					"\"$referring_domain\":\"\""
 				"},"
 				"\"compress\":false,";
 		if (shardCount != 0 && shardID <= shardCount) {
@@ -436,11 +432,9 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::processMessage(const std::string &message) {
 		rapidjson::Document document;
 		document.Parse(message.c_str(), message.length());
-		//json::Values values = json::getValues(message.c_str(),
-		//	{ "op", "d", "s", "t" });
+		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
 		const json::Value& t = document["t"];
-		//const nonstd::string_view t(tValue.GetString(), tValue.GetStringLength);
 		const json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
@@ -567,7 +561,6 @@ namespace SleepyDiscord {
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
 			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
-			case hash("USER_NOTE_UPDATE"           ): onEditUserNote      (d); break;
 			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
 			case hash("VOICE_STATE_UPDATE"         ): {
 				VoiceState state(d);
@@ -609,16 +602,12 @@ namespace SleepyDiscord {
 #endif
 				onEditVoiceServer(voiceServer);
 				} break;
-			case hash("GUILD_SYNC"                 ): onServerSync        (d); break;
-			case hash("RELATIONSHIP_ADD"           ): onRelationship      (d); break;
-			case hash("RELATIONSHIP_REMOVE"        ): onDeleteRelationship(d); break;
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
 			case hash("INTERACTION_CREATE"         ): onInteraction       (document["d"]); break;
 			default: 
-				setError(EVENT_UNKNOWN);
-				onError(ERROR_NOTE, json::toStdString(t));
+				onUnknownEvent(json::toStdString(t), d);
 				break;
 			}
 			onDispatch(d);

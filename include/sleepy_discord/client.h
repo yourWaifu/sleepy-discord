@@ -520,16 +520,12 @@ namespace SleepyDiscord {
 		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);
 		virtual void onPresenceUpdate    (PresenceUpdate     presenseUpdate);
 		virtual void onEditUser          (User               user       );
-		virtual void onEditUserNote      (const json::Value& jsonMessage);
 		virtual void onEditUserSettings  (const json::Value& jsonMessage);
 		virtual void onEditVoiceState    (VoiceState&        state      );
 		virtual void onTyping            (Snowflake<Channel> channelID, Snowflake<User> userID, time_t timestamp);
 		virtual void onDeleteMessages    (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messages);
 		virtual void onEditMessage       (MessageRevisions   revisioins );
 		virtual void onEditVoiceServer   (VoiceServerUpdate& update     );
-		virtual void onServerSync        (const json::Value& jsonMessage);
-		virtual void onRelationship      (const json::Value& jsonMessage);
-		virtual void onDeleteRelationship(const json::Value& jsonMessage);
 		virtual void onReaction          (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
 		virtual void onDeleteReaction    (Snowflake<User> userID, Snowflake<Channel> channelID, Snowflake<Message> messageID, Emoji emoji);
 		virtual void onDeleteAllReaction (Snowflake<Server> serverID, Snowflake<Channel> channelID, Snowflake<Message> messageID);
@@ -538,6 +534,7 @@ namespace SleepyDiscord {
 		virtual void onChannel           (Channel            channel    );
 		virtual void onDispatch          (const json::Value& jsonMessage);
 		virtual void onInteraction       (Interaction        interaction) {}
+		virtual void onUnknownEvent      (std::string name, const json::Value& data); //for extending old library versions
 
 		//websocket stuff
 		virtual void onHeartbeat();
@@ -727,36 +724,6 @@ namespace SleepyDiscord {
 				}
 			);
 		}
-	};
-
-	//inline BaseDiscordClient::AssignmentType operator|(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
-	//	return static_cast<BaseDiscordClient::AssignmentType>(static_cast<char>(left) | static_cast<char>(right));
-	//}
-	//inline BaseDiscordClient::AssignmentType operator&(BaseDiscordClient::AssignmentType left, BaseDiscordClient::AssignmentType right) {
-	//	return static_cast<BaseDiscordClient::AssignmentType>(static_cast<char>(left) & static_cast<char>(right));
-	//}
-
-	/*Used when you like to have the DiscordClient to handle the timer via a loop but
-	  don't want to do yourself. I plan on somehow merging this with the baseClient
-	  somehow
-
-	  This is here temporarily until the DiscordClient is overhauled
-	  */
-	class AssignmentBasedDiscordClient : public BaseDiscordClient {
-	public:
-		Timer schedule(TimedTask code, const time_t milliseconds);
-	protected:
-		void resumeMainLoop();
-		void doAssignment();
-	private:
-		struct Assignment {
-			int jobID;
-			TimedTask function;
-			time_t dueTime;
-		};
-		std::forward_list<Assignment> assignments;
-
-		void unschedule(const int jobID);
 	};
 
 	template<> struct BaseDiscordClient::RequestModeType<Async> : BaseDiscordClient::RawRequestModeTypeHelper<Async, void> {
