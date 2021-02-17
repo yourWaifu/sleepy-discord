@@ -237,9 +237,39 @@ namespace SleepyDiscord {
 		const json::Value& RevisionsJSON;
 	};
 
+	enum class MentionReplierFlag : char {
+		NotSet = -2,
+		DoNotMentionReply = false,
+		MentionReply = true
+	};
+
+	//allow mentions parse has different behaviors when undefined and empty.
+	//allow mentions parse is also a array. the other values that have this
+	//kind of behavior, where a value makes discord do different thinsg based
+	//on it being defined or not, is that they are a primitive json type or
+	//an object. This one is an array, making it special.
+	template<class Container, template<class...> class TypeHelper>
+	struct AllowMentionsParseHelper :
+		public json::ToContainerFunction<Container, TypeHelper>,
+		public json::FromContainerFunction<Container, TypeHelper>,
+		public json::IsArrayFunction
+	{
+		static inline bool empty(const Container& value) {
+			return value.size() == 1 && value.front().empty();
+		}
+	};
+
 	struct AllowedMentions {
 	public:
-		std::vector<std::string> parse;
+		using ParseValueType = std::string;
+		using ParseContainer = std::vector<std::string>;
+
+		AllowedMentions() = default;
+		~AllowedMentions() = default;
+		AllowedMentions(int) : parse({}) {}
+		AllowedMentions(const json::Value & json);
+		AllowedMentions(const nonstd::string_view & json);
+		ParseContainer parse = {""};
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;
 		enum class MentionReplierFlag : char {
