@@ -237,46 +237,21 @@ namespace SleepyDiscord {
 		const json::Value& RevisionsJSON;
 	};
 
-	enum class MentionReplierFlag : char {
-		NotSet = -2,
-		DoNotMentionReply = false,
-		MentionReply = true
-	};
-
-	//allow mentions parse has different behaviors when undefined and empty.
-	//allow mentions parse is also a array. the other values that have this
-	//kind of behavior, where a value makes discord do different thinsg based
-	//on it being defined or not, is that they are a primitive json type or
-	//an object. This one is an array, making it special.
-	template<class Container, template<class...> class TypeHelper>
-	struct AllowMentionsParseHelper :
-		public json::ToContainerFunction<Container, TypeHelper>,
-		public json::FromContainerFunction<Container, TypeHelper>,
-		public json::IsArrayFunction
-	{
-		static inline bool empty(const Container& value) {
-			return value.size() == 1 && value.front().empty();
-		}
-	};
-
 	struct AllowedMentions {
 	public:
-		using ParseValueType = std::string;
-		using ParseContainer = std::vector<std::string>;
-
-		AllowedMentions() = default;
-		~AllowedMentions() = default;
-		AllowedMentions(int) : parse({}) {}
-		AllowedMentions(const json::Value & json);
-		AllowedMentions(const nonstd::string_view & json);
-		ParseContainer parse = {""};
+		std::vector<std::string> parse;
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;
+		enum class MentionReplierFlag : char {
+			NotSet = -2,
+			WillNotMentionReply = false,
+			MentionReply = true
+		};
 		MentionReplierFlag repliedUser = MentionReplierFlag::NotSet;
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair<AllowMentionsParseHelper >(&AllowedMentions::parse      , "parse"       , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&AllowedMentions::parse      , "parse"       , json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&AllowedMentions::roles      , "roles"       , json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&AllowedMentions::users      , "users"       , json::OPTIONAL_FIELD),
 				json::pair<json::EnumTypeHelper     >(&AllowedMentions::repliedUser, "replied_user", json::OPTIONAL_FIELD)
@@ -284,27 +259,19 @@ namespace SleepyDiscord {
 		JSONStructEnd
 
 		inline const bool empty() const {
-			return AllowMentionsParseHelper<
-				ParseContainer, json::ClassTypeHelper
-				>::empty(parse) &&
-			repliedUser == MentionReplierFlag::NotSet;
-		}
-
-		inline const bool willMention() const {
-			return !parse.empty() &&
-				repliedUser == MentionReplierFlag::MentionReply;
+			return parse.empty() && repliedUser == MentionReplierFlag::NotSet;
 		}
 	};
 
 	template<>
-	struct GetDefault<MentionReplierFlag> {
-		static inline const MentionReplierFlag get() {
-			return MentionReplierFlag::NotSet;
+	struct GetDefault<AllowedMentions::MentionReplierFlag> {
+		static inline const AllowedMentions::MentionReplierFlag get() {
+			return AllowedMentions::MentionReplierFlag::NotSet;
 		} 
 	};
 
 	template<>
-	struct GetEnumBaseType<MentionReplierFlag> {
+	struct GetEnumBaseType<AllowedMentions::MentionReplierFlag> {
 		//this makes the json wrapper know to use getBool instead of getInt
 		using Value = bool; 
 	};
