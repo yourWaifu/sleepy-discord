@@ -35,9 +35,10 @@ namespace SleepyDiscord {
 	struct RateLimiter {
 		std::atomic<bool> isGlobalRateLimited = { false };
 		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(Route::Bucket& bucket, time_t timestamp)  {
+		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp)  {
 			std::lock_guard<std::mutex> lock(mutex);
-			buckets[bucket].nextTry = timestamp;
+			buckets[bucket] = xBucket;
+			limits[xBucket].nextTry = timestamp;
 		}
 		
 		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
@@ -45,11 +46,15 @@ namespace SleepyDiscord {
 					return nextRetry;
 			isGlobalRateLimited = false;
 			std::lock_guard<std::mutex> lock(mutex);
-			auto rateLimit = buckets.find(bucket);
-			if (rateLimit != buckets.end()) {
-				if (currentTime < rateLimit->second.nextTry)
-					return rateLimit->second.nextTry;
-				buckets.erase(rateLimit);
+			auto actualBucket = buckets.find(bucket);
+			if (actualBucket != buckets.end()) {
+				auto rateLimit = limits.find(actualBucket->second);
+				if (rateLimit != limits.end()) {
+					if (currentTime < rateLimit->second.nextTry)
+						return rateLimit->second.nextTry;
+					limits.erase(rateLimit);
+				}
+				buckets.erase(actualBucket);
 			}
 			return 0;
 		}
@@ -90,7 +95,8 @@ namespace SleepyDiscord {
 		};
 
 	private:
-		std::unordered_map<Route::Bucket, RateLimit> buckets;
+		std::unordered_map<Route::Bucket, std::string> buckets;
+		std::unordered_map<std::string, RateLimit> limits;
 		std::mutex mutex;
 	};
 }

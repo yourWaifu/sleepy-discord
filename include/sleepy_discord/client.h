@@ -50,45 +50,6 @@ namespace SleepyDiscord {
 		DEFAULT_THREADS = USER_CONTROLED_THREADS
 	};
 
-	class Route {
-	public:
-		using Bucket = std::string;
-		Route(const std::string route, const std::initializer_list<std::string>& _values = {});
-		Route(const char* route);
-		inline const std::string& url() {
-			return _url;
-		}
-		const Bucket bucket(RequestMethod method);
-		inline operator const std::string&() {
-			return url();
-		}
-
-	private:
-		const std::string path;
-		std::string _url;
-		const std::initializer_list<std::string>& values;
-
-		//for the snowflake part, discord class should do
-		std::unordered_map<std::string, Snowflake<User>::RawType>
-			majorParameters = {
-			{ "channel.id", {} },
-			{ "guild.id"  , {} },
-			{ "webhook.id", {} }
-		};
-	};
-
-	struct RateLimiter {
-		std::atomic<bool> isGlobalRateLimited = { false };
-		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp);
-		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
-		//isLimited also returns the next Retry timestamp
-	private:
-		std::unordered_map<Route::Bucket, std::string> buckets;
-		std::unordered_map<std::string, time_t> limits;
-		std::mutex mutex;
-	};
-
 	enum class TTS : char {
 		DisableTTS,
 		EnableTTS,
