@@ -35,6 +35,10 @@ namespace SleepyDiscord {
 			return ID.empty();
 		}
 
+		void merge(Derived& changes) {
+			json::mergeObj(*this, changes);
+		}
+
 		template<class DiscordObject>
 		inline bool operator==(const Snowflake<DiscordObject>& right) const {
 			return ID == static_cast<Snowflake<DiscordObject>>(right);

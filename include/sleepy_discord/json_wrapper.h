@@ -677,6 +677,22 @@ namespace SleepyDiscord {
 			return stringify(toJSON(object, allocator));
 		}
 
+		template<class Object, size_t i = 0>
+		inline typename std::enable_if<i == std::tuple_size<decltype(Object::JSONStruct)>::value, void>::type
+			mergeObj(Object& object, const Object& objectChanges) {
+		}
+
+		template<class Object, size_t i = 0>
+		inline typename std::enable_if < i < std::tuple_size<decltype(Object::JSONStruct)>::value, void>::type
+			mergeObj(Object& object, const Object& objectChanges) {
+			constexpr auto field = std::get<i>(Object::JSONStruct);
+			using Helper = typename decltype(field)::Helper;
+			if (!Helper::empty(objectChanges.*(field.member))) {
+				object.*(field.member) = objectChanges.*(field.member);
+			}
+			mergeObj<Object, i + 1>(object, objectChanges);
+		}
+
 		//json optional and null emulation
 		struct UndefinedType {};
 
