@@ -333,7 +333,7 @@ namespace SleepyDiscord {
 				"\"properties\":{"
 					"\"$os\":\""; identity += os; identity += "\","
 					"\"$browser\":\"Sleepy_Discord\","
-					"\"$device\":\"Sleepy_Discord\","
+					"\"$device\":\"Sleepy_Discord\""
 				"},"
 				"\"compress\":false,";
 		if (shardCount != 0 && shardID <= shardCount) {
