@@ -61,7 +61,7 @@ namespace SleepyDiscord {
 		std::string locale = "";   //the user's chosen language
 		Flags flags = Flags::None;
 		PremiumType premiumType = PremiumType::None;
-		Flags publieFlags = Flags::None;
+		Flags publicFlags = Flags::None;
 
 		JSONStructStart
 			std::make_tuple(
@@ -75,7 +75,7 @@ namespace SleepyDiscord {
 				json::pair                      (&User::locale       , "locale"       , json::OPTIONAL_FIELD         ),
 				json::pair<json::EnumTypeHelper>(&User::flags        , "flags"        , json::OPTIONAL_FIELD         ),
 				json::pair<json::EnumTypeHelper>(&User::premiumType  , "premium_type" , json::OPTIONAL_FIELD         ),
-				json::pair<json::EnumTypeHelper>(&User::publieFlags  , "public_flags" , json::OPTIONAL_FIELD         ),
+				json::pair<json::EnumTypeHelper>(&User::publicFlags  , "public_flags" , json::OPTIONAL_FIELD         ),
 				json::pair                      (&User::email        , "email"        , json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
