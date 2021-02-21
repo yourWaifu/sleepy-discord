@@ -27,6 +27,7 @@
 #include "timer.h"
 #include "voice_connection.h"
 #include "asio_schedule.h"
+#include "compression.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
@@ -385,6 +386,22 @@ namespace SleepyDiscord {
 			setIntents(intents);
 		}
 
+		void useCompression(bool value) {
+#ifdef SLEEPY_DEFAULT_COMPRESSION
+			compressionHandler = value ?
+				std::unique_ptr<GenericCompression>(new DefaultCompression()) :
+				nullptr;
+#else
+			assert(value == false, "No default compress handler, use template function instead");
+#endif
+		}
+
+		template <class Handler, class... Types>
+		void useCompression(Types&&... arguments) {
+			compressionHandler = std::unique_ptr<GenericCompression>(
+				new Handler(std::forward<Types>(arguments)...));
+		}
+
 		//time
 		template <class Handler, class... Types>
 		inline void setScheduleHandler(Types&&... arguments) {
@@ -570,6 +587,7 @@ namespace SleepyDiscord {
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
 		void processMessage(const std::string &message) override;
+		void processMessage(const WebSocketMessage message) override;
 		void processCloseCode(const int16_t code) override;
 		void heartbeat();
 		void sendHeartbeat();
@@ -660,13 +678,16 @@ namespace SleepyDiscord {
 		//
 		//voice
 		//
-		std::list<VoiceConnection> voiceConnections;
+		std::forward_list<VoiceConnection> voiceConnections;
 		std::forward_list<VoiceContext> voiceContexts;
 		std::forward_list<VoiceContext*> waitingVoiceContexts;
 #ifdef SLEEPY_VOICE_ENABLED
 		void connectToVoiceIfReady(VoiceContext& context);
 		void removeVoiceConnectionAndContext(VoiceConnection& connection);
 #endif
+
+		//compression
+		std::unique_ptr<GenericCompression> compressionHandler;
 
 		template<class Callback>
 		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {

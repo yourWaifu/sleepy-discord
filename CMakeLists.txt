@@ -133,7 +133,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 	if(USE_ZLIB_NG)
 		download_project(
 			PROJ           zlib-ng
-			GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
+			GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
 			GIT_TAG        develop
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/zlib-ng
 			UPDATE_DISCONNECTED 1
@@ -203,6 +203,10 @@ endif()
 
 if(USE_LIBOPUS)
 	add_subdirectory(deps/opus)
+endif()
+
+if(USE_ZLIB_NG)
+	add_subdirectory(deps/zlib-ng)
 endif()
 
 # Get Version Info

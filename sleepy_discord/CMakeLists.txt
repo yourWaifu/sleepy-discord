@@ -116,7 +116,6 @@ if (NOT ONLY_SLEEPY_DISCORD)
 			add_dependencies(sleepy-discord libsodium-make)
 			ExternalProject_Get_property(libsodium-make BINARY_DIR)
 			set(libsodium-make_BINARY_DIR ${BINARY_DIR})
-			message(WARNING ${libsodium-make_BINARY_DIR})
 			set(
 				LIB_SODIUM_BUILDS 
 				${libsodium-make_BINARY_DIR}/src/libsodium/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}sodium${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -131,6 +130,15 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_SODIUM)
 	else()
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_SODIUM)
+	endif()
+
+	if(USE_ZLIB_NG)
+		get_target_property(ZLIB_BINARY_DIR zlib BINARY_DIR)
+		target_include_directories(sleepy-discord PUBLIC ${zlib-ng_SOURCE_DIR}/../ ${ZLIB_BINARY_DIR})
+		list(APPEND LIBRARIES_TO_LINK "zlib")
+		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ZLIB_NG)
+	else()
+		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ZLIB_NG)
 	endif()
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
 else()
