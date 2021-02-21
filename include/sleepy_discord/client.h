@@ -392,7 +392,7 @@ namespace SleepyDiscord {
 				std::unique_ptr<GenericCompression>(new DefaultCompression()) :
 				nullptr;
 #else
-			assert(value == false, "No default compress handler, use template function instead");
+			assert(("No default compress handler, use template function instead", value == false));
 #endif
 		}
 
