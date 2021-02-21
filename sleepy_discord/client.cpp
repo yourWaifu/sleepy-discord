@@ -315,7 +315,9 @@ namespace SleepyDiscord {
 					"\"$browser\":\"Sleepy_Discord\","
 					"\"$device\":\"Sleepy_Discord\""
 				"},"
-				"\"compress\":false,";
+				"\"compress\":";
+					identity += compressionHandler ?
+						"true" : "false"; identity += ",";
 		if (shardCount != 0 && shardID <= shardCount) {
 			identity +=
 				"\"shard\":[";
@@ -640,6 +642,26 @@ namespace SleepyDiscord {
 		}
 	}
 
+	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
+		switch (message.opCode) {
+		case WebSocketMessage::OPCode::binary: {
+			if (!compressionHandler)
+				break;
+			std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
+			compressionHandler->uncompress(message.payload, *uncompressed);
+			postTask(
+				[this, uncompressed]() {
+					processMessage(*uncompressed);
+				}
+			);
+			break;
+		}
+		case WebSocketMessage::OPCode::text:
+			processMessage(message.payload);
+			break;
+		}
+	}
+
 	void BaseDiscordClient::processCloseCode(const int16_t code) {
 		setError(code);
 
@@ -695,6 +717,8 @@ namespace SleepyDiscord {
 		sendHeartbeat();
 		lastHeartbeat = currentTime;
 
+		if (heart.isValid())
+			heart.stop();
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
 	}
 
