@@ -424,7 +424,7 @@ namespace SleepyDiscord {
 				return value == GetDefault::get();
 			}
 			static inline bool isType(const Value& value) {
-				return ClassTypeHelper<Type>::isType(value);
+				return ClassTypeHelper<BaseType>::isType(value);
 			}
 		};
 

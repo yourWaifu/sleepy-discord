@@ -31,6 +31,7 @@ namespace SleepyDiscord {
 		std::string joinedAt;
 		bool deaf = false;
 		bool mute = false;
+		bool pending = false;
 
 		inline operator User&() {
 			return user;
@@ -44,7 +45,8 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::joinedAt, "joined_at", json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::deaf    , "deaf"     , json::OPTIONAL_FIELD),
-				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD)
+				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::pending , "pending"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
@@ -216,7 +218,7 @@ namespace SleepyDiscord {
 			std::make_tuple(
 				json::pair(&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
 				json::pair(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
-				json::pair(&ServerMembersRequest::limit   , "limit"    , json::OPTIONAL_FIELD ),
+				json::pair(&ServerMembersRequest::limit   , "limit"    , json::REQUIRIED_FIELD),
 				json::pair(&ServerMembersRequest::presence, "presences", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&ServerMembersRequest::userIDs , "user_ids" , json::OPTIONAL_FIELD ), 
 				json::pair(&ServerMembersRequest::nonce   , "nonce"    , json::OPTIONAL_FIELD )
