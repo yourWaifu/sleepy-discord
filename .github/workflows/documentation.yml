@@ -23,12 +23,16 @@ jobs:
           cd sleepy-discord-docs
           cp Doxyfile ../
           cd ..
+          echo "Run Doxygen"
           doxygen
+          echo "Move Doxygen Files"
           mkdir sleepy-discord-docs/xml
           mv xml/*(D) sleepy-discord-docs/xml
+          echo "Download Doxybook2"
           cd sleepy-discord-docs
           curl -o doxybook2.zip -LO "https://github.com/matusnovak/doxybook2/releases/download/v1.3.3/doxybook2-linux-amd64-v1.3.3.zip"
           unzip -j "doxybook2.zip" "bin/doxybook2" -d "."
+          echo "Run Doxybook2"
           mkdir docs/reference
           ./doxybook2 --input ./xml --output ./docs/reference --config ./doxybook.config.json --templates templates/
       - name: Test Build
@@ -72,12 +76,16 @@ jobs:
           cd sleepy-discord-docs
           cp Doxyfile ../
           cd ..
+          echo "Run Doxygen"
           doxygen
+          echo "Move Doxygen Files"
           mkdir sleepy-discord-docs/xml
           mv xml/*(D) sleepy-discord-docs/xml
+          echo "Download Doxybook2"
           cd sleepy-discord-docs
           curl -o doxybook2.zip -LO "https://github.com/matusnovak/doxybook2/releases/download/v1.3.3/doxybook2-linux-amd64-v1.3.3.zip"
           unzip -j "doxybook2.zip" "bin/doxybook2" -d "."
+          echo "Run Doxybook2"
           mkdir docs/reference
           ./doxybook2 --input ./xml --output ./docs/reference --config ./doxybook.config.json --templates templates/
       - name: Release to GitHub Pages
