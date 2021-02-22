@@ -93,6 +93,7 @@ jobs:
         env:
           USE_SSH: true
           GIT_USER: git
+          GIT_PASS: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd sleepy-discord-docs
           git config --global user.email "actions@gihub.com"
