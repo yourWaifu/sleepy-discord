@@ -37,6 +37,7 @@ jobs:
           ./doxybook2 --input ./xml --output ./docs/reference --config ./doxybook.config.json --templates templates/
       - name: Test Build
         run: |
+          cd sleepy-discord-docs
           if [ -e yarn.lock ]; then
           yarn install --frozen-lockfile
           elif [ -e package-lock.json ]; then
@@ -93,6 +94,7 @@ jobs:
           USE_SSH: true
           GIT_USER: git
         run: |
+          cd sleepy-discord-docs
           git config --global user.email "actions@gihub.com"
           git config --global user.name "gh-actions"
           if [ -e yarn.lock ]; then
