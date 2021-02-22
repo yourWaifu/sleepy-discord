@@ -423,7 +423,7 @@ namespace SleepyDiscord {
 		inline  Timer  schedule(void (BaseDiscordClient::*code)(), const time_t milliseconds, AssignmentType mode = TilDueTime) {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
-		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
+		inline  void  unschedule(Timer& timer) { timer.stop(); }
 
 		typedef TimedTask PostableTask;
 		virtual void postTask(PostableTask code) {
