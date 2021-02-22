@@ -123,7 +123,7 @@ namespace SleepyDiscord {
 		//UnavailableServer(const json::Values values);
 
 		enum class AvailableFlag : int8_t {
-			NotSet = '\xFE',
+			NotSet = '\xFE', //-2 in hex
 			Unavaiable = true,
 			avaiable = false,
 		};
