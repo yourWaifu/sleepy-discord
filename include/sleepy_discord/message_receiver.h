@@ -16,6 +16,8 @@ namespace SleepyDiscord {
 		using OPCodeType = OPCode;
 		OPCodeType opCode = text;
 		const std::string& payload;
+		//since we are using a reference, we need to keep the payload in memory
+		std::shared_ptr<void> lifetime; //not might to be read from
 	};
 
 	class GenericMessageReceiver {

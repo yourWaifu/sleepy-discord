@@ -26,16 +26,17 @@ namespace SleepyDiscord {
 		ready = false;
 		quiting = false;
 		bot = true;
-		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
+		setToken(_token);
 		if (_shardID != 0 || _shardCount != 0)
 			setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
-		getTheGateway();
-		connect(theGateway, this, connection);
-#ifndef SLEEPY_ONE_THREAD
-		if (USE_RUN_THREAD <= maxNumOfThreads) runAsync();
-#endif
+		postTask(
+			[this]() {
+				getTheGateway();
+				connect(theGateway, this, connection);
+			}
+		);
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {
@@ -274,6 +275,8 @@ namespace SleepyDiscord {
 			}
 		}
 #endif
+		if (useTrasportConnection == 1)
+			theGateway += "&compress=zlib-stream";
 	}
 
 	void BaseDiscordClient::sendIdentity() {
@@ -316,7 +319,7 @@ namespace SleepyDiscord {
 					"\"$device\":\"Sleepy_Discord\""
 				"},"
 				"\"compress\":";
-					identity += compressionHandler ?
+					identity += compressionHandler && useTrasportConnection != 1 ?
 						"true" : "false"; identity += ",";
 		if (shardCount != 0 && shardID <= shardCount) {
 			identity +=
@@ -399,6 +402,9 @@ namespace SleepyDiscord {
 				connect(theGateway, this, connection);
 		}, getRetryDelay());
 		consecutiveReconnectsCount += 1;
+
+		if (useTrasportConnection == 1)
+			compressionHandler->resetStream();
 
 		for (VoiceConnection& voiceConnection : voiceConnections) {
 			disconnect(4900, "", voiceConnection.connection);
@@ -647,18 +653,41 @@ namespace SleepyDiscord {
 		case WebSocketMessage::OPCode::binary: {
 			if (!compressionHandler)
 				break;
-			std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
-			compressionHandler->uncompress(message.payload, *uncompressed);
+			compressionHandler->uncompress(message.payload);
+			
+			//when using transport connections, Discord ends streams the flush siginal
+			constexpr std::array<const char, 4> flushSiginal = { 0, 0, '\xFF', '\xFF'};
+			constexpr std::size_t siginalLength = flushSiginal.max_size();
+			bool endsWithFlushSiginal = false;
+			if (useTrasportConnection == 1 && siginalLength <= message.payload.length()) {
+				const auto compare = message.payload.compare(
+					message.payload.length() - siginalLength, siginalLength,
+					flushSiginal.data(), siginalLength);
+				endsWithFlushSiginal = compare == 0;
+			}
+
+			bool streamEnded = useTrasportConnection != 1 && compressionHandler->streamEnded();
+			//trasportConnection doesn't stop the stream
+
+			if (streamEnded || endsWithFlushSiginal) {
+				std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
+				compressionHandler->getOutput(*uncompressed);
+				postTask(
+					[this, uncompressed]() {
+						processMessage(*uncompressed);
+					}
+				);
+			}
+			break;
+		}
+		case WebSocketMessage::OPCode::text: {
 			postTask(
-				[this, uncompressed]() {
-					processMessage(*uncompressed);
+				[this, message]() {
+					processMessage(message.payload);
 				}
 			);
 			break;
 		}
-		case WebSocketMessage::OPCode::text:
-			processMessage(message.payload);
-			break;
 		}
 	}
 

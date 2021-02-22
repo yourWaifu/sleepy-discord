@@ -369,20 +369,21 @@ namespace SleepyDiscord {
 			setIntents(intents);
 		}
 
-		void useCompression(bool value) {
-#ifdef SLEEPY_DEFAULT_COMPRESSION
-			compressionHandler = value ?
-				std::unique_ptr<GenericCompression>(new DefaultCompression()) :
-				nullptr;
-#else
-			assert(("No default compress handler, use template function instead", value == false));
-#endif
-		}
-
 		template <class Handler, class... Types>
 		void useCompression(Types&&... arguments) {
 			compressionHandler = std::unique_ptr<GenericCompression>(
 				new Handler(std::forward<Types>(arguments)...));
+			if (useTrasportConnection == static_cast<int8_t>(-1)) //if not set yet
+				useTrasportConnection = true;
+		}
+
+		void useCompression(bool value = true) {
+#ifdef SLEEPY_DEFAULT_COMPRESSION
+			if (value) useCompression<DefaultCompression>();
+			else scheduleHandler = nullptr;
+#else
+			assert(("No default compress handler, use template function instead", value == false));
+#endif
 		}
 
 		//time
@@ -577,6 +578,7 @@ namespace SleepyDiscord {
 		void sendHeartbeat();
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
+		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(
 			const std::string & /*uri*/,                    //IN
@@ -672,6 +674,7 @@ namespace SleepyDiscord {
 
 		//compression
 		std::unique_ptr<GenericCompression> compressionHandler;
+		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
 
 		template<class Callback>
 		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {
