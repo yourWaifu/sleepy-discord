@@ -140,8 +140,8 @@ namespace SleepyDiscord {
 		return { request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, convertEmojiToURL(emoji), userID })), EmptyRespFn() };
 	}
 
-	ArrayResponse<Reaction> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, RequestSettings<ArrayResponse<Reaction>> settings) {
-		return ArrayResponse<Reaction>{ request(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channelID, messageID, convertEmojiToURL(emoji) }), settings) };
+	ArrayResponse<User> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, RequestSettings<ArrayResponse<Reaction>> settings) {
+		return ArrayResponse<User>{ request(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channelID, messageID, convertEmojiToURL(emoji) }), settings) };
 	}
 
 	StandardResponse BaseDiscordClient::removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<StandardResponse> settings) {

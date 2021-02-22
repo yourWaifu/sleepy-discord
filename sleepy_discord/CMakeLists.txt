@@ -31,6 +31,9 @@ target_include_directories(sleepy-discord
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord
 )
 
+separate_arguments(SLEEPY_INCLUDE_NONEXIST
+	${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent)
+
 #The codebase is c++11 but both clang and visual c++ have issues with c++11
 #These issues are fixed by using preprocessor defines to replace code that
 #cause issues with c++14 code

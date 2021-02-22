@@ -251,7 +251,15 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::requestServerMembers(ServerMembersRequest request) {
 		auto data = json::toJSON(request);
-		sendL(json::stringify(data));
+		std::string stringData = json::stringify(data);
+
+		std::string query;
+		query.reserve(14 + stringData.length());
+		query += "{\"op\":8,\"d\":";
+		query += stringData;
+		query += "}";
+
+		sendL(query);
 	}
 
 	void BaseDiscordClient::waitTilReady() {
@@ -712,6 +720,10 @@ namespace SleepyDiscord {
 		case DISALLOWED_INTENTS:
 			return quit(false, true);
 			break;
+
+		case 4900: //Sleepy Discord reconnect
+			//don't do another reconnect during a reconnect
+			return;
 		}
 		reconnect();
 	}
