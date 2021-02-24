@@ -688,6 +688,7 @@ namespace SleepyDiscord {
 			);
 			break;
 		}
+		default: break;
 		}
 	}
 
