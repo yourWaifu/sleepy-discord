@@ -1,3 +1,4 @@
+#ifdef EXISTENT_ZLIB_NG
 #include "zlib-ng_compression.h"
 
 namespace SleepyDiscord {
@@ -73,3 +74,4 @@ namespace SleepyDiscord {
 		output.back().second = 0;
 	}
 }
+#endif
