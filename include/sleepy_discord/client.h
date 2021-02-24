@@ -399,7 +399,7 @@ namespace SleepyDiscord {
 			if (value) useCompression<DefaultCompression>();
 			else scheduleHandler = nullptr;
 #else
-			assert(("No default compress handler, use template function instead", value == false));
+			assert(("No default compress handler, use zlib-ng or use template function instead", value == false));
 #endif
 		}
 

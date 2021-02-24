@@ -158,11 +158,10 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl hdl,
 		websocketpp::config::asio_client::message_type::ptr msg,
 		GenericMessageReceiver* messageProcessor) {
-		postTask([=]() {
-			messageProcessor->processMessage(WebSocketMessage{
-				static_cast<WebSocketMessage::OPCodeType>(msg->get_opcode()),
-				msg->get_payload()
-			});
+		messageProcessor->processMessage(WebSocketMessage{
+			static_cast<WebSocketMessage::OPCodeType>(msg->get_opcode()),
+			msg->get_payload(),
+			msg
 		});
 	}
 
