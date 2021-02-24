@@ -666,8 +666,8 @@ namespace SleepyDiscord {
 				endsWithFlushSiginal = compare == 0;
 			}
 
-			bool streamEnded = useTrasportConnection != 1 && compressionHandler->streamEnded();
 			//trasportConnection doesn't stop the stream
+			bool streamEnded = useTrasportConnection != 1 && compressionHandler->streamEnded();
 
 			if (streamEnded || endsWithFlushSiginal) {
 				std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
