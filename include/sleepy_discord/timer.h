@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 		Timer() {}
 		Timer(StopTimerFunction stopTimer) :
 			implStop(stopTimer) {}
-		inline void stop() const { implStop(); }
+		inline void stop() { implStop(); implStop = nullptr; }
 		inline bool isValid() const { return implStop != nullptr; }
 	private:
 		StopTimerFunction implStop;

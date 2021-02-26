@@ -17,6 +17,18 @@ namespace SleepyDiscord {
 			condition(value) ? value : el
 	};
 
+	struct EmptyDiscordObject {
+		EmptyDiscordObject() = default;
+		EmptyDiscordObject(const nonstd::string_view& rawJSON) :
+			EmptyDiscordObject(json::fromJSON<EmptyDiscordObject>(rawJSON)) {}
+		EmptyDiscordObject(const json::Value & json) :
+			EmptyDiscordObject(json::fromJSON<EmptyDiscordObject>(json)) {}
+
+		JSONStructStart
+			std::make_tuple();
+		JSONStructEnd
+	};
+
 	template <class Derived>
 	class IdentifiableDiscordObject : public DiscordObject {
 	public:

@@ -315,25 +315,75 @@ namespace SleepyDiscord {
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
 
 		//slash commands
-		ArrayResponse<ApplicationCommand> getGlobalApplicationCommands(Snowflake<DiscordObject> applicationID);
-		ObjectResponse<ApplicationCommand> createGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		ObjectResponse<ApplicationCommand> editGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		BoolResponse deleteGlobalApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<ApplicationCommand> commandID);
-		ArrayResponse<ApplicationCommand> getServerApplicationCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
-		ObjectResponse<ApplicationCommand> createServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		ObjectResponse<ApplicationCommand> editServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		BoolResponse deleteServerApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID);
-		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response);
+		//Command Options have issues with copying so to avoid any copying, we use templates for the edit and create functions
+		//This way, we can use use the EmptyOptions type as default and still let uses options via a vector or list without any copying
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createGlobalAppCommand(
+			Snowflake<DiscordObject> applicationID, std::string name, std::string description, Options& options = AppCommand::emptyOptions,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Post, path("applications/{application.id}/commands", { applicationID }), settings,
+				createApplicationCommandBody(name, description, options)) };
+		}
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editGlobalAppCommand(
+			Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description,
+			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Patch,
+				path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings,
+				createApplicationCommandBody(name, description, options, true)) };
+		}
+		ArrayResponse<AppCommand> getGlobalAppCommands(Snowflake<DiscordObject> applicationID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getGlobalAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteGlobalAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createServerAppCommand(
+			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Post,
+				path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings,
+				createApplicationCommandBody(name, description, options)) };
+		}
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editServerAppCommand(
+			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			std::string description, Options& options = AppCommand::emptyOptions,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Patch,
+				path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings,
+				createApplicationCommandBody(name, description, options, true)) };
+		}
+		ArrayResponse<AppCommand> getServerAppCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getServerAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteServerAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response, RequestSettings<BoolResponse> settings = {});
 		//Response editOriginalInteractionResponse();
-		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken);
+		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken, RequestSettings<BoolResponse> settings = {});
 		//Response createFollowupMessage(std::string interactionToken,)
 		//Response editFollowupMessage(std::string interactionToken, Snowflake<Message> messageID)
-		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID);
-
-		ArrayResponse<ApplicationCommand> getApplicationCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
-		ObjectResponse<ApplicationCommand> createApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		ObjectResponse<ApplicationCommand> editApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID, std::string name, std::string description, std::vector<ApplicationCommand::Option> options);
-		BoolResponse deleteApplicationCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<ApplicationCommand> commandID);
+		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createAppCommand(
+			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			if (serverID.empty()) createGlobalAppCommand(applicationID, name, description, options, settings);
+			else createServerAppCommand(applicationID, serverID, name, description, options, settings);
+		}
+		template<class Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editAppCommand(
+			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			std::string description, Options& options = AppCommand::emptyOptions,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			if (serverID.empty()) editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
+			else editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
+		}
+		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
+		BoolResponse deleteAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID);
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
@@ -369,20 +419,21 @@ namespace SleepyDiscord {
 			setIntents(intents);
 		}
 
-		void useCompression(bool value) {
-#ifdef SLEEPY_DEFAULT_COMPRESSION
-			compressionHandler = value ?
-				std::unique_ptr<GenericCompression>(new DefaultCompression()) :
-				nullptr;
-#else
-			assert(("No default compress handler, use template function instead", value == false));
-#endif
-		}
-
 		template <class Handler, class... Types>
 		void useCompression(Types&&... arguments) {
 			compressionHandler = std::unique_ptr<GenericCompression>(
 				new Handler(std::forward<Types>(arguments)...));
+			if (useTrasportConnection == static_cast<int8_t>(-1)) //if not set yet
+				useTrasportConnection = true;
+		}
+
+		void useCompression(bool value = true) {
+#ifdef SLEEPY_DEFAULT_COMPRESSION
+			if (value) useCompression<DefaultCompression>();
+			else scheduleHandler = nullptr;
+#else
+			assert(((void)"No default compress handler, use zlib-ng or use template function instead", value == false));
+#endif
 		}
 
 		//time
@@ -405,7 +456,7 @@ namespace SleepyDiscord {
 		inline  Timer  schedule(void (BaseDiscordClient::*code)(), const time_t milliseconds, AssignmentType mode = TilDueTime) {
 			return     schedule(std::bind(code, this), milliseconds, mode);
 		}
-		inline  void  unschedule(const Timer& timer) const { timer.stop(); }
+		inline  void  unschedule(Timer& timer) { timer.stop(); }
 
 		typedef TimedTask PostableTask;
 		virtual void postTask(PostableTask code) {
@@ -551,6 +602,9 @@ namespace SleepyDiscord {
 		virtual void onChannel           (Channel            channel    );
 		virtual void onDispatch          (const json::Value& jsonMessage);
 		virtual void onInteraction       (Interaction        interaction) {}
+		virtual void onAppCommand        (AppCommand         appCommand ) {}
+		virtual void onEditAppCommand    (AppCommand         appCommand ) {}
+		virtual void onDeleteAppCommand  (AppCommand         appCommand ) {}
 		virtual void onUnknownEvent      (std::string name, const json::Value& data); //for extending old library versions
 
 		//websocket stuff
@@ -577,6 +631,7 @@ namespace SleepyDiscord {
 		void sendHeartbeat();
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
+		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
 		virtual bool connect(
 			const std::string & /*uri*/,                    //IN
@@ -672,6 +727,24 @@ namespace SleepyDiscord {
 
 		//compression
 		std::unique_ptr<GenericCompression> compressionHandler;
+		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
+
+		template<class Options>
+		std::string createApplicationCommandBody(std::string name, std::string description, Options& options, const bool allOptional = false) {
+			rapidjson::Document doc;
+			doc.SetObject();
+			auto& allocator = doc.GetAllocator();
+			if (allOptional || !name.empty())
+				doc.AddMember("name", rapidjson::Value::StringRefType{ name.c_str(), name.length() }, allocator);
+			if (allOptional || !description.empty())
+				doc.AddMember("description", rapidjson::Value::StringRefType{ description.c_str(), description.length() }, allocator);
+			if (!options.empty()) {
+				for (auto& option : options) {
+					doc.PushBack(json::toJSON(option, allocator), allocator);
+				}
+			}
+			return json::stringify(doc);
+		}
 
 		template<class Callback>
 		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {

@@ -2,70 +2,102 @@
 #include "generic_compression.h"
 #include "zlib-ng/zlib-ng.h"
 #include <array>
-#include <queue>
+#include <forward_list>
+#include <string>
+#include <mutex>
 
 namespace SleepyDiscord {
+	//This Queue is basicly a single linked list with the back and size stored
+	//Needed for storing the output before copying it over into one string
+	struct OutputQueue {
+		constexpr static size_t chunkSize = 16 * 1024;
+		using Data = std::array<char, chunkSize>;
+		using Buffer = std::pair<Data, std::size_t>;
+		
+		using Queue = std::forward_list<Buffer>;
+		using Iterator = std::forward_list<Buffer>::iterator;
+		using ConstIterator = std::forward_list<Buffer>::const_iterator;
+
+		Queue queue; //needed when output is larger then buffer
+		Iterator _back = queue.before_begin(); //both back and size would require looking for them
+		Queue::size_type _size = 0; //to avoid looking for size, we store it. Same goes for back
+
+		~OutputQueue() = default;
+
+		bool empty() const { return queue.empty(); }
+		
+		//allocates more memory
+		template<class... Args>
+		Iterator emplace_back(Args&&... args) {
+			Iterator result = queue.emplace_after(_back, std::forward<Args>(args)...);
+			if (_back != result) { //if did anything
+				_back = result;
+				_size += 1;
+			}
+			return result;
+		}
+		
+		Buffer& front() {
+			return queue.front();
+		}
+		Buffer& back() {
+			return *_back;
+		}
+
+		Iterator begin() noexcept {
+			return queue.begin();
+		}
+		Iterator end() noexcept {
+			return queue.end();
+		}
+
+		ConstIterator begin() const noexcept {
+			return queue.begin();
+		}
+		ConstIterator end() const noexcept {
+			return queue.end();
+		}
+
+		Queue::size_type size() const noexcept {
+			return _size;
+		}
+
+		void resize(Queue::size_type count) {
+			queue.resize(count);
+			_size = 0;
+			//linear time complexity but count is usally 1
+			for (Iterator it = begin(); it != end(); ++it) {
+				_size += 1;
+				_back = it;
+			}
+		}
+	};
+
 	class ZLibCompression : public GenericCompression {
 	public:
-		bool uncompress(const std::string& compressed, std::string& uncompressedOut) override {
-			auto stream = zng_stream{};
-			memset(&stream, 0, sizeof(stream));
-			int output = zng_inflateInit(&stream);
-			if (output != Z_OK) {
-				zng_inflateEnd(&stream);
-				return false;
-			}
+		using Output = OutputQueue;
 
-			stream.next_in = reinterpret_cast<const uint8_t*>(compressed.data());
-			stream.avail_in = static_cast<uint32_t>(compressed.length());
+		ZLibCompression();
 
-			constexpr size_t chunkSize = 16 * 1024;
-			using Data = std::array<char, chunkSize>;
-			using Buffer = std::pair<Data, std::size_t>;
-			std::list<Buffer> outputQueue;
+		~ZLibCompression() {
+			zng_inflateEnd(&stream);
+		}
 
-			bool makeNewBuffer = true;
-			std::size_t totalSize = 0;
-			output = Z_BUF_ERROR;
-			do {
-				if (makeNewBuffer == true) {
-					outputQueue.emplace_back(); //make a new output buffer
-					makeNewBuffer = false;
-				}
-				Buffer& buffer = outputQueue.back();
-				Data& data = buffer.first;
-				std::size_t size = buffer.second;
+		zng_stream stream;
+		int statusCode;
 
-				stream.next_out = reinterpret_cast<uint8_t*>(&data[size]);
-				stream.avail_out = static_cast<uint32_t>(data.max_size() - size);
+		Output output;
+		std::mutex mutex; //only allow one thread to uncompress
 
-				output = zng_inflate(&stream, Z_SYNC_FLUSH);
+		void uncompress(const std::string& compressed) override;
+		void getOutput(std::string& uncompressedOut) override;
 
-				auto oldSize = size;
-				size = data.max_size() - stream.avail_out;
-				buffer.second = size;
-				auto deltaSize = size - oldSize;
-				totalSize += deltaSize;
+		inline void resetStream() override {
+			zng_inflateReset(&stream);
+		}
 
-				if (output == Z_STREAM_END) {
-					output = zng_inflateEnd(&stream);
-					break;
-				} else if (deltaSize == 0) {
-					makeNewBuffer = true;
-				}
-			} while (output == Z_OK || output == Z_BUF_ERROR);
-			
-			uncompressedOut.clear();
-			uncompressedOut.reserve(totalSize);
-			for (; 0 < outputQueue.size(); outputQueue.pop_front()) {
-				Buffer& buffer = outputQueue.front();
-				Data& data = buffer.first;
-				std::size_t size = buffer.second;
-
-				uncompressedOut.append(data.data(), size);
-			}
-
-			return true;
+		inline bool streamEnded() override {
+			return statusCode == Z_STREAM_END;
 		}
 	};
 

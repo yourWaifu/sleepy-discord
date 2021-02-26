@@ -22,6 +22,7 @@ add_library(sleepy-discord STATIC
 	voice_connection.cpp
 	webhook.cpp
 	websocketpp_websocket.cpp
+	zlib-ng_compression.cpp
 )
 
 target_include_directories(sleepy-discord
