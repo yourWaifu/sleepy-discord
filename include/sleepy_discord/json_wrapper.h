@@ -125,8 +125,8 @@ namespace SleepyDiscord {
 			using Base::Base;
 			using DocType = decltype(((Base*)nullptr)->getDoc());
 
-			template<class Container, class Value>
-			static inline Container get(Value& value) {
+			template<class Container>
+			static inline Container get(DocType& value) {
 				auto jsonArray = value.GetArray(); //can be ether const Array or Array, so we use auto
 				return Container(jsonArray.begin(), jsonArray.end());
 			}
