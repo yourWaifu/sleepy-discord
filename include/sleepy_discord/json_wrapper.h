@@ -76,16 +76,39 @@ namespace SleepyDiscord {
 		template <class Type>
 		struct ClassTypeHelper;
 
+		template<class Value = const json::Value>
 		struct ArrayStringWrapper {
-			const Value& json;
-			ArrayStringWrapper(const Value& json) : json(json) {}
-			inline const Value& getDoc() const { return json; }
-			operator const Value&() const { return getDoc(); }
+			Value& json;
+			ArrayStringWrapper(Value& json) : json(json) {}
+			inline Value& getDoc() const { return json; }
+			operator Value&() const { return getDoc(); }
 			template<class Callback>
 			const bool getDoc(const Callback& callback) const {
 				callback(json);
 				return true;
 			}
+		};
+
+		template<class Type, class Enable = void>
+		struct ArrayValueWrapper {
+			using value = const Value;
+			using type = ArrayStringWrapper<value>;
+		};
+
+		template<class Type>
+		struct ArrayValueWrapper<
+			Type, typename std::enable_if<std::is_constructible<Type, const Value>::value>::type
+		> {
+			using value = const Value;
+			using type = ArrayStringWrapper<value>;
+		};
+
+		template<class Type>
+		struct ArrayValueWrapper<
+			Type, typename std::enable_if<std::is_constructible<Type, Value>::value>::type
+		> {
+			using value = Value;
+			using type = ArrayStringWrapper<value>;
 		};
 
 		template <typename T>
@@ -96,14 +119,15 @@ namespace SleepyDiscord {
 		template <typename T>
 		constexpr std::false_type hasPushBack(long);
 
-		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
+		template<class TypeToConvertTo, class Base = typename ArrayValueWrapper<TypeToConvertTo>::type>
 		struct ArrayWrapper : public Base {
+			using base = Base;
 			using Base::Base;
 			using DocType = decltype(((Base*)nullptr)->getDoc());
 
-			template<class Container>
-			static inline Container get(const Value& value) {
-				Array jsonArray = value.template Get<Array>();
+			template<class Container, class Value>
+			static inline Container get(Value& value) {
+				auto jsonArray = value.GetArray(); //can be ether const Array or Array, so we use auto
 				return Container(jsonArray.begin(), jsonArray.end());
 			}
 
@@ -189,9 +213,9 @@ namespace SleepyDiscord {
 			return value.GetBool();
 		}
 
-		template<class Type>
-		inline ArrayWrapper<Type> toArray(const Value& value) {
-			return ArrayWrapper<Type>(value);
+		template<class Type, class Value>
+		inline ArrayWrapper<Type, ArrayStringWrapper<Value>> toArray(Value& value) {
+			return ArrayWrapper<Type, ArrayStringWrapper<Value>>(value);
 		}
 
 		template<class Type>

@@ -445,7 +445,7 @@ namespace SleepyDiscord {
 		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
 		const json::Value& t = document["t"];
-		const json::Value& d = document["d"];
+		json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
@@ -615,6 +615,9 @@ namespace SleepyDiscord {
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
+			case hash("APPLICATION_COMMAND_CREATE" ): onAppCommand        (d); break;
+			case hash("APPLICATION_COMMAND_UPDATE" ): onEditAppCommand    (d); break;
+			case hash("APPLICATION_COMMAND_DELETE" ): onDeleteAppCommand  (d); break;
 			case hash("INTERACTION_CREATE"         ): onInteraction       (document["d"]); break;
 			default: 
 				onUnknownEvent(json::toStdString(t), d);

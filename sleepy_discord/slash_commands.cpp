@@ -1,41 +1,41 @@
 #include "slash_commands.h"
 
 namespace SleepyDiscord {
-	ApplicationCommand::ApplicationCommand(json::Value & json) :
-		ApplicationCommand(json::fromJSON<ApplicationCommand>(json)) {
+	AppCommand::AppCommand(json::Value & json) :
+		AppCommand(json::fromJSON<AppCommand>(json)) {
 	}
-	ApplicationCommand::ApplicationCommand(const nonstd::string_view & json) :
-		ApplicationCommand(json::fromJSON<ApplicationCommand>(json)) {
+	AppCommand::AppCommand(const nonstd::string_view & json) :
+		AppCommand(json::fromJSON<AppCommand>(json)) {
 	}
-	ApplicationCommand::Option::Option(json::Value & json) :
-		ApplicationCommand::Option(json::fromJSON<ApplicationCommand::Option>(json)) {
+	AppCommand::Option::Option(json::Value & json) :
+		AppCommand::Option(json::fromJSON<AppCommand::Option>(json)) {
 	}
-	ApplicationCommand::Option::Option(const nonstd::string_view & json) :
-		ApplicationCommand::Option(json::fromJSON<ApplicationCommand::Option>(json)) {
+	AppCommand::Option::Option(const nonstd::string_view & json) :
+		AppCommand::Option(json::fromJSON<AppCommand::Option>(json)) {
 	}
-	ApplicationCommand::Option::Choice::Choice(json::Value & json) :
-		ApplicationCommand::Option::Choice(json::fromJSON<ApplicationCommand::Option::Choice>(json)) {
+	AppCommand::Option::Choice::Choice(json::Value & json) :
+		AppCommand::Option::Choice(json::fromJSON<AppCommand::Option::Choice>(json)) {
 	}
-	ApplicationCommand::Option::Choice::Choice(const nonstd::string_view & json) :
-		ApplicationCommand::Option::Choice(json::fromJSON<ApplicationCommand::Option::Choice>(json)) {
+	AppCommand::Option::Choice::Choice(const nonstd::string_view & json) :
+		AppCommand::Option::Choice(json::fromJSON<AppCommand::Option::Choice>(json)) {
 	}
-	ApplicationCommand::InteractionData::InteractionData(json::Value & json) :
-		ApplicationCommand::InteractionData(json::fromJSON<ApplicationCommand::InteractionData>(json)) {
+	AppCommand::InteractionData::InteractionData(json::Value & json) :
+		AppCommand::InteractionData(json::fromJSON<AppCommand::InteractionData>(json)) {
 	}
-	ApplicationCommand::InteractionData::InteractionData(const nonstd::string_view & json) :
-		ApplicationCommand::InteractionData(json::fromJSON<ApplicationCommand::InteractionData>(json)) {
+	AppCommand::InteractionData::InteractionData(const nonstd::string_view & json) :
+		AppCommand::InteractionData(json::fromJSON<AppCommand::InteractionData>(json)) {
 	}
-	ApplicationCommand::InteractionData::Option::Option(json::Value & json) :
-		ApplicationCommand::InteractionData::Option(json::fromJSON<ApplicationCommand::InteractionData::Option>(json)) {
+	AppCommand::InteractionData::Option::Option(json::Value & json) :
+		AppCommand::InteractionData::Option(json::fromJSON<AppCommand::InteractionData::Option>(json)) {
 	}
-	ApplicationCommand::InteractionData::Option::Option(const nonstd::string_view & json) :
-		ApplicationCommand::InteractionData::Option(json::fromJSON<ApplicationCommand::InteractionData::Option>(json)) {
+	AppCommand::InteractionData::Option::Option(const nonstd::string_view & json) :
+		AppCommand::InteractionData::Option(json::fromJSON<AppCommand::InteractionData::Option>(json)) {
 	}
-	InteractionApplicationCommandCallbackData::InteractionApplicationCommandCallbackData(const json::Value & json) :
-		InteractionApplicationCommandCallbackData(json::fromJSON<InteractionApplicationCommandCallbackData>(json)) {
+	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(const json::Value & json) :
+		InteractionAppCommandCallbackData(json::fromJSON<InteractionAppCommandCallbackData>(json)) {
 	}
-	InteractionApplicationCommandCallbackData::InteractionApplicationCommandCallbackData(const nonstd::string_view & json) :
-		InteractionApplicationCommandCallbackData(json::fromJSON<InteractionApplicationCommandCallbackData>(json)) {
+	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(const nonstd::string_view & json) :
+		InteractionAppCommandCallbackData(json::fromJSON<InteractionAppCommandCallbackData>(json)) {
 	}
 	Interaction::Interaction(json::Value & json) :
 		Interaction(json::fromJSON<Interaction>(json)) {

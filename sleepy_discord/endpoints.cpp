@@ -545,4 +545,40 @@ namespace SleepyDiscord {
 			{ "tts"       , (tts ? "true" : "") }
 		}) };
 	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getGlobalAppCommands(Snowflake<DiscordObject> applicationID, RequestSettings<ArrayResponse<AppCommand>> settings) {
+		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands", { applicationID }), settings) };
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getGlobalAppCommand(
+		Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID,
+		RequestSettings<ObjectResponse<AppCommand>> settings
+	) {
+		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteGlobalAppCommand(
+		Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings), EmptyRespFn() };
+	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getServerAppCommands(
+		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings
+	) {
+		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings) };
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getServerAppCommand(
+		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID,
+		RequestSettings<ObjectResponse<AppCommand>> settings
+	) {
+		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteServerAppCommand(
+		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings), EmptyRespFn() };
+	}
 }
