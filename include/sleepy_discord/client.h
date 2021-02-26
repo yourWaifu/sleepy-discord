@@ -370,8 +370,8 @@ namespace SleepyDiscord {
 			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description,
 			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
-			if (serverID.empty()) createGlobalAppCommand(applicationID, name, description, options, settings);
-			else createServerAppCommand(applicationID, serverID, name, description, options, settings);
+			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, settings);
+			return createServerAppCommand(applicationID, serverID, name, description, options, settings);
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editAppCommand(
@@ -379,8 +379,8 @@ namespace SleepyDiscord {
 			std::string description, Options& options = AppCommand::emptyOptions,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
-			if (serverID.empty()) editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
-			else editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
+			if (serverID.empty()) return editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
+			return editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
 		}
 		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
 		BoolResponse deleteAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID);
