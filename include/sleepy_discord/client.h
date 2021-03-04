@@ -596,6 +596,12 @@ namespace SleepyDiscord {
 		inline std::string getToken() { return *token.get(); }
 		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
 		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
+		inline void connect() {
+			postTask([this]() {
+				getTheGateway();
+				connect(theGateway, this, connection);
+			});
+		}
 		virtual bool connect(
 			const std::string & /*uri*/,                    //IN
 			GenericMessageReceiver* /*messageProcessor*/,   //IN  When a message is receved, this will process it

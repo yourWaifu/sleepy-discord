@@ -31,12 +31,6 @@ namespace SleepyDiscord {
 			setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
-		postTask(
-			[this]() {
-				getTheGateway();
-				connect(theGateway, this, connection);
-			}
-		);
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {

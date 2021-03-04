@@ -95,6 +95,7 @@ namespace SleepyDiscord {
 	}
 
 	void WebsocketppDiscordClient::run() {
+		BaseDiscordClient::connect();
 		this_client.run();
 	}
 
