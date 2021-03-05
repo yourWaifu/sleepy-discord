@@ -341,7 +341,7 @@ Removes a member from a server
 #### Return value
 Returns ``true`` on success
 
-#### banMember
+### banMember
 
 ```cpp
 bool banMember(Snowflake<Server> serverID, Snowflake<User> userID);
@@ -1117,8 +1117,9 @@ Compares the ids of two messages
 ```cpp
 struct User : public DiscordObject {
   ~User();
-  User();
-  User(const std::string * rawJSON);
+  User() = default;
+  User(const nonstd::string_view & json);
+  User(const json::Value& json);
 ```
 
 Based on [the object with the same name from the api](https://discordapp.com/developers/docs/resources/user#user-object)
@@ -1141,6 +1142,86 @@ Compares the id of two Users
 
 #### Return value
 ``true`` when the two Users have the same id
+
+### Public Members
+### ID
+
+```cpp
+Snowflake<Derived> ID;
+```
+Declared in the IdentifiableDiscordObject class (in ``discord_object_interface.h``) which the User class derives from
+#### Value
+The ``ID`` of that user object which can be compared to string literals/objects with the ``==`` and ``!=`` overloaded operators
+
+#### Example
+```cpp
+void onMessage(SleepyDiscord::Message message) {
+  std::cout << ("someIDnum" == message.author.ID) << std::endl;
+  std::cout << message.author.ID.string() << std::endl;
+}
+```
+In the example above ``message.author`` is a ``User`` object, we use the ``ID`` attribute, inherited from the ``IdentifiableDiscordObject`` class, which inturn is a ``Snowflake`` object. We first compare it to the string literal ``"someIDnum"`` by using the ``==``, on the next line we use the string() member method to convert it into a string.
+
+### username
+```cpp
+std::string username;
+```
+Declared in the User class (in ``user.h``)
+#### Value
+The user's username, which may not be unique across the platform.
+
+### discriminator
+```cpp
+std::string discriminator;
+```
+Declared in User class (in ``user.h``)
+#### Value
+The user's 4-digit discord-tag, e.g (some_user``#5432``).
+
+### avatar
+```cpp
+std::string avatar;
+```
+Declared in User class (in ``user.h``)
+#### Value
+The user's avatar hash, base64 encoded jpeg image.
+### bot
+```cpp
+bool bot = false;
+```
+Declared in User class (in ``user.h``)
+#### Value
+Whether the user belongs to an OAuth2 application.
+### mfa_enabled
+```cpp
+bool mfa_enabled = false;
+```
+Declared in User class (in ``user.h``)
+#### Value
+Whether the user has two factor enabled on their account.
+### verified
+```cpp
+bool verified = false;
+```
+Declared in User class (in ``user.h``)
+#### Value
+Whether the email on this account has been verified.
+### email
+```cpp
+std::string email = "";
+```
+Declared in User class (in ``user.h``)
+#### Value
+The user's email.
+### locale
+```cpp
+std::string locale = "";
+```
+Declared in User class (in ``user.h``)
+#### Value
+The user's chosen language.
+
+
 
 # Voice
 [For a step by step guild on using voice, go to here](voice.html).
