@@ -123,6 +123,26 @@ namespace SleepyDiscord {
 			default: response.statusCode = BAD_REQUEST; break; //unexpected method
 			}
 
+			//rate limit check
+			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+				std::tm date = {};
+				//for some reason std::get_time requires gcc 5
+				std::istringstream dateStream(response.header["Date"]);
+				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
+#if defined(_WIN32) || defined(_WIN64)
+				std::tm gmTM;
+				std::tm*const resetGM = &gmTM;
+				gmtime_s(resetGM, &reset);
+#else
+				std::tm* resetGM = std::gmtime(&reset);
+#endif
+				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeMillisecond());
+				onDepletedRequestSupply(bucket, resetDelta);
+			}
+
 			//status checking
 			switch (response.statusCode) {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
@@ -168,26 +188,6 @@ namespace SleepyDiscord {
 #endif
 					}
 				} break;
-			}
-
-			//rate limit check
-			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
-				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeMillisecond());
-				onDepletedRequestSupply(bucket, resetDelta);
 			}
 
 			handleCallbackCall();
