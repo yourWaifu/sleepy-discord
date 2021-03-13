@@ -30,12 +30,12 @@ namespace SleepyDiscord {
 	}
 
 	Message Message::send(BaseDiscordClient* client) {
-		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), tts);
+		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), static_cast<TTS>(tts));
 	}
 
-	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed, bool _tts)
+	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed)
 	{
-		return client->sendMessage(channelID, message, embed, _tts);
+		return client->sendMessage(channelID, message, embed);
 	}
 
 	Emoji::~Emoji() {

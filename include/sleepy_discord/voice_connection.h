@@ -156,7 +156,7 @@ namespace SleepyDiscord {
 	struct AudioTimer {
 		Timer timer;
 		time_t nextTime = 0;
-		void stop() const {
+		void stop() {
 			if (timer.isValid())
 				timer.stop();
 		}

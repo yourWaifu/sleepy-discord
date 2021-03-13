@@ -122,12 +122,33 @@ namespace SleepyDiscord {
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		//const static std::initializer_list<const char*const> fields;
+		enum class AvailableFlag : int8_t {
+			NotSet = '\xFE', //-2 in hex
+			Unavaiable = true,
+			avaiable = false,
+		};
+		AvailableFlag unavailable = AvailableFlag::NotSet;
+
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&UnavailableServer::ID, "id", json::REQUIRIED_FIELD)
+				json::pair(&UnavailableServer::ID, "id", json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>
+				(&UnavailableServer::unavailable, "unavailable", json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
+	};
+
+	template<>
+	struct GetDefault<UnavailableServer::AvailableFlag> {
+		static inline const UnavailableServer::AvailableFlag get() {
+			return UnavailableServer::AvailableFlag::NotSet;
+		} 
+	};
+
+	template<>
+	struct GetEnumBaseType<UnavailableServer::AvailableFlag> {
+		//this makes the json wrapper know to use getBool instead of getInt
+		using Value = bool; 
 	};
 
 	class ServerCache : public Cache<Server> {
@@ -176,6 +197,29 @@ namespace SleepyDiscord {
 			std::make_tuple(
 				json::pair(&ServerEmbed::enabled  , "enabled"   , json::REQUIRIED_FIELD),
 				json::pair(&ServerEmbed::channelID, "channel_id", json::NULLABLE_FIELD )
+			);
+		JSONStructEnd
+	};
+
+	struct ServerMembersRequest {
+		ServerMembersRequest() = default;
+		ServerMembersRequest(const json::Value& json);
+		ServerMembersRequest(const nonstd::string_view & json);
+		Snowflake<Server> serverID;
+		std::string query;
+		int limit;
+		bool presence;
+		std::vector<Snowflake<User>> userIDs;
+		std::string nonce;
+		
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
+				json::pair(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
+				json::pair(&ServerMembersRequest::limit   , "limit"    , json::OPTIONAL_FIELD ),
+				json::pair(&ServerMembersRequest::presence, "presences", json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&ServerMembersRequest::userIDs , "user_ids" , json::OPTIONAL_FIELD ), 
+				json::pair(&ServerMembersRequest::nonce   , "nonce"    , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

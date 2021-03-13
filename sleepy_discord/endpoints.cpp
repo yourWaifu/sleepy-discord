@@ -21,38 +21,37 @@ namespace SleepyDiscord {
 	//	return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringifyObj(params)) };
 	//}
 
-	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, bool tts, RequestSettings<ObjectResponse<Message>> settings) {
+	std::string createMessageBody(std::string& message, Embed& embed, TTS tts) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
 		auto& allocator = doc.GetAllocator();
 		content.SetString(message.c_str(), message.length());
 		doc.AddMember("content", content, allocator);
-		if (tts == true) doc.AddMember("tts", true, allocator);
+		if (tts == TTS::EnableTTS) doc.AddMember("tts", true, allocator);
 		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, json::stringify(doc)) };
+		return json::stringify(doc);
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, tts)) };
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(SendMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringify(json::toJSON(params))) };
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringifyObj(params)) };
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{
 			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
-				{ "content", message },
-				{ "file", filePathPart{fileLocation} }
+				{ "file", filePathPart{fileLocation} },
+				{ "payload_json", createMessageBody(message, embed, TTS::DisableTTS) }
 			})
 		};
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, RequestSettings<ObjectResponse<Message>> settings) {
-		rapidjson::Document doc;
-		doc.SetObject();
-		rapidjson::Value content;
-		content.SetString(newMessage.c_str(), newMessage.length());
-		doc.AddMember("content", content, doc.GetAllocator());
-		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, json::stringify(doc)) };
+	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, TTS::DisableTTS)) };
 	}
 
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings) {
@@ -127,16 +126,22 @@ namespace SleepyDiscord {
 		return ObjectResponse<Message>{ request(Get, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings) };
 	}
 
+	std::string convertEmojiToURL(const std::string emoji) {
+		if(emoji.empty() || emoji[0] == '%')
+			return emoji; //no need to convert
+		return escapeURL(emoji);
+	}
+
 	BoolResponse BaseDiscordClient::addReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, RequestSettings<BoolResponse> settings) {
-		return { request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", { channelID, messageID, emoji }), settings), EmptyRespFn() };
+		return { request(Put, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", { channelID, messageID, convertEmojiToURL(emoji) }), settings), EmptyRespFn() };
 	}
 
 	BoolResponse BaseDiscordClient::removeReaction(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID) {
-		return { request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, emoji, userID })), EmptyRespFn() };
+		return { request(Delete, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}", { channelID, messageID, convertEmojiToURL(emoji), userID })), EmptyRespFn() };
 	}
 
-	ArrayResponse<Reaction> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, RequestSettings<ArrayResponse<Reaction>> settings) {
-		return ArrayResponse<Reaction>{ request(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channelID, messageID, emoji }), settings) };
+	ArrayResponse<User> BaseDiscordClient::getReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, RequestSettings<ArrayResponse<Reaction>> settings) {
+		return ArrayResponse<User>{ request(Get, path("channels/{channel.id}/messages/{message.id}/reactions/{emoji}", { channelID, messageID, convertEmojiToURL(emoji) }), settings) };
 	}
 
 	StandardResponse BaseDiscordClient::removeAllReactions(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<StandardResponse> settings) {
@@ -258,15 +263,15 @@ namespace SleepyDiscord {
 	}
 
 	BoolResponse BaseDiscordClient::editMember(Snowflake<Server> serverID, Snowflake<User> userID, std::string nickname, std::vector<Snowflake<Role>> roles, int8_t mute, int8_t deaf, Snowflake<Channel> channelID) {
-		const std::string muteString = mute == -1 ? json::boolean(mute) : "";
-		const std::string deafString = deaf == -1 ? json::boolean(deaf) : "";
+		const std::string muteString = mute != -1 ? json::boolean(mute) : "";
+		const std::string deafString = deaf != -1 ? json::boolean(deaf) : "";
 
 		return { request(Patch, path("guilds/{guild.id}/members/{user.id}", { serverID, userID }), json::createJSON({
 			{ "nick"      , json::string(nickname)       },
 			{ "roles"     , json::createJSONArray(roles) },
 			{ "mute"      , muteString                   },
 			{ "deaf"      , deafString                   },
-			{ "channel_id", channelID                    },
+			{ "channel_id", json::string(channelID)      },
 		})), EmptyRespFn() };
 	}
 
@@ -345,8 +350,18 @@ namespace SleepyDiscord {
 		return ArrayResponse<User>{ request(Get, path("guilds/{guild.id}/bans", { serverID }), settings) };
 	}
 
-	BoolResponse BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID, RequestSettings<BoolResponse> settings) {
-		return { request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID }), settings), EmptyRespFn() };
+	BoolResponse BaseDiscordClient::banMember(Snowflake<Server> serverID, Snowflake<User> userID, int deleteMessageDays, std::string reason, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		if (deleteMessageDays == -1)
+			doc.AddMember("delete_message_days", deleteMessageDays, allocator);
+		if (!reason.empty()) {
+			rapidjson::Value reasonValue;
+			reasonValue.SetString(reason.c_str(), reason.length());
+			doc.AddMember("reason", reasonValue, allocator);
+		}
+		return { request(Put, path("guilds/{guild.id}/bans/{user.id}", { serverID, userID }), settings, json::stringify(doc)), EmptyRespFn() };
 	}
 
 	BoolResponse BaseDiscordClient::unbanMember(Snowflake<Server> serverID, Snowflake<User> userID, RequestSettings<BoolResponse> settings) {

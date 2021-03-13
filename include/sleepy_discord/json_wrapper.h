@@ -4,6 +4,8 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <memory>
+#include <type_traits>
 //for errrors
 #include <iostream>
 
@@ -16,6 +18,20 @@ typedef std::size_t SizeType;
 //#include "json.h"
 
 namespace SleepyDiscord {
+	//this is outside of the json namespace
+	//to stop us from hiting some compiler bugs
+	template<class Type>
+	struct GetDefault {
+		static inline const Type get() {
+			return static_cast<Type>(0);
+		}
+	};
+
+	template<class Type>
+	struct GetEnumBaseType {
+		using Value = int64_t;
+	};
+
 	namespace json {
 		//using Value = nonstd::string_view;
 		//using Values = std::vector<Value>;
@@ -38,14 +54,22 @@ namespace SleepyDiscord {
 
 		template<class Type>
 		const std::string createJSONArray(const std::vector<Type> source) {
+			if (source.empty())
+				return "";
 			std::string target;
-			target.reserve(2);	//revents crash
+			target += '[';
 			for (std::string value : source) {
-				if (!value.empty())
-					target += ',' + value;
+				if (!value.empty()) {
+					target += value;
+					target += ',';
+				}
 			}
-			target[0] = '[';
-			target.push_back(']');
+			char& back = target.back();
+			if (back == ',') {
+				back = ']';
+			} else {
+				target += ']';
+			}
 			return target;
 		}
 
@@ -54,16 +78,44 @@ namespace SleepyDiscord {
 			ArrayStringWrapper(const Value& json) : json(json) {}
 			inline const Value& getDoc() const { return json; }
 			operator const Value&() const { return getDoc(); }
+			template<class Callback>
+			const bool getDoc(const Callback& callback) const {
+				callback(json);
+				return true;
+			}
 		};
 
 		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
 		struct ArrayWrapper : public Base {
 			using Base::Base;
+			using DocType = decltype(((Base*)nullptr)->getDoc());
+			template<class Container>
+			Container get(DocType doc) {
+				Array jsonArray = doc.template Get<Array>();
+				return Container(jsonArray.begin(), jsonArray.end());
+			}
+
+			template<class Container>
+			Container get() {
+				return get<Container>(Base::getDoc());
+			}
+
 			template<template<class...> class Container, typename Type = TypeToConvertTo>
 			Container<Type> get() {
-				auto&& doc = Base::getDoc();
-				Array jsonArray = doc.template Get<Array>();
-				return Container<Type>(jsonArray.begin(), jsonArray.end());
+				return get<Container<Type>>();
+			}
+
+			template<class Container>
+			bool get(Container& value) {
+				static const auto getter = [&](DocType& doc) {
+					value = get<Container>(doc);
+				};
+				return Base::getDoc(getter);
+			}
+
+			template<template<class...> class Container, typename Type = TypeToConvertTo>
+			bool get(Container<Type>& value) {
+				return get<Container<Type>>(value);
 			}
 
 			inline std::vector<TypeToConvertTo> vector() { return get<std::vector>(); }
@@ -131,7 +183,7 @@ namespace SleepyDiscord {
 
 		template<class Type>
 		inline Type toEnum(const Value& value) {
-			return static_cast<Type>(json::toInt64(value));
+			return static_cast<Type>(value.Get<typename GetEnumBaseType<Type>::Value>());
 		}
 
 		template<class Base>
@@ -153,12 +205,43 @@ namespace SleepyDiscord {
 		template<class Object>
 		inline Value toJSON(const Object& object, Value::AllocatorType& allocator);
 
+		//ClassTypeHelper needs to know if object has a serialize member
+		template<class Object>
+		struct hasSerialize {
+		private:
+			template<typename T>
+			static constexpr auto check(T*)
+			-> typename
+				std::is_same<
+					decltype( std::declval<T>().serialize(
+						std::declval<Value::AllocatorType&>()
+					) ),
+					Value
+				>::type;
+			
+			template<typename>
+    		static constexpr std::false_type check(...);
+		
+		public:
+			using type = decltype(check<Object>(0));
+			static constexpr bool value = type::value;
+		};
+
 		template <class Type>
 		struct ClassTypeHelper : public EmptyFunction<Type> {
 			static inline Type toType(const Value& value) {
 				return value;
 			}
-			static inline Value fromType(const Type& value, Value::AllocatorType& allocator) {
+
+			template<class T>
+			static inline typename std::enable_if<hasSerialize<T>::value, Value>::type
+			fromType(const T& value, Value::AllocatorType& allocator) {
+				return value.serialize(allocator);
+			}
+
+			template<class T>
+			static inline typename std::enable_if<hasSerialize<T>::value == false, Value>::type
+			fromType(const T& value, Value::AllocatorType& allocator) {
 				return toJSON(value, allocator);
 			}
 		};
@@ -208,18 +291,22 @@ namespace SleepyDiscord {
 		template<> struct ClassTypeHelper<double  > : public PrimitiveTypeHelper<double  > {};
 		template<> struct ClassTypeHelper<bool    > : public PrimitiveTypeHelper<bool    > {};
 
-		template<class Type>
-		struct EnumTypeHelper {
+		template<class Type, class GetDefault, class BaseType>
+		struct BaseEnumTypeHelper {
 			static inline Type toType(const Value& value) {
 				return toEnum<Type>(value);
 			}
 			static inline Value fromType(const Type& value) {
-				return Value(static_cast<int64_t>(value));
+				return Value(static_cast<BaseType>(value));
 			}
-			static inline bool empty(const Type& value) {
-				return static_cast<int64_t>(value) == 0;
+			static inline bool empty(const Type& value) {;
+				return value == GetDefault::get();
 			}
 		};
+
+		template<class Type>
+		struct EnumTypeHelper : public
+			BaseEnumTypeHelper<Type, GetDefault<Type>, typename GetEnumBaseType<Type>::Value> {};
 
 		template<class Container, template<class...> class TypeHelper>
 		struct FromContainerFunction {
@@ -332,6 +419,15 @@ namespace SleepyDiscord {
 		}
 
 		template<class ResultingObject>
+		inline rapidjson::ParseResult fromJSON(ResultingObject& obj, const nonstd::string_view& json) {
+			rapidjson::Document doc;
+			rapidjson::ParseResult isOK = doc.Parse(json.data(), json.length());
+			if (isOK)
+				obj = ResultingObject{doc};
+			return isOK;
+		}
+
+		template<class ResultingObject>
 		inline ResultingObject fromJSON(const nonstd::string_view& json) {
 			rapidjson::Document doc;
 			doc.Parse(json.data(), json.length());
@@ -393,5 +489,233 @@ namespace SleepyDiscord {
 			rapidjson::MemoryPoolAllocator<> allocator;
 			return stringify(toJSON(object, allocator));
 		}
+
+		template<class Object, size_t i = 0>
+		inline typename std::enable_if<i == std::tuple_size<decltype(Object::JSONStruct)>::value, void>::type
+			mergeObj(Object& object, const Object& objectChanges) {
+		}
+
+		template<class Object, size_t i = 0>
+		inline typename std::enable_if < i < std::tuple_size<decltype(Object::JSONStruct)>::value, void>::type
+			mergeObj(Object& object, const Object& objectChanges) {
+			constexpr auto field = std::get<i>(Object::JSONStruct);
+			using Helper = typename decltype(field)::Helper;
+			if (!Helper::empty(objectChanges.*(field.member))) {
+				object.*(field.member) = objectChanges.*(field.member);
+			}
+			mergeObj<Object, i + 1>(object, objectChanges);
+		}
+
+		//json optional and null emulation
+		struct UndefinedType {};
+
+		template<class Type>
+		struct Maybe {
+			using FlagType = bool;
+			static constexpr FlagType undefined = 0;
+			static constexpr FlagType defined = 1;
+
+			using ValueType = Type;
+			using element_type = Type;
+			using Container = std::shared_ptr<Type>;
+			using weak_ptr = typename Container::weak_ptr;
+
+			const bool isUndefined() const {
+				return ( flags & defined ) == undefined;
+			}
+			const bool isDefined() const {
+				return !isUndefined();
+			}
+			const bool isAvaiable() const {
+				return isDefined() && static_cast<bool>(value);
+			}
+			const bool isNull() const {
+				return isDefined() && !static_cast<bool>(value);
+			}
+			 
+			Type copy(Type& defaultValue) const {
+				return isDefined() ? static_cast<bool>(value) ? *get() : defaultValue : defaultValue;
+			}
+			
+			void copyTo(Type& dest) const {
+				if (isAvaiable())
+					dest = *get();
+			}
+
+			constexpr Maybe() = default;
+			constexpr Maybe(std::nullptr_t) noexcept : value(std::nullptr_t{}), flags(defined) {};
+			Maybe& operator=(std::nullptr_t) noexcept {
+				value = std::nullptr_t{};
+				flags |= defined;
+			}
+			constexpr Maybe(UndefinedType) {};
+			template<class TypeY>
+			explicit Maybe(TypeY* ptr) noexcept : value(ptr), flags(defined) {}
+			template<class TypeY, class Deleter>
+			Maybe(Type* ptr, Deleter deleter) noexcept :
+				value(ptr, deleter), flags(defined) {}
+			template<class TypeY, class Deleter, class Alloc>
+			Maybe(Type* ptr, Deleter deleter, Alloc allocator) noexcept :
+				value(ptr, deleter, allocator), flags(defined) {}
+			template<class Deleter>
+			Maybe(std::nullptr_t, Deleter deleter) : value(nullptr, deleter), flags(defined) {}
+			template<class Deleter, class Alloc>
+			Maybe(std::nullptr_t, Deleter deleter, Alloc allocator) noexcept :
+				value(nullptr, deleter, allocator), flags(defined) {}
+			template<class Deleter>
+			Maybe(UndefinedType, Deleter deleter) : value(nullptr, deleter) {}
+			template<class Deleter, class Alloc>
+			Maybe(UndefinedType, Deleter deleter, Alloc allocator) noexcept :
+				value(nullptr, deleter, allocator) {}
+			template<class Type2>
+			Maybe(const Maybe<Type2>& right, ValueType* pointer) noexcept :
+				value(right.value, pointer), flags(defined) {}
+			template<class Type2>
+			Maybe(const Maybe<Type2>&& right, ValueType* pointer) noexcept :
+				value(std::move(right.value), pointer), flags(defined) {}
+			Maybe(const Maybe& other) noexcept : value(other), flags(other.flags) {}
+			explicit Maybe(Container&& right) noexcept :
+				value(std::move(right)), flags(defined) {}
+			Maybe(Maybe&& right) noexcept :
+				value(std::move(right.value)), flags(right.flags) {}
+			template<class Type2>
+			Maybe(Maybe<Type2>&& right) noexcept :
+				value(std::move(right.value)), flags(right.value) {}
+			template<class Type2>
+			explicit Maybe(std::shared_ptr<Type2>&& right) noexcept :
+				value(std::move(right)), flags(defined) {}
+			template<class Type2>
+			explicit Maybe(const weak_ptr& other) :
+				value(other), flags(defined) {}
+			template<class Type2, class Deleter>
+			Maybe(std::unique_ptr<Type2, Deleter>&& other) :
+				value(std::move(other)), flags(defined) {}
+			
+
+			Maybe& operator=(const Maybe& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			template<class Type2>
+			Maybe& operator=(const Maybe<Type2>& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(Maybe&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			template<class Type2>
+			Maybe& operator=(Maybe<Type2>&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			template<class TypeX, class Deleter>
+			Maybe& operator=(std::unique_ptr<TypeX, Deleter>&& right) {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(const Container& right) noexcept {
+				Maybe(right).swap(*this);
+				return *this;
+			}
+
+			Maybe& operator=(Container&& right) noexcept {
+				Maybe(std::move(right)).swap(*this);
+				return *this;
+			}
+
+			void swap(Maybe& right) noexcept {
+				value.swap(right.value);
+				std::swap(flags, right.flags);
+			}
+
+			ValueType& operator*() const noexcept {
+				return *value;
+			}
+
+			ValueType* operator->() const noexcept {
+				return value.operator->();
+			}
+
+			ValueType* get() const noexcept {
+				return value.get();
+			}
+
+			explicit operator bool() const noexcept {
+				return isAvaiable();
+			}
+
+			bool empty() const noexcept {
+				return isAvaiable();
+			}
+
+			ValueType* release() noexcept {
+				flags = undefined;
+				return value.release();
+			}
+
+			void reset() noexcept {
+				value.reset();
+			}
+
+			template<class TypeX>
+			void reset(ValueType* ptr) noexcept {
+				value.reset(ptr);
+			}
+
+			template<class TypeX, class Deleter>
+			void reset(ValueType* ptr, Deleter deleter) noexcept {
+				value.reset(ptr, deleter);
+			}
+
+			template<class TypeX, class Deleter, class Alloc>
+			void reset(ValueType* ptr, Deleter deleter, Alloc allocator) noexcept {
+				value.reset(ptr, deleter, allocator);
+			}
+
+			long use_count() const noexcept {
+				return value.use_count();
+			}
+
+			void setToUndefined() noexcept {
+				reset();
+				flags = undefined;
+			}
+
+			Container& getSmartPtr() const noexcept {
+				return value;
+			}
+
+		private:
+			Container value;
+			FlagType flags = undefined;
+		};
+
+		template<class MaybeType, template<class...> class TypeHelper>
+		struct MaybeTypeHelper : public EmptyFunction<MaybeType> {
+			static inline MaybeType toType(const Value& value) {
+				return TypeHelper<typename MaybeType::element_type>::toType(value);
+			}
+			static inline Value fromType(const MaybeType& value, Value::AllocatorType& allocator) {
+				return TypeHelper<typename MaybeType::element_type>::fromType(*value, allocator);
+			}
+		};
+
+		template <template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type,
+			typename = std::enable_if<
+				std::is_same<
+					Type, Maybe<typename Type::ValueType>
+				>::value
+			>
+		>
+		constexpr PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
+			return PairImpl<Class, Type, MaybeTypeHelper<Type, TypeHelper2>>{member, name, type};
+		}		
 	}
 }

@@ -9,89 +9,12 @@ namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	class DiscordObject {
-//	public:
-//		DiscordObject() {}
-//
-//	protected:
-//		//functions for parsing JSON
-//		inline bool getBool(const json::Value& string) {
-//			return string[0] == 't';
-//		}
-//		
-//		//for optional fields
-//		inline bool isSpecified(const json::Value& string) {
-//			return string.length() != 0;
-//		}
-//
-//		//for nullable and opinional fields
-//		inline bool isDefined(const json::Value& string) {
-//			return isSpecified(string) && string != "null";
-//		}
-//
-//		//for nullable fields
-//		inline bool isDefault(const json::Value& string) {
-//			return isSpecified(string) && string == "null";
-//		}
-//		
-//		//pointer to referance convertion, needed or you will get an error
-//		inline bool isSpecified(const json::Value* string) {
-//			return isSpecified(*string);
-//		}
-//
-//		inline bool isDefined(const json::Value* string) {
-//			return isDefined(*string);
-//		}
-//
-//		inline bool isDefault(const json::Value* string) {
-//			return isDefault(*string);
-//		}
-//
-//		//some of those function declarations got so long that
-//		//I gave them muitiple lines
-/*#define \
-		modIf(condition, variable, modifier, value) \
-			if (condition(value)) variable = modifier(value)*/
 #define \
 		modIfElse(condition, modifier, value, el) \
 			condition(value) ? modifier(value) : el
-//
-//		////this doesn't work, but the above does
-//		//template<typename Type>
-//		//void modIf(
-//		//	bool (*condition)(const std::string&),
-//		//	Type& variable, 
-//		//	Type (*function)(const std::string& _source),
-//		//	std::string& value
-//		//) {
-//		//	if (condition(value)) variable = function(value);
-//		//}
-//
-/*#define \
-		setIf(condition, variable, value) \
-			if (condition(value)) variable = value*/
 #define \
 		setIfElse(condition, value, el) \
 			condition(value) ? value : el
-//
-//		template<typename Number>
-//		inline Number toNumber(
-//			Number (*convertFunction)(const std::string&, size_t*, int),
-//			const json::Value& value
-//			) {
-//			return isDefined(value) ? convertFunction(value.to_string(), 0, 10) : 0;
-//		}
-//
-//		inline int toInt(const json::Value& value) {
-//			return toNumber(std::stoi, value);
-//		}
-//
-//		inline long long toLongLong(const json::Value& value) {
-//			return toNumber(std::stoll, value);
-//		}
-//
-//		inline unsigned long toUnsignedLong(const json::Value& value) {
-//			return toNumber(std::stoul, value);
-//		}
 	};
 
 	template <class Derived>
@@ -110,6 +33,10 @@ namespace SleepyDiscord {
 
 		inline bool empty() const {
 			return ID.empty();
+		}
+
+		void merge(Derived& changes) {
+			json::mergeObj(*this, changes);
 		}
 
 		template<class DiscordObject>

@@ -7,12 +7,15 @@ option(ONLY_SLEEPY_DISCORD           "Sleepy Discord but none of the dependencie
 option(ENABLE_VOICE                  "Enable voice support"                                               OFF)
 if (NOT ONLY_SLEEPY_DISCORD)
 	option(AUTO_DOWNLOAD_LIBRARY         "Automatically download sleepy discord standard config dependencies" ON )
+	#option(SLEEPY_FIND_DEPS              "Find Sleepy Discord dependencies using find_ "                      OFF)
 	option(USE_CPR                       "Use CPR http library"                                               ON )
 	option(USE_WEBSOCKETPP               "Use websocketpp websockets library"                                 ON )
 	option(USE_UWEBSOCKETS               "Use uWebsockets websockets library"                                 OFF)
 	option(USE_ASIO                      "Use ASIO network and I/O library (Used for UDP)"                    OFF)
+	option(USE_BOOST_ASIO                "Same as USE_ASIO but for boost library"                             OFF)
 	option(USE_LIBOPUS                   "Use Opus audio codec library"                                       OFF)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
+	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -29,7 +32,11 @@ if(ENABLE_VOICE)
 endif()
 
 if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
-	set(USE_ASIO ON)
+	if(Boost_FOUND) #checks if already defined
+		set(USE_BOOST_ASIO ON)
+	else()
+		set(USE_ASIO ON)
+	endif()
 endif()
 
 find_package(Git)
@@ -53,7 +60,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        b748095
+			GIT_TAG        e627e47
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
@@ -65,7 +72,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           asio
 			GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-			GIT_TAG        22afb86
+			GIT_TAG        master
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
 			UPDATE_DISCONNECTED 1
 		)
@@ -122,6 +129,16 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			TEST_COMMAND        ""
 		)
 	endif()
+
+	if(USE_ZLIB_NG)
+		download_project(
+			PROJ           zlib-ng
+			GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+			GIT_TAG        develop
+			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/zlib-ng
+			UPDATE_DISCONNECTED 1
+		)
+	endif()
 else()
 	if(USE_CPR)
 		set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
@@ -159,7 +176,9 @@ if(USE_CPR)
 	if(NOT DEFINED CMAKE_USE_OPENSSL)
 		if(WIN32)
 			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(USE_WINSSL ON CACHE BOOL "")
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
+			set(USE_OPENSSL OFF CACHE BOOL "")
 		elseif(APPLE)
 			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
@@ -184,6 +203,10 @@ endif()
 
 if(USE_LIBOPUS)
 	add_subdirectory(deps/opus)
+endif()
+
+if(USE_ZLIB_NG)
+	add_subdirectory(deps/zlib-ng)
 endif()
 
 # Get Version Info
@@ -224,8 +247,21 @@ if(Git_FOUND)
 	else()
 		set(SLEEPY_DISCORD_VERSION_DESCRIPTION_CONCAT "")
 	endif()
+	if(DEFINED ${SLEEPY_DISCORD_VERSION_BUILD})
+		configure_file(
+			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h.in"
+			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
+		)
+	else()
+		set(GIT_INFO_FOUND FALSE)
+	endif()
+else()
+	set(GIT_INFO_FOUND FALSE)
+endif()
+
+if(NOT GIT_INFO_FOUND)
 	configure_file(
-		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h.in"
+		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version-non.h.in"
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
 	)
 endif()

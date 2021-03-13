@@ -66,8 +66,6 @@ namespace SleepyDiscord {
 		Snowflake<Channel>     parentID;             //optional and nullable,     used in server       channels
 		std::string            lastPinTimestamp;     //optional,                  used in         text channels
 
-		//const static std::initializer_list<const char*const> fields;
-
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&Channel::ID                   , "id"                   , json::REQUIRIED_FIELD        ),
@@ -88,5 +86,12 @@ namespace SleepyDiscord {
 				json::pair                           (&Channel::lastPinTimestamp     , "last_pin_timestamp"   , json::OPTIONAL_FIELD         )
 			);
 		JSONStructEnd
+	};
+
+	template<>
+	struct GetDefault<Channel::ChannelType> {
+		static inline const Channel::ChannelType get() {
+			return Channel::ChannelType::CHANNEL_TYPE_NONE;
+		}
 	};
 }

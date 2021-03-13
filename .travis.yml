@@ -6,11 +6,20 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
+      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
     - gcc-5
     - g++-5
-    - cmake
     - libcurl4-openssl-dev
+
+before_install:
+  #travis ci has it's own version of cmake that we need to replace
+  - mkdir $HOME/usr
+  - export PATH="$HOME/usr/bin:$PATH"
+  - curl -sSL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-Linux-x86_64.sh --output cmake-install.sh
+  - chmod +x cmake-install.sh
+  - ./cmake-install.sh --prefix=$HOME/usr --exclude-subdir --skip-license
 
 install:
   - export CXX="g++-5" CC="gcc-5";
@@ -18,5 +27,6 @@ install:
 script:
 - g++-5 --version
 - cd buildtools
+- cmake --version
 - cmake .. -DSLEEPY_DISCORD_BUILD_EXAMPLES=1
 - make

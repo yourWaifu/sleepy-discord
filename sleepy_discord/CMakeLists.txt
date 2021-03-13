@@ -1,5 +1,4 @@
-add_library(sleepy-discord
-	asignments_client.cpp
+add_library(sleepy-discord STATIC
 	asio_udp.cpp
 	attachment.cpp
 	channel.cpp
@@ -22,6 +21,7 @@ add_library(sleepy-discord
 	voice_connection.cpp
 	webhook.cpp
 	websocketpp_websocket.cpp
+	zlib-ng_compression.cpp
 )
 
 target_include_directories(sleepy-discord
@@ -32,14 +32,15 @@ target_include_directories(sleepy-discord
 		${PROJECT_SOURCE_DIR}/include/sleepy_discord
 )
 
+set(SLEEPY_INCLUDE_NONEXIST
+	${PROJECT_SOURCE_DIR}/include/sleepy_discord/IncludeNonexistent)
+
 #The codebase is c++11 but both clang and visual c++ have issues with c++11
 #These issues are fixed by using preprocessor defines to replace code that
 #cause issues with c++14 code
-if (CXX_STANDARD LESS 14 OR NOT CXX_STANDARD)
-	set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD 14)
-	set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
-	target_compile_features(sleepy-discord PUBLIC cxx_std_14)
-endif()
+set_target_properties(sleepy-discord PROPERTIES CXX_STANDARD_REQUIRED ON)
+target_compile_features(sleepy-discord PUBLIC cxx_std_11 cxx_return_type_deduction)
+
 target_compile_definitions(sleepy-discord PUBLIC SLEEPY_DISCORD_CMAKE)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -65,7 +66,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	if(USE_ASIO)
 		target_include_directories(sleepy-discord PUBLIC ${asio_SOURCE_DIR}/asio/include)
 		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ASIO)
-	else()
+	elseif(USE_BOOST_ASIO)
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ASIO)
 		#Look for boost as an alt
 		find_package(Boost)
@@ -119,7 +120,6 @@ if (NOT ONLY_SLEEPY_DISCORD)
 			add_dependencies(sleepy-discord libsodium-make)
 			ExternalProject_Get_property(libsodium-make BINARY_DIR)
 			set(libsodium-make_BINARY_DIR ${BINARY_DIR})
-			message(WARNING ${libsodium-make_BINARY_DIR})
 			set(
 				LIB_SODIUM_BUILDS 
 				${libsodium-make_BINARY_DIR}/src/libsodium/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}sodium${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -135,12 +135,29 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	else()
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_SODIUM)
 	endif()
+
+	if(USE_ZLIB_NG)
+		get_target_property(ZLIB_BINARY_DIR zlib BINARY_DIR)
+		target_include_directories(sleepy-discord PUBLIC ${zlib-ng_SOURCE_DIR}/../ ${ZLIB_BINARY_DIR})
+		list(APPEND LIBRARIES_TO_LINK "zlib")
+		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ZLIB_NG)
+	else()
+		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ZLIB_NG)
+	endif()
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
+else()
+	target_compile_definitions(sleepy-discord PUBLIC
+		NONEXISTENT_CPR
+		NONEXISTENT_ASIO
+		NONEXISTENT_BOOST_ASIO
+		NONEXISTENT_WEBSOCKETPP
+		NONEXISTENT_UWEBSOCKETS
+		NONEXISTENT_OPUS
+		NONEXISTENT_SODIUM)
 endif()
 
 if(NOT Git_FOUND)
 	target_compile_definitions(sleepy-discord PRIVATE NONEXISTANT_GIT_INFO)
-
 endif()
 
 if(ENABLE_VOICE)

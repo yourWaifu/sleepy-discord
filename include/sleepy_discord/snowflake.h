@@ -57,6 +57,12 @@ namespace SleepyDiscord {
 			return std::chrono::time_point<std::chrono::steady_clock>(std::chrono::milliseconds((std::stoll(raw) >> 22) + discordEpoch));
 		}
 
+		inline const bool empty() const { return raw.empty(); }
+
+		inline json::Value serialize(typename json::Value::AllocatorType& alloc) const {
+			return json::ClassTypeHelper<RawType>::fromType(raw, alloc);
+		}
+
 		template<class iterator>
 		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {

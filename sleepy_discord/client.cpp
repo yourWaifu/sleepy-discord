@@ -26,16 +26,11 @@ namespace SleepyDiscord {
 		ready = false;
 		quiting = false;
 		bot = true;
-		token = std::unique_ptr<std::string>(new std::string(_token)); //add client to list
+		setToken(_token);
 		if (_shardID != 0 || _shardCount != 0)
 			setShardID(_shardID, _shardCount);
 
 		messagesRemaining = 4;
-		getTheGateway();
-		connect(theGateway, this, connection);
-#ifndef SLEEPY_ONE_THREAD
-		if (USE_RUN_THREAD <= maxNumOfThreads) runAsync();
-#endif
 	}
 
 	BaseDiscordClient::~BaseDiscordClient() {
@@ -43,9 +38,10 @@ namespace SleepyDiscord {
 		if (heart.isValid()) heart.stop();
 	}
 
-	void RateLimiter::limitBucket(Route::Bucket& bucket, time_t timestamp) {
+	void RateLimiter::limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp) {
 		std::lock_guard<std::mutex> lock(mutex);
-		buckets[bucket] = timestamp;
+		buckets[bucket] = xBucket;
+		limits[xBucket] = timestamp;
 	}
 
 	const time_t RateLimiter::getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
@@ -53,11 +49,15 @@ namespace SleepyDiscord {
 				return nextRetry;
 		isGlobalRateLimited = false;
 		std::lock_guard<std::mutex> lock(mutex);
-		auto bucketResetTimestamp = buckets.find(bucket);
-		if (bucketResetTimestamp != buckets.end()) {
-			if (currentTime < bucketResetTimestamp->second)
-				return bucketResetTimestamp->second;
-			buckets.erase(bucketResetTimestamp);
+		auto actualBucket = buckets.find(bucket);
+		if (actualBucket != buckets.end()) {
+			auto bucketResetTimestamp = limits.find(actualBucket->second);
+			if (bucketResetTimestamp != limits.end()) {
+				if (currentTime < bucketResetTimestamp->second)
+					return bucketResetTimestamp->second;
+				limits.erase(bucketResetTimestamp);
+			}
+			buckets.erase(actualBucket);
 		}
 		return 0;
 	}
@@ -70,14 +70,29 @@ namespace SleepyDiscord {
 		const time_t currentTime = getEpochTimeMillisecond();
 		response.birth = currentTime;
 		Route::Bucket bucket = path.bucket(method);
+
+		bool shouldCallCallback = true;
+		const auto handleCallbackCall = [&]() {
+			if (shouldCallCallback && callback)
+				callback(response);
+		};
+		const auto handleExceededRateLimit = [=, &shouldCallCallback](std::time_t timeTilRetry) {
+			onExceededRateLimit(
+				rateLimiter.isGlobalRateLimited, timeTilRetry,
+				{ *this, method, path, jsonParameters, multipartParameters, callback, mode },
+				shouldCallCallback
+			);
+		};
+
 		time_t nextTry = rateLimiter.getLiftTime(bucket, currentTime);
 		if (0 < nextTry) {
-			onExceededRateLimit(
-				rateLimiter.isGlobalRateLimited, nextTry - currentTime,
-				{ *this, method, path, jsonParameters, multipartParameters, callback, mode }
-			);
+			handleExceededRateLimit(nextTry - currentTime);
 			response.statusCode = TOO_MANY_REQUESTS;
-			setError(response.statusCode);
+			onError(TOO_MANY_REQUESTS,
+				"Too many request going to " +
+					std::string(getMethodName(method)) + " " +
+					path.url());
+			handleCallbackCall();
 			return response;
 		}
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
@@ -108,6 +123,26 @@ namespace SleepyDiscord {
 			default: response.statusCode = BAD_REQUEST; break; //unexpected method
 			}
 
+			//rate limit check
+			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
+				std::tm date = {};
+				//for some reason std::get_time requires gcc 5
+				std::istringstream dateStream(response.header["Date"]);
+				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
+				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
+#if defined(_WIN32) || defined(_WIN64)
+				std::tm gmTM;
+				std::tm*const resetGM = &gmTM;
+				gmtime_s(resetGM, &reset);
+#else
+				std::tm* resetGM = std::gmtime(&reset);
+#endif
+				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
+				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeMillisecond());
+				onDepletedRequestSupply(bucket, resetDelta);
+			}
+
 			//status checking
 			switch (response.statusCode) {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
@@ -118,14 +153,12 @@ namespace SleepyDiscord {
 					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
+					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
-						rateLimiter.limitBucket(bucket, rateLimiter.nextRetry);
+						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
 						onDepletedRequestSupply(bucket, retryAfter);
 					}
-					onExceededRateLimit(
-						rateLimiter.isGlobalRateLimited, retryAfter,
-						{ *this, method, path, jsonParameters, multipartParameters, callback, mode }
-					);
+					handleExceededRateLimit(retryAfter);
 				}
 			default:
 				{		//error
@@ -146,7 +179,7 @@ namespace SleepyDiscord {
 						onError(
 							static_cast<ErrorCode>(errorCode->value.GetInt()),
 							{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-					);
+						);
 					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
@@ -157,27 +190,7 @@ namespace SleepyDiscord {
 				} break;
 			}
 
-			//rate limit check
-			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				rateLimiter.limitBucket(bucket, resetDelta + getEpochTimeMillisecond());
-				onDepletedRequestSupply(bucket, resetDelta);
-			}
-
-			if (callback)
-				callback(response);
+			handleCallbackCall();
 		}
 		onResponse(response);
 		return response;
@@ -201,8 +214,11 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request) {
-		if (static_cast<int>(request.mode) & static_cast<int>(AsyncQueue)) {
+	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request, bool& continueRequest) {
+		bool shouldScheduleNewRequest =
+			static_cast<int>(request.mode) & static_cast<int>(AsyncQueue);
+		continueRequest = !shouldScheduleNewRequest;
+		if (shouldScheduleNewRequest) {
 			//since we are scheduling the request, I think we should make it async
 			request.mode = Async;
 			schedule(request, timeTilRetry);
@@ -228,6 +244,19 @@ namespace SleepyDiscord {
 		}));
 	}
 
+	void BaseDiscordClient::requestServerMembers(ServerMembersRequest request) {
+		auto data = json::toJSON(request);
+		std::string stringData = json::stringify(data);
+
+		std::string query;
+		query.reserve(14 + stringData.length());
+		query += "{\"op\":8,\"d\":";
+		query += stringData;
+		query += "}";
+
+		sendL(query);
+	}
+
 	void BaseDiscordClient::waitTilReady() {
 		while (!ready) sleep(1000);
 	}
@@ -239,10 +268,13 @@ namespace SleepyDiscord {
 
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
-		theGateway = "wss://gateway.discord.gg/?v=6";	//This is needed for when session is disabled
+	#ifndef SLEEPY_HARD_CODED_GATEWAY
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=6"
+	#endif
+		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
 		Session session;
-		session.setUrl("https://discordapp.com/api/gateway");
+		session.setUrl("https://discord.com/api/gateway");
 		Response a = session.request(Get);	//todo change this back to a post
 		if (!a.text.length()) {	//error check
 			quit(false, true);
@@ -265,6 +297,8 @@ namespace SleepyDiscord {
 			}
 		}
 #endif
+		if (useTrasportConnection == 1)
+			theGateway += "&compress=zlib-stream";
 	}
 
 	void BaseDiscordClient::sendIdentity() {
@@ -276,8 +310,6 @@ namespace SleepyDiscord {
 		//			$os":"windows 10",
 		//			"$browser":"Sleepy_Discord",
 		//			"$device":"Sleepy_Discord",
-		//			"$referrer":"",			//I don't know what this does
-		//			"$referring_domain":""		//I don't know what this does
 		//		},
 		//		"compress":false,
 		//		"large_threshold":250			/I don't know what this does
@@ -306,11 +338,11 @@ namespace SleepyDiscord {
 				"\"properties\":{"
 					"\"$os\":\""; identity += os; identity += "\","
 					"\"$browser\":\"Sleepy_Discord\","
-					"\"$device\":\"Sleepy_Discord\","
-					"\"$referrer\":\"\","
-					"\"$referring_domain\":\"\""
+					"\"$device\":\"Sleepy_Discord\""
 				"},"
-				"\"compress\":false,";
+				"\"compress\":";
+					identity += compressionHandler && useTrasportConnection != 1 ?
+						"true" : "false"; identity += ",";
 		if (shardCount != 0 && shardID <= shardCount) {
 			identity +=
 				"\"shard\":[";
@@ -374,21 +406,30 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
-		if (status != 1000) {         //check for a deliberate reconnect
-			heartbeatInterval = 0;    //stop heartbeating
-			wasHeartbeatAcked = true; //stops the library from spamming discord
-		}
+		//before disconnecting, heartbeats need to stop or it'll crash
+		//and if it doesn't, it'll cause another reconnect
+		if (heart.isValid()) heart.stop();
+		//reset some heartbeat values, done so we don't spam discord
+		wasHeartbeatAcked = true;
+		lastHeartbeat = 0;
+		heartbeatInterval = 0;
+
 		disconnectWebsocket(status);
 		if (consecutiveReconnectsCount == 10) getTheGateway();
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
-			connect(theGateway, this, connection);
+			//if not a successful reconnection
+			if (consecutiveReconnectsCount != 0)
+				connect(theGateway, this, connection);
 		}, getRetryDelay());
-		++consecutiveReconnectsCount;
+		consecutiveReconnectsCount += 1;
+
+		if (useTrasportConnection == 1)
+			compressionHandler->resetStream();
 
 		for (VoiceConnection& voiceConnection : voiceConnections) {
-			disconnect(1001, "", voiceConnection.connection);
+			disconnect(4900, "", voiceConnection.connection);
 	}
 	}
 
@@ -423,16 +464,13 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::processMessage(const std::string &message) {
 		rapidjson::Document document;
 		document.Parse(message.c_str(), message.length());
-		//json::Values values = json::getValues(message.c_str(),
-		//	{ "op", "d", "s", "t" });
+		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
 		const json::Value& t = document["t"];
-		//const nonstd::string_view t(tValue.GetString(), tValue.GetStringLength);
 		const json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
-			consecutiveReconnectsCount = 0; //Successfully connected
 			switch (hash(json::toStdString(t).c_str())) {
 			case hash("READY"                      ): {
 				Ready readyData = d;
@@ -441,8 +479,12 @@ namespace SleepyDiscord {
 				userID = readyData.user;
 				onReady(readyData);
 				ready = true;
+				consecutiveReconnectsCount = 0; //Successfully connected
 				} break;
-			case hash("RESUMED"                    ): onResumed            (); break;
+			case hash("RESUMED"                    ): 
+				consecutiveReconnectsCount = 0; //Successfully connected
+				onResumed();
+				break;
 			case hash("GUILD_CREATE"               ): {
 				Server server(d);
 				if (serverCache)
@@ -496,7 +538,7 @@ namespace SleepyDiscord {
 				);
 				onEditMember(serverID, user, roles, nick);
 				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d["guild_id"], json::toArray<ServerMember>(d["members"])); break;
+			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
 			case hash("GUILD_ROLE_CREATE"          ): {
 				Snowflake<Server> serverID = d["guild_id"];
 				Role role = d["role"];
@@ -551,7 +593,6 @@ namespace SleepyDiscord {
 			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
 			case hash("PRESENCES_REPLACE"          ):                          break;
 			case hash("USER_UPDATE"                ): onEditUser          (d); break;
-			case hash("USER_NOTE_UPDATE"           ): onEditUserNote      (d); break;
 			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
 			case hash("VOICE_STATE_UPDATE"         ): {
 				VoiceState state(d);
@@ -593,15 +634,11 @@ namespace SleepyDiscord {
 #endif
 				onEditVoiceServer(voiceServer);
 				} break;
-			case hash("GUILD_SYNC"                 ): onServerSync        (d); break;
-			case hash("RELATIONSHIP_ADD"           ): onRelationship      (d); break;
-			case hash("RELATIONSHIP_REMOVE"        ): onDeleteRelationship(d); break;
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
 			default: 
-				setError(EVENT_UNKNOWN);
-				onError(ERROR_NOTE, json::toStdString(t));
+				onUnknownEvent(json::toStdString(t), d);
 				break;
 			}
 			onDispatch(d);
@@ -629,6 +666,50 @@ namespace SleepyDiscord {
 			wasHeartbeatAcked = true;
 			onHeartbeatAck();
 			break;
+		}
+	}
+
+	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
+		switch (message.opCode) {
+		case WebSocketMessage::OPCode::binary: {
+			if (!compressionHandler)
+				break;
+			compressionHandler->uncompress(message.payload);
+			
+			//when using transport connections, Discord ends streams the flush siginal
+			constexpr std::array<const char, 4> flushSiginal = { 0, 0, '\xFF', '\xFF'};
+			constexpr std::size_t siginalLength = flushSiginal.max_size();
+			bool endsWithFlushSiginal = false;
+			if (useTrasportConnection == 1 && siginalLength <= message.payload.length()) {
+				const auto compare = message.payload.compare(
+					message.payload.length() - siginalLength, siginalLength,
+					flushSiginal.data(), siginalLength);
+				endsWithFlushSiginal = compare == 0;
+			}
+
+			//trasportConnection doesn't stop the stream
+			bool streamEnded = useTrasportConnection != 1 && compressionHandler->streamEnded();
+
+			if (streamEnded || endsWithFlushSiginal) {
+				std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
+				compressionHandler->getOutput(*uncompressed);
+				postTask(
+					[this, uncompressed]() {
+						processMessage(*uncompressed);
+					}
+				);
+			}
+			break;
+		}
+		case WebSocketMessage::OPCode::text: {
+			postTask(
+				[this, message]() {
+					processMessage(message.payload);
+				}
+			);
+			break;
+		}
+		default: break;
 		}
 	}
 
@@ -663,8 +744,12 @@ namespace SleepyDiscord {
 		case DISALLOWED_INTENTS:
 			return quit(false, true);
 			break;
+
+		case 4900: //Sleepy Discord reconnect
+			//don't do another reconnect during a reconnect
+			return;
 		}
-		reconnect(1001);
+		reconnect();
 	}
 
 	void BaseDiscordClient::heartbeat() {
@@ -679,27 +764,92 @@ namespace SleepyDiscord {
 		}
 
 		if (!wasHeartbeatAcked) {
-			reconnect(1001);
-		} else {
-			sendHeartbeat();
+			//dead connection
+			reconnect();
+			return; //don't heartbeat
 		}
 
+		sendHeartbeat();
 		lastHeartbeat = currentTime;
 
+		if (heart.isValid())
+			heart.stop();
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
 	}
 
-	void BaseDiscordClient::sendHeartbeat() {
-		std::string str = std::to_string(lastSReceived);
-		std::string heartbeat;
-		//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
-		heartbeat.reserve(18 + str.length());
-		heartbeat += 
-			"{"
-				"\"op\":1,"
-				"\"d\":"; heartbeat += str; heartbeat +=
+	//The number 10 comes from the largest unsigned int being 10 digits long
+	using DBuffer = std::array<char, 10>;
+	//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
+	using HeartbeatBuffer = std::array<char, 18 + std::tuple_size<DBuffer>::value>;
+
+	struct Heartbeat {
+		HeartbeatBuffer buffer;
+		std::size_t length;
+	};
+
+	//please only call during compile time
+	constexpr std::size_t length(const char* str) {
+		return *str ? 1 + length(str + 1) : 0;
+	}
+
+	//no reason for this to be so optimized but I just felt like it one day
+#ifdef __cpp_lib_array_constexpr
+	constexpr
+#endif
+	Heartbeat generateHeatbeat(const unsigned int lastSReceived) {
+		DBuffer dBuffer {};
+		//can't find a number to std array so a custom one is made here
+		auto reverseNext = dBuffer.end();
+		auto trunc = lastSReceived;
+		do {
+			reverseNext -= 1;
+			*reverseNext = '0' + (trunc % 10);
+			trunc /= 10;
+		} while (trunc != 0);
+		
+		const nonstd::string_view d{&(*reverseNext),
+			std::size_t(dBuffer.end() - reverseNext)};
+
+		constexpr auto startBuffer =
+		"{"
+			"\"op\":1,"
+			"\"d\":";
+		const
+		constexpr auto endBuffer = 
 			"}";
-		sendL(heartbeat);
+		constexpr auto startLength = length(startBuffer);
+		//this works because char is one btye
+		constexpr auto endLength = length(endBuffer);
+		constexpr auto start = nonstd::string_view{startBuffer, startLength};
+		constexpr auto end = nonstd::string_view{endBuffer, endLength};
+
+
+		const std::array<nonstd::string_view, 3> toConcat {{
+			start, d, end
+		}};
+
+		Heartbeat heartbeat = {};
+		HeartbeatBuffer& heartbeatBuffer = heartbeat.buffer;
+		std::size_t& index = heartbeat.length;
+		for (const auto& source : toConcat)
+		{
+			auto dest = heartbeatBuffer.begin() + index;
+
+			//memcpy not avaiable at compile time
+			for (std::size_t index = 0; index < source.length(); index += 1) {
+				dest[index] = source[index];
+			}
+			index += source.length();
+		}
+
+		return heartbeat;
+	}
+
+	void BaseDiscordClient::sendHeartbeat() {
+		const auto heartbeat = generateHeatbeat(lastSReceived);
+		const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
+		//to do switch sendL to string_view
+		sendL(std::string{message.data(), message.length()});
 		wasHeartbeatAcked = false;
 		onHeartbeat();
 	}
