@@ -60,7 +60,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        e627e47
+			GIT_TAG        f0a72a9
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
@@ -169,28 +169,11 @@ if(USE_CPR)
 
 	set(BUILD_CURL_EXE OFF CACHE BOOL "")
 	set(CURL_STATICLIB ON CACHE BOOL "")
-	set(CURL_ZLIB OFF CACHE BOOL "")
+	set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
 
-	#set what ssl library to use for curl based on OS
-	#this fixes
-	if(NOT DEFINED CMAKE_USE_OPENSSL)
-		if(WIN32)
-			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
-			set(USE_WINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-			set(USE_OPENSSL OFF CACHE BOOL "")
-		elseif(APPLE)
-			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		elseif(UNIX)
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		endif()
-	endif()
-	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		#using cmake to configure curl on linux has issues
-		#so use system curl
-		set(USE_SYSTEM_CURL ON CACHE BOOL "")
-	endif()
+	#using cmake to configure curl has issues
+	#so use system curl
+	set(USE_SYSTEM_CURL ON CACHE BOOL "")
 
 	add_subdirectory(deps/cpr)
 endif()
