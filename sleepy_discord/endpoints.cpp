@@ -211,7 +211,7 @@ namespace SleepyDiscord {
 	//
 	ObjectResponse<Channel> BaseDiscordClient::createTextChannel(Snowflake<Server> serverID, std::string name, RequestSettings<ObjectResponse<Channel>> settings) {
 		return ObjectResponse<Channel>{
-			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": \"text\"}")
+			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": 0}")
 		};
 	}
 

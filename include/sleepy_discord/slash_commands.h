@@ -182,6 +182,10 @@ namespace SleepyDiscord {
 		std::string content;
 		std::vector<Embed> embeds;
 		AllowedMentions allowedMentions;
+		enum class Flags : int {
+			NONE = 0,
+			Ephemeral = 64
+		};
 
 		JSONStructStart
 			std::make_tuple(
