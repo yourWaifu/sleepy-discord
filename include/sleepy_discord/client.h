@@ -319,7 +319,7 @@ namespace SleepyDiscord {
 		//This way, we can use use the EmptyOptions type as default and still let uses options via a vector or list without any copying
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createGlobalAppCommand(
-			Snowflake<DiscordObject> applicationID, std::string name, std::string description, Options& options = AppCommand::emptyOptions,
+			Snowflake<DiscordObject>::RawType applicationID, std::string name, std::string description, Options& options = AppCommand::emptyOptions,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Post, path("applications/{application.id}/commands", { applicationID }), settings,
@@ -327,19 +327,19 @@ namespace SleepyDiscord {
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editGlobalAppCommand(
-			Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description,
 			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Patch,
 				path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings,
 				createApplicationCommandBody(name, description, options, true)) };
 		}
-		ArrayResponse<AppCommand> getGlobalAppCommands(Snowflake<DiscordObject> applicationID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
-		ObjectResponse<AppCommand> getGlobalAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
-		BoolResponse deleteGlobalAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		ArrayResponse<AppCommand> getGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getGlobalAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteGlobalAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createServerAppCommand(
-			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
 			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Post,
@@ -348,7 +348,7 @@ namespace SleepyDiscord {
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editServerAppCommand(
-			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
 			std::string description, Options& options = AppCommand::emptyOptions,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
@@ -356,18 +356,18 @@ namespace SleepyDiscord {
 				path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings,
 				createApplicationCommandBody(name, description, options, true)) };
 		}
-		ArrayResponse<AppCommand> getServerAppCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
-		ObjectResponse<AppCommand> getServerAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
-		BoolResponse deleteServerAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		ArrayResponse<AppCommand> getServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
 		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response, RequestSettings<BoolResponse> settings = {});
-		//Response editOriginalInteractionResponse();
-		BoolResponse deleteOriginalInteractionResponse(std::string interactionToken, RequestSettings<BoolResponse> settings = {});
-		//Response createFollowupMessage(std::string interactionToken,)
-		//Response editFollowupMessage(std::string interactionToken, Snowflake<Message> messageID)
-		BoolResponse deleteFollowupMessage(std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> editOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> editFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createAppCommand(
-			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
 			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, settings);
@@ -375,15 +375,15 @@ namespace SleepyDiscord {
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editAppCommand(
-			Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
 			std::string description, Options& options = AppCommand::emptyOptions,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			if (serverID.empty()) return editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
 			return editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
 		}
-		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID);
-		BoolResponse deleteAppCommand(Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID);
+		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID);
+		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID);
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);

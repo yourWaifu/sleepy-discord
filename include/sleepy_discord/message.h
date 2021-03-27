@@ -324,4 +324,35 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
+
+	struct EditWebhookParams : public DiscordObject {
+	public:
+		std::string content;
+		std::vector<Embed> embeds;
+		AllowedMentions allowedMentions;
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&EditWebhookParams::content        , "content"         , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&EditWebhookParams::embeds         , "embeds"          , json::OPTIONAL_FIELD),
+				json::pair                           (&EditWebhookParams::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
+	struct WebHookParams : public EditWebhookParams {
+	public:
+		std::string username;
+		std::string avatarURL;
+		bool tts = false;
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&WebHookParams::content         , "content"          , json::OPTIONAL_FIELD ),
+				json::pair                           (&WebHookParams::username        , "username"         , json::OPTIONAL_FIELD ),
+				json::pair                           (&WebHookParams::avatarURL       , "avatar_url"       , json::OPTIONAL_FIELD ),
+				json::pair                           (&WebHookParams::tts             , "tts"              , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&WebHookParams::embeds          , "embeds"           , json::OPTIONAL_FIELD ),
+				json::pair                           (&WebHookParams::allowedMentions , "allowed_mentions" , json::OPTIONAL_FIELD )
+			);
+		JSONStructEnd
+	};
 }

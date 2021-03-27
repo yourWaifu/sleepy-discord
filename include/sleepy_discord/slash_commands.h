@@ -174,25 +174,26 @@ namespace SleepyDiscord {
 		value = _val; //moves
 	}
 
-	struct InteractionAppCommandCallbackData : public DiscordObject {
+	struct InteractionAppCommandCallbackData : public EditWebhookParams {
 		InteractionAppCommandCallbackData() = default;
 		InteractionAppCommandCallbackData(const json::Value & json);
 		InteractionAppCommandCallbackData(const nonstd::string_view & json);
+
+		inline const bool empty() const { return content.empty() && embeds.empty(); }
+
 		bool tts = false;
-		std::string content;
-		std::vector<Embed> embeds;
-		AllowedMentions allowedMentions;
 		enum class Flags : int {
 			NONE = 0,
 			Ephemeral = 64
-		};
+		} flags;
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&InteractionAppCommandCallbackData::tts            , "tts"             , json::OPTIONAL_FIELD ),
-				json::pair                           (&InteractionAppCommandCallbackData::content        , "content"         , json::REQUIRIED_FIELD),
-				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::embeds         , "embeds"          , json::OPTIONAL_FIELD ),
-				json::pair                           (&InteractionAppCommandCallbackData::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD )
+				json::pair                           (&InteractionAppCommandCallbackData::tts            , "tts"             , json::OPTIONAL_FIELD),
+				json::pair                           (&InteractionAppCommandCallbackData::content        , "content"         , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::embeds         , "embeds"          , json::OPTIONAL_FIELD),
+				json::pair                           (&InteractionAppCommandCallbackData::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
+				json::pair<json::EnumTypeHelper     >(&InteractionAppCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
@@ -219,7 +220,7 @@ namespace SleepyDiscord {
 				Acknowledge = 2,
 				ChannelMessage = 3,
 				ChannelMessageWithSource = 4,
-				ACKWithSource = 5,
+				DeferredChannelMessageWithSource = 5,
 			};
 
 			Type type;

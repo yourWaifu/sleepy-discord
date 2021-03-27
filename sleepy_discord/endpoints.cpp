@@ -546,39 +546,75 @@ namespace SleepyDiscord {
 		}) };
 	}
 
-	ArrayResponse<AppCommand> BaseDiscordClient::getGlobalAppCommands(Snowflake<DiscordObject> applicationID, RequestSettings<ArrayResponse<AppCommand>> settings) {
+	ArrayResponse<AppCommand> BaseDiscordClient::getGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, RequestSettings<ArrayResponse<AppCommand>> settings) {
 		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands", { applicationID }), settings) };
 	}
 
 	ObjectResponse<AppCommand> BaseDiscordClient::getGlobalAppCommand(
-		Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID,
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID,
 		RequestSettings<ObjectResponse<AppCommand>> settings
 	) {
 		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings) };
 	}
 
 	BoolResponse BaseDiscordClient::deleteGlobalAppCommand(
-		Snowflake<DiscordObject> applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
 	) {
 		return { request(Delete, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings), EmptyRespFn() };
 	}
 
 	ArrayResponse<AppCommand> BaseDiscordClient::getServerAppCommands(
-		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings
 	) {
 		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings) };
 	}
 
 	ObjectResponse<AppCommand> BaseDiscordClient::getServerAppCommand(
-		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID,
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID,
 		RequestSettings<ObjectResponse<AppCommand>> settings
 	) {
 		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings) };
 	}
 
 	BoolResponse BaseDiscordClient::deleteServerAppCommand(
-		Snowflake<DiscordObject> applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
 	) {
 		return { request(Delete, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::createInteractionResponse(
+		Snowflake<Interaction> interactionID, std::string token, Interaction::Response response, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Post, path("interactions/{interaction.id}/{interaction.token}/callback", { interactionID, token }), settings, json::stringifyObj(response)), EmptyRespFn() };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::editOriginalInteractionResponse(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/@original", { applicationID, interactionToken }), settings, json::stringifyObj(params)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteOriginalInteractionResponse(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/@original", { applicationID, interactionToken }), settings), EmptyRespFn() };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::createFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Post, path("webhooks/{application.id}/{interaction.token}", { applicationID, interactionToken }), settings, json::stringifyObj(params)) };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::editFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings, json::stringifyObj(params)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
 	}
 }
