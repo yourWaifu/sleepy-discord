@@ -7,7 +7,7 @@ option(ONLY_SLEEPY_DISCORD           "Sleepy Discord but none of the dependencie
 option(ENABLE_VOICE                  "Enable voice support"                                               OFF)
 if (NOT ONLY_SLEEPY_DISCORD)
 	option(AUTO_DOWNLOAD_LIBRARY         "Automatically download sleepy discord standard config dependencies" ON )
-	#option(SLEEPY_FIND_DEPS              "Find Sleepy Discord dependencies using find_ "                      OFF)
+	option(SLEEPY_VCPKG                  "VCPKG with Sleepy Discord"                                          OFF)
 	option(USE_CPR                       "Use CPR http library"                                               ON )
 	option(USE_WEBSOCKETPP               "Use websocketpp websockets library"                                 ON )
 	option(USE_UWEBSOCKETS               "Use uWebsockets websockets library"                                 OFF)
@@ -16,6 +16,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(USE_LIBOPUS                   "Use Opus audio codec library"                                       OFF)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
+	option(USE_ZLIB                      "Use zlib for data compression"                                      OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -60,7 +61,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        f0a72a9
+			GIT_TAG        aac5058
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
