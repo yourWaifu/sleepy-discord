@@ -112,6 +112,10 @@ namespace SleepyDiscord {
 				std::tm gmTM;
 				std::tm* const resetGM = &gmTM;
 				gmtime_s(resetGM, &reset);
+#elif defined(__STDC_LIB_EXT1__)
+				std::tm gmTM;
+				std::tm* resetGM = &gmTM;
+				gmtime_s(&reset, resetGM);
 #else
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
