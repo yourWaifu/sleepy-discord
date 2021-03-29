@@ -23,7 +23,7 @@ private:
 			player(game.player), state(game.state), endGameTimer(game.endGameTimer) {}
 #ifdef _DEBUG
 		~Game() {
-				std::cout << "DUBUG: game removed\n";
+				std::cout << "DEBUG: game removed\n";
 		}
 #endif
 		
@@ -66,7 +66,7 @@ public:
 		if (message.startsWith("whcg hello")) {
 			games.push_back(Game(message.author));	//create a game put it on the end of the list of games
 #ifdef _DEBUG
-			std::cout << "DUBUG: New game created. Number of games: " << games.size() << '\n';
+			std::cout << "DEBUG: New game created. Number of games: " << games.size() << '\n';
 #endif
 			std::list<Game>::iterator game = --(games.end());
 			*game->state = GET_READY;
@@ -102,7 +102,7 @@ public:
 		for (Game& game : games) {
 			if (game.player == message.author) {
 #ifdef _DEBUG
-				std::cout << "DUBUG: Player detected " << game.player.username << " state: " << *game.state << '\n';
+				std::cout << "DEBUG: Player detected " << game.player.username << " state: " << *game.state << '\n';
 #endif
 				switch (*game.state) {
 				case SHOOT: {
