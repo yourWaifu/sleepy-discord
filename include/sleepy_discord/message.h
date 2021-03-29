@@ -289,7 +289,7 @@ namespace SleepyDiscord {
 		JSONStructEnd
 
 		inline const bool empty() const {
-			return parse.empty() && repliedUser == MentionReplierFlag::NotSet;
+			return (parse.size() == 1 && parse[0].empty()) && repliedUser == MentionReplierFlag::NotSet;
 		}
 	};
 
