@@ -185,7 +185,7 @@ namespace SleepyDiscord {
 		enum class Flags : int {
 			NONE = 0,
 			Ephemeral = 64
-		} flags;
+		} flags = Flags::NONE;
 
 		JSONStructStart
 			std::make_tuple(
