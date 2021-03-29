@@ -203,12 +203,6 @@ namespace SleepyDiscord {
 		Interaction(json::Value & json);
 		Interaction(const nonstd::string_view & json);
 
-		enum class Type : int {
-			NONE = 0, //made up type
-			Ping = 1,
-			ApplicationCommand = 2,
-		};
-
 		struct Response : public DiscordObject {
 			Response() = default;
 			Response(const json::Value & json);
@@ -234,7 +228,7 @@ namespace SleepyDiscord {
 			JSONStructEnd
 		};
 
-		Type type;
+		InteractionType type;
 		AppCommand::InteractionData data;
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
