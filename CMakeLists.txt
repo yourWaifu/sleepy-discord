@@ -172,6 +172,12 @@ if(USE_CPR)
 	set(CURL_STATICLIB ON CACHE BOOL "")
 	set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
 
+	#set what ssl library to use for curl based on OS
+	if(NOT DEFINED CMAKE_USE_OPENSSL AND WIN32)
+		set(USE_WINSSL ON CACHE BOOL "")
+		set(USE_OPENSSL OFF CACHE BOOL "")
+	endif()
+
 	#using cmake to configure curl has issues
 	#so use system curl
 	set(USE_SYSTEM_CURL ON CACHE BOOL "")
