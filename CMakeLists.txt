@@ -186,11 +186,14 @@ if(USE_CPR)
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		endif()
 	endif()
-	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		#using cmake to configure curl on linux has issues
-		#so use system curl
-		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+
+	if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
+		set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 	endif()
+
+	#using cmake to configure curl has issues
+	#so use system curl
+	set(USE_SYSTEM_CURL ON CACHE BOOL "")
 
 	add_subdirectory(deps/cpr)
 endif()
