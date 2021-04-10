@@ -38,30 +38,6 @@ namespace SleepyDiscord {
 		if (heart.isValid()) heart.stop();
 	}
 
-	void RateLimiter::limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp) {
-		std::lock_guard<std::mutex> lock(mutex);
-		buckets[bucket] = xBucket;
-		limits[xBucket] = timestamp;
-	}
-
-	const time_t RateLimiter::getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
-		if (isGlobalRateLimited && currentTime < nextRetry)
-				return nextRetry;
-		isGlobalRateLimited = false;
-		std::lock_guard<std::mutex> lock(mutex);
-		auto actualBucket = buckets.find(bucket);
-		if (actualBucket != buckets.end()) {
-			auto bucketResetTimestamp = limits.find(actualBucket->second);
-			if (bucketResetTimestamp != limits.end()) {
-				if (currentTime < bucketResetTimestamp->second)
-					return bucketResetTimestamp->second;
-				limits.erase(bucketResetTimestamp);
-			}
-			buckets.erase(actualBucket);
-		}
-		return 0;
-	}
-
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
 		const std::vector<Part>& multipartParameters, RequestCallback callback, const RequestMode mode
 	) {
@@ -98,7 +74,7 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discord.com/api/v6/" + path.url());
+			session.setUrl("https://discord.com/api/v8/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", userAgent },
@@ -129,12 +105,17 @@ namespace SleepyDiscord {
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
+				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
 				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
+				std::tm* const resetGM = &gmTM;
 				gmtime_s(resetGM, &reset);
+#elif defined(__STDC_LIB_EXT1__)
+				std::tm gmTM;
+				std::tm* resetGM = &gmTM;
+				gmtime_s(&reset, resetGM);
 #else
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
@@ -150,7 +131,8 @@ namespace SleepyDiscord {
 				{   //this should fall down to default
 					std::string rawRetryAfter = response.header["Retry-After"];
 					//the 5 is an arbitrary number, and there's 1000 ms in a second
-					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
+					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
+					retryAfter *= 1000; //convert to milliseconds
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
 					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
@@ -269,7 +251,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
 	#ifndef SLEEPY_HARD_CODED_GATEWAY
-		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=6"
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=8"
 	#endif
 		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
@@ -292,7 +274,7 @@ namespace SleepyDiscord {
 				unsigned int size = position - start;
 				theGateway.reserve(32);
 				theGateway.append(a.text, start, size);
-				theGateway += "/?v=6";
+				theGateway += "/?v=8";
 				break;
 			}
 		}
@@ -467,7 +449,7 @@ namespace SleepyDiscord {
 		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
 		const json::Value& t = document["t"];
-		const json::Value& d = document["d"];
+		json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
@@ -637,6 +619,10 @@ namespace SleepyDiscord {
 			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
 			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
+			case hash("APPLICATION_COMMAND_CREATE" ): onAppCommand        (d); break;
+			case hash("APPLICATION_COMMAND_UPDATE" ): onEditAppCommand    (d); break;
+			case hash("APPLICATION_COMMAND_DELETE" ): onDeleteAppCommand  (d); break;
+			case hash("INTERACTION_CREATE"         ): onInteraction       (document["d"]); break;
 			default: 
 				onUnknownEvent(json::toStdString(t), d);
 				break;

@@ -63,6 +63,10 @@ namespace SleepyDiscord {
 			return json::ClassTypeHelper<RawType>::fromType(raw, alloc);
 		}
 
+		static inline const bool isType(const typename json::Value& value) {
+			return value.IsString();
+		}
+
 		template<class iterator>
 		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {

@@ -30,7 +30,7 @@ namespace SleepyDiscord {
 	}
 
 	Message Message::send(BaseDiscordClient* client) {
-		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), static_cast<TTS>(tts));
+		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), messageReference, static_cast<TTS>(tts));
 	}
 
 	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed)
@@ -59,4 +59,33 @@ namespace SleepyDiscord {
 	Reaction::Reaction(const nonstd::string_view& json) :
 		Reaction(json::fromJSON<Reaction>(json)) {
 	}
+
+	StickerPack::~StickerPack() {}
+	StickerPack::StickerPack(const json::Value & json):
+		StickerPack(json::fromJSON<StickerPack>(json))
+	{}
+	StickerPack::StickerPack(const nonstd::string_view & json):
+		StickerPack(json::fromJSON<StickerPack>(json))
+	{}
+
+	Sticker::~Sticker() {}
+	Sticker::Sticker(const json::Value & json):
+		Sticker(json::fromJSON<Sticker>(json))
+	{}
+	Sticker::Sticker(const nonstd::string_view & json):
+		Sticker(json::fromJSON<Sticker>(json))
+	{}
+
+	MessageReference::MessageReference(const json::Value & json):
+		MessageReference(json::fromJSON<MessageReference>(json))
+	{}
+	MessageReference::MessageReference(const nonstd::string_view & json):
+		MessageReference(json::fromJSON<MessageReference>(json))
+	{}
+	AllowedMentions::AllowedMentions(const json::Value & json):
+		AllowedMentions(json::fromJSON<AllowedMentions>(json))
+	{}
+	AllowedMentions::AllowedMentions(const nonstd::string_view & json):
+		AllowedMentions(json::fromJSON<AllowedMentions>(json))
+	{}
 }

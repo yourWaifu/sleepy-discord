@@ -37,11 +37,11 @@ namespace SleepyDiscord {
 		UnavailableServer(json::fromJSON<UnavailableServer>(json)) {
 	}
 
-	ServerEmbed::ServerEmbed(const json::Value & json) :
-		ServerEmbed(json::fromJSON<ServerEmbed>(json)) {
+	ServerWidget::ServerWidget(const json::Value & json) :
+		ServerWidget(json::fromJSON<ServerWidget>(json)) {
 	}
-	ServerEmbed::ServerEmbed(const nonstd::string_view & json) :
-		ServerEmbed(json::fromJSON<ServerEmbed>(json)) {
+	ServerWidget::ServerWidget(const nonstd::string_view & json) :
+		ServerWidget(json::fromJSON<ServerWidget>(json)) {
 	}
 
 	ServerMembersRequest::ServerMembersRequest(const json::Value& json) :

@@ -12,19 +12,31 @@ namespace SleepyDiscord {
 		Overwrite(const nonstd::string_view & rawJSON);
 		//Overwrite(const json::Values values);
 		~Overwrite() {}
-		std::string type;
+		enum class Type : int {
+			TYPE_NONE = -400,
+			role = 0,
+			member = 1
+		};
+		Type type;
 		Permission allow = Permission::NONE;
 		Permission deny = Permission::NONE;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair<json::ClassTypeHelper>(&Overwrite::ID   , "id"   , json::REQUIRIED_FIELD),
-				json::pair<json::ClassTypeHelper>(&Overwrite::type , "type" , json::REQUIRIED_FIELD),
-				json::pair<json::EnumTypeHelper >(&Overwrite::allow, "allow", json::REQUIRIED_FIELD),
-				json::pair<json::EnumTypeHelper >(&Overwrite::deny , "deny" , json::REQUIRIED_FIELD)
+				json::pair                      (&Overwrite::ID   , "id"   , json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>(&Overwrite::type , "type" , json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::allow, "allow", json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::deny , "deny" , json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
+	};
+
+	template<>
+	struct GetDefault<Overwrite::Type> {
+		static inline const Overwrite::Type get() {
+			return Overwrite::Type::TYPE_NONE;
+		}
 	};
 
 	//forward declearion

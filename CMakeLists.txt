@@ -7,7 +7,7 @@ option(ONLY_SLEEPY_DISCORD           "Sleepy Discord but none of the dependencie
 option(ENABLE_VOICE                  "Enable voice support"                                               OFF)
 if (NOT ONLY_SLEEPY_DISCORD)
 	option(AUTO_DOWNLOAD_LIBRARY         "Automatically download sleepy discord standard config dependencies" ON )
-	#option(SLEEPY_FIND_DEPS              "Find Sleepy Discord dependencies using find_ "                      OFF)
+	option(SLEEPY_VCPKG                  "VCPKG with Sleepy Discord"                                          OFF)
 	option(USE_CPR                       "Use CPR http library"                                               ON )
 	option(USE_WEBSOCKETPP               "Use websocketpp websockets library"                                 ON )
 	option(USE_UWEBSOCKETS               "Use uWebsockets websockets library"                                 OFF)
@@ -60,7 +60,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           cpr
 			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        e627e47
+			GIT_TAG        41fbaca
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
 			UPDATE_DISCONNECTED 1
 		)
@@ -169,28 +169,21 @@ if(USE_CPR)
 
 	set(BUILD_CURL_EXE OFF CACHE BOOL "")
 	set(CURL_STATICLIB ON CACHE BOOL "")
-	set(CURL_ZLIB OFF CACHE BOOL "")
+	set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
 
 	#set what ssl library to use for curl based on OS
-	#this fixes
-	if(NOT DEFINED CMAKE_USE_OPENSSL)
-		if(WIN32)
-			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
-			set(USE_WINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-			set(USE_OPENSSL OFF CACHE BOOL "")
-		elseif(APPLE)
-			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		elseif(UNIX)
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		endif()
+	if(NOT DEFINED CMAKE_USE_OPENSSL AND WIN32)
+		set(USE_WINSSL ON CACHE BOOL "")
+		set(USE_OPENSSL OFF CACHE BOOL "")
 	endif()
-	if(NOT DEFINED USE_SYSTEM_CURL AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		#using cmake to configure curl on linux has issues
-		#so use system curl
-		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+
+	if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
+		set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 	endif()
+
+	#using cmake to configure curl has issues
+	#so use system curl
+	set(USE_SYSTEM_CURL ON CACHE BOOL "")
 
 	add_subdirectory(deps/cpr)
 endif()
