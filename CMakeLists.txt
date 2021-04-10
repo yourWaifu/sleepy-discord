@@ -178,6 +178,10 @@ if(USE_CPR)
 		set(USE_OPENSSL OFF CACHE BOOL "")
 	endif()
 
+	if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
+		set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
+	endif()
+
 	#using cmake to configure curl has issues
 	#so use system curl
 	set(USE_SYSTEM_CURL ON CACHE BOOL "")
