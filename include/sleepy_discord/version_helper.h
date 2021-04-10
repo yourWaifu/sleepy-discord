@@ -55,10 +55,12 @@ namespace SleepyDiscord {
 	//Features
 	//Remember to list features in both preprocessers and unordered_set
 #define SLEEPY_FEATURE_AVAILABLE_FEATURE_LIST
-#define SLEEPY_FEATURE_LIST_OF_AVAILABLE_FEATURES //fixed grammer
+#define SLEEPY_FEATURE_LIST_OF_AVAILABLE_FEATURES
+#define SLEEPY_FEATURE_V8_API
 	std::unordered_set<std::string> availableFeatures{
 		"Available Feature List",
-		"List of Available Features"
+		"List of Available Features",
+		"V8 Discord API",
 	};
 	inline bool isFeatureAvaiable(std::string& featureName) {
 		return availableFeatures.find(featureName) != availableFeatures.end();

@@ -228,6 +228,7 @@ namespace SleepyDiscord {
 			JSONStructEnd
 		};
 
+		using Type = InteractionType;
 		InteractionType type;
 		AppCommand::InteractionData data;
 		Snowflake<Server> serverID;
