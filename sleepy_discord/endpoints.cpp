@@ -621,19 +621,15 @@ namespace SleepyDiscord {
 	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
 	) {
-		std::string JSON = "{\"permissions\":[";
-		for (AppCommandPermissions permission : permissions) {
-			JSON += json::createJSON({
-				{ "id",			permission.ID								},
-				{ "type",		json::integer((int)permission.Type)			},
-				{ "permission", json::boolean(permission.Permission)		}
-				});
-			JSON += ',';
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		rapidjson::Value arr{ rapidjson::Type::kArrayType };
+		for (auto& permission : permissions) {
+			arr.PushBack(json::toJSON(permission, allocator), allocator);
 		}
-		if (permissions.size())
-			JSON.pop_back();
-		JSON += "]}";
-		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , JSON) };
+		doc.AddMember("permissions", arr, allocator);
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , json::stringify(doc)) };
 	}
 	
 	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
