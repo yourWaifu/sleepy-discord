@@ -745,9 +745,11 @@ namespace SleepyDiscord {
 			if (allOptional || !description.empty())
 				doc.AddMember("description", rapidjson::Value::StringRefType{ description.c_str(), description.length() }, allocator);
 			if (!options.empty()) {
+				rapidjson::Value arr{ rapidjson::Type::kArrayType };
 				for (auto& option : options) {
-					doc.PushBack(json::toJSON(option, allocator), allocator);
+					arr.PushBack(json::toJSON(option, allocator), allocator);
 				}
+				doc.AddMember("options", arr, allocator);
 			}
 			return json::stringify(doc);
 		}
