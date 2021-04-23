@@ -8,7 +8,37 @@
 #include "message.h"
 
 namespace SleepyDiscord {
+	
+	struct AppCommandPermissions : IdentifiableDiscordObject<AppCommandPermissions> {
+		enum class Type : int {
+			ROLE = 1,
+			USER = 2
+		};
+		AppCommandPermissions::Type Type;
+		bool Permission;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&AppCommandPermissions::ID, "id", json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>(&AppCommandPermissions::Type, "type", json::REQUIRIED_FIELD),
+				json::pair(&AppCommandPermissions::Permission, "permission", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
+	};
 
+	struct ServerAppCommandPermissions : IdentifiableDiscordObject<ServerAppCommandPermissions> {
+		Snowflake<User> application_id;
+		Snowflake<Server> guild_id;
+		std::vector<AppCommandPermissions> permissions;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&ServerAppCommandPermissions::ID, "id", json::REQUIRIED_FIELD),
+				json::pair(&ServerAppCommandPermissions::application_id, "application_id", json::REQUIRIED_FIELD),
+				json::pair(&ServerAppCommandPermissions::guild_id, "guild_id", json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&ServerAppCommandPermissions::permissions, "permissions", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
+	};
+	
 	struct AppCommand : public IdentifiableDiscordObject<AppCommand> {
 		AppCommand() = default;
 		AppCommand(json::Value & json);
