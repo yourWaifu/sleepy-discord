@@ -252,6 +252,7 @@ namespace SleepyDiscord {
 		ObjectResponse<Server      > deleteServer            (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<Server      >> settings = {});
 		ArrayResponse <Channel     > getServerChannels       (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Channel      >> settings = {});
 		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name                                       , RequestSettings<ObjectResponse<Channel     >> settings = {});
+		ObjectResponse<Channel     > createChannel       (Snowflake<Server> serverID, std::string name, Channel::ChannelType Type                , RequestSettings<ObjectResponse<Channel     >> settings = {});
 		ArrayResponse <Channel     > editChannelPositions    (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Channel      >> settings = {});
 		ObjectResponse<ServerMember> getMember               (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<ObjectResponse<ServerMember>> settings = {});
 		ArrayResponse <ServerMember> listMembers             (Snowflake<Server> serverID, uint16_t limit = 0, std::string after = ""             , RequestSettings<ArrayResponse<ServerMember >> settings = {});

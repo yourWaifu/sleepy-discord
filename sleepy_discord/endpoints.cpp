@@ -215,6 +215,12 @@ namespace SleepyDiscord {
 		};
 	}
 
+	ObjectResponse<Channel> BaseDiscordClient::createChannel(Snowflake<Server> serverID, std::string name, Channel::ChannelType ChannelType, RequestSettings<ObjectResponse<Channel>> settings) {
+		return ObjectResponse<Channel>{
+			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": "+ std::to_string(ChannelType) +"}")
+		};
+	}
+
 	ArrayResponse<Channel> BaseDiscordClient::editChannelPositions(Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Channel>> settings) {
 		return ArrayResponse<Channel>{ request(Patch, path("guilds/{guild.id}/channels", { serverID }), getEditPositionString(positions)) };
 	}
