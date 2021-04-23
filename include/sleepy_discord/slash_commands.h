@@ -9,14 +9,21 @@
 
 namespace SleepyDiscord {
 	
-	struct AppCommandPermissions {
+	struct AppCommandPermissions : IdentifiableDiscordObject<AppCommandPermissions> {
 		enum class Type : int {
 			ROLE = 1,
 			USER = 2
 		};
-		Snowflake<Role> id;
 		AppCommandPermissions::Type Type;
 		bool Permission;
+		// we don't actually use this yet but i put it in for future refrence incase we do need to.
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&Overwrite::ID, "id", json::REQUIRIED_FIELD),
+				json::pair(&Overwrite::type, "type", json::REQUIRIED_FIELD),
+				json::pair(&Overwrite::allow, "permission", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
 	};
 	
 	struct AppCommand : public IdentifiableDiscordObject<AppCommand> {

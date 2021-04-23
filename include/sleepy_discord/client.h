@@ -366,7 +366,7 @@ namespace SleepyDiscord {
 		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings = {});
 		ObjectResponse<Message> editFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
-		BoolResponse editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, AppCommandPermissions Perms);
+		BoolResponse editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions);
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
