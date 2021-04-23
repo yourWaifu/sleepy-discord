@@ -617,6 +617,12 @@ namespace SleepyDiscord {
 	) {
 		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings, json::stringifyObj(params)) };
 	}
+
+	BoolResponse BaseDiscordClient::deleteFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
+	}
 	/// <summary>
 	/// Batch edits permissions for all commands in a guild. Takes an array of partial ServerAppCommandPermissions objects including id and permissions.
 	/// </summary>
