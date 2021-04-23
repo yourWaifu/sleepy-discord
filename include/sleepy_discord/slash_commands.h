@@ -20,8 +20,8 @@ namespace SleepyDiscord {
 		JSONStructStart
 			std::make_tuple(
 				json::pair(&AppCommandPermissions::ID, "id", json::REQUIRIED_FIELD),
-				json::pair(&AppCommandPermissions::type, "type", json::REQUIRIED_FIELD),
-				json::pair(&AppCommandPermissions::allow, "permission", json::REQUIRIED_FIELD)
+				json::pair(&AppCommandPermissions::Type, "type", json::REQUIRIED_FIELD),
+				json::pair(&AppCommandPermissions::Permission, "permission", json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};

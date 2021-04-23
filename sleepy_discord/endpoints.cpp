@@ -618,24 +618,21 @@ namespace SleepyDiscord {
 		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings, json::stringifyObj(params)) };
 	}
 
-	BoolResponse BaseDiscordClient::deleteFollowupMessage(
-		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings
+	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
 	) {
-		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
-	}
-	BoolResponse BaseDiscordClient::editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions) {
 		std::string JSON = "{\"permissions\":[";
 		for (AppCommandPermissions permission : permissions) {
 			JSON += json::createJSON({
 				{ "id",			permission.ID								},
 				{ "type",		json::integer((int)permission.Type)			},
-				{ "permission", json::boolean(permission.Permission)			}
+				{ "permission", json::boolean(permission.Permission)		}
 				});
 			JSON += ',';
 		}
 		if (permissions.size())
 			JSON.pop_back();
 		JSON += "]}";
-		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), JSON) };
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , JSON) };
 	}
 }
