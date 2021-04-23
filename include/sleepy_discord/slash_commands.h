@@ -16,12 +16,25 @@ namespace SleepyDiscord {
 		};
 		AppCommandPermissions::Type Type;
 		bool Permission;
-		// we don't actually use this yet but i put it in for future refrence incase we do need to.
 		JSONStructStart
 			std::make_tuple(
 				json::pair(&AppCommandPermissions::ID, "id", json::REQUIRIED_FIELD),
 				json::pair(&AppCommandPermissions::Type, "type", json::REQUIRIED_FIELD),
 				json::pair(&AppCommandPermissions::Permission, "permission", json::REQUIRIED_FIELD)
+			);
+		JSONStructEnd
+	};
+
+	struct ServerAppCommandPermissions : IdentifiableDiscordObject<ServerAppCommandPermissions> {
+		Snowflake<User> application_id;
+		Snowflake<Server> guild_id;
+		std::vector<AppCommandPermissions> permissions;
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&ServerAppCommandPermissions::ID, "id", json::REQUIRIED_FIELD),
+				json::pair(&ServerAppCommandPermissions::application_id, "application_id", json::REQUIRIED_FIELD),
+				json::pair(&ServerAppCommandPermissions::guild_id, "guild_id", json::REQUIRIED_FIELD),
+				json::pair<json::ContainerTypeHelper>(&ServerAppCommandPermissions::permissions, "permissions", json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};

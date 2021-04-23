@@ -635,4 +635,15 @@ namespace SleepyDiscord {
 		JSON += "]}";
 		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , JSON) };
 	}
+	
+	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<BoolResponse> settings
+	) {
+		return ArrayResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings) };
+	}
+	ObjectResponse<ServerAppCommandPermissions> BaseDiscordClient::getAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings) };
+	}
 }
