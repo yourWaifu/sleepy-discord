@@ -8,7 +8,17 @@
 #include "message.h"
 
 namespace SleepyDiscord {
-
+	
+	struct AppCommandPermissions {
+		enum class Type : int {
+			ROLE = 1,
+			USER = 2
+		};
+		Snowflake<Role> id;
+		AppCommandPermissions::Type Type;
+		bool Permission;
+	};
+	
 	struct AppCommand : public IdentifiableDiscordObject<AppCommand> {
 		AppCommand() = default;
 		AppCommand(json::Value & json);

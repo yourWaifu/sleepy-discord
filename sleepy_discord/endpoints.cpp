@@ -623,4 +623,14 @@ namespace SleepyDiscord {
 	) {
 		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
 	}
+	//later down the road Perms can be changed into a vector since discord expects an array, for now this is just a hackish way to get it working.
+	BoolResponse BaseDiscordClient::editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, AppCommandPermissions Perms) {
+		return BoolResponse{
+			request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), "{\"permissions\": [" + json::createJSON({
+				{ "id",			Perms.id								},
+				{ "type",		json::integer((int)Perms.Type)				},
+				{ "permission", json::boolean(Perms.Permission)			}
+			})+"]}")
+		};
+	}
 }
