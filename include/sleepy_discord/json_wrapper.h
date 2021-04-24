@@ -8,6 +8,7 @@
 #include <type_traits>
 //for errrors
 #include <iostream>
+#include <optional.hpp>
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 typedef std::size_t SizeType;
