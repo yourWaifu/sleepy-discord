@@ -209,15 +209,15 @@ namespace SleepyDiscord {
 		ServerMembersRequest(const nonstd::string_view & json);
 		Snowflake<Server> serverID;
 		std::string query;
-		int limit;
-		bool presence;
+		int limit = 0;
+		bool presence = false;
 		std::vector<Snowflake<User>> userIDs;
 		std::string nonce;
 		
 		JSONStructStart
 			std::make_tuple(
 				json::pair(&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
-				json::pair(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
+				json::pair(&ServerMembersRequest::query   , "query"    , json::REQUIRIED_FIELD), //to do handle empty and null strings
 				json::pair(&ServerMembersRequest::limit   , "limit"    , json::REQUIRIED_FIELD),
 				json::pair(&ServerMembersRequest::presence, "presences", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&ServerMembersRequest::userIDs , "user_ids" , json::OPTIONAL_FIELD ), 
