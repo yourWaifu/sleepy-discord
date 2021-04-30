@@ -32,7 +32,7 @@ if(ENABLE_VOICE)
 endif()
 
 if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
-	if(Boost_FOUND) #checks if already defined
+	if(Boost_asio_FOUND OR USE_BOOST_ASIO) #checks if already defined
 		set(USE_BOOST_ASIO ON)
 	else()
 		set(USE_ASIO ON)
