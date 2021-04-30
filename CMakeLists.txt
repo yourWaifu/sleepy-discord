@@ -55,52 +55,129 @@ if(AUTO_DOWNLOAD_LIBRARY)
 
 	include(ExternalProject)
 	include(buildtools/cmake/DownloadProject.cmake)
-	if(USE_CPR)
-		#to do install libssl-dev
-		download_project(
-			PROJ           cpr
-			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        41fbaca
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
 
-	if(USE_ASIO)
-		# Note websocketpp doesn't work with the latest version of asio
-		# Remember to go back to the master version after they are fixed
-		download_project(
-			PROJ           asio
-			GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+endif()
 
-	if(USE_WEBSOCKETPP)
-		download_project(
-			PROJ           websocketpp
-			GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+# Configure libraries
+if(USE_CPR)
+	if(SLEEPY_VCPKG)
+		find_package(cpr CONFIG REQUIRED)
+		set(CPR_LIBRARIES cpr)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#to do install libssl-dev
+			download_project(
+				PROJ           cpr
+				GIT_REPOSITORY https://github.com/whoshuu/cpr.git
+				GIT_TAG        41fbaca
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
 
-	if(USE_UWEBSOCKETS)
-		#to do install zlib
-		download_project(
-			PROJ           uwebsockets
-			GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
-			UPDATE_DISCONNECTED 1
-			BUILD_COMMAND  ${MAKE}
-		)
-	endif()
+		#the cmake test has issues on visual studio so disable them
+		if(NOT DEFINED BUILD_CPR_TESTS)
+			set(BUILD_CPR_TESTS OFF CACHE BOOL "")
+		endif()
 
-	if(USE_LIBOPUS)
+		set(BUILD_CURL_EXE OFF CACHE BOOL "")
+		set(CURL_STATICLIB ON CACHE BOOL "")
+		set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
+
+		#set what ssl library to use for curl based on OS
+		if(NOT DEFINED CMAKE_USE_OPENSSL AND WIN32)
+			set(USE_WINSSL ON CACHE BOOL "")
+			set(USE_OPENSSL OFF CACHE BOOL "")
+		endif()
+
+		if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
+			set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
+		endif()
+
+		#using cmake to configure curl has issues
+		#so use system curl
+		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+
+		add_subdirectory(deps/cpr)
+
+		if(NOT DEFINED cpr_SOURCE_DIR)
+			set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
+		endif()
+	endif()
+endif()
+
+if(USE_ASIO)
+	if(SLEEPY_VCPKG)
+		find_package(asio CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			# Note websocketpp doesn't work with the latest version of asio
+			# Remember to go back to the master version after they are fixed
+			download_project(
+				PROJ           asio
+				GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		if(NOT DEFINED asio_SOURCE_DIR)
+			set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
+		endif()
+	endif()
+endif()
+
+if(USE_WEBSOCKETPP)
+	if (SLEEPY_VCPKG)
+		find_package(websocketpp CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           websocketpp
+				GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads REQUIRED)
+		add_subdirectory(deps/websocketpp)
+
+		if(NOT DEFINED websocketpp_SOURCE_DIR)
+			set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
+		endif()
+	endif()
+endif()
+
+if(USE_UWEBSOCKETS)
+	if(SLEEPY_VCPKG)
+		find_path(UWEBSOCKETS_INCLUDE_DIRS "uwebsockets/App.h")
+		set(uwebsockets_SOURCE_DIR "${UWEBSOCKETS_INCLUDE_DIRS}/..")
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#to do install zlib
+			download_project(
+				PROJ           uwebsockets
+				GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
+				UPDATE_DISCONNECTED 1
+				BUILD_COMMAND  ${MAKE}
+			)
+			set(UWEBSOCKETS_INCLUDE_DIRS "${uwebsockets_SOURCE_DIR}/include")
+		endif()
+
+		if(NOT DEFINED uwebsockets_SOURCE_DIR)
+			set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
+		endif()
+	endif()
+endif()
+
+if(USE_LIBOPUS)
+	if(AUTO_DOWNLOAD_LIBRARY)
 		#needs libtool
 		download_project(
 			PROJ           opus
@@ -111,26 +188,42 @@ if(AUTO_DOWNLOAD_LIBRARY)
 		)
 	endif()
 
-	if(USE_LIBSODIUM AND NOT WIN32)
-		download_project(
-			PROJ           libsodium
-			GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
-			GIT_TAG        stable
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
-			UPDATE_DISCONNECTED 1
-		)
-		ExternalProject_Add(libsodium-make
-			SOURCE_DIR          "${libsodium_SOURCE_DIR}"
-			BINARY_DIR          "${libsodium_BINARY_DIR}"
-			PATCH_COMMAND       "${libsodium_SOURCE_DIR}/autogen.sh"
-			CONFIGURE_COMMAND   "${libsodium_SOURCE_DIR}/configure"
-			BUILD_COMMAND       "make"
-			INSTALL_COMMAND     "cp" "-TR" "${libsodium_BINARY_DIR}/src/libsodium/include/" "${libsodium_SOURCE_DIR}/src/libsodium/include/"
-			TEST_COMMAND        ""
-		)
-	endif()
+	add_subdirectory(deps/opus)
 
-	if(USE_ZLIB_NG)
+	if(NOT DEFINED opus_SOURCE_DIR)
+		set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
+	endif()
+endif()
+
+if(USE_LIBSODIUM)
+	if(NOT WIN32)
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           libsodium
+				GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
+				GIT_TAG        stable
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
+				UPDATE_DISCONNECTED 1
+			)
+			ExternalProject_Add(libsodium-make
+				SOURCE_DIR          "${libsodium_SOURCE_DIR}"
+				BINARY_DIR          "${libsodium_BINARY_DIR}"
+				PATCH_COMMAND       "${libsodium_SOURCE_DIR}/autogen.sh"
+				CONFIGURE_COMMAND   "${libsodium_SOURCE_DIR}/configure"
+				BUILD_COMMAND       "make"
+				INSTALL_COMMAND     "cp" "-TR" "${libsodium_BINARY_DIR}/src/libsodium/include/" "${libsodium_SOURCE_DIR}/src/libsodium/include/"
+				TEST_COMMAND        ""
+			)
+		else()
+			set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
+		endif()
+	else()
+		set(USE_LIBSODIUM_VCPKG ON)
+	endif()
+endif()
+
+if(USE_ZLIB_NG)
+	if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           zlib-ng
 			GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
@@ -139,66 +232,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			UPDATE_DISCONNECTED 1
 		)
 	endif()
-else()
-	if(USE_CPR)
-		set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
-	endif()
-	if(USE_ASIO)
-		set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
-	endif()
-	if(USE_WEBSOCKETPP)
-		set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
-	endif()
-	if(USE_UWEBSOCKETS)
-		set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
-	endif()
-	if(USE_LIBOPUS)
-		set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
-	endif()
-	if(USE_LIBSODIUM AND NOT WIN32)
-		set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
-	endif()
-endif()
 
-# Configure libraries
-if(USE_CPR)
-	#the cmake test has issues on visual studio so disable them
-	if(NOT DEFINED BUILD_CPR_TESTS)
-		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
-	endif()
-
-	set(BUILD_CURL_EXE OFF CACHE BOOL "")
-	set(CURL_STATICLIB ON CACHE BOOL "")
-	set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
-
-	#set what ssl library to use for curl based on OS
-	if(NOT DEFINED CMAKE_USE_OPENSSL AND WIN32)
-		set(USE_WINSSL ON CACHE BOOL "")
-		set(USE_OPENSSL OFF CACHE BOOL "")
-	endif()
-
-	if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
-		set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
-	endif()
-
-	#using cmake to configure curl has issues
-	#so use system curl
-	set(USE_SYSTEM_CURL ON CACHE BOOL "")
-
-	add_subdirectory(deps/cpr)
-endif()
-
-if(USE_WEBSOCKETPP)
-	set(THREADS_PREFER_PTHREAD_FLAG ON)
-	find_package(Threads REQUIRED)
-	add_subdirectory(deps/websocketpp)
-endif()
-
-if(USE_LIBOPUS)
-	add_subdirectory(deps/opus)
-endif()
-
-if(USE_ZLIB_NG)
 	add_subdirectory(deps/zlib-ng)
 endif()
 
