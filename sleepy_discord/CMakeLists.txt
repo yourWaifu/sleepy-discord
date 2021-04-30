@@ -177,3 +177,8 @@ endif()
 if(ENABLE_VOICE)
 	target_compile_definitions(sleepy-discord PUBLIC SLEEPY_VOICE_ENABLED)
 endif()
+
+if (SLEEPY_VCPKG)
+	install(TARGETS sleepy-discord LIBRARY)
+	install(DIRECTORY ../include/sleepy_discord TYPE INCLUDE)
+endif()
