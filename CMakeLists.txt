@@ -62,7 +62,7 @@ endif()
 if(USE_CPR)
 	if(SLEEPY_VCPKG)
 		find_package(cpr CONFIG REQUIRED)
-		set(CPR_LIBRARIES cpr)
+		set(CPR_LIBRARIES "cpr")
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
 			#to do install libssl-dev
