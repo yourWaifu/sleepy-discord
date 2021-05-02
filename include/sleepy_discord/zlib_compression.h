@@ -1,6 +1,10 @@
 #pragma once
 #include "generic_compression.h"
-#include "zlib-ng/zlib-ng.h"
+#ifdef EXISTENT_ZLIB
+	#include "zlib.h"
+#elif defined(EXISTENT_ZLIB_NG)
+	#include "zlib-ng/zlib-ng.h"
+#endif
 #include <array>
 #include <forward_list>
 #include <string>
@@ -13,7 +17,7 @@ namespace SleepyDiscord {
 		constexpr static size_t chunkSize = 16 * 1024;
 		using Data = std::array<char, chunkSize>;
 		using Buffer = std::pair<Data, std::size_t>;
-		
+
 		using Queue = std::forward_list<Buffer>;
 		using Iterator = std::forward_list<Buffer>::iterator;
 		using ConstIterator = std::forward_list<Buffer>::const_iterator;
@@ -25,7 +29,7 @@ namespace SleepyDiscord {
 		~OutputQueue() = default;
 
 		bool empty() const { return queue.empty(); }
-		
+
 		//allocates more memory
 		template<class... Args>
 		Iterator emplace_back(Args&&... args) {
@@ -36,7 +40,7 @@ namespace SleepyDiscord {
 			}
 			return result;
 		}
-		
+
 		Buffer& front() {
 			return queue.front();
 		}
@@ -73,6 +77,28 @@ namespace SleepyDiscord {
 		}
 	};
 
+#ifdef EXISTENT_ZLIB
+	namespace ZLib {
+		using Stream = z_stream;
+		using Btye = Bytef;
+		using ConstByte = z_const Bytef;
+		inline int inflateInitStream(Stream* stream) { return inflateInit(stream); }
+		inline int inflateEndStream(Stream* stream) { return inflateEnd(stream); }
+		inline int inflateResetStream(Stream* stream) { return inflateReset(stream); }
+		inline int inflateStream(Stream* stream, int mode) { return inflate(stream, mode); }
+	}
+#elif defined(EXISTENT_ZLIB_NG)
+	namespace ZLib {
+		using Stream = zng_stream;
+		using Btye = uint8_t;
+		using ConstByte = const uint8_t;
+		inline int inflateInitStream(Stream* stream) { return zng_inflateInit(stream); }
+		inline int inflateEndStream(Stream* stream) { return zng_inflateEnd(stream); }
+		inline int inflateResetStream(Stream* stream) { return zng_inflateReset(stream); }
+		inline int inflateStream(Stream* stream, int mode) { return zng_inflate(stream, mode); }
+	}
+#endif
+
 	class ZLibCompression : public GenericCompression {
 	public:
 		using Output = OutputQueue;
@@ -80,10 +106,10 @@ namespace SleepyDiscord {
 		ZLibCompression();
 
 		~ZLibCompression() {
-			zng_inflateEnd(&stream);
+			ZLib::inflateEndStream(&stream);
 		}
 
-		zng_stream stream;
+		ZLib::Stream stream;
 		int statusCode;
 
 		Output output;
@@ -93,7 +119,7 @@ namespace SleepyDiscord {
 		void getOutput(std::string& uncompressedOut) override;
 
 		inline void resetStream() override {
-			zng_inflateReset(&stream);
+			ZLib::inflateResetStream(&stream);
 		}
 
 		inline bool streamEnded() override {

@@ -22,7 +22,7 @@ add_library(sleepy-discord STATIC
 	voice_connection.cpp
 	webhook.cpp
 	websocketpp_websocket.cpp
-	zlib-ng_compression.cpp
+	zlib_compression.cpp
 )
 
 target_include_directories(sleepy-discord
@@ -157,6 +157,14 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	else()
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ZLIB_NG)
 	endif()
+
+	if(USE_ZLIB)
+		list(APPEND LIBRARIES_TO_LINK "ZLIB::ZLIB")
+		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_ZLIB)
+	else()
+		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_ZLIB)
+	endif()
+
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
 else()
 	target_compile_definitions(sleepy-discord PUBLIC

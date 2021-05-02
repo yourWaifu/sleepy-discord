@@ -16,6 +16,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(USE_LIBOPUS                   "Use Opus audio codec library"                                       OFF)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
+	option(USE_ZLIB                      "Use zlib for data compression"                                      OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -37,6 +38,10 @@ if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
 	else()
 		set(USE_ASIO ON)
 	endif()
+endif()
+
+if(USE_ZLIB_NG AND USE_ZLIB)
+	message(FATAL_ERROR "can't use zlib and zlib-ng at the same time")
 endif()
 
 find_package(Git)
@@ -234,6 +239,11 @@ if(USE_ZLIB_NG)
 	endif()
 
 	add_subdirectory(deps/zlib-ng)
+endif()
+
+if(USE_ZLIB)
+	find_package(ZLIB REQUIRED)
+	#to do add auto download
 endif()
 
 # Get Version Info
