@@ -300,6 +300,7 @@ if(NOT GIT_INFO_FOUND)
 	configure_file(
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version-non.h.in"
 		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
+		COPYONLY
 	)
 endif()
 
