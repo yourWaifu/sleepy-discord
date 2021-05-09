@@ -629,7 +629,7 @@ namespace SleepyDiscord {
 	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions
 	/// </url>
-	BoolResponse BaseDiscordClient::BatchEditAppCommandPermissions(
+	BoolResponse BaseDiscordClient::batchEditAppCommandPermissions(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
 	) {
 		rapidjson::Document doc;
@@ -652,7 +652,7 @@ namespace SleepyDiscord {
 	/// https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions
 	/// </url>
 	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
-		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommand::Permissions> permissions, RequestSettings<BoolResponse> settings
 	) {
 		rapidjson::Document doc;
 		doc.SetObject();
@@ -671,7 +671,7 @@ namespace SleepyDiscord {
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-guild-application-command-permissions
 	/// </url>
 	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
-		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<ServerAppCommandPermissions>> settings
 	) {
 		return ArrayResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings) };
 	}
@@ -682,8 +682,23 @@ namespace SleepyDiscord {
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions
 	/// </url>
 	ObjectResponse<ServerAppCommandPermissions> BaseDiscordClient::getAppCommandPermissions(
-		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<ServerAppCommandPermissions>> settings
 	) {
 		return ObjectResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings) };
+	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings) {
+		if (serverID.empty()) return getGlobalAppCommands(applicationID, settings);
+		return getServerAppCommands(applicationID, serverID, settings);
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings) {
+		if (serverID.empty()) return getGlobalAppCommand(applicationID, commandID, settings);
+		return getServerAppCommand(applicationID, serverID, commandID,  settings);
+	}
+
+	BoolResponse BaseDiscordClient::deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings) {
+		if (serverID.empty()) return deleteGlobalAppCommand(applicationID, commandID, settings);
+		return deleteServerAppCommand(applicationID, serverID, commandID, settings);
 	}
 }

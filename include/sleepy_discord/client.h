@@ -366,10 +366,10 @@ namespace SleepyDiscord {
 		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings = {});
 		ObjectResponse<Message> editFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
-		BoolResponse BatchEditAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector< ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings = {});
-		BoolResponse editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions, RequestSettings<BoolResponse> settings = {});
-		ArrayResponse<ServerAppCommandPermissions> getServerAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<BoolResponse> settings = {});
-		ObjectResponse<ServerAppCommandPermissions> getAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse batchEditAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings = {});
+		BoolResponse editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommand::Permissions> permissions, RequestSettings<BoolResponse> settings = {});
+		ArrayResponse<ServerAppCommandPermissions> getServerAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<ServerAppCommandPermissions>> settings = {});
+		ObjectResponse<ServerAppCommandPermissions> getAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<ServerAppCommandPermissions>> settings = {});
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
@@ -387,8 +387,9 @@ namespace SleepyDiscord {
 			if (serverID.empty()) return editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
 			return editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
 		}
-		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID);
-		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID);
+		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
