@@ -215,6 +215,12 @@ namespace SleepyDiscord {
 		};
 	}
 
+	ObjectResponse<Channel> BaseDiscordClient::createChannel(Snowflake<Server> serverID, std::string name, Channel::ChannelType ChannelType, RequestSettings<ObjectResponse<Channel>> settings) {
+		return ObjectResponse<Channel>{
+			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": "+ std::to_string(ChannelType) +"}")
+		};
+	}
+
 	ArrayResponse<Channel> BaseDiscordClient::editChannelPositions(Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Channel>> settings) {
 		return ArrayResponse<Channel>{ request(Patch, path("guilds/{guild.id}/channels", { serverID }), getEditPositionString(positions)) };
 	}
@@ -616,5 +622,68 @@ namespace SleepyDiscord {
 		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings
 	) {
 		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
+	}
+	/// <summary>
+	/// Batch edits permissions for all commands in a guild. Takes an array of partial ServerAppCommandPermissions objects including id and permissions.
+	/// </summary>
+	/// <url>
+	/// https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions
+	/// </url>
+	BoolResponse BaseDiscordClient::BatchEditAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
+	) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : permissions) {
+			doc.AddMember("id", command.ID.number(), allocator);
+			rapidjson::Value arr{ rapidjson::Type::kArrayType };
+			for (auto& permission : command.permissions) {
+				arr.PushBack(json::toJSON(permission, allocator), allocator);
+			}
+			doc.AddMember("permissions", arr, allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings , json::stringify(doc)) };
+	}
+	/// <summary>
+	/// Edits command permissions for a specific command for your application in a guild.
+	/// </summary>
+	/// <url>
+	/// https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions
+	/// </url>
+	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
+	) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		rapidjson::Value arr{ rapidjson::Type::kArrayType };
+		for (auto& permission : permissions) {
+			arr.PushBack(json::toJSON(permission, allocator), allocator);
+		}
+		doc.AddMember("permissions", arr, allocator);
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , json::stringify(doc)) };
+	}
+	/// <summary>
+	/// Fetches command permissions for all commands for your application in a guild. Returns an array of ServerAppCommandPermissions objects.
+	/// </summary>
+	/// <url>
+	/// https://discord.com/developers/docs/interactions/slash-commands#get-guild-application-command-permissions
+	/// </url>
+	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<BoolResponse> settings
+	) {
+		return ArrayResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings) };
+	}
+	/// <summary>
+	/// Fetches command permissions for a specific command for your application in a guild. Returns a AppCommandPermissions object.
+	/// </summary>
+	/// <url>
+	/// https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions
+	/// </url>
+	ObjectResponse<ServerAppCommandPermissions> BaseDiscordClient::getAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings) };
 	}
 }

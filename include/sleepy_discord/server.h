@@ -31,6 +31,7 @@ namespace SleepyDiscord {
 		std::string joinedAt;
 		bool deaf = false;
 		bool mute = false;
+		Permission permissions;
 		bool pending = false;
 
 		inline operator User&() {
@@ -46,6 +47,7 @@ namespace SleepyDiscord {
 				json::pair                           (&ServerMember::joinedAt, "joined_at", json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::deaf    , "deaf"     , json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD),
+				json::pair<UInt64StrTypeHelper>      (&ServerMember::permissions, "permissions", json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::pending , "pending"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
