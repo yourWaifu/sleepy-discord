@@ -624,7 +624,7 @@ namespace SleepyDiscord {
 		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
 	}
 	/// <summary>
-	/// Batch edits permissions for all commands in a guild. Takes an array of partial ServerAppCommandPermissions objects including id and permissions.
+	/// Batch edits permissions for all commands in a guild. Takes an array of partial objects including id and permissions.
 	/// </summary>
 	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions
@@ -665,7 +665,7 @@ namespace SleepyDiscord {
 		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , json::stringify(doc)) };
 	}
 	/// <summary>
-	/// Fetches command permissions for all commands for your application in a guild. Returns an array of ServerAppCommandPermissions objects.
+	/// Fetches command permissions for all commands for your application in a guild.
 	/// </summary>
 	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-guild-application-command-permissions
@@ -676,7 +676,7 @@ namespace SleepyDiscord {
 		return ArrayResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings) };
 	}
 	/// <summary>
-	/// Fetches command permissions for a specific command for your application in a guild. Returns a AppCommandPermissions object.
+	/// Fetches command permissions for a specific command for your application in a guild.
 	/// </summary>
 	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions
