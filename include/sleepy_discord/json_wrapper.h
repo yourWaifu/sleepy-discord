@@ -543,6 +543,48 @@ namespace SleepyDiscord {
 			}
 		};
 
+		//almost the same as SmartPtr
+		//maybe find a way to marge the two
+		template<class Optional, template<class...> class TypeHelper>
+		struct OptionalTypeHelper {
+			static inline Optional toType(const Value& value) {
+				return Optional{ TypeHelper<typename Optional::value_type>::toType(value) };
+			}
+			static inline Value fromType(const Optional& value, Value::AllocatorType& allocator) {
+				return TypeHelper<typename Optional::value_type>::fromType(*value, allocator);
+			}
+			static inline bool empty(const Optional& value) {
+				return bool{ value };
+			}
+			static inline bool isType(const Value& value) {
+				 return TypeHelper<typename Optional::value_type>::isType(value);
+			}
+		};
+
+		template<class Nullable, template<class...> class TypeHelper>
+		struct NullableTypeHelper {
+			static inline Nullable toType(const Value& value) {
+				if (value.IsNull()) {
+					return Nullable{ tl::nullopt };
+				} else {
+					return Nullable{ TypeHelper<typename Optional::value_type>::toType(value) };
+				}
+			}
+			static inline Value fromType(const Nullable& value, Value::AllocatorType& allocator) {
+				if (value) {
+					return Value{ rapidjson::kNullType };
+				} else {
+					return TypeHelper<typename Nullable::value_type>::fromType(*value, allocator);
+				}
+			}
+			static inline bool empty(const Nullable& value) {
+				return bool{ value };
+			}
+			static inline bool isType(const Value& value) {
+				return value.IsNull() || TypeHelper<typename Nullable::value_type>::isType(value);
+			}
+		};
+
 		enum FieldType {
 			REQUIRIED_FIELD = 0,
 			OPTIONAL_FIELD  = 1 << 0,
