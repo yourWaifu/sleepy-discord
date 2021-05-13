@@ -701,4 +701,32 @@ namespace SleepyDiscord {
 		if (serverID.empty()) return deleteGlobalAppCommand(applicationID, commandID, settings);
 		return deleteServerAppCommand(applicationID, serverID, commandID, settings);
 	}
+
+	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<ObjectResponse<User>> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		const std::string& channelIDStr = channelID.string();
+		doc.AddMember("channel_id", rapidjson::Value::StringRefType{ channelIDStr.c_str(), channelIDStr.length() }, allocator);
+		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		return ObjectResponse<User>{
+			request(Post, path("/stage-instances", {}), settings, json::stringify(doc))
+		};
+	}
+
+	ObjectResponse<StageInstance> BaseDiscordClient::getStageInstance(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<StageInstance>> settings) {
+		return ObjectResponse<StageInstance>{ request(Get, path("/stage-instances/{channel.id}", { channelID }), settings)};
+	}
+
+	BoolResponse BaseDiscordClient::updateStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		return BoolResponse{ request(Patch, path("/stage-instances/{channel.id}", {channelID}), settings, json::stringify(doc)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings) {
+		return BoolResponse{ request(Delete, path("/stage-instances/{channel.id}", {channelID}), settings) };
+	}
 }

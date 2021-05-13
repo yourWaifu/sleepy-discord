@@ -20,6 +20,7 @@
 #include "gateway.h"
 #include "voice.h"
 #include "slash_commands.h"
+#include "stage_instance.h"
 
 #include "error.h"
 #include "session.h"
@@ -390,6 +391,12 @@ namespace SleepyDiscord {
 		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
 		ObjectResponse<AppCommand> getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
 		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+
+		//stage instances
+		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<ObjectResponse<User>> settings = {});
+		ObjectResponse<StageInstance> getStageInstance(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<StageInstance>> settings = {});
+		BoolResponse updateStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
 
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
