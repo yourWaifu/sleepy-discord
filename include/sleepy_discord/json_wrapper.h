@@ -567,7 +567,7 @@ namespace SleepyDiscord {
 				if (value.IsNull()) {
 					return Nullable{ tl::nullopt };
 				} else {
-					return Nullable{ TypeHelper<typename Optional::value_type>::toType(value) };
+					return Nullable{ TypeHelper<typename Nullable::value_type>::toType(value) };
 				}
 			}
 			static inline Value fromType(const Nullable& value, Value::AllocatorType& allocator) {
