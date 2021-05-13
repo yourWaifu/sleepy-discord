@@ -11,10 +11,10 @@ Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actu
 If you like to edit them, [please check out the docs repo](https://github.com/yourWaifu/sleepy-discord-docs).
 
 ## Build Status
-| OS | Windows | Ubuntu
-| ------ | ------- | ------
-| Master   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=master)](https://dev.azure.com/wuhao64/sleepy-discord/_build/?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg?branch=master)](https://travis-ci.org/yourWaifu/sleepy-discord)
-| Develop   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=develop)](https://dev.azure.com/wuhao64/sleepy-discord/_build/latest?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg?branch=develop)](https://travis-ci.org/yourWaifu/sleepy-discord)
+| Build | Windows MSVC | Ubuntu GCC | Ubuntu Clang | Docs |
+| ------ | ------- | ------ | ----- | ---- |
+| Master   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=master)](https://dev.azure.com/wuhao64/sleepy-discord/_build/?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg?branch=master)](https://travis-ci.org/yourWaifu/sleepy-discord) | [![C/C++ CI](https://github.com/yourWaifu/sleepy-discord/actions/workflows/ccpp.yml/badge.svg?branch=master)](https://github.com/yourWaifu/sleepy-discord/actions/workflows/ccpp.yml) | N/A |
+| Develop   | [![Build Status](https://dev.azure.com/wuhao64/sleepy-discord/_apis/build/status/yourWaifu.sleepy-discord?branchName=develop)](https://dev.azure.com/wuhao64/sleepy-discord/_build/latest?definitionId=2) | [![Build Status](https://travis-ci.org/yourWaifu/sleepy-discord.svg?branch=develop)](https://travis-ci.org/yourWaifu/sleepy-discord) | [![C/C++ CI](https://github.com/yourWaifu/sleepy-discord/actions/workflows/ccpp.yml/badge.svg?branch=develop)](https://github.com/yourWaifu/sleepy-discord/actions/workflows/ccpp.yml) | [![documentation](https://github.com/yourWaifu/sleepy-discord/actions/workflows/documentation.yml/badge.svg?branch=develop)](https://github.com/yourWaifu/sleepy-discord/actions/workflows/documentation.yml)
 
 # Why?
 Just for the novelty of using a C++ library for Discord. I would also love for this thing to work on many things like consoles and maybe some microcontrollers.
