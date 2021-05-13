@@ -225,6 +225,7 @@ namespace SleepyDiscord {
 				);
 			JSONStructEnd
 		};
+		Snowflake<DiscordObject> applicationID;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
@@ -250,7 +251,8 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&Message::stickers         , "stickers"          , json::OPTIONAL_FIELD ),
 				json::pair                           (&Message::messageReference , "message_reference" , json::OPTIONAL_FIELD ),
 				json::pair<json::SmartPtrTypeHelper >(&Message::referencedMessage, "referenced_message", json::OPTIONAL_FIELD ),
-				json::pair<json::EnumTypeHelper     >(&Message::flags            , "flags"             , json::OPTIONAL_FIELD )
+				json::pair<json::EnumTypeHelper     >(&Message::flags            , "flags"             , json::OPTIONAL_FIELD ),
+				json::pair                           (&Message::applicationID    , "application_id"    , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};
