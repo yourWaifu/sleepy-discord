@@ -625,10 +625,8 @@ namespace SleepyDiscord {
 	}
 	/// <summary>
 	/// Batch edits permissions for all commands in a guild. Takes an array of partial objects including id and permissions.
-	/// </summary>
-	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions
-	/// </url>
+	/// </summary>
 	BoolResponse BaseDiscordClient::batchEditAppCommandPermissions(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
 	) {
