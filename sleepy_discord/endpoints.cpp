@@ -647,10 +647,8 @@ namespace SleepyDiscord {
 	}
 	/// <summary>
 	/// Edits command permissions for a specific command for your application in a guild.
-	/// </summary>
-	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions
-	/// </url>
+	/// </summary>
 	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommand::Permissions> permissions, RequestSettings<BoolResponse> settings
 	) {
@@ -666,10 +664,8 @@ namespace SleepyDiscord {
 	}
 	/// <summary>
 	/// Fetches command permissions for all commands for your application in a guild.
-	/// </summary>
-	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-guild-application-command-permissions
-	/// </url>
+	/// </summary>
 	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<ServerAppCommandPermissions>> settings
 	) {
@@ -677,10 +673,8 @@ namespace SleepyDiscord {
 	}
 	/// <summary>
 	/// Fetches command permissions for a specific command for your application in a guild.
-	/// </summary>
-	/// <url>
 	/// https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions
-	/// </url>
+	/// </summary>
 	ObjectResponse<ServerAppCommandPermissions> BaseDiscordClient::getAppCommandPermissions(
 		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<ServerAppCommandPermissions>> settings
 	) {
