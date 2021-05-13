@@ -554,7 +554,7 @@ namespace SleepyDiscord {
 				return TypeHelper<typename Optional::value_type>::fromType(*value, allocator);
 			}
 			static inline bool empty(const Optional& value) {
-				return bool{ value };
+				return value.has_value();
 			}
 			static inline bool isType(const Value& value) {
 				 return TypeHelper<typename Optional::value_type>::isType(value);
@@ -578,7 +578,7 @@ namespace SleepyDiscord {
 				}
 			}
 			static inline bool empty(const Nullable& value) {
-				return bool{ value };
+				return value.has_value();
 			}
 			static inline bool isType(const Value& value) {
 				return value.IsNull() || TypeHelper<typename Nullable::value_type>::isType(value);
