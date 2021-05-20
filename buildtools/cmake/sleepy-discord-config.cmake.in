@@ -1,0 +1,52 @@
+# Config file for Sleepy Discord
+# To be used with VCPKG
+
+# Defines
+#  SLEEPY_DISCORD_FOUND - true when the module was found
+#  SLEEPY_DISCORD_INCLUDE_DIR - library's include directory
+#  SLEEPY_DISCORD_INCLUDE_DIRS - all include directories
+#  SLEEPY_DISCORD_LIB - result from find library
+#  SLEEPY_DISCORD_CONFIG - public compile definitions used for configuring the library
+#  SLEEPY_DISCORD_DEPS - list of required packages
+
+# Example Useage
+# add_subdirectory(sleepy-discord)
+# configure_file(
+#  sleepy-discord/buildtools/cmake/sleepy-discord-config.cmake.in
+#  "example/path/to/sleepy-discord-config.cmake"
+#  @ONLY)
+
+# !!!WARNING!!!
+# This is an auto generated file
+# Please make sure you editing the right file so changes don't get overwriten
+
+
+set(SLEEPY_DISCORD_CONFIG "@LIB_CONFIG_STR@")
+list(APPEND SLEEPY_DISCORD_CONFIG SLEEPY_DISCORD_CMAKE)
+set(SLEEPY_DISCORD_INCLUDE_DIRS "@LIBRARIES_INCLUDE_DIRS_STR@")
+set(SLEEPY_DISCORD_DEPS "@REQUIRED_PACKAGES_STR@")
+
+find_path(SLEEPY_DISCORD_INCLUDE_DIR NAMES sleepy_discord/sleepy_discord.h)
+if (SLEEPY_DISCORD_INCLUDE_DIR)
+	list(APPEND SLEEPY_DISCORD_INCLUDE_DIRS ${SLEEPY_DISCORD_INCLUDE_DIR})
+endif()
+
+find_library(SLEEPY_DISCORD_LIB NAMES sleepy-discord)
+if(SLEEPY_DISCORD_LIB)
+	set(SLEEPY_DISCORD_FOUND True)
+
+	foreach(dep IN LISTS SLEEPY_DISCORD_DEPS)
+		find_package("${dep}" REQUIRED)
+	endforeach()
+
+	add_library(sleepy-discord STATIC IMPORTED)
+
+	set_target_properties(sleepy-discord PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${SLEEPY_DISCORD_INCLUDE_DIRS}"
+		IMPORTED_LINK_INTERFACE_LIBRARIES "@LIBRARIES_TO_LINK_STR@"
+		INTERFACE_COMPILE_DEFINITIONS "${SLEEPY_DISCORD_CONFIG}"
+		IMPORTED_LOCATION "${SLEEPY_DISCORD_LIB}"
+	)
+else()
+	set(SLEEPY_DISCORD_FOUND False)
+endif()
