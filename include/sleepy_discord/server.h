@@ -3,12 +3,14 @@
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
+#include "stage_instance.h"
 #include "snowflake.h"
 #include "cache.h"
 
 namespace SleepyDiscord {
 	enum Permission : uint64_t;
 	struct Role;
+	struct StageInstance;
 	
 	/*Guild Member Structure
 	Field     Type     Description
@@ -77,6 +79,7 @@ namespace SleepyDiscord {
 		//emojis
 		//features
 		bool unavailable;
+		std::vector<StageInstance> stageInstances;
 
 		//presences
 		int MFALevel;
@@ -114,7 +117,8 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::members                    , "members"                      , json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD )
+				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::stageInstances             , "stage_instances"              , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

@@ -4,6 +4,11 @@
 
 namespace SleepyDiscord {
 	struct StageInstance : IdentifiableDiscordObject<StageInstance> {
+		StageInstance() = default;
+		~StageInstance() = default;
+		StageInstance(const json::Value & json);
+		StageInstance(const nonstd::string_view & json);
+
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
 		std::string topic;

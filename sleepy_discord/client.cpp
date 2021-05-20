@@ -623,6 +623,9 @@ namespace SleepyDiscord {
 			case hash("APPLICATION_COMMAND_UPDATE" ): onEditAppCommand    (d); break;
 			case hash("APPLICATION_COMMAND_DELETE" ): onDeleteAppCommand  (d); break;
 			case hash("INTERACTION_CREATE"         ): onInteraction       (document["d"]); break;
+			case hash("STAGE_INSTANCE_CREATE"      ): onStageInstance     (d); break;
+			case hash("STAGE_INSTANCE_UPDATE"      ): onEditStageInstance (d); break;
+			case hash("STAGE_INSTANCE_DELETE"      ): onDeleteStageInstance(d); break;
 			default: 
 				onUnknownEvent(json::toStdString(t), d);
 				break;

@@ -618,6 +618,9 @@ namespace SleepyDiscord {
 		virtual void onAppCommand        (AppCommand         appCommand ) {}
 		virtual void onEditAppCommand    (AppCommand         appCommand ) {}
 		virtual void onDeleteAppCommand  (AppCommand         appCommand ) {}
+		virtual void onStageInstance     (StageInstance      instance   ) {}
+		virtual void onDeleteStageInstance(StageInstance      instance   ) {}
+		virtual void onEditStageInstance (StageInstance      instance   ) {}
 		virtual void onUnknownEvent      (std::string name, const json::Value& data); //for extending old library versions
 
 		//websocket stuff

@@ -23,6 +23,7 @@ add_library(sleepy-discord STATIC
 	webhook.cpp
 	websocketpp_websocket.cpp
 	zlib_compression.cpp
+	stage_instance.cpp
 )
 
 target_include_directories(sleepy-discord
