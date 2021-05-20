@@ -182,26 +182,30 @@ if(USE_UWEBSOCKETS)
 endif()
 
 if(USE_LIBOPUS)
-	if(AUTO_DOWNLOAD_LIBRARY)
-		#needs libtool
-		download_project(
-			PROJ           opus
-			GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
-			GIT_TAG        7628d844
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+	if(SLEEPY_VCPKG)
+		find_package(Opus CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#needs libtool
+			download_project(
+				PROJ           opus
+				GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
+				GIT_TAG        7628d844
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
 
-	add_subdirectory(deps/opus)
+		add_subdirectory(deps/opus)
 
-	if(NOT DEFINED opus_SOURCE_DIR)
-		set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
+		if(NOT DEFINED opus_SOURCE_DIR)
+			set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
+		endif()
 	endif()
 endif()
 
 if(USE_LIBSODIUM)
-	if(NOT WIN32)
+	if(NOT WIN32 AND NOT SLEEPY_VCPKG)
 		if(AUTO_DOWNLOAD_LIBRARY)
 			download_project(
 				PROJ           libsodium
@@ -222,8 +226,6 @@ if(USE_LIBSODIUM)
 		else()
 			set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
 		endif()
-	else()
-		set(USE_LIBSODIUM_VCPKG ON)
 	endif()
 endif()
 
