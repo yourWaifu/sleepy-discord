@@ -1,5 +1,6 @@
 #include "json_wrapper.h"
 #include <stdexcept>
+#include <string>
 
 namespace SleepyDiscord { namespace json {
 	const std::string createJSON(std::initializer_list<std::pair<std::string, std::string>> json) {
