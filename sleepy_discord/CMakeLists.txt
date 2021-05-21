@@ -190,7 +190,8 @@ else()
 		"NONEXISTENT_SODIUM")
 endif()
 
-if(NOT Git_FOUND)
+if(NOT Git_FOUND AND NOT SLEEPY_VCPKG)
+	# Not needed for vcpkg
 	target_compile_definitions(sleepy-discord PRIVATE NONEXISTANT_GIT_INFO)
 endif()
 
