@@ -88,7 +88,7 @@ namespace SleepyDiscord {
 		template<class TypeToConvertTo, class Base = ArrayStringWrapper>
 		struct ArrayWrapper : public Base {
 			using Base::Base;
-			using DocType = decltype(((Base*)nullptr)->getDoc());
+			using DocType = decltype(std::declval<Base>().getDoc());
 			template<class Container>
 			Container get(DocType doc) {
 				Array jsonArray = doc.template Get<Array>();
