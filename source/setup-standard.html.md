@@ -78,3 +78,4 @@ Using CMake to Generate build configuration files.
  * [CMake App (GUI)](setup-standard-gui)
  * [CMake Command (CLI)](setup-standard-cli)
  * [Visual Studio CMake](setup-standard-vs-cmake)
+ * [Jetbrains CLion CMake](setup-standard-clion-cmake)
