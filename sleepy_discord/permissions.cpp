@@ -75,4 +75,11 @@ namespace SleepyDiscord {
 	Role::Role(const nonstd::string_view & json) :
 		Role(json::fromJSON<Role>(json)) {
 	}
+
+	Role::Tags::Tags(const json::Value& json) :
+		Tags(json::fromJSON<Tags>(json)) {
+	}
+	Role::Tags::Tags(const nonstd::string_view& json) :
+		Tags(json::fromJSON<Tags>(json)) {
+	}
 }

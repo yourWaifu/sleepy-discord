@@ -393,9 +393,9 @@ namespace SleepyDiscord {
 		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
 
 		//stage instances
-		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<ObjectResponse<User>> settings = {});
+		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<ObjectResponse<User>> settings = {});
 		ObjectResponse<StageInstance> getStageInstance(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<StageInstance>> settings = {});
-		BoolResponse updateStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<BoolResponse> settings = {});
+		BoolResponse editStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
 
 		//websocket functions
