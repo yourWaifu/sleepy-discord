@@ -594,7 +594,7 @@ namespace SleepyDiscord {
 				onEditVoiceState(state);
 				} break;
 			case hash("TYPING_START"               ): onTyping            (d["channel_id"], d["user_id"], d["timestamp"].GetInt64() * 1000); break;
-			case hash("MESSAGE_CREATE"             ): onMessage           (d); break;
+			case hash("MESSAGE_CREATE"             ): onMessage           (document["d"]); break;
 			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
 			case hash("MESSAGE_DELETE"             ): onDeleteMessages    (d["channel_id"], { d["id"] }); break;
 			case hash("MESSAGE_DELETE_BULK"        ): onDeleteMessages    (d["channel_id"], json::toArray<Snowflake<Message>>(d["ids"])); break;

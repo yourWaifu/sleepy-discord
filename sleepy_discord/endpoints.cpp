@@ -51,6 +51,15 @@ namespace SleepyDiscord {
 		};
 	}
 
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(SendMessageParams params, std::string fileLocation, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{
+			request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, "", {
+				{ "file", filePathPart{fileLocation} },
+				{ "payload_json", json::stringifyObj(params) }
+			})
+		};
+	}
+
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
 		MessageReference mr{};
 		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, mr, TTS::DisableTTS)) };
@@ -694,13 +703,15 @@ namespace SleepyDiscord {
 		return deleteServerAppCommand(applicationID, serverID, commandID, settings);
 	}
 
-	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<ObjectResponse<User>> settings) {
+	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<ObjectResponse<User>> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		auto& allocator = doc.GetAllocator();
 		const std::string& channelIDStr = channelID.string();
 		doc.AddMember("channel_id", rapidjson::Value::StringRefType{ channelIDStr.c_str(), channelIDStr.length() }, allocator);
 		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		if (privacyLevel != StageInstance::PrivacyLevel::NotSet)
+			doc.AddMember("privacy_level", static_cast<StageInstance::PrivacyLevelRaw>(privacyLevel), allocator);
 		return ObjectResponse<User>{
 			request(Post, path("/stage-instances", {}), settings, json::stringify(doc))
 		};
@@ -710,11 +721,13 @@ namespace SleepyDiscord {
 		return ObjectResponse<StageInstance>{ request(Get, path("/stage-instances/{channel.id}", { channelID }), settings)};
 	}
 
-	BoolResponse BaseDiscordClient::updateStageInstance(Snowflake<Channel> channelID, std::string topic, RequestSettings<BoolResponse> settings) {
+	BoolResponse BaseDiscordClient::editStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<BoolResponse> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		auto& allocator = doc.GetAllocator();
 		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		if (privacyLevel != StageInstance::PrivacyLevel::NotSet)
+			doc.AddMember("privacy_level", static_cast<StageInstance::PrivacyLevelRaw>(privacyLevel), allocator);
 		return BoolResponse{ request(Patch, path("/stage-instances/{channel.id}", {channelID}), settings, json::stringify(doc)) };
 	}
 

@@ -526,7 +526,8 @@ namespace SleepyDiscord {
 
 		template<class SmartPtr, template<class...> class TypeHelper>
 		struct SmartPtrTypeHelper {
-			static inline SmartPtr toType(const Value& value) {
+			template<class Value>
+			static inline SmartPtr toType(Value& value) {
 				return SmartPtr{new typename SmartPtr::element_type{
 					//copy object to pointer
 					TypeHelper<typename SmartPtr::element_type>::toType(value)
@@ -691,13 +692,17 @@ namespace SleepyDiscord {
 			return isOK;
 		}
 
-		template<class ResultingObject>
-		inline ResultingObject fromJSON(const nonstd::string_view& json) {
+		inline rapidjson::Document parse(const nonstd::string_view& json) {
 			rapidjson::Document doc;
 			doc.Parse(json.data(), json.length());
+			return doc;
+		}
+
+		template<class ResultingObject>
+		inline ResultingObject fromJSON(const nonstd::string_view& json) {
 			//note: some objects have different value consturctors
 			//so we need to call the Object's value constructor
-			return ResultingObject(doc);
+			return ResultingObject(parse(json));
 		}
 
 		constexpr std::size_t stringLength(const char*const& string, std::size_t i = 0) {
@@ -768,6 +773,11 @@ namespace SleepyDiscord {
 				object.*(field.member) = objectChanges.*(field.member);
 			}
 			mergeObj<Object, i + 1>(object, objectChanges);
+		}
+
+		inline json::Value copy(const json::Value& value) {
+			rapidjson::Document doc;
+			return std::move(doc.CopyFrom(value, doc.GetAllocator()));
 		}
 
 		//json optional and null emulation
