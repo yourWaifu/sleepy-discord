@@ -111,6 +111,6 @@ namespace SleepyDiscord {
 	{}
 
 	RawComponent::RawComponent(const nonstd::string_view& json) :
-		RawComponent(json::parse(json))
+		RawComponent(json::fromJSON<RawComponent>(json))
 	{}
 }
