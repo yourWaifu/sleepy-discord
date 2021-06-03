@@ -506,23 +506,53 @@ namespace SleepyDiscord {
 		using Value = bool; 
 	};
 
-	struct SendMessageParams : public DiscordObject {
-	public:
+	template<class Type>
+	struct MessageParams : public DiscordObject {
 		Snowflake<Channel> channelID;
 		std::string content = {};
-		bool tts = false;
 		Embed embed = Embed::Flag::INVALID_EMBED;
 		AllowedMentions allowedMentions;
-		MessageReference messageReference;
 		std::vector<std::shared_ptr<BaseComponent>> components;
+
 		JSONStructStart
 			std::make_tuple(
-				json::pair                           (&SendMessageParams::content         , "content"          , json::REQUIRIED_FIELD),
-				json::pair                           (&SendMessageParams::tts             , "tts"              , json::OPTIONAL_FIELD ),
-				json::pair                           (&SendMessageParams::embed           , "embed"            , json::OPTIONAL_FIELD ),
-				json::pair                           (&SendMessageParams::allowedMentions , "allowed_mentions" , json::OPTIONAL_FIELD ),
-				json::pair                           (&SendMessageParams::messageReference, "message_reference", json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&SendMessageParams::components      , "components"       , json::OPTIONAL_FIELD )
+				json::pair                           (&Type::content        , "content"         , json::OPTIONAL_FIELD),
+				json::pair                           (&Type::embed          , "embed"           , json::OPTIONAL_FIELD),
+				json::pair                           (&Type::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Type::components     , "components"      , json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
+	struct SendMessageParams : MessageParams<SendMessageParams> {
+	public:
+		bool tts = false;
+		MessageReference messageReference;
+
+		JSONStructStart
+			std::tuple_cat(
+				MessageParams<SendMessageParams>::JSONStruct,
+				std::make_tuple(
+					json::pair(&SendMessageParams::tts             , "tts"              , json::OPTIONAL_FIELD ),
+					json::pair(&SendMessageParams::messageReference, "message_reference", json::OPTIONAL_FIELD )
+				)
+			);
+		JSONStructEnd
+	};
+
+	struct EditMessageParams : MessageParams<EditMessageParams> {
+	public:
+		Snowflake<Message> messageID;
+		Message::Flags flags = Message::Flags::DEFAULT;
+		std::vector<Attachment> attachments;
+
+		JSONStructStart
+			std::tuple_cat(
+				MessageParams<EditMessageParams>::JSONStruct,
+				std::make_tuple(
+					json::pair<json::EnumTypeHelper     >(&EditMessageParams::flags      , "flags"      , json::OPTIONAL_FIELD),
+					json::pair<json::ContainerTypeHelper>(&EditMessageParams::attachments, "attachments", json::OPTIONAL_FIELD)
+				)
 			);
 		JSONStructEnd
 	};

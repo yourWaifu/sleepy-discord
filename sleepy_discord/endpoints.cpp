@@ -65,6 +65,10 @@ namespace SleepyDiscord {
 		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, mr, TTS::DisableTTS)) };
 	}
 
+	ObjectResponse<Message> BaseDiscordClient::editMessage(EditMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { params.channelID, params.messageID }), settings, json::stringifyObj(params)) };
+	}
+
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings) {
 		return { request(Delete, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings), EmptyRespFn() };
 	}

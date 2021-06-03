@@ -213,10 +213,10 @@ namespace SleepyDiscord {
 
 	struct InteractionAppCommandCallbackData : public EditWebhookParams {
 		InteractionAppCommandCallbackData() = default;
-		InteractionAppCommandCallbackData(const json::Value & json);
+		InteractionAppCommandCallbackData(json::Value & json);
 		InteractionAppCommandCallbackData(const nonstd::string_view & json);
 
-		inline const bool empty() const { return content.empty() && embeds.empty(); }
+		inline const bool empty() const { return content.empty() && embeds.empty() && components.empty(); }
 
 		bool tts = false;
 		enum class Flags : int {
@@ -230,7 +230,8 @@ namespace SleepyDiscord {
 				json::pair                           (&InteractionAppCommandCallbackData::content        , "content"         , json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::embeds         , "embeds"          , json::OPTIONAL_FIELD),
 				json::pair                           (&InteractionAppCommandCallbackData::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
-				json::pair<json::EnumTypeHelper     >(&InteractionAppCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD)
+				json::pair<json::EnumTypeHelper     >(&InteractionAppCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::components     , "components"      , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
@@ -253,7 +254,7 @@ namespace SleepyDiscord {
 
 		struct Response : public DiscordObject {
 			Response() = default;
-			Response(const json::Value & json);
+			Response(json::Value & json);
 			Response(const nonstd::string_view & json);
 
 			using Type = CallbackType;

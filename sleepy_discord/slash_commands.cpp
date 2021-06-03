@@ -31,7 +31,7 @@ namespace SleepyDiscord {
 	AppCommand::InteractionData::Option::Option(const nonstd::string_view & json) :
 		AppCommand::InteractionData::Option(json::fromJSON<AppCommand::InteractionData::Option>(json)) {
 	}
-	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(const json::Value & json) :
+	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(json::Value & json) :
 		InteractionAppCommandCallbackData(json::fromJSON<InteractionAppCommandCallbackData>(json)) {
 	}
 	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(const nonstd::string_view & json) :
@@ -43,7 +43,7 @@ namespace SleepyDiscord {
 	Interaction::Interaction(const nonstd::string_view & json) :
 		Interaction(json::fromJSON<Interaction>(json)) {
 	}
-	Interaction::Response::Response(const json::Value & json) :
+	Interaction::Response::Response(json::Value & json) :
 		Interaction::Response(json::fromJSON<Interaction::Response>(json)) {
 	}
 	Interaction::Response::Response(const nonstd::string_view & json) :
