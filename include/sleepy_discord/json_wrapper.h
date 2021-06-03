@@ -537,7 +537,7 @@ namespace SleepyDiscord {
 				return TypeHelper<typename SmartPtr::element_type>::fromType(*value, allocator);
 			}
 			static inline bool empty(const SmartPtr& value) {
-				return !bool{ value };
+				return value == nullptr;
 			}
 			static inline bool isType(const Value& value) {
 				return TypeHelper<typename SmartPtr::element_type>::isType(value);
@@ -700,9 +700,10 @@ namespace SleepyDiscord {
 
 		template<class ResultingObject>
 		inline ResultingObject fromJSON(const nonstd::string_view& json) {
+			rapidjson::Document doc = parse(json);
 			//note: some objects have different value consturctors
 			//so we need to call the Object's value constructor
-			return ResultingObject(parse(json));
+			return ResultingObject(doc);
 		}
 
 		constexpr std::size_t stringLength(const char*const& string, std::size_t i = 0) {

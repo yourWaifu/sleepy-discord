@@ -91,14 +91,12 @@ namespace SleepyDiscord {
 	struct RawComponent : public BaseComponent {
 		using JSONTypeHelper = json::ClassTypeHelper<json::Value>;
 
-		RawComponent() = default;
-		~RawComponent() = default;
 		RawComponent(BaseComponent base, json::Value& rawJSON) : BaseComponent(std::move(base)) {
 			data = JSONTypeHelper::toType(rawJSON);
 		}
 		RawComponent(json::Value& rawJSON) : RawComponent(BaseComponent{static_cast<ComponentType>(rawJSON["type"].GetInt())}, rawJSON) {}
 		RawComponent(const nonstd::string_view& json);
-		RawComponent(const RawComponent& origin) : BaseComponent(origin.type), data(std::move(json::copy(origin.data))) {}
+		RawComponent(const RawComponent& origin) : BaseComponent(origin.type), data(json::copy(origin.data)) {}
 
 		inline json::Value serialize(typename json::Value::AllocatorType& alloc) const {
 			return JSONTypeHelper::fromType(data, alloc);
