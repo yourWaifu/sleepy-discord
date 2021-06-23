@@ -485,7 +485,7 @@ namespace SleepyDiscord {
 			case hash("GUILD_UPDATE"               ): {
 				Server server(d);
 				accessServerFromCache(server.ID, [server](Server& foundServer) {
-					foundServer = server;
+					json::mergeObj(foundServer, server);
 				});
 				onEditServer(server);
 				} break;
