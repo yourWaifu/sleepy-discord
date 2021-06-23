@@ -215,11 +215,11 @@ if (SLEEPY_VCPKG)
 		../buildtools/cmake/sleepy-discord-config.cmake.in
 		"sleepy-discord-config.cmake"
 		PATH_VARS LIBRARIES_INCLUDE_DIRS
-		INSTALL_DESTINATION .)
+		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
 	install(
 		FILES ${CMAKE_CURRENT_BINARY_DIR}/sleepy-discord-config.cmake
-        DESTINATION . )
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} )
 endif()
 
 target_compile_definitions(sleepy-discord PUBLIC ${LIB_CONFIG})
