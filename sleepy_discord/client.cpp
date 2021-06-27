@@ -175,10 +175,10 @@ namespace SleepyDiscord {
 
 					auto errorCode = document.FindMember("code");
 					auto errorMessage = document.FindMember("message");
-					if (errorCode != document.MemberEnd())
+					if (errorCode != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd()))
 						onError(
 							static_cast<ErrorCode>(errorCode->value.GetInt()),
-							{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
+							{ errorMessage != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd()) ? errorMessage->value.GetString() : "" }
 						);
 					else if (!response.text.empty())
 						onError(ERROR_NOTE, response.text);

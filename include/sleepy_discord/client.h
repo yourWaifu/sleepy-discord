@@ -702,7 +702,7 @@ namespace SleepyDiscord {
 		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {
 			if (serverCache) {
 				ServerCache::iterator server = serverCache->findServer(serverID);
-				if (server != serverCache->end()) {
+				if (server != static_cast<ServerCache::const_iterator>(serverCache->end())) {
 					onSuccessCallback(server);
 				}
 			}
