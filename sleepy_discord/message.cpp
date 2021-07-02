@@ -109,6 +109,18 @@ namespace SleepyDiscord {
 	Button::Button(const nonstd::string_view& json) :
 		Button(json::fromJSON<Button>(json))
 	{}
+	SelectMenu::SelectMenu(const json::Value& json) :
+		SelectMenu(json::fromJSON<SelectMenu>(json))
+	{}
+	SelectMenu::SelectMenu(const nonstd::string_view& json) :
+		SelectMenu(json::fromJSON<SelectMenu>(json))
+	{}
+	SelectMenu::Option::Option(const json::Value& json) :
+		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
+	{}
+	SelectMenu::Option::Option(const nonstd::string_view& json) :
+		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
+	{}
 
 	RawComponent::RawComponent(const nonstd::string_view& json) :
 		RawComponent(json::fromJSON<RawComponent>(json))

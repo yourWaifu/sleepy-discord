@@ -74,6 +74,7 @@ namespace SleepyDiscord {
 		NONE = 0, //made up by the library
 		ActionRow = 1,
 		Button = 2,
+		SelectMenu = 3,
 	};
 
 	struct BaseComponent : public DiscordObject {
@@ -189,6 +190,56 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	struct SelectMenu : public ComponentTemp<SelectMenu> {
+		SelectMenu() = default;
+		~SelectMenu() = default;
+		SelectMenu(const json::Value& json);
+		SelectMenu(const nonstd::string_view& json);
+		static const ComponentType componentType = ComponentType::SelectMenu;
+
+		struct Option : public DiscordObject {
+			Option() = default;
+			~Option() = default;
+			Option(const json::Value & rawJSON);
+			Option(const nonstd::string_view & json);
+
+			std::string label;
+			std::string value;
+			std::string description;
+			Emoji emoji;
+			bool isDefault = false;
+
+			JSONStructStart
+				std::make_tuple(
+					json::pair(&Option::label      , "label"      , json::REQUIRIED_FIELD),
+					json::pair(&Option::value      , "value"      , json::REQUIRIED_FIELD),
+					json::pair(&Option::description, "description", json::OPTIONAL_FIELD ),
+					json::pair(&Option::emoji      , "emoji"      , json::OPTIONAL_FIELD ),
+					json::pair(&Option::isDefault  , "default"    , json::OPTIONAL_FIELD )
+				);
+			JSONStructEnd
+		};
+
+		std::string customID;
+		std::vector<Option> options;
+		std::string placeholder;
+		int minValue = 1;
+		int maxValue = 1;
+
+		JSONStructStart
+			std::tuple_cat(
+				ComponentTemp<SelectMenu>::JSONStruct,
+				std::make_tuple(
+					json::pair                           (&SelectMenu::customID   , "custom_id"  , json::REQUIRIED_FIELD),
+					json::pair<json::ContainerTypeHelper>(&SelectMenu::options    , "options"    , json::REQUIRIED_FIELD),
+					json::pair                           (&SelectMenu::placeholder, "placeholder", json::OPTIONAL_FIELD ),
+					json::pair                           (&SelectMenu::minValue   , "min_values" , json::OPTIONAL_FIELD ),
+					json::pair                           (&SelectMenu::maxValue   , "max_values" , json::OPTIONAL_FIELD )
+				)
+			);
+		JSONStructEnd
+	};
+
 	namespace json {
 		template<>
 		struct ClassTypeHelper<std::shared_ptr<BaseComponent>> {
@@ -204,6 +255,8 @@ namespace SleepyDiscord {
 					return std::make_shared<ActionRow>(value);
 				case ComponentType::Button:
 					return std::make_shared<Button>(value);
+				case ComponentType::SelectMenu:
+					return std::make_shared<SelectMenu>(value);
 				}
 			}
 			static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
@@ -215,6 +268,8 @@ namespace SleepyDiscord {
 					return json::ClassTypeHelper<ActionRow>::fromType(*std::static_pointer_cast<ActionRow>(value), allocator);
 				case ComponentType::Button:
 					return json::ClassTypeHelper<Button>::fromType(*std::static_pointer_cast<Button>(value), allocator);
+				case ComponentType::SelectMenu:
+					return json::ClassTypeHelper<SelectMenu>::fromType(*std::static_pointer_cast<SelectMenu>(value), allocator);
 				}
 			}
 			static inline bool empty(const Type& value) {

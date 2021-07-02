@@ -129,6 +129,7 @@ namespace SleepyDiscord {
 			std::vector<Option> options;
 			std::string customID;
 			ComponentType componentType;
+			std::vector<std::string> values;
 
 			JSONStructStart
 				std::make_tuple(
@@ -136,7 +137,8 @@ namespace SleepyDiscord {
 					json::pair                           (&AppCommand::InteractionData::name         , "name"          , json::OPTIONAL_FIELD),
 					json::pair<json::ContainerTypeHelper>(&AppCommand::InteractionData::options      , "options"       , json::OPTIONAL_FIELD),
 					json::pair                           (&AppCommand::InteractionData::customID     , "custom_id"     , json::OPTIONAL_FIELD),
-					json::pair<json::EnumTypeHelper     >(&AppCommand::InteractionData::componentType, "component_type", json::OPTIONAL_FIELD)
+					json::pair<json::EnumTypeHelper     >(&AppCommand::InteractionData::componentType, "component_type", json::OPTIONAL_FIELD),
+					json::pair<json::ContainerTypeHelper>(&AppCommand::InteractionData::values       , "values"        , json::OPTIONAL_FIELD)
 				);
 			JSONStructEnd
 		};
@@ -244,8 +246,6 @@ namespace SleepyDiscord {
 		enum class CallbackType : int {
 			NONE                             = 0, //made up type
 			Pong                             = 1,
-			Acknowledge                      = 2,
-			ChannelMessage                   = 3,
 			ChannelMessageWithSource         = 4,
 			DeferredChannelMessageWithSource = 5,
 			DeferredUpdateMessage            = 6,
