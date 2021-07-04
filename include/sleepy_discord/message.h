@@ -223,8 +223,9 @@ namespace SleepyDiscord {
 		std::string customID;
 		std::vector<Option> options;
 		std::string placeholder;
-		int minValue = 1;
-		int maxValue = 1;
+		int minValues = 1;
+		int maxValues = 1;
+		bool disabled = false;
 
 		JSONStructStart
 			std::tuple_cat(
@@ -233,8 +234,9 @@ namespace SleepyDiscord {
 					json::pair                           (&SelectMenu::customID   , "custom_id"  , json::REQUIRIED_FIELD),
 					json::pair<json::ContainerTypeHelper>(&SelectMenu::options    , "options"    , json::REQUIRIED_FIELD),
 					json::pair                           (&SelectMenu::placeholder, "placeholder", json::OPTIONAL_FIELD ),
-					json::pair                           (&SelectMenu::minValue   , "min_values" , json::OPTIONAL_FIELD ),
-					json::pair                           (&SelectMenu::maxValue   , "max_values" , json::OPTIONAL_FIELD )
+					json::pair<                        1>(&SelectMenu::minValues  , "min_values" , json::OPTIONAL_FIELD ),
+					json::pair<                        1>(&SelectMenu::maxValues  , "max_values" , json::OPTIONAL_FIELD ),
+					json::pair                           (&SelectMenu::disabled   , "disabled"   , json::OPTIONAL_FIELD )
 				)
 			);
 		JSONStructEnd
