@@ -54,17 +54,16 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
-
+    
 	struct Server : public IdentifiableDiscordObject<Server> {
-		//~Server();
+		~Server() = default;
 		Server() = default;
-		//Server(const std::string * rawJson);
 		Server(const nonstd::string_view & rawJSON);
 		Server(const json::Value& json);
-		//Server(const json::Values values);
 		std::string name;
 		std::string icon;
 		std::string splash;
+		std::string discoverySplash;
 		Snowflake<User> ownerID;
 		Permission permissions;
 		std::string region;
@@ -74,20 +73,37 @@ namespace SleepyDiscord {
 		std::string embedChannelID;
 		int verificationLevel;
 		int defaultMessageNotifications;
+		int explicitContentFilter;
+        
 		std::list<Role> roles;
 		//voice_states
 		//emojis
-		//features
+		std::vector<std::string> features;
 		bool unavailable;
 		std::vector<StageInstance> stageInstances;
-
+		Snowflake<DiscordObject> applicationID;
+		Snowflake<Channel> systemChannelID;
+		int systemChannelFlags;
+		Snowflake<Channel> rulesChannelID;
 		//presences
 		int MFALevel;
 		std::string joinedAt;
-		
+		int maxMembers = 0;
+		std::string vanityUrlCode;
+		std::string description;
+		std::string banner;
+		int premiumTier = 0;
+		int premiumSubscriptionCount = 0;
+		std::string preferredLocale;
+		Snowflake<Channel> publicUpdatesChannelID;
+		int maxVideoChannelUsers;
+		int approximateMemberCount;
+		int approximatePresenceCount;
+		int nsfwLevel = 0;
+        
 		//those are only filled in from the onServer event
 		bool large;
-
+		int memberCount = 0;
 		std::list<ServerMember> members;
 		std::list<Channel> channels;
 
@@ -95,13 +111,13 @@ namespace SleepyDiscord {
 		std::list<Channel>::iterator findChannel(const Snowflake<Channel> channelID);
 		std::list<Role>::iterator findRole(const Snowflake<Role> roleID);
 
-		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&Server::ID                         , "id"                           , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::name                       , "name"                         , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::icon                       , "icon"                         , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::splash                     , "splash"                       , json::NULLABLE_FIELD ),
+				json::pair                           (&Server::discoverySplash            , "discovery_splash"             , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::ownerID                    , "owner_id"                     , json::OPTIONAL_FIELD ),
 				json::pair<UInt64StrTypeHelper      >(&Server::permissions                , "permissions"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::region                     , "region"                       , json::OPTIONAL_FIELD ),
@@ -111,13 +127,32 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::embedChannelID             , "widget_channel_id"            , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::explicitContentFilter      , "explicit_content_filter"      , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::features                   , "features"                     , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::MFALevel                   , "mfa_level"                    , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::applicationID              , "application_id"               , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::systemChannelID            , "system_channel_id"            , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::systemChannelFlags         , "system_channel_flags"         , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::rulesChannelID             , "rules_channel_id"             , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::memberCount                , "member_count"                 , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::members                    , "members"                      , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::maxMembers                 , "max_members"                  , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::vanityUrlCode              , "vanity_url_code"              , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::description                , "description"                  , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::banner                     , "banner"                       , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::premiumTier                , "premium_tier"                 , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::premiumSubscriptionCount   , "premium_subscription_count"   , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::preferredLocale            , "preferred_locale"             , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::publicUpdatesChannelID     , "public_updates_channel_id"    , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::maxVideoChannelUsers       , "max_video_channel_users"      , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::approximateMemberCount     , "approximate_member_count"     , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::approximatePresenceCount   , "approximate_presence_count"   , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::nsfwLevel                  , "nsfw_level"                   , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::stageInstances             , "stage_instances"              , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
