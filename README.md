@@ -33,7 +33,7 @@ public:
 };
 
 int main() {
-	myClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
+	MyClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.run();
 }
 ```
