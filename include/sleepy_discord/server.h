@@ -6,6 +6,7 @@
 #include "stage_instance.h"
 #include "snowflake.h"
 #include "cache.h"
+#include "voice.h"
 
 namespace SleepyDiscord {
 	enum Permission : uint64_t;
@@ -76,7 +77,7 @@ namespace SleepyDiscord {
 		int explicitContentFilter;
         
 		std::list<Role> roles;
-		//voice_states
+		std::list<VoiceState> voiceStates;
 		//emojis
 		std::vector<std::string> features;
 		bool unavailable;
@@ -139,6 +140,7 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::memberCount                , "member_count"                 , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::voiceStates                , "voice_states"                 , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::members                    , "members"                      , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::maxMembers                 , "max_members"                  , json::OPTIONAL_FIELD ),
