@@ -409,10 +409,6 @@ namespace SleepyDiscord {
 
 		if (useTrasportConnection == 1)
 			compressionHandler->resetStream();
-
-		for (VoiceConnection& voiceConnection : voiceConnections) {
-			disconnect(4900, "", voiceConnection.connection);
-	}
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
