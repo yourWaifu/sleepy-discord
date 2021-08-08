@@ -404,6 +404,14 @@ namespace SleepyDiscord {
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
 		void requestServerMembers(ServerMembersRequest request);
 
+		//CDN stuff
+		#define SLEEPY_CDN_URL "https://cdn.discordapp.com/"
+		static inline constexpr nonstd::string_view getCDN_URL() {
+			return { SLEEPY_CDN_URL, sizeof(SLEEPY_CDN_URL) };	
+		}
+		void getServerBanner(Snowflake<Server> serverID, std::string serverBanner, std::string format, std::function<void(StandardResponse&)> callback);
+		inline void getServerBanner(Server& server, std::string format) { return getServerBanner(server.ID, server.banner, format, [](StandardResponse&){}); }
+
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
 		const bool isQuiting() { return quiting; }
