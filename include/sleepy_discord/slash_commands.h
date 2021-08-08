@@ -48,12 +48,29 @@ namespace SleepyDiscord {
 
 				template<class Type>
 				inline const bool get(Type& target) {
-					return json::castValue<Type, json::ClassTypeHelper<Type>>(target, value);
+					return json::castValue<json::ClassTypeHelper<Type>>(target, value);
+				}
+
+				template<class Type>
+				inline void setCopy(Type& val) {
+					value = json::copy(json::ClassTypeHelper<Type>::fromType(val));
+				}
+
+				template<class Type>
+				inline void setView(Type& val) {
+					value = json::ClassTypeHelper<Type>::fromType(val);
+				}
+
+				Choice copy() {
+					Choice choice;
+					choice.name = name;
+					choice.value = json::copy(value);
+					return choice;
 				}
 
 				template<class Type>
 				inline void set(Type& val) {
-					value = json::ClassTypeHelper<Type>::fromType(val);
+					setView(val);
 				}
 
 				JSONStructStart
@@ -82,7 +99,6 @@ namespace SleepyDiscord {
 					json::pair<json::EnumTypeHelper     >(&AppCommand::Option::type       , "type"       , json::REQUIRIED_FIELD),
 					json::pair                           (&AppCommand::Option::name       , "name"       , json::REQUIRIED_FIELD),
 					json::pair                           (&AppCommand::Option::description, "description", json::OPTIONAL_FIELD ),
-					json::pair<json::EnumTypeHelper     >(&AppCommand::Option::isDefault  , "default"    , json::OPTIONAL_FIELD ),
 					json::pair                           (&AppCommand::Option::isRequired , "required"   , json::OPTIONAL_FIELD ),
 					json::pair<json::ContainerTypeHelper>(&AppCommand::Option::choices    , "choices"    , json::OPTIONAL_FIELD ),
 					json::pair<json::ContainerTypeHelper>(&AppCommand::Option::options    , "options"    , json::OPTIONAL_FIELD )
