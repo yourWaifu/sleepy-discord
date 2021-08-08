@@ -738,4 +738,31 @@ namespace SleepyDiscord {
 	BoolResponse BaseDiscordClient::deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings) {
 		return BoolResponse{ request(Delete, path("/stage-instances/{channel.id}", {channelID}), settings) };
 	}
+
+	std::string CDN_path(const std::initializer_list<std::string> path) {
+		static constexpr auto CDN_URL = BaseDiscordClient::getCDN_URL();
+		int pathLength = CDN_URL.length();
+		for (const std::string str : path) {
+			pathLength += str.length();
+		}
+		std::string CDN_path;
+		CDN_path.reserve(pathLength);
+		CDN_path += CDN_URL.data();
+		for (const std::string str : path) {
+			CDN_path += str;
+		}
+		return CDN_path;
+	}
+
+	//CDN
+	void BaseDiscordClient::getServerBanner(Snowflake<Server> serverID, std::string banner, std::string format, std::function<void(StandardResponse&)> callback) {
+		static constexpr const char* pathMid = "banners/";
+		const std::string path = CDN_path({pathMid, serverID, "/", banner, format});
+		postTask([this, path, callback]() {
+			Session session;
+			session.setUrl(path);
+			auto response = StandardResponse{session.request(Get)};
+			callback(response);
+		});
+	}
 }
