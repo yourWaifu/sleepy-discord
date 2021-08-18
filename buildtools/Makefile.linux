@@ -1,0 +1,33 @@
+.SUFFIXES:
+.SUFFIXES: .c .cpp .o .a
+
+         CC        = gcc # c compiler
+         CXX       = g++ # c++ compiler
+         AR        = ar rv
+         CPPFLAGS  = -Wall -fPIC -c $(foreach dir, $(INCLUDE), -I$(dir))
+override CFLAGS   +=
+override CXXFLAGS += -std=c++11
+         SRCDIR    = ../sleepy_discord
+         INCLUDE   = ../include/sleepy_discord ../deps/include ../include/sleepy_discord/IncludeNonexistent
+         DESTDIR   = .
+         COBJS     = $(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c))
+         CXXOBJS   = $(patsubst %.cpp,%.o,$(wildcard $(SRCDIR)/*.cpp))
+         CPROBJS   = $(patsubst %.cpp,%.o,$(wildcard ../deps/cpr/cpr/*.cpp))
+
+all: libsleepy_discord.a libcpr-patch libcpr.a
+
+clean:
+	rm -f $(DESTDIR)/*.a
+	rm -f $(COBJS)
+	rm -f $(CXXOBJS)
+	rm -f $(CPROBJS)
+
+libsleepy_discord.a: $(COBJS) $(CXXOBJS)
+	$(AR) $@ $^
+
+libcpr.a: $(CPROBJS)
+	$(AR) $@ $^
+
+libcpr-patch:
+	# duplicate case value in lines 25,26
+	sed -i 's/.*VER.*//; s/.*REM.*//' ../deps/cpr/cpr/error.cpp 

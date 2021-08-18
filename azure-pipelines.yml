@@ -1,0 +1,38 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+pool:
+  vmImage: 'VS2017-Win2016'
+
+variables:
+  solution: 'build/*.sln'
+  buildPlatform: Win32
+  buildConfiguration: 'Release'
+
+steps:
+#To Do: Do both 32 bit and 64 bit
+
+- script: |
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    .\bootstrap-vcpkg.bat
+    .\vcpkg integrate install
+    call RefreshEnv.cmd
+  displayName: 'Vcpkg Setup'
+
+- script: |
+    cd vcpkg
+    .\vcpkg install openssl-windows:x86-windows-static
+  displayName: 'OpenSSL Install'
+
+- task: CMake@1
+  inputs:
+    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'

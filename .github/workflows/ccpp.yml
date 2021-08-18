@@ -1,0 +1,27 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: install dependency packages
+      run: sudo apt install -y clang libc++-dev libc++abi-dev ninja-build libcurl4-openssl-dev
+    - name: build folder
+      run:  mkdir build
+    - name: configure
+      run: |
+        cd build
+        CC=/usr/bin/clang CXX=/usr/bin/clang++ CXXFLAGS=-stdlib=libc++ cmake .. -G Ninja -DBUILD_SLEEPY_DISCORD_EXAMPLES=1
+    - name: ninja
+      run: |
+        cd build
+        ninja
