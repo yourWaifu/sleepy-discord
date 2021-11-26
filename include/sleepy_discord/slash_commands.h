@@ -43,7 +43,9 @@ namespace SleepyDiscord {
 
 			template<Type type, class T>
 			struct TypeHelperImpl {
-				static constexpr Type getType() { return type; }
+				static constexpr Type getType() { return _type; }
+			private:
+				static constexpr Type _type = type;
 			};
 
 			template<> struct TypeHelper<bool, void> : public TypeHelperImpl<Type::BOOLEAN, bool    > {};
