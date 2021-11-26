@@ -54,28 +54,20 @@ namespace SleepyDiscord {
 			template<> struct TypeHelper<Role, void> : public TypeHelperImpl<Type::ROLE, Role> {};
 			template<> struct TypeHelper<User, void> : public TypeHelperImpl<Type::USER, User> {};
 
-			template<class Integer, class C = void>
-			struct isInt {};
 			template<class Int>
-			struct isInt<Int, typename std::enable_if < std::is_integral< Int >::value >::type> {
-				using Type = void;
-			};
+			using isInt = typename std::enable_if < std::is_integral< Int >::value > ;
 
-			template<class Number, class C = void>
-			struct isNum {};
 			template<class Num>
-			struct isNum<Num, typename std::enable_if < std::is_floating_point< Num >::value >::type> {
-				using Type = void;
-			};
+			using isNum = typename std::enable_if < std::is_floating_point< Num >::value > ;
 
 			template<class Int>
 			struct TypeHelper<
-				Int, typename isInt<Int>::Type
+				Int, typename isInt<Int>::type
 			> : public TypeHelperImpl< Type::INTEGER, Int > {};
 
 			template<class Num>
 			struct TypeHelper<
-				Num, typename isNum<Num>::Type
+				Num, typename isNum<Num>::type
 			> : public TypeHelperImpl< Type::NUMBER, Num > {};
 
 			struct Choice : public DiscordObject {
