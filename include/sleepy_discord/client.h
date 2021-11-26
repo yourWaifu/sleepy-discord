@@ -324,19 +324,21 @@ namespace SleepyDiscord {
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createGlobalAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, std::string name, std::string description, Options& options = AppCommand::emptyOptions,
+			bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Post, path("applications/{application.id}/commands", { applicationID }), settings,
-				createApplicationCommandBody(name, description, options)) };
+				createApplicationCommandBody(name, description, options, defaultPermission, type)) };
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editGlobalAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description,
+			bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
 			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Patch,
 				path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings,
-				createApplicationCommandBody(name, description, options, true)) };
+				createApplicationCommandBody(name, description, options, defaultPermission, type, true)) };
 		}
 		ArrayResponse<AppCommand> getGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
 		ObjectResponse<AppCommand> getGlobalAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
@@ -376,10 +378,11 @@ namespace SleepyDiscord {
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
-			Options& options = AppCommand::emptyOptions, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+			Options& options = AppCommand::emptyOptions, bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
-			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, settings);
-			return createServerAppCommand(applicationID, serverID, name, description, options, settings);
+			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, defaultPermission, type, settings);
+			return createServerAppCommand(applicationID, serverID, name, description, options, defaultPermission, type, settings);
 		}
 		template<class Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editAppCommand(
@@ -393,6 +396,7 @@ namespace SleepyDiscord {
 		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
 		ObjectResponse<AppCommand> getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
 		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse bulkOverwriteServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings = {});
 
 		//stage instances
 		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<ObjectResponse<User>> settings = {});
@@ -654,7 +658,14 @@ namespace SleepyDiscord {
 		void processMessage(const WebSocketMessage message) override;
 		void processCloseCode(const int16_t code) override;
 		void heartbeat();
-		void sendHeartbeat();
+		void sendHeartbeat() {
+			const auto heartbeat = generateHeatbeat(lastSReceived);
+			const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
+			//to do switch sendL to string_view
+			sendL(std::string{ message.data(), message.length() });
+			wasHeartbeatAcked = false;
+			onHeartbeat();
+		}
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
@@ -762,7 +773,7 @@ namespace SleepyDiscord {
 		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
 
 		template<class Options>
-		std::string createApplicationCommandBody(std::string name, std::string description, Options& options, const bool allOptional = false) {
+		std::string createApplicationCommandBody(std::string name, std::string description, Options& options, const bool defaultPermission, AppCommand::Type type, const bool allOptional = false) {
 			rapidjson::Document doc;
 			doc.SetObject();
 			auto& allocator = doc.GetAllocator();
@@ -770,6 +781,10 @@ namespace SleepyDiscord {
 				doc.AddMember("name", rapidjson::Value::StringRefType{ name.c_str(), name.length() }, allocator);
 			if (allOptional || !description.empty())
 				doc.AddMember("description", rapidjson::Value::StringRefType{ description.c_str(), description.length() }, allocator);
+			if (allOptional || defaultPermission != true) //default is true
+				doc.AddMember("default_permission", defaultPermission, allocator);
+			if (allOptional || type != AppCommand::Type::NONE)
+				doc.AddMember("type", static_cast<GetEnumBaseType<AppCommand::Type>::Value>(type), allocator);
 			if (!options.empty()) {
 				rapidjson::Value arr{ rapidjson::Type::kArrayType };
 				for (auto& option : options) {
@@ -851,6 +866,70 @@ namespace SleepyDiscord {
 					(server.*(container)).erase(found);
 				}
 			);
+		}
+
+		//The number 10 comes from the largest unsigned int being 10 digits long
+		using DBuffer = std::array<char, 10>;
+		//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
+		using HeartbeatBuffer = std::array<char, 18 + std::tuple_size<DBuffer>::value>;
+
+		struct Heartbeat {
+			HeartbeatBuffer buffer;
+			std::size_t length;
+		};
+
+		//no reason for this to be so optimized because I just felt like it one day
+#ifdef __cpp_lib_array_constexpr
+		constexpr
+#endif
+			Heartbeat generateHeatbeat(const unsigned int lastSReceived) {
+			DBuffer dBuffer{};
+			//can't find a number to std array so a custom one is made here
+			auto reverseNext = dBuffer.end();
+			auto trunc = lastSReceived;
+			do {
+				reverseNext -= 1;
+				*reverseNext = '0' + (trunc % 10);
+				trunc /= 10;
+			} while (trunc != 0);
+
+			const nonstd::string_view d{ &(*reverseNext),
+				std::size_t(dBuffer.end() - reverseNext) };
+
+#define SLEEPY_HEARTBEAT_START "{"\
+				"\"op\":1,"\
+				"\"d\":"
+
+#define SLEEPY_HEARTBEAT_END "}"
+
+			constexpr auto startBuffer = SLEEPY_HEARTBEAT_START;
+			constexpr auto endBuffer = SLEEPY_HEARTBEAT_END;
+			constexpr auto startLength = sizeof(SLEEPY_HEARTBEAT_START) - 1;
+			//this works because char is one btye
+			constexpr auto endLength = sizeof(SLEEPY_HEARTBEAT_END) - 1;
+			constexpr auto start = nonstd::string_view{ startBuffer, startLength };
+			constexpr auto end = nonstd::string_view{ endBuffer, endLength };
+
+
+			const std::array<nonstd::string_view, 3> toConcat{ {
+				start, d, end
+			} };
+
+			Heartbeat heartbeat = {};
+			HeartbeatBuffer& heartbeatBuffer = heartbeat.buffer;
+			std::size_t& index = heartbeat.length;
+			for (const auto& source : toConcat)
+			{
+				auto dest = heartbeatBuffer.begin() + index;
+
+				//memcpy not avaiable at compile time
+				for (std::size_t index = 0; index < source.length(); index += 1) {
+					dest[index] = source[index];
+				}
+				index += source.length();
+			}
+
+			return heartbeat;
 		}
 	};
 

@@ -20,7 +20,8 @@ namespace SleepyDiscord {
 	public:
 		Webhook() = default;
 		Webhook(const json::Value & json);
-		Webhook(const nonstd::string_view & rawJSON);
+		Webhook(const nonstd::string_view& json) :
+			Webhook(json::fromJSON<Webhook>(json)) {}
 
 		enum WebhookType {
 			INCOMING = 1,

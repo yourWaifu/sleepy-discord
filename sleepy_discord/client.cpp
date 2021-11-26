@@ -397,7 +397,10 @@ namespace SleepyDiscord {
 		heartbeatInterval = 0;
 
 		disconnectWebsocket(status);
-		if (consecutiveReconnectsCount == 10) getTheGateway();
+		//it's recomemeded to get the gateway again after many reconnection tries
+		// but the chance of the gateway being different is very low so this line is
+		// commmented out as it seems to cause issues
+		//if (consecutiveReconnectsCount % 16 == 10 || theGateway.empty()) getTheGateway();
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
@@ -760,83 +763,6 @@ namespace SleepyDiscord {
 		if (heart.isValid())
 			heart.stop();
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
-	}
-
-	//The number 10 comes from the largest unsigned int being 10 digits long
-	using DBuffer = std::array<char, 10>;
-	//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
-	using HeartbeatBuffer = std::array<char, 18 + std::tuple_size<DBuffer>::value>;
-
-	struct Heartbeat {
-		HeartbeatBuffer buffer;
-		std::size_t length;
-	};
-
-	//please only call during compile time
-	constexpr std::size_t length(const char* str) {
-		return *str ? 1 + length(str + 1) : 0;
-	}
-
-	//no reason for this to be so optimized but I just felt like it one day
-#ifdef __cpp_lib_array_constexpr
-	constexpr
-#endif
-	Heartbeat generateHeatbeat(const unsigned int lastSReceived) {
-		DBuffer dBuffer {};
-		//can't find a number to std array so a custom one is made here
-		auto reverseNext = dBuffer.end();
-		auto trunc = lastSReceived;
-		do {
-			reverseNext -= 1;
-			*reverseNext = '0' + (trunc % 10);
-			trunc /= 10;
-		} while (trunc != 0);
-		
-		const nonstd::string_view d{&(*reverseNext),
-			std::size_t(dBuffer.end() - reverseNext)};
-
-		constexpr auto startBuffer =
-		"{"
-			"\"op\":1,"
-			"\"d\":";
-		const
-		constexpr auto endBuffer = 
-			"}";
-		constexpr auto startLength = length(startBuffer);
-		//this works because char is one btye
-		constexpr auto endLength = length(endBuffer);
-		constexpr auto start = nonstd::string_view{startBuffer, startLength};
-		constexpr auto end = nonstd::string_view{endBuffer, endLength};
-
-
-		const std::array<nonstd::string_view, 3> toConcat {{
-			start, d, end
-		}};
-
-		Heartbeat heartbeat = {};
-		HeartbeatBuffer& heartbeatBuffer = heartbeat.buffer;
-		std::size_t& index = heartbeat.length;
-		for (const auto& source : toConcat)
-		{
-			auto dest = heartbeatBuffer.begin() + index;
-
-			//memcpy not avaiable at compile time
-			for (std::size_t index = 0; index < source.length(); index += 1) {
-				dest[index] = source[index];
-			}
-			index += source.length();
-		}
-
-		return heartbeat;
-	}
-
-	void BaseDiscordClient::sendHeartbeat() {
-		const auto heartbeat = generateHeatbeat(lastSReceived);
-		const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
-		//to do switch sendL to string_view
-		sendL(std::string{message.data(), message.length()});
-		wasHeartbeatAcked = false;
-		onHeartbeat();
 	}
 
 	//

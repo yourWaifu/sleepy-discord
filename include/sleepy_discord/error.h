@@ -41,6 +41,7 @@ namespace SleepyDiscord {
 		UNKNOWN_ENCRYPTION_MODE = 4016, //We didn't recognize your encryption.
 
 		//Sleepy Errors
+		RECONNECTING    = 4900,
 		CONNECT_FAILED  = 5000, //Failed to connect to the Discord api after 4 trys
 		EVENT_UNKNOWN   = 5001, //Unexpected or unknown event occurred
 		GATEWAY_FAILED  = 5002, //Could not get the gateway
