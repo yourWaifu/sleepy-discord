@@ -707,6 +707,16 @@ namespace SleepyDiscord {
 		return deleteServerAppCommand(applicationID, serverID, commandID, settings);
 	}
 
+	BoolResponse BaseDiscordClient::bulkOverwriteServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetArray();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : commands) {
+			doc.PushBack(json::toJSON(command, allocator), allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands", {applicationID, serverID}), settings, json::stringify(doc)) };
+	}
+
 	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<ObjectResponse<User>> settings) {
 		rapidjson::Document doc;
 		doc.SetObject();
@@ -741,7 +751,7 @@ namespace SleepyDiscord {
 
 	std::string CDN_path(const std::initializer_list<std::string> path) {
 		static constexpr auto CDN_URL = BaseDiscordClient::getCDN_URL();
-		int pathLength = CDN_URL.length();
+		std::size_t pathLength = CDN_URL.length();
 		for (const std::string str : path) {
 			pathLength += str.length();
 		}
