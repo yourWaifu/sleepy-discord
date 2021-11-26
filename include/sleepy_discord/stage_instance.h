@@ -7,7 +7,8 @@ namespace SleepyDiscord {
 		StageInstance() = default;
 		~StageInstance() = default;
 		StageInstance(const json::Value & json);
-		StageInstance(const nonstd::string_view & json);
+		StageInstance(const nonstd::string_view& json) :
+			StageInstance(json::fromJSON<StageInstance>(json)) {}
 
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;

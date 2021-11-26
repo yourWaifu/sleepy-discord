@@ -25,7 +25,8 @@ namespace SleepyDiscord {
 	struct ServerMember : public IdentifiableDiscordObject<User> {
 		ServerMember() = default;
 		//ServerMember(const std::string * rawJson);
-		ServerMember(const nonstd::string_view & rawJSON);
+		ServerMember(const nonstd::string_view& json) :
+			ServerMember(json::fromJSON<ServerMember>(json)) {}
 		ServerMember(const json::Value& json);
 		//ServerMember(const json::Values values);
 		User user;
@@ -59,7 +60,8 @@ namespace SleepyDiscord {
 	struct Server : public IdentifiableDiscordObject<Server> {
 		~Server() = default;
 		Server() = default;
-		Server(const nonstd::string_view & rawJSON);
+		Server(const nonstd::string_view& json) :
+			Server(json::fromJSON<Server>(json)) {}
 		Server(const json::Value& json);
 		std::string name;
 		std::string icon;
@@ -163,7 +165,8 @@ namespace SleepyDiscord {
 	struct UnavailableServer : public IdentifiableDiscordObject<Server> {
 		UnavailableServer() = default;
 		//UnavailableServer(const std::string * rawJson);
-		UnavailableServer(const nonstd::string_view & rawJSON);
+		UnavailableServer(const nonstd::string_view& json) :
+			UnavailableServer(json::fromJSON<UnavailableServer>(json)) {}
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
@@ -231,7 +234,8 @@ namespace SleepyDiscord {
 	struct ServerWidget : public DiscordObject {
 		ServerWidget() = default;
 		//ServerWidget(const std::string * rawJson);
-		ServerWidget(const nonstd::string_view & rawJSON);
+		ServerWidget(const nonstd::string_view& json) :
+			ServerWidget(json::fromJSON<ServerWidget>(json)) {}
 		ServerWidget(const json::Value& json);
 		//ServerWidget(const json::Values values);
 		bool enabled;
@@ -249,7 +253,8 @@ namespace SleepyDiscord {
 	struct ServerMembersRequest {
 		ServerMembersRequest() = default;
 		ServerMembersRequest(const json::Value& json);
-		ServerMembersRequest(const nonstd::string_view & json);
+		ServerMembersRequest(const nonstd::string_view& json) :
+			ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {}
 		Snowflake<Server> serverID;
 		//since empty and undefined mean different things to the API, we need optional
 		tl::optional<std::string> query;

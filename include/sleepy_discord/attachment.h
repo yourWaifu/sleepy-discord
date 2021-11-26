@@ -10,7 +10,9 @@ namespace SleepyDiscord {
 		//~Attachment();
 		//Attachment(const std::string * rawJSON);
 		Attachment(const json::Value& json);
-		Attachment(const nonstd::string_view& rawJSON);
+		Attachment(const nonstd::string_view& json) :
+			Attachment(json::fromJSON<Attachment>(json)) {
+		}
 		//Attachment(const json::Values values);
 		std::string filename;
 		uint64_t size = 0;

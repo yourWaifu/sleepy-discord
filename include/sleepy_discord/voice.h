@@ -11,7 +11,8 @@ namespace SleepyDiscord {
 
 	struct VoiceState : public DiscordObject {
 		VoiceState() = default;
-		VoiceState(const nonstd::string_view & rawJSON);
+		VoiceState(const nonstd::string_view& json) :
+			VoiceState(json::fromJSON<VoiceState>(json)) {}
 		VoiceState(const json::Value& json);
 		Snowflake<Server> serverID;
 		Snowflake<Channel> channelID;
@@ -52,7 +53,8 @@ namespace SleepyDiscord {
 	struct VoiceRegion : IdentifiableDiscordObject<VoiceRegion> {
 		VoiceRegion() = default;
 		//VoiceRegion(const std::string * rawJson);
-		VoiceRegion(const nonstd::string_view & rawJSON);
+		VoiceRegion(const nonstd::string_view& json) :
+			VoiceRegion(json::fromJSON<VoiceRegion>(json)) {}
 		VoiceRegion(const json::Value& json);
 		//VoiceRegion(const json::Values values);
 		std::string name;
@@ -83,7 +85,8 @@ namespace SleepyDiscord {
 	struct VoiceServerUpdate : DiscordObject {
 		VoiceServerUpdate() = default;
 		//VoiceServerUpdate(const std::string * rawJson);
-		VoiceServerUpdate(const nonstd::string_view & rawJSON);
+		VoiceServerUpdate(const nonstd::string_view& json) :
+			VoiceServerUpdate(json::fromJSON<VoiceServerUpdate>(json)) {}
 		VoiceServerUpdate(const json::Value& json);
 		//VoiceServerUpdate(const json::Values values);
 		std::string token;

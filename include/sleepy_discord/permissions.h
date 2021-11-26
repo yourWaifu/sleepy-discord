@@ -122,7 +122,8 @@ namespace SleepyDiscord {
 		~Role() {}
 		//Role(const std::string * rawJson);
 		Role(const json::Value & rawJSON);
-		Role(const nonstd::string_view& json);
+		Role(const nonstd::string_view& json) :
+			Role(json::fromJSON<Role>(json)) {}
 		//Role(const json::Values values);
 		std::string name;
 		int color = -1;
@@ -136,7 +137,8 @@ namespace SleepyDiscord {
 			Tags() = default;
 			~Tags() {}
 			Tags(const json::Value& rawJSON);
-			Tags(const nonstd::string_view& json);
+			Tags(const nonstd::string_view& json) :
+				Tags(json::fromJSON<Tags>(json)) {}
 			Snowflake<User> botID;
 			Snowflake<DiscordObject> integrationID;
 

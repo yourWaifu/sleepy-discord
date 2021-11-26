@@ -6,10 +6,6 @@ namespace SleepyDiscord {
 		Message(json::fromJSON<Message>(json))
 	{}
 
-	Message::Message(const nonstd::string_view& json) :
-		Message(json::fromJSON<Message>(json))
-	{}
-
 	bool Message::startsWith(const std::string& test) {
 		return content.compare(0, test.length(), test) == 0;
 	}
@@ -42,18 +38,10 @@ namespace SleepyDiscord {
 		Interaction(json::fromJSON<Message::Interaction>(json))
 	{}
 
-	Message::Interaction::Interaction(const nonstd::string_view& json) :
-		Interaction(json::fromJSON<Message::Interaction>(json))
-	{}
-
 	Emoji::~Emoji() {
 	}
 
 	Emoji::Emoji(const json::Value& json) :
-		Emoji(json::fromJSON<Emoji>(json)) {
-	}
-
-	Emoji::Emoji(const nonstd::string_view& json) :
 		Emoji(json::fromJSON<Emoji>(json)) {
 	}
 
@@ -64,15 +52,8 @@ namespace SleepyDiscord {
 		Reaction(json::fromJSON<Reaction>(json)) {
 	}
 
-	Reaction::Reaction(const nonstd::string_view& json) :
-		Reaction(json::fromJSON<Reaction>(json)) {
-	}
-
 	StickerPack::~StickerPack() {}
 	StickerPack::StickerPack(const json::Value & json):
-		StickerPack(json::fromJSON<StickerPack>(json))
-	{}
-	StickerPack::StickerPack(const nonstd::string_view & json):
 		StickerPack(json::fromJSON<StickerPack>(json))
 	{}
 
@@ -80,49 +61,25 @@ namespace SleepyDiscord {
 	Sticker::Sticker(const json::Value & json):
 		Sticker(json::fromJSON<Sticker>(json))
 	{}
-	Sticker::Sticker(const nonstd::string_view & json):
-		Sticker(json::fromJSON<Sticker>(json))
-	{}
 
 	MessageReference::MessageReference(const json::Value & json):
 		MessageReference(json::fromJSON<MessageReference>(json))
 	{}
-	MessageReference::MessageReference(const nonstd::string_view & json):
-		MessageReference(json::fromJSON<MessageReference>(json))
-	{}
 	AllowedMentions::AllowedMentions(const json::Value & json):
-		AllowedMentions(json::fromJSON<AllowedMentions>(json))
-	{}
-	AllowedMentions::AllowedMentions(const nonstd::string_view & json):
 		AllowedMentions(json::fromJSON<AllowedMentions>(json))
 	{}
 
 	ActionRow::ActionRow(json::Value& json) :
 		ActionRow(json::fromJSON<ActionRow>(json))
 	{}
-	ActionRow::ActionRow(const nonstd::string_view& json) :
-		ActionRow(json::fromJSON<ActionRow>(json))
-	{}
 	Button::Button(const json::Value& json) :
-		Button(json::fromJSON<Button>(json))
-	{}
-	Button::Button(const nonstd::string_view& json) :
 		Button(json::fromJSON<Button>(json))
 	{}
 	SelectMenu::SelectMenu(const json::Value& json) :
 		SelectMenu(json::fromJSON<SelectMenu>(json))
 	{}
-	SelectMenu::SelectMenu(const nonstd::string_view& json) :
-		SelectMenu(json::fromJSON<SelectMenu>(json))
-	{}
 	SelectMenu::Option::Option(const json::Value& json) :
 		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
 	{}
-	SelectMenu::Option::Option(const nonstd::string_view& json) :
-		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
-	{}
 
-	RawComponent::RawComponent(const nonstd::string_view& json) :
-		RawComponent(json::fromJSON<RawComponent>(json))
-	{}
 }

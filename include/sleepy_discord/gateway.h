@@ -32,7 +32,8 @@ namespace SleepyDiscord {
 		Ready() = default;
 		//Ready(const std::string * rawJSON);
 		Ready(const json::Value & rawJSON);
-		Ready(const nonstd::string_view & rawJSON);
+		Ready(const nonstd::string_view& json) :
+			Ready(json::fromJSON<Ready>(json)) {}
 		//Ready(const json::Values values);
 		int v;	//gateway protocol version
 		User user;
@@ -88,7 +89,8 @@ namespace SleepyDiscord {
 		ActivityTimestamp() = default;
 		~ActivityTimestamp() = default;
 		ActivityTimestamp(const json::Value & json);
-		ActivityTimestamp(const nonstd::string_view & json);
+		ActivityTimestamp(const nonstd::string_view& json) :
+			ActivityTimestamp(json::fromJSON<ActivityTimestamp>(json)) {}
 		Time start;
 		Time end;
 
@@ -105,7 +107,8 @@ namespace SleepyDiscord {
 		ActivityParty() = default;
 		~ActivityParty() = default;
 		ActivityParty(const json::Value & json);
-		ActivityParty(const nonstd::string_view & json);
+		ActivityParty(const nonstd::string_view& json) :
+			ActivityParty(json::fromJSON<ActivityParty>(json)) {}
 		std::string ID;
 		std::array<int64_t, 2> size;
 		int64_t& currentSize = size[0];
@@ -124,7 +127,8 @@ namespace SleepyDiscord {
 		ActivityAssets() = default;
 		~ActivityAssets() = default;
 		ActivityAssets(const json::Value & json);
-		ActivityAssets(const nonstd::string_view & json);
+		ActivityAssets(const nonstd::string_view& json) :
+			ActivityAssets(json::fromJSON<ActivityAssets>(json)) {}
 		std::string largeImage;
 		std::string largeText;
 		std::string smallImage;
@@ -145,7 +149,8 @@ namespace SleepyDiscord {
 		ActivitySecrets() = default;
 		~ActivitySecrets() = default;
 		ActivitySecrets(const json::Value & json);
-		ActivitySecrets(const nonstd::string_view & json);
+		ActivitySecrets(const nonstd::string_view& json) :
+			ActivitySecrets(json::fromJSON<ActivitySecrets>(json)) {}
 		std::string join;
 		std::string spectate;
 		std::string match;
@@ -167,7 +172,8 @@ namespace SleepyDiscord {
 		Activity() = default;
 		~Activity() = default;
 		Activity(const json::Value & json);
-		Activity(const nonstd::string_view & json);
+		Activity(const nonstd::string_view& json) :
+			Activity(json::fromJSON<Activity>(json)) {}
 		std::string name;
 		enum ActivityType {
 			ACTIVITY_TYPE_NONE = -1,
@@ -224,7 +230,8 @@ namespace SleepyDiscord {
 		PresenceUpdate() = default;
 		~PresenceUpdate() = default;
 		PresenceUpdate(const json::Value & json);
-		PresenceUpdate(const nonstd::string_view & json);
+		PresenceUpdate(const nonstd::string_view& json) :
+			PresenceUpdate(json::fromJSON<PresenceUpdate>(json)) {}
 		User user;
 		Snowflake<Server> serverID;
 		std::string status;
@@ -243,7 +250,8 @@ namespace SleepyDiscord {
 	struct ServerMembersChunk {
 		ServerMembersChunk() = default;
 		ServerMembersChunk(const json::Value& json);
-		ServerMembersChunk(const nonstd::string_view & json);
+		ServerMembersChunk(const nonstd::string_view& json) :
+			ServerMembersChunk(json::fromJSON<ServerMembersChunk>(json)) {}
 		Snowflake<Server> serverID;
         std::vector<ServerMember> members;
 		int chunkIndex;

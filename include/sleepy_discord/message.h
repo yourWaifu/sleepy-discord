@@ -19,6 +19,7 @@ namespace SleepyDiscord {
 		Ping = 1,
 		ApplicationCommand = 2,
 		MessageComponent = 3,
+		ApplicationCommandAutocomplete = 4
 	};
 
 	struct Emoji : public IdentifiableDiscordObject<Emoji> {
@@ -27,7 +28,8 @@ namespace SleepyDiscord {
 		Emoji() = default;
 		//Emoji(const std::string* rawJson);
 		Emoji(const json::Value & rawJSON);
-		Emoji(const nonstd::string_view& json);
+		Emoji(const nonstd::string_view& json) :
+			Emoji(json::fromJSON<Emoji>(json)) {}
 		//Emoji(const json::Values values);
 		std::string name;
 		std::vector<Snowflake<Role>> roles;
@@ -54,7 +56,8 @@ namespace SleepyDiscord {
 		~Reaction();
 		//Reaction(const std::string * rawJson);
 		Reaction(const json::Value & rawJSON);
-		Reaction(const nonstd::string_view & json);
+		Reaction(const nonstd::string_view& json) :
+			Reaction(json::fromJSON<Reaction>(json)) {}
 		//Reaction(const json::Values values);
 		int count = 0;
 		bool me = false;
@@ -96,7 +99,8 @@ namespace SleepyDiscord {
 			data = JSONTypeHelper::toType(rawJSON);
 		}
 		RawComponent(json::Value& rawJSON) : RawComponent(BaseComponent{static_cast<ComponentType>(rawJSON["type"].GetInt())}, rawJSON) {}
-		RawComponent(const nonstd::string_view& json);
+		RawComponent(const nonstd::string_view& json) :
+			RawComponent(json::fromJSON<RawComponent>(json)) {}
 		RawComponent(const RawComponent& origin) : BaseComponent(origin.type), data(json::copy(origin.data)) {}
 
 		inline json::Value serialize(typename json::Value::AllocatorType& alloc) const {
@@ -136,7 +140,8 @@ namespace SleepyDiscord {
 		ActionRow() = default;
 		~ActionRow() = default;
 		ActionRow(json::Value& json);
-		ActionRow(const nonstd::string_view& json);
+		ActionRow(const nonstd::string_view& json) :
+			ActionRow(json::fromJSON<ActionRow>(json)) {}
 		static const ComponentType componentType = ComponentType::ActionRow;
 
 		std::vector<std::shared_ptr<BaseComponent>> components;
@@ -165,7 +170,8 @@ namespace SleepyDiscord {
 		Button() = default;
 		~Button() = default;
 		Button(const json::Value& json);
-		Button(const nonstd::string_view& json);
+		Button(const nonstd::string_view& json) :
+			Button(json::fromJSON<Button>(json)) {}
 		static const ComponentType componentType = ComponentType::Button;
 
 		ButtonStyle style;
@@ -194,14 +200,16 @@ namespace SleepyDiscord {
 		SelectMenu() = default;
 		~SelectMenu() = default;
 		SelectMenu(const json::Value& json);
-		SelectMenu(const nonstd::string_view& json);
+		SelectMenu(const nonstd::string_view& json) :
+			SelectMenu(json::fromJSON<SelectMenu>(json)) {}
 		static const ComponentType componentType = ComponentType::SelectMenu;
 
 		struct Option : public DiscordObject {
 			Option() = default;
 			~Option() = default;
 			Option(const json::Value & rawJSON);
-			Option(const nonstd::string_view & json);
+			Option(const nonstd::string_view& json) :
+				SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json)) {}
 
 			std::string label;
 			std::string value;
@@ -288,7 +296,8 @@ namespace SleepyDiscord {
 		StickerPack() = default;
 		~StickerPack();
 		StickerPack(const json::Value & json);
-		StickerPack(const nonstd::string_view & json);
+		StickerPack(const nonstd::string_view& json) :
+			StickerPack(json::fromJSON<StickerPack>(json)) {}
 
 		JSONStructStart
 			std::make_tuple(
@@ -335,7 +344,8 @@ namespace SleepyDiscord {
 		MessageReference() = default;
 		~MessageReference() = default;
 		MessageReference(const json::Value& json);
-		MessageReference(const nonstd::string_view& json);
+		MessageReference(const nonstd::string_view& json) :
+			MessageReference(json::fromJSON<MessageReference>(json)) {}
 		MessageReference(const Message& message);
 
 		Snowflake<Message> messageID;
@@ -360,7 +370,8 @@ namespace SleepyDiscord {
 		Message() = default;
 		~Message() = default;
 		Message(json::Value& json);
-		Message(const nonstd::string_view& json);
+		Message(const nonstd::string_view& json) :
+			Message(json::fromJSON<Message>(json)){}
 		bool startsWith(const std::string& test);
 		std::size_t length();
 		bool isMentioned(Snowflake<User> ID);
@@ -422,7 +433,8 @@ namespace SleepyDiscord {
 			Interaction() = default;
 			~Interaction() = default;
 			Interaction(const json::Value& json);
-			Interaction(const nonstd::string_view& json);
+			Interaction(const nonstd::string_view& json) :
+				Interaction(json::fromJSON<Message::Interaction>(json)) {}
 			InteractionType type = InteractionType::NONE;
 			std::string name;
 			User user;
@@ -523,7 +535,8 @@ namespace SleepyDiscord {
 		~AllowedMentions() = default;
 		AllowedMentions(int) : parse({}) {}
 		AllowedMentions(const json::Value & json);
-		AllowedMentions(const nonstd::string_view & json);
+		AllowedMentions(const nonstd::string_view& json) :
+			AllowedMentions(json::fromJSON<AllowedMentions>(json)) {}
 		ParseContainer parse = {""};
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;

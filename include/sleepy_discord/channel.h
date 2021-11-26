@@ -9,7 +9,9 @@ namespace SleepyDiscord {
 		Overwrite() = default;
 		//Overwrite(const std::string * rawJson);
 		Overwrite(const json::Value & rawJSON);
-		Overwrite(const nonstd::string_view & rawJSON);
+		Overwrite(const nonstd::string_view& json) :
+			Overwrite(json::fromJSON<Overwrite>(json)) {
+		}
 		//Overwrite(const json::Values values);
 		~Overwrite() {}
 		enum class Type : int {
@@ -48,7 +50,9 @@ namespace SleepyDiscord {
 		Channel() = default;
 		//Channel(const std::string * rawJson);
 		Channel(const json::Value & rawJSON);
-		Channel(const nonstd::string_view & rawJSON);
+		Channel(const nonstd::string_view& json) :
+			Channel(json::fromJSON<Channel>(json)) {
+		}
 		//Channel(const json::Values values);
 		~Channel();
 		
