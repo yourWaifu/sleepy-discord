@@ -113,7 +113,7 @@ private:
 
 int main()
 {
-	Client client("NDczMzM5MjY2NTIxNjI4Njcz.W16Niw.I83IsAg4rWUVC8546iyqPS0dvVU", SleepyDiscord::USER_CONTROLED_THREADS);
+	Client client("token goes here", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.setIntents(0);
 	client.run();
 
