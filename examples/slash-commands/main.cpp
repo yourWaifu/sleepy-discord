@@ -42,8 +42,8 @@ public:
 					Client& client,
 					SleepyDiscord::Interaction& interaction
 				) {
-					SleepyDiscord::Interaction::Response response;
-					response.type = SleepyDiscord::Interaction::Response::Type::ChannelMessageWithSource;
+					SleepyDiscord::Interaction::Response<> response;
+					response.type = SleepyDiscord::Interaction::CallbackType::ChannelMessageWithSource;
 					response.data.content = "Hello!";
 					client.createInteractionResponse(interaction.ID, interaction.token, response);
 					return;
@@ -66,8 +66,8 @@ public:
 							answer += num;
 						}
 					}
-					SleepyDiscord::Interaction::Response response;
-					response.type = SleepyDiscord::Interaction::Response::Type::ChannelMessageWithSource;
+					SleepyDiscord::Interaction::Response<> response;
+					response.type = SleepyDiscord::Interaction::CallbackType::ChannelMessageWithSource;
 					response.data.content = std::to_string(answer);
 					client.createInteractionResponse(interaction.ID, interaction.token, response);
 					return;
@@ -99,8 +99,8 @@ public:
 		auto foundCommand = Command::all.find(interaction.data.name);
 		if (foundCommand == Command::all.end()) {
 			//not found
-			SleepyDiscord::Interaction::Response response;
-			response.type = SleepyDiscord::Interaction::Response::Type::ChannelMessageWithSource;
+			SleepyDiscord::Interaction::Response<> response;
+			response.type = SleepyDiscord::Interaction::CallbackType::ChannelMessageWithSource;
 			response.data.content = "Couldn't find command";
 			response.data.flags = SleepyDiscord::InteractionAppCommandCallbackData::Flags::Ephemeral;
 			createInteractionResponse(interaction, interaction.token, response);

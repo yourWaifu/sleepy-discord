@@ -601,12 +601,6 @@ namespace SleepyDiscord {
 		return { request(Delete, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings), EmptyRespFn() };
 	}
 
-	BoolResponse BaseDiscordClient::createInteractionResponse(
-		Snowflake<Interaction> interactionID, std::string token, Interaction::Response response, RequestSettings<BoolResponse> settings
-	) {
-		return { request(Post, path("interactions/{interaction.id}/{interaction.token}/callback", { interactionID, token }), settings, json::stringifyObj(response)), EmptyRespFn() };
-	}
-
 	ObjectResponse<Message> BaseDiscordClient::editOriginalInteractionResponse(
 		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings
 	) {
@@ -715,6 +709,16 @@ namespace SleepyDiscord {
 			doc.PushBack(json::toJSON(command, allocator), allocator);
 		}
 		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands", {applicationID, serverID}), settings, json::stringify(doc)) };
+	}
+
+	BoolResponse BaseDiscordClient::bulkOverwriteGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetArray();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : commands) {
+			doc.PushBack(json::toJSON(command, allocator), allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/commands", {applicationID}), settings, json::stringify(doc)) };
 	}
 
 	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<ObjectResponse<User>> settings) {

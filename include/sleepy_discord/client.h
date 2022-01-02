@@ -365,7 +365,11 @@ namespace SleepyDiscord {
 		ArrayResponse<AppCommand> getServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
 		ObjectResponse<AppCommand> getServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
 		BoolResponse deleteServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
-		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Interaction::Response response, RequestSettings<BoolResponse> settings = {});
+		template<typename Type>
+		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Type response, RequestSettings<BoolResponse> settings = {}) {
+			static_assert(std::is_same<InteractionCallbackType, decltype(response.type)>::value, "response needs to be a Interaction::Response Type");
+			return { request(Post, path("interactions/{interaction.id}/{interaction.token}/callback", { interactionID, token }), settings, json::stringifyObj(response)), EmptyRespFn() };
+		}
 		ObjectResponse<Message> editOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings = {});
 		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings = {});
@@ -397,6 +401,7 @@ namespace SleepyDiscord {
 		ObjectResponse<AppCommand> getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
 		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
 		BoolResponse bulkOverwriteServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings = {});
+		BoolResponse bulkOverwriteGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings = {});
 
 		//stage instances
 		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<ObjectResponse<User>> settings = {});

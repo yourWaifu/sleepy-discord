@@ -16,13 +16,16 @@ namespace SleepyDiscord {
 	InteractionData::Option::Option(json::Value & json) :
 		InteractionData::Option(json::fromJSON<InteractionData::Option>(json)) {
 	}
-	InteractionAppCommandCallbackData::InteractionAppCommandCallbackData(json::Value & json) :
-		InteractionAppCommandCallbackData(json::fromJSON<InteractionAppCommandCallbackData>(json)) {
+	InteractionCallback::EmptyData::EmptyData(json::Value & json) :
+		InteractionCallback::EmptyData(json::fromJSON< InteractionCallback::EmptyData>(json)) {
+	}
+	InteractionCallback::Message::Message(json::Value & json) :
+		InteractionCallback::Message(json::fromJSON<InteractionCallback::Message>(json)) {
+	}
+	InteractionCallback::Autocomplete::Autocomplete(json::Value & json) :
+		InteractionCallback::Autocomplete(json::fromJSON<InteractionCallback::Autocomplete>(json)) {
 	}
 	Interaction::Interaction(json::Value & json) :
 		Interaction(json::fromJSON<Interaction>(json)) {
-	}
-	Interaction::Response::Response(json::Value & json) :
-		Interaction::Response(json::fromJSON<Interaction::Response>(json)) {
 	}
 }

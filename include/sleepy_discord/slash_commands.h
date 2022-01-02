@@ -12,6 +12,14 @@ namespace SleepyDiscord {
 	
 	struct InteractionData;
 
+	// isInt is mostly for the Auto Docs, because without it, auto docs will generate
+	// very confusing links that confues the docs framework being used.
+	template<class Int>
+	using isInt = typename std::enable_if < std::is_integral< Int >::value >;
+
+	template<class Num>
+	using isNum = typename std::enable_if < std::is_floating_point< Num >::value >;
+
 	struct AppCommand : public IdentifiableDiscordObject<AppCommand> {
 		AppCommand() = default;
 		AppCommand(json::Value & json);
@@ -50,15 +58,10 @@ namespace SleepyDiscord {
 
 			template<> struct TypeHelper<bool, void> : public TypeHelperImpl<Type::BOOLEAN, bool    > {};
 			template<> struct TypeHelper<std::string, void> : public TypeHelperImpl<Type::STRING, std::string> {};
+			template<> struct TypeHelper<const char*, void> : public TypeHelperImpl<Type::STRING, std::string> {};
 			template<> struct TypeHelper<Channel, void> : public TypeHelperImpl<Type::CHANNEL, Channel> {};
 			template<> struct TypeHelper<Role, void> : public TypeHelperImpl<Type::ROLE, Role> {};
 			template<> struct TypeHelper<User, void> : public TypeHelperImpl<Type::USER, User> {};
-
-			template<class Int>
-			using isInt = typename std::enable_if < std::is_integral< Int >::value > ;
-
-			template<class Num>
-			using isNum = typename std::enable_if < std::is_floating_point< Num >::value > ;
 
 			template<class Int>
 			struct TypeHelper<
@@ -100,6 +103,7 @@ namespace SleepyDiscord {
 					value = json::ClassTypeHelper<Type>::fromType(val);
 				}
 
+				//preforms a deep copy
 				Choice copy() {
 					Choice choice;
 					choice.name = name;
@@ -234,31 +238,67 @@ namespace SleepyDiscord {
 		value = _val; //moves
 	}
 
-	struct InteractionAppCommandCallbackData : public EditWebhookParams {
-		InteractionAppCommandCallbackData() = default;
-		InteractionAppCommandCallbackData(json::Value & json);
-		InteractionAppCommandCallbackData(const nonstd::string_view& json) :
-			InteractionAppCommandCallbackData(json::fromJSON<InteractionAppCommandCallbackData>(json)) {}
+	namespace InteractionCallback {
+		struct BaseData : public DiscordObject {};
+		struct EmptyData : public DiscordObject {
+			EmptyData() = default;
+			EmptyData(json::Value & json);
+			EmptyData(const nonstd::string_view & json) :
+				EmptyData(json::fromJSON<EmptyData>(json)) {}
 
-		inline const bool empty() const { return content.empty() && embeds.empty() && components.empty(); }
+			inline const bool empty() const {
+				return true;
+			}
 
-		bool tts = false;
-		enum class Flags : int {
-			NONE = 0,
-			Ephemeral = 1 << 6
-		} flags = Flags::NONE;
+			JSONStructStart
+				std::make_tuple();
+			JSONStructEnd
+		};
 
-		JSONStructStart
-			std::make_tuple(
-				json::pair                           (&InteractionAppCommandCallbackData::tts            , "tts"             , json::OPTIONAL_FIELD),
-				json::pair                           (&InteractionAppCommandCallbackData::content        , "content"         , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::embeds         , "embeds"          , json::OPTIONAL_FIELD),
-				json::pair                           (&InteractionAppCommandCallbackData::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
-				json::pair<json::EnumTypeHelper     >(&InteractionAppCommandCallbackData::flags          , "flags"           , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&InteractionAppCommandCallbackData::components     , "components"      , json::OPTIONAL_FIELD)
-			);
-		JSONStructEnd
-	};
+		struct Message : public WebHookParams {
+			Message() = default;
+			Message(json::Value & json);
+			Message(const nonstd::string_view& json) :
+				Message(json::fromJSON<Message>(json)) {}
+
+			inline const bool empty() const { return content.empty() && embeds.empty() && components.empty(); }
+
+			bool tts = false;
+			enum class Flags : int {
+				NONE = 0,
+				Ephemeral = 1 << 6
+			} flags = Flags::NONE;
+
+			JSONStructStart
+				std::make_tuple(
+					json::pair                           (&Message::tts            , "tts"             , json::OPTIONAL_FIELD),
+					json::pair                           (&Message::content        , "content"         , json::OPTIONAL_FIELD),
+					json::pair<json::ContainerTypeHelper>(&Message::embeds         , "embeds"          , json::OPTIONAL_FIELD),
+					json::pair                           (&Message::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
+					json::pair<json::EnumTypeHelper     >(&Message::flags          , "flags"           , json::OPTIONAL_FIELD),
+					json::pair<json::ContainerTypeHelper>(&Message::components     , "components"      , json::OPTIONAL_FIELD)
+				);
+			JSONStructEnd
+		};
+
+		struct Autocomplete : public DiscordObject {
+			Autocomplete() = default;
+			Autocomplete(json::Value & json);
+			Autocomplete(const nonstd::string_view & json) :
+				Autocomplete(json::fromJSON<Autocomplete>(json)) {}
+
+			std::vector<AppCommand::Option::Choice> choices;
+
+			JSONStructStart
+				std::make_tuple(
+					json::pair<json::ContainerTypeHelper>(&Autocomplete::choices, "choices", json::REQUIRIED_FIELD)
+				);
+			JSONStructEnd
+		};
+	}
+
+	// for backwards compatibility, oops
+	using InteractionAppCommandCallbackData = InteractionCallback::Message;
 
 	struct InteractionData : public DiscordObject {
 		InteractionData() = default;
@@ -335,39 +375,89 @@ namespace SleepyDiscord {
 	};
 	*/
 
+	// The names of these Types and Enum values are so long that it's
+	// causing doxybook2 to output links that are cut off.
+	// I'm aware that the short hands make it harder to read.
+
+	enum class IntCallBackT : int {
+		NONE = 0, //made up type
+		Pong = 1,
+		ChannelMessageWithSource = 4,
+		DeferredChannelMessageWithSource = 5,
+		DefChannelMessageWScore = DeferredChannelMessageWithSource, //Def = deferred W = with
+		DeferredUpdateMessage = 6,
+		UpdateMessage = 7,
+		ApplicationCommandAutocompleteResult = 8,
+		AppCommandAutocomplete = ApplicationCommandAutocompleteResult //short hand
+	};
+
+	//shorthand
+	using InteractionCallbackType = IntCallBackT;
+
+	template<InteractionCallbackType type>
+	struct InteractionCallbackTypeHelper {
+		using Type = json::Value;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::Pong> {
+		using Type = InteractionCallback::EmptyData;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::ChannelMessageWithSource> {
+		using Type = InteractionCallback::Message;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::DefChannelMessageWScore> {
+		using Type = InteractionCallback::Message;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::DeferredUpdateMessage> {
+		using Type = InteractionCallback::Message;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::UpdateMessage> {
+		using Type = InteractionCallback::Message;
+	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::AppCommandAutocomplete> {
+		using Type = InteractionCallback::Autocomplete;
+	};
+	template<typename Type>
+	struct InteractionCallbackHelper {
+		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::NONE; }
+	};
+	template<> struct InteractionCallbackHelper<InteractionCallback::Autocomplete> {
+		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::ApplicationCommandAutocompleteResult; }
+	};
+
 	struct Interaction : IdentifiableDiscordObject<Interaction> {
 		Interaction() = default;
 		Interaction(json::Value & json);
 		Interaction(const nonstd::string_view& json) :
 			Interaction(json::fromJSON<Interaction>(json)) {}
 
-		enum class CallbackType : int {
-			NONE                                 = 0, //made up type
-			Pong                                 = 1,
-			ChannelMessageWithSource             = 4,
-			DeferredChannelMessageWithSource     = 5,
-			DeferredUpdateMessage                = 6,
-			UpdateMessage                        = 7,
-			ApplicationCommandAutocompleteResult = 8,
-		};
+		using CallbackType = InteractionCallbackType;
 
+		template<InteractionCallbackType _type = InteractionCallbackType::ChannelMessageWithSource>
 		struct Response : public DiscordObject {
 			Response() = default;
-			Response(json::Value & json);
+			Response(json::Value & json) :
+				Response(json::fromJSON<Response>(json)) {}
 			Response(const nonstd::string_view& json) :
-				Interaction::Response(json::fromJSON<Interaction::Response>(json)) {}
+				Response(json::fromJSON<Response>(json)) {}
 
 			using Type = CallbackType;
-			Type type;
-			InteractionAppCommandCallbackData data;
+			using DataType = typename InteractionCallbackTypeHelper<_type>::Type;
+			Type type = _type;
+			DataType data;
 
 			JSONStructStart
 				std::make_tuple(
-					json::pair<json::EnumTypeHelper>(&Interaction::Response::type, "type", json::REQUIRIED_FIELD),
-					json::pair                      (&Interaction::Response::data, "data", json::OPTIONAL_FIELD )
+					json::pair<json::EnumTypeHelper>(&Interaction::Response<_type>::type, "type", json::REQUIRIED_FIELD),
+					json::pair                      (&Interaction::Response<_type>::data, "data", json::OPTIONAL_FIELD)
 				);
 			JSONStructEnd
 		};
+
+		template<typename Type>
+		using Callback = Response<InteractionCallbackHelper<Type>::getType()>;
+
+		using AutocompleteResponse = Callback<InteractionCallback::Autocomplete>;
+		using MessageResponse = Response<InteractionCallbackType::ChannelMessageWithSource>;
 
 		using AppCommandCallbackData = InteractionAppCommandCallbackData;
 		using Type = InteractionType;
@@ -395,21 +485,6 @@ namespace SleepyDiscord {
 				json::pair                      (&Interaction::token        , "token"         , json::OPTIONAL_FIELD ),
 				json::pair<                   1>(&Interaction::version      , "version"       , json::OPTIONAL_FIELD ),
 				json::pair                      (&Interaction::message      , "message"       , json::OPTIONAL_FIELD )
-			);
-		JSONStructEnd
-	};
-
-	struct Autocomplete : public DiscordObject {
-		Autocomplete() = default;
-		Autocomplete(json::Value& json);
-		Autocomplete(const nonstd::string_view& json) :
-			Autocomplete(json::fromJSON<Autocomplete>(json)) {}
-
-		std::vector<AppCommand::Option::Choice> choices;
-
-		JSONStructStart
-			std::make_tuple(
-				json::pair<json::ContainerTypeHelper>(&Autocomplete::choices, "choices", json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
 	};
