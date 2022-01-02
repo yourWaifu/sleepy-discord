@@ -4,8 +4,8 @@
   <ShortName>Sleepy Discord</ShortName>
   <Description>Search Sleepy Discord</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://yourwaifu.dev/img/title-icon.png</Image>
-  <Url type="text/html" method="get" template="https://yourwaifu.dev//search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://yourwaifu.dev//opensearch.xml" />
-  <moz:SearchForm>https://yourwaifu.dev/</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://yourwaifu.dev/sleepy-discord/img/title-icon.png</Image>
+  <Url type="text/html" method="get" template="https://yourwaifu.dev//sleepy-discord/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://yourwaifu.dev//sleepy-discord/opensearch.xml" />
+  <moz:SearchForm>https://yourwaifu.dev//sleepy-discord/</moz:SearchForm>
 </OpenSearchDescription>
