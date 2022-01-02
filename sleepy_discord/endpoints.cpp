@@ -756,13 +756,13 @@ namespace SleepyDiscord {
 	std::string CDN_path(const std::initializer_list<std::string> path) {
 		static constexpr auto CDN_URL = BaseDiscordClient::getCDN_URL();
 		std::size_t pathLength = CDN_URL.length();
-		for (const std::string str : path) {
+		for (const std::string& str : path) {
 			pathLength += str.length();
 		}
 		std::string CDN_path;
 		CDN_path.reserve(pathLength);
 		CDN_path += CDN_URL.data();
-		for (const std::string str : path) {
+		for (const std::string& str : path) {
 			CDN_path += str;
 		}
 		return CDN_path;
@@ -772,7 +772,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::getServerBanner(Snowflake<Server> serverID, std::string banner, std::string format, std::function<void(StandardResponse&)> callback) {
 		static constexpr const char* pathMid = "banners/";
 		const std::string path = CDN_path({pathMid, serverID, "/", banner, format});
-		postTask([this, path, callback]() {
+		postTask([path, callback]() {
 			Session session;
 			session.setUrl(path);
 			auto response = StandardResponse{session.request(Get)};
