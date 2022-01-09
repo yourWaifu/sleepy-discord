@@ -56,23 +56,6 @@ namespace SleepyDiscord {
 				static constexpr Type _type = type;
 			};
 
-			template<> struct TypeHelper<bool, void> : public TypeHelperImpl<Type::BOOLEAN, bool    > {};
-			template<> struct TypeHelper<std::string, void> : public TypeHelperImpl<Type::STRING, std::string> {};
-			template<> struct TypeHelper<const char*, void> : public TypeHelperImpl<Type::STRING, std::string> {};
-			template<> struct TypeHelper<Channel, void> : public TypeHelperImpl<Type::CHANNEL, Channel> {};
-			template<> struct TypeHelper<Role, void> : public TypeHelperImpl<Type::ROLE, Role> {};
-			template<> struct TypeHelper<User, void> : public TypeHelperImpl<Type::USER, User> {};
-
-			template<class Int>
-			struct TypeHelper<
-				Int, typename isInt<Int>::type
-			> : public TypeHelperImpl< Type::INTEGER, Int > {};
-
-			template<class Num>
-			struct TypeHelper<
-				Num, typename isNum<Num>::type
-			> : public TypeHelperImpl< Type::NUMBER, Num > {};
-
 			struct Choice : public DiscordObject {
 				Choice() = default;
 				Choice(json::Value & json);
@@ -205,6 +188,29 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
+
+	template<> struct AppCommand::Option::TypeHelper<bool       , void> :
+		public AppCommand::Option::TypeHelperImpl<Type::BOOLEAN, bool       > {};
+	template<> struct AppCommand::Option::TypeHelper<std::string, void> :
+		public AppCommand::Option::TypeHelperImpl<Type::STRING , std::string> {};
+	template<> struct AppCommand::Option::TypeHelper<const char*, void> :
+		public AppCommand::Option::TypeHelperImpl<Type::STRING , std::string> {};
+	template<> struct AppCommand::Option::TypeHelper<Channel    , void> :
+		public AppCommand::Option::TypeHelperImpl<Type::CHANNEL, Channel    > {};
+	template<> struct AppCommand::Option::TypeHelper<Role       , void> :
+		public AppCommand::Option::TypeHelperImpl<Type::ROLE   , Role       > {};
+	template<> struct AppCommand::Option::TypeHelper<User       , void> :
+		public AppCommand::Option::TypeHelperImpl<Type::USER   , User       > {};
+
+	template<class Int>
+	struct AppCommand::Option::TypeHelper<
+		Int, typename isInt<Int>::type
+	> : public AppCommand::Option::TypeHelperImpl< Type::INTEGER, Int > {};
+
+	template<class Num>
+	struct AppCommand::Option::TypeHelper<
+		Num, typename isNum<Num>::type
+	> : public AppCommand::Option::TypeHelperImpl< Type::NUMBER, Num > {};
 
 	struct ServerAppCommandPermissions : IdentifiableDiscordObject<AppCommand> {
 		Snowflake<User> applicationID;
