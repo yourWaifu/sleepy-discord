@@ -332,7 +332,7 @@ namespace SleepyDiscord {
 		}
 		template<class Options = std::nullptr_t>
 		ObjectResponse<AppCommand> editGlobalAppCommand(
-			Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description, Options options,
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description, Options options = (std::nullptr_t)nullptr,
 			bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
@@ -346,7 +346,7 @@ namespace SleepyDiscord {
 		template<class Options = std::nullptr_t>
 		ObjectResponse<AppCommand> createServerAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
-			Options options, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+			Options options = (std::nullptr_t)nullptr, RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Post,
 				path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings,
@@ -355,7 +355,7 @@ namespace SleepyDiscord {
 		template<class Options = std::nullptr_t>
 		ObjectResponse<AppCommand> editServerAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
-			std::string description, Options options,
+			std::string description, Options options = (std::nullptr_t)nullptr,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Patch,
@@ -382,7 +382,7 @@ namespace SleepyDiscord {
 		template<class Options = std::nullptr_t>
 		ObjectResponse<AppCommand> createAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
-			Options options, bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			Options options = (std::nullptr_t)nullptr, bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, defaultPermission, type, settings);
@@ -391,7 +391,7 @@ namespace SleepyDiscord {
 		template<class Options = std::nullptr_t>
 		ObjectResponse<AppCommand> editAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
-			std::string description, Options options,
+			std::string description, Options options = (std::nullptr_t)nullptr,
 			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			if (serverID.empty()) return editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
