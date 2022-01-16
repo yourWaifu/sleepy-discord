@@ -147,27 +147,41 @@ namespace SleepyDiscord {
 					const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
 					setError(code);		//https error
 					if (!response.text.empty()) {
-					//json::Values values = json::getValues(response.text.c_str(),
-					//{ "code", "message" });	//parse json to get code and message
-					rapidjson::Document document;
-					document.Parse(response.text.c_str());
+						//json::Values values = json::getValues(response.text.c_str(),
+						//{ "code", "message" });	//parse json to get code and message
+						rapidjson::Document document;
+						document.Parse(response.text.c_str());
 						if (!document.IsObject()) {
 							onError(GENERAL_ERROR, "No error code or message from Discord");
+							break;
 						}
 
-					auto errorCode = document.FindMember("code");
-					auto errorMessage = document.FindMember("message");
-					if (errorCode != document.MemberEnd())
-						onError(
-							static_cast<ErrorCode>(errorCode->value.GetInt()),
-							{ errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "" }
-						);
-					else if (!response.text.empty())
-						onError(ERROR_NOTE, response.text);
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != document.MemberEnd()) {
+							std::size_t fullErrorMessageSize = 0;
+							fullErrorMessageSize += response.text.length();
+							fullErrorMessageSize += 1;
+							std::string message =
+								(errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "");
+							fullErrorMessageSize += message.length();
+							std::string fullErrorMessage;
+							fullErrorMessage.reserve(fullErrorMessageSize);
+							fullErrorMessage += response.text;
+							fullErrorMessage += '\n';
+							fullErrorMessage += message;
+
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								std::move(fullErrorMessage)
+							);
+						} else if (!response.text.empty()) {
+							onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-						if (static_cast<int>(mode) & static_cast<int>(ThrowError))
-							throw code;
+							if (static_cast<int>(mode) & static_cast<int>(ThrowError))
+								throw code;
 #endif
+						}
 					}
 				} break;
 			}
