@@ -778,17 +778,16 @@ namespace SleepyDiscord {
 		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
 
 		template<class Options, class Allocator>
-		void createOptionsValue(
-			rapidjson::Document& doc, Allocator& allocator, std::nullptr_t& options,
-			typename std::enable_if<std::is_same<Options, std::nullptr_t>::value, bool>::type = true
+		typename std::enable_if<std::is_same<std::nullptr_t, std::remove_cv_t<Options>>::value, void>::type
+			createOptionsValue(
+				rapidjson::Document& doc, Allocator& allocator, Options& options
 		) {
 			return;
 		}
 
 		template<class Options, class Allocator>
-		void createOptionsValue(rapidjson::Document& doc, Allocator& allocator, Options& options,
-			typename std::enable_if<!std::is_pointer<Options>::value, bool>::type = true
-		) {
+		typename std::enable_if<!std::is_pointer<Options>::value && !std::is_same<const Options, const SleepyDiscord::AppCommand::EmptyOptions>::value, void>::type
+			createOptionsValue(rapidjson::Document& doc, Allocator& allocator, Options& options) {
 			if (!options.empty()) {
 				rapidjson::Value arr{ rapidjson::Type::kArrayType };
 				for (auto& option : options) {
