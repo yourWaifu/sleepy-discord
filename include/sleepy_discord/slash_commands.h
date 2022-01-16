@@ -346,9 +346,110 @@ namespace SleepyDiscord {
 			JSONStructEnd
 		};
 
+		struct ResolvedData : public DiscordObject {
+			ResolvedData() = default;
+			ResolvedData(json::Value& json);
+			ResolvedData(const nonstd::string_view& json) :
+				ResolvedData(json::fromJSON<ResolvedData>(json)) {}
+
+			template<typename Type>
+			struct Data {
+				using JSONTypeHelper = json::ClassTypeHelper<json::Value>;
+				using Identifier = typename Type::Identifier;
+
+				Data() = default;
+				Data(json::Value & json) {
+					data = JSONTypeHelper::toType(json); //moves
+				}
+				Data(const nonstd::string_view & json) :
+					Data(json::fromJSON<Data>(json)) {}
+
+			private:
+
+				inline json::Value::MemberIterator find(const std::string& ID) {
+					return data.FindMember(
+						json::Value(json::Value::StringRefType(ID.c_str(), ID.length()))
+					);
+				}
+
+				const bool find(const std::string& ID, Type& object) {
+					auto member = find(ID);
+					if (member != data.MemberEnd()) {
+						object = member->value;
+						return true;
+					}
+					return false;
+				}
+
+			public:
+
+				inline json::Value serialize(typename json::Value::AllocatorType& alloc) const {
+					return JSONTypeHelper::fromType(data, alloc);
+				}
+
+				inline const bool empty() const { return JSONTypeHelper::empty(data); }
+
+				static inline const bool isType(const typename json::Value& value) {
+					return value.IsObject();
+				}
+
+				inline json::Value::MemberIterator find(const Identifier& ID) {
+					return find(ID.string());
+				}
+				
+				// useful for target_id since it can be a snowflake muliple discord objects
+				inline json::Value::MemberIterator find(const Snowflake<DiscordObject>& ID) {
+					return find(ID.string());
+				}
+
+				inline json::Value::MemberIterator end() {
+					return data.MemberEnd();
+				}
+
+				inline Type cast(json::Value::MemberIterator& member) {
+					return member->value;
+				}
+
+				inline const bool find(const Identifier& ID, Type& object) {
+					find(ID.string(), object);
+				}
+
+				inline const bool find(const Snowflake<DiscordObject>& ID, Type& object) {
+					find(ID.string(), object);
+				}
+
+				inline std::unordered_map<Identifier, Type> createUnorderedMap() {
+					return json::MapTypeHelper<
+						std::unordered_map<Identifier, Type>,
+						json::ClassTypeHelper>::toType(data);
+				}
+
+				json::Value data;
+			};
+
+			Data<User> users;
+			Data<ServerMember> members;
+			Data<Role> roles;
+			Data<Channel> channels;
+			Data<Message> messages;
+
+			//Note: JSON structure works very different here
+			//JSON is used as a dictionary here
+			JSONStructStart
+				std::make_tuple(
+					json::pair(&InteractionData::ResolvedData::users   , "users"   , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::members , "members" , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::roles   , "roles"   , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::channels, "channels", json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::messages, "messages", json::OPTIONAL_FIELD)
+				);
+			JSONStructEnd
+		};
+
 		Snowflake<AppCommand> ID;
 		std::string name;
 		AppCommand::Type type = AppCommand::Type::NONE;
+		ResolvedData resolved;
 		std::vector<Option> options;
 		std::string customID;
 		ComponentType componentType;

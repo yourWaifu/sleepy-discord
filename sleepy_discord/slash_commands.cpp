@@ -16,6 +16,9 @@ namespace SleepyDiscord {
 	InteractionData::Option::Option(json::Value & json) :
 		InteractionData::Option(json::fromJSON<InteractionData::Option>(json)) {
 	}
+	InteractionData::ResolvedData::ResolvedData(json::Value& json) :
+		InteractionData::ResolvedData(json::fromJSON<InteractionData::ResolvedData>(json)) {
+	}
 	InteractionCallback::EmptyData::EmptyData(json::Value & json) :
 		InteractionCallback::EmptyData(json::fromJSON< InteractionCallback::EmptyData>(json)) {
 	}

@@ -31,6 +31,7 @@ namespace SleepyDiscord {
 		IdentifiableDiscordObject(Snowflake<Derived> id) : ID(id) {}
 
 		using Parent = IdentifiableDiscordObject<Derived>;
+		using Identifier = Snowflake<Derived>;
 
 		Snowflake<Derived> ID;
 		

@@ -548,7 +548,8 @@ namespace SleepyDiscord {
 		//maybe find a way to marge the two
 		template<class Optional, template<class...> class TypeHelper>
 		struct OptionalTypeHelper {
-			static inline Optional toType(const Value& value) {
+			template<class Value>
+			static inline Optional toType(Value& value) {
 				return Optional{ TypeHelper<typename Optional::value_type>::toType(value) };
 			}
 			static inline Value fromType(const Optional& value, Value::AllocatorType& allocator) {
@@ -586,6 +587,49 @@ namespace SleepyDiscord {
 			}
 		};
 
+		template<class Map, template<class...> class TypeHelper>
+		struct MapTypeHelper : public EmptyFunction<Map>, public IsObjectFunction {
+			template<class Value>
+			static inline Map toType(Value& value) {
+				Map target;
+				for (auto& member : value.GetObject()) {
+					target.emplace(std::make_pair(
+						toStdString(member.name),
+						TypeHelper<Map::mapped_type>::toType(member.value)));
+				}
+				return target;
+			}
+			// serialize map but remember that the order depends on the type of map used
+			static inline Value fromType(const Map& value, Value::AllocatorType& allocator) {
+				Value target;
+				for (auto& member : value) {
+					const std::string& name = static_cast<const std::string&>(member.first);
+					target.AddMember(
+						Value::StringRefType(name.c_str(), name.length()),
+						TypeHelper<Map::mapped_type>::fromType(member.second, allocator),
+						allocator);
+				}
+				return target;
+			}
+		};
+
+		template<>
+		struct ClassTypeHelper<std::nullptr_t> {
+			template<class Value>
+			static inline std::nullptr_t toType(Value& value) {
+				return nullptr;
+			}
+			static inline bool empty(const Value& value) {
+				return true;
+			}
+			static inline Value fromType(const Value& value, Value::AllocatorType& alloc) {
+				return Value{ rapidjson::kNullType };
+			}
+			static inline bool isType(const Value& value) {
+				return value.IsNull();
+			}
+		};
+
 		enum FieldType {
 			REQUIRIED_FIELD = 0,
 			OPTIONAL_FIELD  = 1 << 0,
@@ -615,6 +659,22 @@ namespace SleepyDiscord {
 		template <template<class, template<class...> class> class TypeHelper, template<class...> class TypeHelper2 = ClassTypeHelper, class Class, class Type>
 		constexpr PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>> pair(Type Class::*member, const char* name, FieldType type) {
 			return PairImpl<Class, Type, TypeHelper<Type, TypeHelper2>>{member, name, type};
+		}
+
+		template <template<class, template<class...> class> class TypeHelper, template<class, template<class...> class> class TypeHelper2, template<class...> class TypeHelper3 = ClassTypeHelper>
+		struct ComplexPair {
+			template<class Type>
+			using ComplexTypeHelper = TypeHelper2<Type, TypeHelper3>;
+
+			template<class Class, class Type>
+			static constexpr PairImpl<Class, Type, TypeHelper<Type, ComplexTypeHelper>> pair(Type Class::* member, const char* name, FieldType type) {
+				return PairImpl<Class, Type, TypeHelper<Type, ComplexTypeHelper>>{member, name, type};
+			}
+		};
+
+		template <template<class, class> class TypeHelper, template<class, template<class...> class> class TypeHelper2, template<class...> class TypeHelper3, class Class, class Type, class Type2>
+		constexpr PairImpl<Class, Type, TypeHelper<Type, TypeHelper2<Type2, TypeHelper3>>> pair(Type Class::* member, const char* name, FieldType type) {
+			return PairImpl<Class, Type, TypeHelper<Type, TypeHelper2<Type2, TypeHelper3>>>{member, name, type};
 		}
 
 		//There needs to be a workaround for Visual C++ and clang for this to compile. However, this workaround relys on c++14.
