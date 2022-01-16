@@ -171,8 +171,8 @@ namespace SleepyDiscord {
 		bool defaultPermission = true;
 		Snowflake<DiscordObject> version;
 
-		using EmptyOptions = std::array<EmptyDiscordObject, 0>;
-		static constexpr EmptyOptions emptyOptions = EmptyOptions{};
+		using EmptyOptions = std::nullptr_t;
+		static constexpr EmptyOptions emptyOptions = static_cast<std::nullptr_t>(nullptr);
 
 		JSONStructStart
 			std::make_tuple(
