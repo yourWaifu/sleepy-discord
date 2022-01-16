@@ -25,6 +25,9 @@ namespace SleepyDiscord {
 	InteractionCallback::Message::Message(json::Value & json) :
 		InteractionCallback::Message(json::fromJSON<InteractionCallback::Message>(json)) {
 	}
+	InteractionCallback::EditMessage::EditMessage(json::Value & json) :
+		InteractionCallback::EditMessage(json::fromJSON<InteractionCallback::EditMessage>(json)) {
+	}
 	InteractionCallback::Autocomplete::Autocomplete(json::Value & json) :
 		InteractionCallback::Autocomplete(json::fromJSON<InteractionCallback::Autocomplete>(json)) {
 	}

@@ -9,6 +9,7 @@
 #include "discord_object_interface.h"
 #include "snowflake.h"
 #include "channel.h"
+#include "nonstd/optional.hpp"
 
 // <--- means to add later
 
@@ -270,6 +271,9 @@ namespace SleepyDiscord {
 				}
 			}
 			static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
+				if (!value)
+					return json::Value{};
+
 				const ComponentType type = value->getType();
 				switch (type) {
 				default:
@@ -625,24 +629,39 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct EditWebhookParams : public DiscordObject {
+	template<class Type>
+	struct BaseEditWebhookParams : public DiscordObject {
+	public:
+		tl::optional<std::string> content;
+		tl::optional<std::vector<Embed>> embeds;
+		AllowedMentions allowedMentions;
+		tl::optional<std::vector<std::shared_ptr<BaseComponent>>> components;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair<json::OptionalTypeHelper>                                        (&Type::content        , "content"         , json::OPTIONAL_FIELD),
+				json::ComplexPair<json::OptionalTypeHelper, json::ContainerTypeHelper>::pair(&Type::embeds         , "embeds"          , json::OPTIONAL_FIELD),
+				json::pair                                                                  (&Type::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
+				json::ComplexPair<json::OptionalTypeHelper, json::ContainerTypeHelper>::pair(&Type::components     , "components"      , json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
+	struct EditWebhookParams : public BaseEditWebhookParams<EditWebhookParams> {
+	public:
+		JSONStructStart
+			std::tuple_cat(
+				BaseEditWebhookParams<EditWebhookParams>::JSONStruct
+			);
+		JSONStructEnd
+	};
+
+	struct WebHookParams {
 	public:
 		std::string content;
 		std::vector<Embed> embeds;
 		AllowedMentions allowedMentions;
 		std::vector<std::shared_ptr<BaseComponent>> components;
-		JSONStructStart
-			std::make_tuple(
-				json::pair                           (&EditWebhookParams::content        , "content"         , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&EditWebhookParams::embeds         , "embeds"          , json::OPTIONAL_FIELD),
-				json::pair                           (&EditWebhookParams::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&EditWebhookParams::components     , "components"      , json::OPTIONAL_FIELD)
-			);
-		JSONStructEnd
-	};
-
-	struct WebHookParams : public EditWebhookParams {
-	public:
 		std::string username;
 		std::string avatarURL;
 		bool tts = false;

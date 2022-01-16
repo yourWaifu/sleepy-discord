@@ -271,9 +271,10 @@ namespace SleepyDiscord {
 
 			bool tts = false;
 			enum class Flags : int {
+				UNDEFINED = -1,
 				NONE = 0,
 				Ephemeral = 1 << 6
-			} flags = Flags::NONE;
+			} flags = Flags::UNDEFINED;
 
 			JSONStructStart
 				std::make_tuple(
@@ -287,6 +288,26 @@ namespace SleepyDiscord {
 			JSONStructEnd
 		};
 
+		struct EditMessage : public BaseEditWebhookParams<EditWebhookParams> {
+			EditMessage() = default;
+			EditMessage(json::Value& json);
+			EditMessage(const nonstd::string_view& json) :
+				EditMessage(json::fromJSON<EditMessage>(json)) {}
+
+			inline const bool empty() const { return !(content || embeds || components); }
+
+			Message::Flags flags = Message::Flags::UNDEFINED;
+
+			JSONStructStart
+				std::tuple_cat(
+					BaseEditWebhookParams<EditWebhookParams>::JSONStruct,
+					std::make_tuple(
+						json::pair<json::EnumTypeHelper>(&EditMessage::flags, "flags", json::OPTIONAL_FIELD)
+					)
+				);
+			JSONStructEnd
+		};
+
 		struct Autocomplete : public DiscordObject {
 			Autocomplete() = default;
 			Autocomplete(json::Value & json);
@@ -295,6 +316,10 @@ namespace SleepyDiscord {
 
 			std::vector<AppCommand::Option::Choice> choices;
 
+			bool empty() const {
+				return choices.empty();
+			}
+
 			JSONStructStart
 				std::make_tuple(
 					json::pair<json::ContainerTypeHelper>(&Autocomplete::choices, "choices", json::REQUIRIED_FIELD)
@@ -302,6 +327,13 @@ namespace SleepyDiscord {
 			JSONStructEnd
 		};
 	}
+
+	template<>
+	struct GetDefault<InteractionCallback::Message::Flags> {
+		static inline const InteractionCallback::Message::Flags get() {
+			return InteractionCallback::Message::Flags::UNDEFINED;
+		}
+	};
 
 	// for backwards compatibility, oops
 	using InteractionAppCommandCallbackData = InteractionCallback::Message;
@@ -461,6 +493,7 @@ namespace SleepyDiscord {
 				json::pair                           (&InteractionData::ID           , "id"            , json::OPTIONAL_FIELD),
 				json::pair                           (&InteractionData::name         , "name"          , json::OPTIONAL_FIELD),
 				json::pair<json::EnumTypeHelper     >(&InteractionData::type         , "type"          , json::OPTIONAL_FIELD),
+				json::pair                           (&InteractionData::resolved     , "resolved"      , json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&InteractionData::options      , "options"       , json::OPTIONAL_FIELD),
 				json::pair                           (&InteractionData::customID     , "custom_id"     , json::OPTIONAL_FIELD),
 				json::pair<json::EnumTypeHelper     >(&InteractionData::componentType, "component_type", json::OPTIONAL_FIELD),
@@ -512,13 +545,13 @@ namespace SleepyDiscord {
 		using Type = InteractionCallback::Message;
 	};
 	template<> struct InteractionCallbackTypeHelper<IntCallBackT::DefChannelMessageWScore> {
-		using Type = InteractionCallback::Message;
+		using Type = InteractionCallback::EmptyData;
 	};
 	template<> struct InteractionCallbackTypeHelper<IntCallBackT::DeferredUpdateMessage> {
-		using Type = InteractionCallback::Message;
+		using Type = InteractionCallback::EmptyData;
 	};
 	template<> struct InteractionCallbackTypeHelper<IntCallBackT::UpdateMessage> {
-		using Type = InteractionCallback::Message;
+		using Type = InteractionCallback::EditMessage;
 	};
 	template<> struct InteractionCallbackTypeHelper<IntCallBackT::AppCommandAutocomplete> {
 		using Type = InteractionCallback::Autocomplete;
@@ -529,6 +562,9 @@ namespace SleepyDiscord {
 	};
 	template<> struct InteractionCallbackHelper<InteractionCallback::Autocomplete> {
 		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::ApplicationCommandAutocompleteResult; }
+	};
+	template<> struct InteractionCallbackHelper<InteractionCallback::EditMessage> {
+		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::UpdateMessage; }
 	};
 
 	struct Interaction : IdentifiableDiscordObject<Interaction> {
@@ -565,6 +601,7 @@ namespace SleepyDiscord {
 
 		using AutocompleteResponse = Callback<InteractionCallback::Autocomplete>;
 		using MessageResponse = Response<InteractionCallbackType::ChannelMessageWithSource>;
+		using EditMessageResponse = Response<InteractionCallbackType::UpdateMessage>;
 
 		using AppCommandCallbackData = InteractionAppCommandCallbackData;
 		using Type = InteractionType;
