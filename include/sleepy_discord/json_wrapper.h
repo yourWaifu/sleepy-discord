@@ -595,7 +595,7 @@ namespace SleepyDiscord {
 				for (auto& member : value.GetObject()) {
 					target.emplace(std::make_pair(
 						toStdString(member.name),
-						TypeHelper<Map::mapped_type>::toType(member.value)));
+						TypeHelper<typename Map::mapped_type>::toType(member.value)));
 				}
 				return target;
 			}
@@ -606,7 +606,7 @@ namespace SleepyDiscord {
 					const std::string& name = static_cast<const std::string&>(member.first);
 					target.AddMember(
 						Value::StringRefType(name.c_str(), name.length()),
-						TypeHelper<Map::mapped_type>::fromType(member.second, allocator),
+						TypeHelper<typename Map::mapped_type>::fromType(member.second, allocator),
 						allocator);
 				}
 				return target;

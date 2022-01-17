@@ -120,11 +120,13 @@ namespace SleepyDiscord {
 	inline bool operator!=(const char * left, Snowflake<DiscordOject>& right) {
 		return left != right.operator const std::string&().c_str();
 	}
+}
 
+namespace std {
 	template<typename DiscordObject>
-	struct std::hash<Snowflake<DiscordObject>> {
-		inline std::size_t operator()(const SleepyDiscord::Snowflake<DiscordObject>& snowflake) const {
-			return std::hash<std::string>{}(static_cast<const std::string&>(snowflake));
+	struct hash<SleepyDiscord::Snowflake<DiscordObject>> {
+		inline size_t operator()(const SleepyDiscord::Snowflake<DiscordObject>& snowflake) const {
+			return std::hash<string>{}(static_cast<const string&>(snowflake));
 		}
 	};
 }

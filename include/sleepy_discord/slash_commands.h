@@ -172,7 +172,7 @@ namespace SleepyDiscord {
 		Snowflake<DiscordObject> version;
 
 		using EmptyOptions = std::nullptr_t;
-		static constexpr EmptyOptions emptyOptions = static_cast<std::nullptr_t>(nullptr);
+		static constexpr EmptyOptions emptyOptions = nullptr;
 
 		JSONStructStart
 			std::make_tuple(
@@ -443,11 +443,11 @@ namespace SleepyDiscord {
 				}
 
 				inline const bool find(const Identifier& ID, Type& object) {
-					find(ID.string(), object);
+					return find(ID.string(), object);
 				}
 
 				inline const bool find(const Snowflake<DiscordObject>& ID, Type& object) {
-					find(ID.string(), object);
+					return find(ID.string(), object);
 				}
 
 				inline std::unordered_map<Identifier, Type> createUnorderedMap() {
