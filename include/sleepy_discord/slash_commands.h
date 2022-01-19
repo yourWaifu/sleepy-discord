@@ -633,4 +633,21 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	struct FollowupMessage : public BaseWebHookParams<FollowupMessage> {
+		FollowupMessage() = default;
+		FollowupMessage(json::Value& json);
+		FollowupMessage(const nonstd::string_view& json) :
+			FollowupMessage(json::fromJSON<FollowupMessage>(json)) {}
+		InteractionCallback::Message::Flags flags = InteractionCallback::Message::Flags::UNDEFINED;
+
+		JSONStructStart
+			std::tuple_cat(
+				BaseWebHookParams<FollowupMessage>::JSONStruct,
+				std::make_tuple(
+					json::pair<json::EnumTypeHelper>(&FollowupMessage::flags, "flags", json::OPTIONAL_FIELD)
+				)
+			);
+		JSONStructEnd
+	};
+
 }; // namespace SleepyDiscord

@@ -614,7 +614,7 @@ namespace SleepyDiscord {
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::createFollowupMessage(
-		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, FollowupMessage params, RequestSettings<BoolResponse> settings
 	) {
 		return ObjectResponse<Message>{ request(Post, path("webhooks/{application.id}/{interaction.token}", { applicationID, interactionToken }), settings, json::stringifyObj(params)) };
 	}

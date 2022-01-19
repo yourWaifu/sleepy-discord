@@ -372,7 +372,7 @@ namespace SleepyDiscord {
 		}
 		ObjectResponse<Message> editOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings = {});
-		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, WebHookParams params, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, FollowupMessage params, RequestSettings<BoolResponse> settings = {});
 		ObjectResponse<Message> editFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
 		BoolResponse deleteFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
 		BoolResponse batchEditAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings = {});

@@ -656,24 +656,39 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
-	struct WebHookParams {
+	template<class Type>
+	struct BaseWebHookParams : public DiscordObject {
 	public:
+		bool tts = false;
 		std::string content;
 		std::vector<Embed> embeds;
 		AllowedMentions allowedMentions;
 		std::vector<std::shared_ptr<BaseComponent>> components;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair                           (&Type::content         , "content"          , json::OPTIONAL_FIELD),
+				json::pair                           (&Type::tts             , "tts"              , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Type::embeds          , "embeds"           , json::OPTIONAL_FIELD),
+				json::pair                           (&Type::allowedMentions , "allowed_mentions" , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Type::components      , "components"       , json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
+	struct WebHookParams : public BaseWebHookParams<WebHookParams> {
+	public:
+		
 		std::string username;
 		std::string avatarURL;
 		bool tts = false;
 		JSONStructStart
-			std::make_tuple(
-				json::pair                           (&WebHookParams::content         , "content"          , json::OPTIONAL_FIELD),
-				json::pair                           (&WebHookParams::username        , "username"         , json::OPTIONAL_FIELD),
-				json::pair                           (&WebHookParams::avatarURL       , "avatar_url"       , json::OPTIONAL_FIELD),
-				json::pair                           (&WebHookParams::tts             , "tts"              , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&WebHookParams::embeds          , "embeds"           , json::OPTIONAL_FIELD),
-				json::pair                           (&WebHookParams::allowedMentions , "allowed_mentions" , json::OPTIONAL_FIELD),
-				json::pair<json::ContainerTypeHelper>(&WebHookParams::components      , "components"       , json::OPTIONAL_FIELD)
+			std::tuple_cat(
+				BaseWebHookParams<WebHookParams>::JSONStruct,
+				std::make_tuple(
+					json::pair(&WebHookParams::username, "username", json::OPTIONAL_FIELD),
+					json::pair(&WebHookParams::avatarURL, "avatar_url", json::OPTIONAL_FIELD)
+				)
 			);
 		JSONStructEnd
 	};

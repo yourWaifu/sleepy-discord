@@ -34,4 +34,7 @@ namespace SleepyDiscord {
 	Interaction::Interaction(json::Value & json) :
 		Interaction(json::fromJSON<Interaction>(json)) {
 	}
+	FollowupMessage::FollowupMessage(json::Value& json) :
+		FollowupMessage(json::fromJSON<FollowupMessage>(json)) {
+	}
 }
