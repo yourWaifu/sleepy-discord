@@ -198,6 +198,9 @@ namespace SleepyDiscord {
 
 		void testFunction(std::string teststring);
 
+		//gateway functions
+		ObjectResponse<Gateway> getGateway(RequestSettings<ObjectResponse<Gateway>> settings = {});
+
 		//channel functions
 		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID                                                                                 , RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = ""                                  , RequestSettings<ObjectResponse<Channel>> settings = {});

@@ -1,6 +1,12 @@
 #include "gateway.h"
 
 namespace SleepyDiscord {
+	SessionStartLimit::SessionStartLimit(const json::Value& json) :
+		SessionStartLimit(json::fromJSON<SessionStartLimit>(json)) {
+	}
+	Gateway::Gateway(const json::Value& json) :
+		Gateway(json::fromJSON<Gateway>(json)) {
+	}
 	Ready::Ready(const json::Value & json) :
 		Ready(json::fromJSON<Ready>(json)) {
 	}

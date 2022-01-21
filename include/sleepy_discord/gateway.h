@@ -7,6 +7,46 @@
 #include "server.h"
 
 namespace SleepyDiscord {
+	struct SessionStartLimit : public DiscordObject {
+		SessionStartLimit() = default;
+		SessionStartLimit(const json::Value & rawJSON);
+		SessionStartLimit(const nonstd::string_view & json) :
+			SessionStartLimit(json::fromJSON<SessionStartLimit>(json)) {}
+
+		int total;
+		int remaining;
+		int resetAfter;
+		int maxConcurency;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&SessionStartLimit::total        , "total"          , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::remaining    , "remaining"      , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::resetAfter   , "reset_after"    , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::maxConcurency, "max_concurrency", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+	
+	struct Gateway {
+		Gateway() = default;
+		Gateway(const json::Value & rawJSON);
+		Gateway(const nonstd::string_view & json) :
+			Gateway(json::fromJSON<Gateway>(json)) {}
+
+		std::string url;
+		int shards;
+		SessionStartLimit sessionStartLimit;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&Gateway::url              , "url"                , json::OPTIONAL_FIELD),
+				json::pair(&Gateway::shards           , "shards"             , json::OPTIONAL_FIELD),
+				json::pair(&Gateway::sessionStartLimit, "session_start_limit", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
 	enum Status {
 		statusError = 0,
 		online         ,

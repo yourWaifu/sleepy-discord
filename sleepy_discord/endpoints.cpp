@@ -34,6 +34,10 @@ namespace SleepyDiscord {
 		return json::stringify(doc);
 	}
 
+	ObjectResponse<Gateway> BaseDiscordClient::getGateway(RequestSettings<ObjectResponse<Gateway>> settings) {
+		return ObjectResponse<Gateway>{ request(Get, "gateway/bot", settings) };
+	}
+
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, MessageReference replyingTo, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, replyingTo, tts)) };
 	}
