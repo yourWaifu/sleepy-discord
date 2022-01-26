@@ -390,6 +390,7 @@ namespace SleepyDiscord {
 			voiceConnection.disconnect();
 #endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
+		if (reconnectTimer.isValid()) reconnectTimer.stop();
 		if (!isDisconnected) disconnectWebsocket(1000);
 		stopClient();
 		if (quiting) onQuit();
@@ -402,6 +403,11 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
+		std::lock_guard<std::mutex> lock(connectionMutex);
+		if (isCurrentlyWaitingToReconnect == true)
+			return; //don't try to reconnect when waiting to reconnect
+		isCurrentlyWaitingToReconnect = true;
+
 		//before disconnecting, heartbeats need to stop or it'll crash
 		//and if it doesn't, it'll cause another reconnect
 		if (heart.isValid()) heart.stop();
@@ -418,6 +424,8 @@ namespace SleepyDiscord {
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
+			std::lock_guard<std::mutex> lock(connectionMutex);
+			isCurrentlyWaitingToReconnect = false;
 			//if not a successful reconnection
 			if (consecutiveReconnectsCount != 0)
 				connect(theGateway, this, connection);
@@ -426,6 +434,14 @@ namespace SleepyDiscord {
 
 		if (useTrasportConnection == 1)
 			compressionHandler->resetStream();
+	}
+
+	void BaseDiscordClient::stopReconnecting() {
+		std::lock_guard<std::mutex> lock(connectionMutex);
+		isCurrentlyWaitingToReconnect = false;
+		consecutiveReconnectsCount == 0;
+		if (reconnectTimer.isValid())
+			reconnectTimer.stop();
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -606,8 +622,6 @@ namespace SleepyDiscord {
 				}
 			);
 			onEditChannel(d);
-				onEditChannel(d); 
-			onEditChannel(d);
 		} break;
 		case hash("CHANNEL_DELETE"): {
 			Channel channel = d;
@@ -631,8 +645,6 @@ namespace SleepyDiscord {
 #ifdef SLEEPY_VOICE_ENABLED
 			if (!waitingVoiceContexts.empty()) {
 				auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-					[&state](const VoiceContext* w) {
-						[&state](const VoiceContext* w) { 
 					[&state](const VoiceContext* w) {
 						return state.channelID == w->channelID && w->sessionID == "";
 					});
@@ -678,8 +690,6 @@ namespace SleepyDiscord {
 		case hash("STAGE_INSTANCE_CREATE"): onStageInstance(d); break;
 		case hash("STAGE_INSTANCE_UPDATE"): onEditStageInstance(d); break;
 		case hash("STAGE_INSTANCE_DELETE"): onDeleteStageInstance(d); break;
-		default:
-			default: 
 		default:
 			onUnknownEvent(json::toStdString(t), d);
 			break;

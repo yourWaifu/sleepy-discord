@@ -752,6 +752,9 @@ namespace SleepyDiscord {
 		bool sendL(std::string message);    //the L stands for Limited
 		void handleDispatchEvent(const json::Value& t, json::Value& d);
 		int64_t nextHalfMin = 0;
+		std::mutex connectionMutex;
+		bool isCurrentlyWaitingToReconnect = false;
+		void stopReconnecting();
 
 		//Cache
 		std::shared_ptr<ServerCache> serverCache;
