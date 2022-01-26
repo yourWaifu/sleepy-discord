@@ -807,7 +807,7 @@ public:
                 break;
 
             case kObjectFlag:
-                for (MemberIterator m = MemberBegin(); m != MemberEnd(); ++m)
+                for (MemberIterator m = MemberBegin(); m != static_cast<ConstMemberIterator>(MemberEnd()); ++m)
                     m->~Member();
                 Allocator::Free(GetMembersPointer());
                 break;
@@ -1129,7 +1129,7 @@ public:
     template <typename SourceAllocator>
     GenericValue& operator[](const GenericValue<Encoding, SourceAllocator>& name) {
         MemberIterator member = FindMember(name);
-        if (member != MemberEnd())
+        if (member != static_cast<ConstMemberIterator>(MemberEnd()))
             return member->value;
         else {
             RAPIDJSON_ASSERT(false);    // see above note
@@ -1251,7 +1251,7 @@ public:
         RAPIDJSON_ASSERT(IsObject());
         RAPIDJSON_ASSERT(name.IsString());
         MemberIterator member = MemberBegin();
-        for ( ; member != MemberEnd(); ++member)
+        for ( ; member != static_cast<ConstMemberIterator>(MemberEnd()); ++member)
             if (name.StringEqual(member->name))
                 break;
         return member;
