@@ -750,6 +750,7 @@ namespace SleepyDiscord {
 		void restart();
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited
+		void handleDispatchEvent(const json::Value& t, json::Value& d);
 		int64_t nextHalfMin = 0;
 
 		//Cache

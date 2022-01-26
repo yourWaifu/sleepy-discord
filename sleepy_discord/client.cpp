@@ -457,193 +457,22 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::processMessage(const std::string &message) {
-		rapidjson::Document document;
+		auto docPtr = std::make_shared<rapidjson::Document>();
+		rapidjson::Document& document = *docPtr;
 		document.Parse(message.c_str(), message.length());
 		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
-		const json::Value& t = document["t"];
 		json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
-			switch (hash(json::toStdString(t).c_str())) {
-			case hash("READY"                      ): {
-				Ready readyData = d;
-				sessionID = readyData.sessionID;
-				bot = readyData.user.bot;
-				userID = readyData.user;
-				onReady(readyData);
-				ready = true;
-				consecutiveReconnectsCount = 0; //Successfully connected
-				} break;
-			case hash("RESUMED"                    ): 
-				consecutiveReconnectsCount = 0; //Successfully connected
-				onResumed();
-				break;
-			case hash("GUILD_CREATE"               ): {
-				Server server(d);
-				if (serverCache)
-					serverCache->insert(server);
-				onServer(server);
-				} break;
-			case hash("GUILD_DELETE"               ): {
-				UnavailableServer server(d);
-				if (serverCache) {
-					findServerInCache(server.ID, [=](ServerCache::iterator& found) {
-						serverCache->erase(found);
-					});
+			postTask(
+				[this, docPtr, &d]() {
+					rapidjson::Document& document = *docPtr;
+					const json::Value& t = document["t"];
+					handleDispatchEvent(t, d);
 				}
-				onDeleteServer(server);
-				} break;
-			case hash("GUILD_UPDATE"               ): {
-				Server server(d);
-				accessServerFromCache(server.ID, [server](Server& foundServer) {
-					json::mergeObj(foundServer, server);
-				});
-				onEditServer(server);
-				} break;
-			case hash("GUILD_BAN_ADD"              ): onBan  (d["guild_id"], d["user"]); break;
-			case hash("GUILD_BAN_REMOVE"           ): onUnban(d["guild_id"], d["user"]); break;
-			case hash("GUILD_INTEGRATIONS_UPDATE"  ):                          break; //to do add this
-			case hash("GUILD_MEMBER_ADD"           ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				ServerMember member(d);
-				appendObjectToCache(serverID, &Server::members, member);
-				onMember(serverID, member);
-				} break;
-			case hash("GUILD_MEMBER_REMOVE"        ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				User user = d["user"];
-				eraseObjectFromCache(serverID, &Server::members, user.ID);
-				onRemoveMember(serverID, user);
-				} break;
-			case hash("GUILD_MEMBER_UPDATE"        ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				User user = d["user"];
-				std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
-				auto nickValue = d.FindMember("nick");
-				std::string nick = nickValue != d.MemberEnd() && nickValue->value.IsString() ?
-					json::toStdString(nickValue->value) : "";
-				accessObjectFromCache(serverID, &Server::members, user.ID,
-					[user, roles, nick](Server&, ServerMember& member) {
-						member.user = user;
-						member.roles = roles;
-						member.nick = nick;
-					}
-				);
-				onEditMember(serverID, user, roles, nick);
-				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
-			case hash("GUILD_ROLE_CREATE"          ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				Role role = d["role"];
-				appendObjectToCache(serverID, &Server::roles, role);
-				onRole(serverID, role);
-				} break;
-			case hash("GUILD_ROLE_UPDATE"):
-			{
-				Snowflake<Server> serverID = d["guild_id"];
-				Role role = d["role"];
-				accessObjectFromCache(serverID, &Server::roles, role.ID,
-					[role](Server&, Role& foundRole) {
-						foundRole = role;
-					}
-				);
-				onEditRole(serverID, role);
-			} break;
-			case hash("GUILD_ROLE_DELETE"          ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				Snowflake<Role> roleID = d["role_id"];
-				eraseObjectFromCache(serverID, &Server::roles, roleID);
-				onDeleteRole(serverID, roleID);
-				} break;
-			case hash("GUILD_EMOJIS_UPDATE"        ): onEditEmojis        (d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
-			case hash("CHANNEL_CREATE"             ): {
-				Channel channel = d;
-				appendObjectToCache(channel.serverID, &Server::channels, channel);
-				onChannel(d);
-				} break;
-			case hash("CHANNEL_UPDATE"             ): {
-				Channel channel = d;
-				accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
-					[channel](Server&, Channel& foundChannel) {
-						foundChannel = channel;
-					}
-				);
-				onEditChannel(d); 
-				} break;
-			case hash("CHANNEL_DELETE"             ): {
-				Channel channel = d;
-				eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
-				onDeleteChannel(d);
-				} break;
-			case hash("CHANNEL_PINS_UPDATE"): {
-				const json::Value& lastPinTimeValue = d["last_pin_timestamp"];
-				onPinMessage(
-					d["channel_id"],
-					lastPinTimeValue.IsString() ?
-					json::toStdString(d["last_pin_timestamp"]) : ""
-				);
-			} break;
-			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
-			case hash("PRESENCES_REPLACE"          ):                          break;
-			case hash("USER_UPDATE"                ): onEditUser          (d); break;
-			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
-			case hash("VOICE_STATE_UPDATE"         ): {
-				VoiceState state(d);
-#ifdef SLEEPY_VOICE_ENABLED
-				if (!waitingVoiceContexts.empty()) {
-					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&state](const VoiceContext* w) { 
-						return state.channelID == w->channelID && w->sessionID == "";
-					});
-					if (iterator != waitingVoiceContexts.end()) {
-						VoiceContext& context = **iterator;
-						context.sessionID = state.sessionID;
-						connectToVoiceIfReady(context);
-					}
-				}
-#endif
-				onEditVoiceState(state);
-				} break;
-			case hash("TYPING_START"               ): onTyping            (d["channel_id"], d["user_id"], d["timestamp"].GetInt64() * 1000); break;
-			case hash("MESSAGE_CREATE"             ): onMessage           (document["d"]); break;
-			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
-			case hash("MESSAGE_DELETE"             ): onDeleteMessages    (d["channel_id"], { d["id"] }); break;
-			case hash("MESSAGE_DELETE_BULK"        ): onDeleteMessages    (d["channel_id"], json::toArray<Snowflake<Message>>(d["ids"])); break;
-			case hash("VOICE_SERVER_UPDATE"        ): {
-				VoiceServerUpdate voiceServer(d);
-#ifdef SLEEPY_VOICE_ENABLED
-				if (!waitingVoiceContexts.empty()) {
-					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&voiceServer](const VoiceContext* w) {
-						return voiceServer.serverID == w->serverID && w->endpoint == "";
-					});
-					if (iterator != waitingVoiceContexts.end()) {
-						VoiceContext& context = **iterator;
-						context.token    = voiceServer.token;
-						context.endpoint = voiceServer.endpoint;
-						connectToVoiceIfReady(context);
-					}
-				}
-#endif
-				onEditVoiceServer(voiceServer);
-				} break;
-			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
-			case hash("APPLICATION_COMMAND_CREATE" ): onAppCommand        (d); break;
-			case hash("APPLICATION_COMMAND_UPDATE" ): onEditAppCommand    (d); break;
-			case hash("APPLICATION_COMMAND_DELETE" ): onDeleteAppCommand  (d); break;
-			case hash("INTERACTION_CREATE"         ): onInteraction       (document["d"]); break;
-			case hash("STAGE_INSTANCE_CREATE"      ): onStageInstance     (d); break;
-			case hash("STAGE_INSTANCE_UPDATE"      ): onEditStageInstance (d); break;
-			case hash("STAGE_INSTANCE_DELETE"      ): onDeleteStageInstance(d); break;
-			default: 
-				onUnknownEvent(json::toStdString(t), d);
-				break;
-			}
-			onDispatch(d);
+			);
 		break;
 		case HELLO:
 			heartbeatInterval = d["heartbeat_interval"].GetInt();
@@ -671,6 +500,193 @@ namespace SleepyDiscord {
 		}
 	}
 
+	void BaseDiscordClient::handleDispatchEvent(const json::Value& t, json::Value& d) {
+		switch (hash(json::toStdString(t).c_str())) {
+		case hash("READY"): {
+			Ready readyData = d;
+			sessionID = readyData.sessionID;
+			bot = readyData.user.bot;
+			userID = readyData.user;
+			onReady(readyData);
+			ready = true;
+			stopReconnecting(); //Successfully connected
+		} break;
+		case hash("RESUMED"):
+			stopReconnecting(); //Successfully connected
+			onResumed();
+			break;
+		case hash("GUILD_CREATE"): {
+			Server server(d);
+			if (serverCache)
+				serverCache->insert(server);
+			onServer(server);
+		} break;
+		case hash("GUILD_DELETE"): {
+			UnavailableServer server(d);
+			if (serverCache) {
+				findServerInCache(server.ID, [=](ServerCache::iterator& found) {
+					serverCache->erase(found);
+					});
+			}
+			onDeleteServer(server);
+		} break;
+		case hash("GUILD_UPDATE"): {
+			Server server(d);
+			accessServerFromCache(server.ID, [server](Server& foundServer) {
+				json::mergeObj(foundServer, server);
+				});
+			onEditServer(server);
+		} break;
+		case hash("GUILD_BAN_ADD"): onBan(d["guild_id"], d["user"]); break;
+		case hash("GUILD_BAN_REMOVE"): onUnban(d["guild_id"], d["user"]); break;
+		case hash("GUILD_INTEGRATIONS_UPDATE"):                          break; //to do add this
+		case hash("GUILD_MEMBER_ADD"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			ServerMember member(d);
+			appendObjectToCache(serverID, &Server::members, member);
+			onMember(serverID, member);
+		} break;
+		case hash("GUILD_MEMBER_REMOVE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			User user = d["user"];
+			eraseObjectFromCache(serverID, &Server::members, user.ID);
+			onRemoveMember(serverID, user);
+		} break;
+		case hash("GUILD_MEMBER_UPDATE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			User user = d["user"];
+			std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
+			auto nickValue = d.FindMember("nick");
+			std::string nick = nickValue != d.MemberEnd() && nickValue->value.IsString() ?
+				json::toStdString(nickValue->value) : "";
+			accessObjectFromCache(serverID, &Server::members, user.ID,
+				[user, roles, nick](Server&, ServerMember& member) {
+					member.user = user;
+					member.roles = roles;
+					member.nick = nick;
+				}
+			);
+			onEditMember(serverID, user, roles, nick);
+		} break;
+		case hash("GUILD_MEMBERS_CHUNK"): onMemberChunk(d); break;
+		case hash("GUILD_ROLE_CREATE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			Role role = d["role"];
+			appendObjectToCache(serverID, &Server::roles, role);
+			onRole(serverID, role);
+		} break;
+		case hash("GUILD_ROLE_UPDATE"):
+		{
+			Snowflake<Server> serverID = d["guild_id"];
+			Role role = d["role"];
+			accessObjectFromCache(serverID, &Server::roles, role.ID,
+				[role](Server&, Role& foundRole) {
+					foundRole = role;
+				}
+			);
+			onEditRole(serverID, role);
+		} break;
+		case hash("GUILD_ROLE_DELETE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			Snowflake<Role> roleID = d["role_id"];
+			eraseObjectFromCache(serverID, &Server::roles, roleID);
+			onDeleteRole(serverID, roleID);
+		} break;
+		case hash("GUILD_EMOJIS_UPDATE"): onEditEmojis(d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
+		case hash("CHANNEL_CREATE"): {
+			Channel channel = d;
+			appendObjectToCache(channel.serverID, &Server::channels, channel);
+			onChannel(d);
+		} break;
+		case hash("CHANNEL_UPDATE"): {
+			Channel channel = d;
+			accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
+				[channel](Server&, Channel& foundChannel) {
+					foundChannel = channel;
+				}
+			);
+			onEditChannel(d);
+				onEditChannel(d); 
+			onEditChannel(d);
+		} break;
+		case hash("CHANNEL_DELETE"): {
+			Channel channel = d;
+			eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
+			onDeleteChannel(d);
+		} break;
+		case hash("CHANNEL_PINS_UPDATE"): {
+			const json::Value& lastPinTimeValue = d["last_pin_timestamp"];
+			onPinMessage(
+				d["channel_id"],
+				lastPinTimeValue.IsString() ?
+				json::toStdString(d["last_pin_timestamp"]) : ""
+			);
+		} break;
+		case hash("PRESENCE_UPDATE"): onPresenceUpdate(d); break;
+		case hash("PRESENCES_REPLACE"):                          break;
+		case hash("USER_UPDATE"): onEditUser(d); break;
+		case hash("USER_SETTINGS_UPDATE"): onEditUserSettings(d); break;
+		case hash("VOICE_STATE_UPDATE"): {
+			VoiceState state(d);
+#ifdef SLEEPY_VOICE_ENABLED
+			if (!waitingVoiceContexts.empty()) {
+				auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+					[&state](const VoiceContext* w) {
+						[&state](const VoiceContext* w) { 
+					[&state](const VoiceContext* w) {
+						return state.channelID == w->channelID && w->sessionID == "";
+					});
+				if (iterator != waitingVoiceContexts.end()) {
+					VoiceContext& context = **iterator;
+					context.sessionID = state.sessionID;
+					connectToVoiceIfReady(context);
+				}
+			}
+#endif
+			onEditVoiceState(state);
+		} break;
+		case hash("TYPING_START"): onTyping(d["channel_id"], d["user_id"], d["timestamp"].GetInt64() * 1000); break;
+		case hash("MESSAGE_CREATE"): onMessage(d); break;
+		case hash("MESSAGE_UPDATE"): onEditMessage(d); break;
+		case hash("MESSAGE_DELETE"): onDeleteMessages(d["channel_id"], { d["id"] }); break;
+		case hash("MESSAGE_DELETE_BULK"): onDeleteMessages(d["channel_id"], json::toArray<Snowflake<Message>>(d["ids"])); break;
+		case hash("VOICE_SERVER_UPDATE"): {
+			VoiceServerUpdate voiceServer(d);
+#ifdef SLEEPY_VOICE_ENABLED
+			if (!waitingVoiceContexts.empty()) {
+				auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+					[&voiceServer](const VoiceContext* w) {
+						return voiceServer.serverID == w->serverID && w->endpoint == "";
+					});
+				if (iterator != waitingVoiceContexts.end()) {
+					VoiceContext& context = **iterator;
+					context.token = voiceServer.token;
+					context.endpoint = voiceServer.endpoint;
+					connectToVoiceIfReady(context);
+				}
+			}
+#endif
+			onEditVoiceServer(voiceServer);
+		} break;
+		case hash("MESSAGE_REACTION_ADD"): onReaction(d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
+		case hash("MESSAGE_REACTION_REMOVE"): onDeleteReaction(d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
+		case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction(d["guild_id"], d["channel_id"], d["message_id"]); break;
+		case hash("APPLICATION_COMMAND_CREATE"): onAppCommand(d); break;
+		case hash("APPLICATION_COMMAND_UPDATE"): onEditAppCommand(d); break;
+		case hash("APPLICATION_COMMAND_DELETE"): onDeleteAppCommand(d); break;
+		case hash("INTERACTION_CREATE"): onInteraction(d); break;
+		case hash("STAGE_INSTANCE_CREATE"): onStageInstance(d); break;
+		case hash("STAGE_INSTANCE_UPDATE"): onEditStageInstance(d); break;
+		case hash("STAGE_INSTANCE_DELETE"): onDeleteStageInstance(d); break;
+		default:
+			default: 
+		default:
+			onUnknownEvent(json::toStdString(t), d);
+			break;
+		}
+		onDispatch(d);
+	}
+
 	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
 		switch (message.opCode) {
 		case WebSocketMessage::OPCode::binary: {
@@ -695,20 +711,12 @@ namespace SleepyDiscord {
 			if (streamEnded || endsWithFlushSiginal) {
 				std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
 				compressionHandler->getOutput(*uncompressed);
-				postTask(
-					[this, uncompressed]() {
-						processMessage(*uncompressed);
-					}
-				);
+				processMessage(*uncompressed);
 			}
 			break;
 		}
 		case WebSocketMessage::OPCode::text: {
-			postTask(
-				[this, message]() {
-					processMessage(message.payload);
-				}
-			);
+			processMessage(message.payload);
 			break;
 		}
 		default: break;
