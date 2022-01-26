@@ -426,9 +426,7 @@ namespace SleepyDiscord {
 		reconnectTimer = schedule([this]() {
 			std::lock_guard<std::mutex> lock(connectionMutex);
 			isCurrentlyWaitingToReconnect = false;
-			//if not a successful reconnection
-			if (consecutiveReconnectsCount != 0)
-				connect(theGateway, this, connection);
+			connect(theGateway, this, connection);
 		}, getRetryDelay());
 		consecutiveReconnectsCount += 1;
 
