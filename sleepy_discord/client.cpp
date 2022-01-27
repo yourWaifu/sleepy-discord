@@ -437,7 +437,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::stopReconnecting() {
 		std::lock_guard<std::mutex> lock(connectionMutex);
 		isCurrentlyWaitingToReconnect = false;
-		consecutiveReconnectsCount == 0;
+		consecutiveReconnectsCount = 0;
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 	}

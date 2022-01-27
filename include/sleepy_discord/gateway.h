@@ -13,10 +13,10 @@ namespace SleepyDiscord {
 		SessionStartLimit(const nonstd::string_view & json) :
 			SessionStartLimit(json::fromJSON<SessionStartLimit>(json)) {}
 
-		int total;
-		int remaining;
-		int resetAfter;
-		int maxConcurency;
+		int total = 0;
+		int remaining = 0;
+		int resetAfter = 0;
+		int maxConcurency = 0;
 
 		JSONStructStart
 			std::make_tuple(
