@@ -36,6 +36,7 @@ namespace SleepyDiscord {
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
 		if (heart.isValid()) heart.stop();
+		stopReconnecting();
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
@@ -390,7 +391,7 @@ namespace SleepyDiscord {
 			voiceConnection.disconnect();
 #endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
-		if (reconnectTimer.isValid()) reconnectTimer.stop();
+		stopReconnecting();
 		if (!isDisconnected) disconnectWebsocket(1000);
 		stopClient();
 		if (quiting) onQuit();
@@ -493,8 +494,6 @@ namespace SleepyDiscord {
 			heartbeat();
 			if (!ready) sendIdentity();
 			else sendResume();
-			if (reconnectTimer.isValid())
-				reconnectTimer.stop();
 			break;
 		case RECONNECT:
 			reconnect();
