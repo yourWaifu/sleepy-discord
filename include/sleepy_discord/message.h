@@ -508,7 +508,7 @@ namespace SleepyDiscord {
 		json::Value& RevisionsJSON;
 	};
 
-	enum class MentionReplierFlag : char {
+	enum class MentionReplierFlag {
 		NotSet = -2,
 		DoNotMentionReply = false,
 		MentionReply = true
@@ -544,7 +544,7 @@ namespace SleepyDiscord {
 		ParseContainer parse = {""};
 		std::vector<Snowflake<Role>> roles;
 		std::vector<Snowflake<User>> users;
-		enum class MentionReplierFlag : char {
+		enum class MentionReplierFlag {
 			NotSet = -2,
 			WillNotMentionReply = false,
 			MentionReply = true
