@@ -222,7 +222,7 @@ namespace SleepyDiscord {
 		}
 	}
 
-	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk) {
+	void BaseDiscordClient::updateStatus(std::string gameName, uint64_t idleSince, Status status, bool afk, ActivityType type) {
 		std::string statusString[] = {
 			"", "online", "dnd", "idle", "invisible", "offline"
 		};
@@ -233,7 +233,7 @@ namespace SleepyDiscord {
 				{"since", idleSince != 0 ? json::UInteger(idleSince) : "null"},
 				{"game", gameName != "" ? json::createJSON({
 					{"name", json::string(gameName)},
-					{"type", json::integer(0)}
+					{"type", json::integer(type)}
 				}) : "null"},
 				{ "status", SleepyDiscord::json::string(statusString[status]) },
 				{ "afk", SleepyDiscord::json::boolean(afk) }

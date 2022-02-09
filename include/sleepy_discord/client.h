@@ -90,6 +90,15 @@ namespace SleepyDiscord {
 		DIRECT_MESSAGE_TYPING    = 1 << 14,
 	};
 
+	enum ActivityType : int8_t {
+		GAME = 0,
+		STREAMING = 1,
+		LISTENING = 2,
+		WATCHING = 3,
+		//CUSTOM = 4,  //not supported for bots
+		COMPETING =5
+	};
+
 	class BaseDiscordClient : public GenericMessageReceiver {
 	public:
 		BaseDiscordClient() = default;
@@ -413,7 +422,7 @@ namespace SleepyDiscord {
 		BoolResponse deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
 
 		//websocket functions
-		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
+		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false, ActivityType type = ActivityType::GAME);
 		void requestServerMembers(ServerMembersRequest request);
 
 		//CDN stuff
