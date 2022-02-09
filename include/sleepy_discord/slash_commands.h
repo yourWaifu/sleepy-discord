@@ -110,7 +110,7 @@ namespace SleepyDiscord {
 			Type type;
 			std::string name;
 			std::string description;
-			enum class Default : char {
+			enum class Default : int8_t {
 				True = true,
 				False = false,
 				Undefined = -1
