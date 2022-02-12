@@ -15,6 +15,9 @@ namespace SleepyDiscord {
 		inline operator const std::string&() {
 			return url();
 		}
+		inline const std::string& getPath() {
+			return path;
+		}
 
 	private:
 		const std::string path;

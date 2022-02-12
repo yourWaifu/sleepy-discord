@@ -161,6 +161,8 @@ namespace SleepyDiscord {
 						auto errorMessage = document.FindMember("message");
 						if (errorCode != document.MemberEnd()) {
 							std::size_t fullErrorMessageSize = 0;
+							fullErrorMessageSize += path.getPath().length();
+							fullErrorMessageSize += 1;
 							fullErrorMessageSize += response.text.length();
 							fullErrorMessageSize += 1;
 							std::string message =
@@ -168,6 +170,8 @@ namespace SleepyDiscord {
 							fullErrorMessageSize += message.length();
 							std::string fullErrorMessage;
 							fullErrorMessage.reserve(fullErrorMessageSize);
+							fullErrorMessage += path.getPath();
+							fullErrorMessage += '\n';
 							fullErrorMessage += response.text;
 							fullErrorMessage += '\n';
 							fullErrorMessage += message;
