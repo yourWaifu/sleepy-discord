@@ -464,16 +464,18 @@ namespace SleepyDiscord {
 			Data<Role> roles;
 			Data<Channel> channels;
 			Data<Message> messages;
+			Data<Attachment> attachment;
 
 			//Note: JSON structure works very different here
 			//JSON is used as a dictionary here
 			JSONStructStart
 				std::make_tuple(
-					json::pair(&InteractionData::ResolvedData::users   , "users"   , json::OPTIONAL_FIELD),
-					json::pair(&InteractionData::ResolvedData::members , "members" , json::OPTIONAL_FIELD),
-					json::pair(&InteractionData::ResolvedData::roles   , "roles"   , json::OPTIONAL_FIELD),
-					json::pair(&InteractionData::ResolvedData::channels, "channels", json::OPTIONAL_FIELD),
-					json::pair(&InteractionData::ResolvedData::messages, "messages", json::OPTIONAL_FIELD)
+					json::pair(&InteractionData::ResolvedData::users     , "users"      , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::members   , "members"    , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::roles     , "roles"      , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::channels  , "channels"   , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::messages  , "messages"   , json::OPTIONAL_FIELD),
+					json::pair(&InteractionData::ResolvedData::attachment, "attachments", json::OPTIONAL_FIELD)
 				);
 			JSONStructEnd
 		};
@@ -502,18 +504,6 @@ namespace SleepyDiscord {
 			);
 		JSONStructEnd
 	};
-
-	/*
-	* to do implement json maps first
-	struct ResolvedData : public DiscordObject {
-		ResolvedData() = default;
-		ResolvedData(json::Value& json);
-		ResolvedData(const nonstd::string_view& json) :
-			ResolvedData(json::fromJSON<ResolvedData>(json)) {}
-
-
-	};
-	*/
 
 	// The names of these Types and Enum values are so long that it's
 	// causing doxybook2 to output links that are cut off.
