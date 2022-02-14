@@ -326,6 +326,27 @@ namespace SleepyDiscord {
 				);
 			JSONStructEnd
 		};
+
+		struct Modal : public DiscordObject {
+			Modal() = default;
+			Modal(json::Value & json);
+			Modal(const nonstd::string_view& json) :
+				Modal(json::fromJSON<Modal>(json)) {}
+
+			inline const bool empty() const { return components.empty(); }
+
+			std::string customID;
+			std::string title;
+			std::vector<std::shared_ptr<BaseComponent>> components;
+
+			JSONStructStart
+				std::make_tuple(
+					json::pair                           (&Modal::customID  , "custom_id" , json::REQUIRIED_FIELD),
+					json::pair                           (&Modal::title     , "title"     , json::REQUIRIED_FIELD),
+					json::pair<json::ContainerTypeHelper>(&Modal::components, "components", json::REQUIRIED_FIELD)
+				);
+			JSONStructEnd
+		};
 	}
 
 	template<>
@@ -489,6 +510,7 @@ namespace SleepyDiscord {
 		ComponentType componentType;
 		std::vector<std::string> values;
 		Snowflake<DiscordObject> targetID;
+		std::vector<std::shared_ptr<BaseComponent>> components;
 
 		JSONStructStart
 			std::make_tuple(
@@ -500,7 +522,8 @@ namespace SleepyDiscord {
 				json::pair                           (&InteractionData::customID     , "custom_id"     , json::OPTIONAL_FIELD),
 				json::pair<json::EnumTypeHelper     >(&InteractionData::componentType, "component_type", json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&InteractionData::values       , "values"        , json::OPTIONAL_FIELD),
-				json::pair                           (&InteractionData::targetID     , "target_id"     , json::OPTIONAL_FIELD)
+				json::pair                           (&InteractionData::targetID     , "target_id"     , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&InteractionData::components   , "components"    , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
@@ -518,7 +541,8 @@ namespace SleepyDiscord {
 		DeferredUpdateMessage = 6,
 		UpdateMessage = 7,
 		ApplicationCommandAutocompleteResult = 8,
-		AppCommandAutocomplete = ApplicationCommandAutocompleteResult //short hand
+		AppCommandAutocomplete = ApplicationCommandAutocompleteResult, //short hand
+		Modal = 9
 	};
 
 	//shorthand
@@ -546,6 +570,9 @@ namespace SleepyDiscord {
 	template<> struct InteractionCallbackTypeHelper<IntCallBackT::AppCommandAutocomplete> {
 		using Type = InteractionCallback::Autocomplete;
 	};
+	template<> struct InteractionCallbackTypeHelper<IntCallBackT::Modal> {
+		using Type = InteractionCallback::Modal;
+	};
 	template<typename Type>
 	struct InteractionCallbackHelper {
 		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::NONE; }
@@ -555,6 +582,9 @@ namespace SleepyDiscord {
 	};
 	template<> struct InteractionCallbackHelper<InteractionCallback::EditMessage> {
 		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::UpdateMessage; }
+	};
+	template<> struct InteractionCallbackHelper<InteractionCallback::Modal> {
+		static constexpr InteractionCallbackType getType() { return InteractionCallbackType::Modal; }
 	};
 
 	struct Interaction : IdentifiableDiscordObject<Interaction> {
@@ -592,6 +622,7 @@ namespace SleepyDiscord {
 		using AutocompleteResponse = Callback<InteractionCallback::Autocomplete>;
 		using MessageResponse = Response<InteractionCallbackType::ChannelMessageWithSource>;
 		using EditMessageResponse = Response<InteractionCallbackType::UpdateMessage>;
+		using ModalResponse = Response<InteractionCallbackType::Modal>;
 
 		using AppCommandCallbackData = InteractionAppCommandCallbackData;
 		using Type = InteractionType;
