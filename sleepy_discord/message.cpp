@@ -81,5 +81,8 @@ namespace SleepyDiscord {
 	SelectMenu::Option::Option(const json::Value& json) :
 		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
 	{}
+	TextInputs::TextInputs(const json::Value& json) :
+		TextInputs(json::fromJSON<TextInputs>(json))
+	{}
 
 }

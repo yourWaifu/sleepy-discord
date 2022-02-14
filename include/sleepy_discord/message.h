@@ -20,7 +20,8 @@ namespace SleepyDiscord {
 		Ping = 1,
 		ApplicationCommand = 2,
 		MessageComponent = 3,
-		ApplicationCommandAutocomplete = 4
+		ApplicationCommandAutocomplete = 4,
+		ModalSubmit = 5
 	};
 
 	struct Emoji : public IdentifiableDiscordObject<Emoji> {
@@ -79,6 +80,7 @@ namespace SleepyDiscord {
 		ActionRow = 1,
 		Button = 2,
 		SelectMenu = 3,
+		TextInputs = 4,
 	};
 
 	struct BaseComponent : public DiscordObject {
@@ -251,6 +253,49 @@ namespace SleepyDiscord {
 		JSONStructEnd
 	};
 
+	enum class TextInputStyle {
+		NONE = 0,
+		Short = 1,
+		Paragraph = 2,
+		DefaultStyle = NONE, //made up for the library to handle null style
+	};
+
+	struct TextInputs : public ComponentTemp<TextInputs> {
+		TextInputs() = default;
+		~TextInputs() = default;
+		TextInputs(const json::Value& json);
+		TextInputs(const nonstd::string_view& json) :
+			TextInputs(json::fromJSON<TextInputs>(json)) {}
+		static const ComponentType componentType = ComponentType::TextInputs;
+
+		using Style = TextInputStyle;
+
+		std::string customID;
+		TextInputStyle style;
+		std::string label;
+		int minLength = -1;
+		int maxLength = -1;
+		bool required = false;
+		std::string value;
+		std::string placeholder;
+
+		JSONStructStart
+			std::tuple_cat(
+				ComponentTemp<TextInputs>::JSONStruct,
+				std::make_tuple(
+					json::pair                      (&TextInputs::customID   , "custom_id"  , json::REQUIRIED_FIELD),
+					json::pair<json::EnumTypeHelper>(&TextInputs::style      , "style"      , json::OPTIONAL_FIELD ),
+					json::pair                      (&TextInputs::label      , "label"      , json::OPTIONAL_FIELD ),
+					json::pair<                  -1>(&TextInputs::minLength  , "min_length" , json::OPTIONAL_FIELD ),
+					json::pair<                  -1>(&TextInputs::maxLength  , "max_length" , json::OPTIONAL_FIELD ),
+					json::pair                      (&TextInputs::required   , "required"   , json::OPTIONAL_FIELD ),
+					json::pair                      (&TextInputs::value      , "value"      , json::OPTIONAL_FIELD ),
+					json::pair                      (&TextInputs::placeholder, "placeholder", json::OPTIONAL_FIELD )
+				)
+			);
+		JSONStructEnd
+	};
+
 	namespace json {
 		template<>
 		struct ClassTypeHelper<std::shared_ptr<BaseComponent>> {
@@ -268,6 +313,8 @@ namespace SleepyDiscord {
 					return std::make_shared<Button>(value);
 				case ComponentType::SelectMenu:
 					return std::make_shared<SelectMenu>(value);
+				case ComponentType::TextInputs:
+					return std::make_shared<TextInputs>(value);
 				}
 			}
 			static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
@@ -284,6 +331,8 @@ namespace SleepyDiscord {
 					return json::ClassTypeHelper<Button>::fromType(*std::static_pointer_cast<Button>(value), allocator);
 				case ComponentType::SelectMenu:
 					return json::ClassTypeHelper<SelectMenu>::fromType(*std::static_pointer_cast<SelectMenu>(value), allocator);
+				case ComponentType::TextInputs:
+					return json::ClassTypeHelper<TextInputs>::fromType(*std::static_pointer_cast<TextInputs>(value), allocator);
 				}
 			}
 			static inline bool empty(const Type& value) {
