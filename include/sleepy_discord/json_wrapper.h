@@ -124,7 +124,7 @@ namespace SleepyDiscord {
 		struct ArrayWrapper : public Base {
 			using base = Base;
 			using Base::Base;
-			using DocType = decltype(((Base*)nullptr)->getDoc());
+			using DocType = decltype(std::declval<Base>().getDoc());
 
 			template<class Container, class Value>
 			static inline Container get(Value& value, std::true_type) {

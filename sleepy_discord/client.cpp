@@ -159,14 +159,19 @@ namespace SleepyDiscord {
 
 						auto errorCode = document.FindMember("code");
 						auto errorMessage = document.FindMember("message");
-						if (errorCode != document.MemberEnd()) {
+						if (errorCode != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd())){
 							std::size_t fullErrorMessageSize = 0;
 							fullErrorMessageSize += path.getPath().length();
 							fullErrorMessageSize += 1;
 							fullErrorMessageSize += response.text.length();
 							fullErrorMessageSize += 1;
-							std::string message =
-								(errorMessage != document.MemberEnd() ? errorMessage->value.GetString() : "");
+							std::string message = (
+									errorMessage != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd())
+									?
+										errorMessage->value.GetString()
+									:
+										""
+							);
 							fullErrorMessageSize += message.length();
 							std::string fullErrorMessage;
 							fullErrorMessage.reserve(fullErrorMessageSize);

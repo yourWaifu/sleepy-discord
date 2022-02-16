@@ -43,6 +43,7 @@ namespace SleepyDiscord {
 			Bug_Hunter_Level_2     = 1 << 14,
 			Verified_Bot           = 1 << 16,
 			Verified_Bot_Developer = 1 << 17,
+			Discord_Certified_Moderator = 1 << 18,
 		};
 
 		enum class PremiumType : int {
