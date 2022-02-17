@@ -7,7 +7,7 @@ option(ONLY_SLEEPY_DISCORD           "Sleepy Discord but none of the dependencie
 option(ENABLE_VOICE                  "Enable voice support"                                               OFF)
 if (NOT ONLY_SLEEPY_DISCORD)
 	option(AUTO_DOWNLOAD_LIBRARY         "Automatically download sleepy discord standard config dependencies" ON )
-	#option(SLEEPY_FIND_DEPS              "Find Sleepy Discord dependencies using find_ "                      OFF)
+	option(SLEEPY_VCPKG                  "VCPKG with Sleepy Discord"                                          OFF)
 	option(USE_CPR                       "Use CPR http library"                                               ON )
 	option(USE_WEBSOCKETPP               "Use websocketpp websockets library"                                 ON )
 	option(USE_UWEBSOCKETS               "Use uWebsockets websockets library"                                 OFF)
@@ -16,6 +16,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(USE_LIBOPUS                   "Use Opus audio codec library"                                       OFF)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
+	option(USE_ZLIB                      "Use zlib for data compression"                                      OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -32,11 +33,15 @@ if(ENABLE_VOICE)
 endif()
 
 if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
-	if(Boost_FOUND) #checks if already defined
+	if(Boost_FOUND OR USE_BOOST_ASIO) #checks if already defined
 		set(USE_BOOST_ASIO ON)
 	else()
 		set(USE_ASIO ON)
 	endif()
+endif()
+
+if(USE_ZLIB_NG AND USE_ZLIB)
+	message(FATAL_ERROR "can't use zlib and zlib-ng at the same time")
 endif()
 
 find_package(Git)
@@ -55,82 +60,177 @@ if(AUTO_DOWNLOAD_LIBRARY)
 
 	include(ExternalProject)
 	include(buildtools/cmake/DownloadProject.cmake)
-	if(USE_CPR)
-		#to do install libssl-dev
-		download_project(
-			PROJ           cpr
-			GIT_REPOSITORY https://github.com/whoshuu/cpr.git
-			GIT_TAG        e627e47
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
 
-	if(USE_ASIO)
-		# Note websocketpp doesn't work with the latest version of asio
-		# Remember to go back to the master version after they are fixed
-		download_project(
-			PROJ           asio
-			GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+endif()
 
-	if(USE_WEBSOCKETPP)
-		download_project(
-			PROJ           websocketpp
-			GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+# Configure libraries
+if(USE_CPR)
+	if(SLEEPY_VCPKG)
+		find_package(cpr CONFIG REQUIRED)
+		set(CPR_LIBRARIES "cpr")
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#to do install libssl-dev
+			download_project(
+				PROJ           cpr
+				GIT_REPOSITORY https://github.com/whoshuu/cpr.git
+				GIT_TAG        41fbaca
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
 
-	if(USE_UWEBSOCKETS)
-		#to do install zlib
-		download_project(
-			PROJ           uwebsockets
-			GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
-			GIT_TAG        master
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
-			UPDATE_DISCONNECTED 1
-			BUILD_COMMAND  ${MAKE}
-		)
-	endif()
+		#the cmake test has issues on visual studio so disable them
+		if(NOT DEFINED BUILD_CPR_TESTS)
+			set(BUILD_CPR_TESTS OFF CACHE BOOL "")
+		endif()
 
-	if(USE_LIBOPUS)
-		#needs libtool
-		download_project(
-			PROJ           opus
-			GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
-			GIT_TAG        7628d844
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
-			UPDATE_DISCONNECTED 1
-		)
-	endif()
+		set(BUILD_CURL_EXE OFF CACHE BOOL "")
+		set(CURL_STATICLIB ON CACHE BOOL "")
+		set(CPR_BUILD_TESTS_SSL OFF CACHE BOOL "")
 
-	if(USE_LIBSODIUM AND NOT WIN32)
-		download_project(
-			PROJ           libsodium
-			GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
-			GIT_TAG        stable
-			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
-			UPDATE_DISCONNECTED 1
-		)
-		ExternalProject_Add(libsodium-make
-			SOURCE_DIR          "${libsodium_SOURCE_DIR}"
-			BINARY_DIR          "${libsodium_BINARY_DIR}"
-			PATCH_COMMAND       "${libsodium_SOURCE_DIR}/autogen.sh"
-			CONFIGURE_COMMAND   "${libsodium_SOURCE_DIR}/configure"
-			BUILD_COMMAND       "make"
-			INSTALL_COMMAND     "cp" "-TR" "${libsodium_BINARY_DIR}/src/libsodium/include/" "${libsodium_SOURCE_DIR}/src/libsodium/include/"
-			TEST_COMMAND        ""
-		)
-	endif()
+		#set what ssl library to use for curl based on OS
+		if(NOT DEFINED CMAKE_USE_OPENSSL AND WIN32)
+			set(USE_WINSSL ON CACHE BOOL "")
+			set(USE_OPENSSL OFF CACHE BOOL "")
+		endif()
 
-	if(USE_ZLIB_NG)
+		if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
+			set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
+		endif()
+
+		#using cmake to configure curl has issues
+		#so use system curl
+		set(USE_SYSTEM_CURL ON CACHE BOOL "")
+
+		add_subdirectory(deps/cpr)
+
+		if(NOT DEFINED cpr_SOURCE_DIR)
+			set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
+		endif()
+	endif()
+endif()
+
+if(USE_ASIO)
+	if(SLEEPY_VCPKG)
+		find_package(asio CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			# Note websocketpp doesn't work with the latest version of asio
+			# Remember to go back to the master version after they are fixed
+			download_project(
+				PROJ           asio
+				GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		if(NOT DEFINED asio_SOURCE_DIR)
+			set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
+		endif()
+	endif()
+endif()
+
+if(USE_WEBSOCKETPP)
+	if (SLEEPY_VCPKG)
+		find_package(websocketpp CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           websocketpp
+				GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads REQUIRED)
+		add_subdirectory(deps/websocketpp)
+
+		if(NOT DEFINED websocketpp_SOURCE_DIR)
+			set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
+		endif()
+	endif()
+endif()
+
+if(USE_UWEBSOCKETS)
+	if(SLEEPY_VCPKG)
+		find_path(UWEBSOCKETS_INCLUDE_DIRS "uwebsockets/App.h")
+		set(uwebsockets_SOURCE_DIR "${UWEBSOCKETS_INCLUDE_DIRS}/..")
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#to do install zlib
+			download_project(
+				PROJ           uwebsockets
+				GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
+				UPDATE_DISCONNECTED 1
+				BUILD_COMMAND  ${MAKE}
+			)
+			set(UWEBSOCKETS_INCLUDE_DIRS "${uwebsockets_SOURCE_DIR}/include")
+		endif()
+
+		if(NOT DEFINED uwebsockets_SOURCE_DIR)
+			set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
+		endif()
+	endif()
+endif()
+
+if(USE_LIBOPUS)
+	if(SLEEPY_VCPKG)
+		find_package(Opus CONFIG REQUIRED)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			#needs libtool
+			download_project(
+				PROJ           opus
+				GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
+				GIT_TAG        7628d844
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		add_subdirectory(deps/opus)
+
+		if(NOT DEFINED opus_SOURCE_DIR)
+			set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
+		endif()
+	endif()
+endif()
+
+if(USE_LIBSODIUM)
+	if(NOT WIN32 AND NOT SLEEPY_VCPKG)
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           libsodium
+				GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
+				GIT_TAG        stable
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
+				UPDATE_DISCONNECTED 1
+			)
+			ExternalProject_Add(libsodium-make
+				SOURCE_DIR          "${libsodium_SOURCE_DIR}"
+				BINARY_DIR          "${libsodium_BINARY_DIR}"
+				PATCH_COMMAND       "${libsodium_SOURCE_DIR}/autogen.sh"
+				CONFIGURE_COMMAND   "${libsodium_SOURCE_DIR}/configure"
+				BUILD_COMMAND       "make"
+				INSTALL_COMMAND     "cp" "-TR" "${libsodium_BINARY_DIR}/src/libsodium/include/" "${libsodium_SOURCE_DIR}/src/libsodium/include/"
+				TEST_COMMAND        ""
+			)
+		else()
+			set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
+		endif()
+	endif()
+endif()
+
+if(USE_ZLIB_NG)
+	if(AUTO_DOWNLOAD_LIBRARY)
 		download_project(
 			PROJ           zlib-ng
 			GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
@@ -139,140 +239,82 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			UPDATE_DISCONNECTED 1
 		)
 	endif()
-else()
-	if(USE_CPR)
-		set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
-	endif()
-	if(USE_ASIO)
-		set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
-	endif()
-	if(USE_WEBSOCKETPP)
-		set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
-	endif()
-	if(USE_UWEBSOCKETS)
-		set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
-	endif()
-	if(USE_LIBOPUS)
-		set(opus_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/opus)
-	endif()
-	if(USE_LIBSODIUM AND NOT WIN32)
-		set(libsodium_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/libsodium)
-	endif()
-endif()
 
-# Configure libraries
-if(USE_CPR)
-	#the cmake test has issues on visual studio so disable them
-	if(NOT DEFINED BUILD_CPR_TESTS)
-		set(BUILD_CPR_TESTS OFF CACHE BOOL "")
-	endif()
-
-	set(BUILD_CURL_EXE OFF CACHE BOOL "")
-	set(CURL_STATICLIB ON CACHE BOOL "")
-	set(CURL_ZLIB OFF CACHE BOOL "")
-
-	#set what ssl library to use for curl based on OS
-	#this fixes
-	if(NOT DEFINED CMAKE_USE_OPENSSL)
-		if(WIN32)
-			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
-			set(USE_WINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-			set(USE_OPENSSL OFF CACHE BOOL "")
-		elseif(APPLE)
-			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		elseif(UNIX)
-			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
-		endif()
-	endif()
-
-	if(NOT DEFINED BUILD_SHARED_LIBS AND WIN32)
-		set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
-	endif()
-
-	#using cmake to configure curl has issues
-	#so use system curl
-	set(USE_SYSTEM_CURL ON CACHE BOOL "")
-
-	add_subdirectory(deps/cpr)
-endif()
-
-if(USE_WEBSOCKETPP)
-	set(THREADS_PREFER_PTHREAD_FLAG ON)
-	find_package(Threads REQUIRED)
-	add_subdirectory(deps/websocketpp)
-endif()
-
-if(USE_LIBOPUS)
-	add_subdirectory(deps/opus)
-endif()
-
-if(USE_ZLIB_NG)
 	add_subdirectory(deps/zlib-ng)
 endif()
 
+if(USE_ZLIB)
+	find_package(ZLIB REQUIRED)
+	#to do add auto download
+endif()
+
 # Get Version Info
-if(Git_FOUND)
-	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
-		COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
-		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BUILD
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
-		COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BRANCH
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
-		COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_HASH
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	if (SLEEPY_DISCORD_VERSION_BRANCH STREQUAL "master")
-		set(SLEEPY_DISCORD_VERSION_IS_MASTER "1")
-	else()
-		set(SLEEPY_DISCORD_VERSION_IS_MASTER "0")
-	endif()
-	execute_process(
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
-		COMMAND ${GIT_EXECUTABLE} describe --always --long --dirty
-		OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_DESCRIPTION
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	if(
-		NOT SLEEPY_DISCORD_VERSION_DESCRIPTION STREQUAL ""
-	)
-		set(SLEEPY_DISCORD_VERSION_DESCRIPTION_CONCAT " ")
-	else()
-		set(SLEEPY_DISCORD_VERSION_DESCRIPTION_CONCAT "")
-	endif()
-	if(DEFINED ${SLEEPY_DISCORD_VERSION_BUILD})
-		configure_file(
-			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h.in"
-			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
+# Not needed for vcpkg
+if(NOT SLEEPY_VCPKG)
+	if(Git_FOUND)
+		execute_process(
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+			COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+			OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BUILD
+			OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
+		execute_process(
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+			COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+			OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_BRANCH
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		execute_process(
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+			COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+			OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_HASH
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		if (SLEEPY_DISCORD_VERSION_BRANCH STREQUAL "master")
+			set(SLEEPY_DISCORD_VERSION_IS_MASTER "1")
+		else()
+			set(SLEEPY_DISCORD_VERSION_IS_MASTER "0")
+		endif()
+		execute_process(
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
+			COMMAND ${GIT_EXECUTABLE} describe --always --long --dirty
+			OUTPUT_VARIABLE SLEEPY_DISCORD_VERSION_DESCRIPTION
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		if(
+			NOT SLEEPY_DISCORD_VERSION_DESCRIPTION STREQUAL ""
+		)
+			set(SLEEPY_DISCORD_VERSION_DESCRIPTION_CONCAT " ")
+		else()
+			set(SLEEPY_DISCORD_VERSION_DESCRIPTION_CONCAT "")
+		endif()
+		if(${SLEEPY_DISCORD_VERSION_BUILD})
+			configure_file(
+				"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h.in"
+				"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
+			)
+			set(GIT_INFO_FOUND TRUE)
+		else()
+			set(GIT_INFO_FOUND FALSE)
+		endif()
 	else()
 		set(GIT_INFO_FOUND FALSE)
 	endif()
-else()
-	set(GIT_INFO_FOUND FALSE)
-endif()
 
-if(NOT GIT_INFO_FOUND)
-	configure_file(
-		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version-non.h.in"
-		"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
-	)
+	if(NOT GIT_INFO_FOUND)
+		configure_file(
+			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version-non.h.in"
+			"${PROJECT_SOURCE_DIR}/include/sleepy_discord/version.h"
+			COPYONLY
+		)
+	endif()
 endif()
 
 # Add Subdirectories
 add_subdirectory(sleepy_discord)
 if (SLEEPY_DISCORD_BUILD_EXAMPLES)
 	add_subdirectory(examples/hello)
+	add_subdirectory(examples/slash-commands)
 	if (ENABLE_VOICE)
 		add_subdirectory(examples/sound-player)
 	endif()

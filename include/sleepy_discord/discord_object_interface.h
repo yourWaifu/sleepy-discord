@@ -9,12 +9,19 @@ namespace SleepyDiscord {
 	class BaseDiscordClient;
 
 	class DiscordObject {
-#define \
-		modIfElse(condition, modifier, value, el) \
-			condition(value) ? modifier(value) : el
-#define \
-		setIfElse(condition, value, el) \
-			condition(value) ? value : el
+
+	};
+
+	struct EmptyDiscordObject {
+		EmptyDiscordObject() = default;
+		EmptyDiscordObject(const nonstd::string_view& rawJSON) :
+			EmptyDiscordObject(json::fromJSON<EmptyDiscordObject>(rawJSON)) {}
+		EmptyDiscordObject(const json::Value & json) :
+			EmptyDiscordObject(json::fromJSON<EmptyDiscordObject>(json)) {}
+
+		JSONStructStart
+			std::make_tuple();
+		JSONStructEnd
 	};
 
 	template <class Derived>
@@ -24,6 +31,7 @@ namespace SleepyDiscord {
 		IdentifiableDiscordObject(Snowflake<Derived> id) : ID(id) {}
 
 		using Parent = IdentifiableDiscordObject<Derived>;
+		using Identifier = Snowflake<Derived>;
 
 		Snowflake<Derived> ID;
 		

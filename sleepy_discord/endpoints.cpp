@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 	//	return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringifyObj(params)) };
 	//}
 
-	std::string createMessageBody(std::string& message, Embed& embed, TTS tts) {
+	std::string createMessageBody(std::string& message, Embed& embed, MessageReference& replyingTo, TTS tts) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
@@ -30,28 +30,47 @@ namespace SleepyDiscord {
 		doc.AddMember("content", content, allocator);
 		if (tts == TTS::EnableTTS) doc.AddMember("tts", true, allocator);
 		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
+		if (!replyingTo.messageID.empty()) doc.AddMember("message_reference", json::toJSON(embed, allocator), allocator);
 		return json::stringify(doc);
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, tts)) };
+	ObjectResponse<Gateway> BaseDiscordClient::getGateway(RequestSettings<ObjectResponse<Gateway>> settings) {
+		return ObjectResponse<Gateway>{ request(Get, "gateway/bot", settings) };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, MessageReference replyingTo, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, replyingTo, tts)) };
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(SendMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringifyObj(params)) };
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed, MessageReference replyingTo, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{
 			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
 				{ "file", filePathPart{fileLocation} },
-				{ "payload_json", createMessageBody(message, embed, TTS::DisableTTS) }
+				{ "payload_json", createMessageBody(message, embed, replyingTo, TTS::DisableTTS) }
+			})
+		};
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(SendMessageParams params, std::string fileLocation, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{
+			request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, "", {
+				{ "file", filePathPart{fileLocation} },
+				{ "payload_json", json::stringifyObj(params) }
 			})
 		};
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
-		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, TTS::DisableTTS)) };
+		MessageReference mr{};
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, mr, TTS::DisableTTS)) };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::editMessage(EditMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { params.channelID, params.messageID }), settings, json::stringifyObj(params)) };
 	}
 
 	BoolResponse BaseDiscordClient::deleteMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings) {
@@ -209,7 +228,13 @@ namespace SleepyDiscord {
 	//
 	ObjectResponse<Channel> BaseDiscordClient::createTextChannel(Snowflake<Server> serverID, std::string name, RequestSettings<ObjectResponse<Channel>> settings) {
 		return ObjectResponse<Channel>{
-			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": \"text\"}")
+			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": 0}")
+		};
+	}
+
+	ObjectResponse<Channel> BaseDiscordClient::createChannel(Snowflake<Server> serverID, std::string name, Channel::ChannelType ChannelType, RequestSettings<ObjectResponse<Channel>> settings) {
+		return ObjectResponse<Channel>{
+			request(Post, path("guilds/{guild.id}/channels", { serverID }), settings, "{\"name\": " + json::string(name) + ", \"type\": "+ std::to_string(ChannelType) +"}")
 		};
 	}
 
@@ -424,8 +449,8 @@ namespace SleepyDiscord {
 		return { request(Post, path("guilds/{guild.id}/integrations/{integration.id}/sync", { serverID, integrationID }), settings), EmptyRespFn() };
 	}
 
-	ObjectResponse<ServerEmbed> BaseDiscordClient::getServerEmbed(Snowflake<Server> serverID, RequestSettings<ObjectResponse<ServerEmbed>> settings) {
-		return ObjectResponse<ServerEmbed>{ request(Get, path("guilds/{guild.id}/embed", { serverID }), settings) };
+	ObjectResponse<ServerWidget> BaseDiscordClient::getServerWidget(Snowflake<Server> serverID, RequestSettings<ObjectResponse<ServerWidget>> settings) {
+		return ObjectResponse<ServerWidget>{ request(Get, path("guilds/{guild.id}/widget", { serverID }), settings) };
 	}
 
 	//
@@ -542,5 +567,220 @@ namespace SleepyDiscord {
 			{ "avatar_url", avatar_url          },
 			{ "tts"       , (tts ? "true" : "") }
 		}) };
+	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, RequestSettings<ArrayResponse<AppCommand>> settings) {
+		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands", { applicationID }), settings) };
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getGlobalAppCommand(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID,
+		RequestSettings<ObjectResponse<AppCommand>> settings
+	) {
+		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteGlobalAppCommand(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings), EmptyRespFn() };
+	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getServerAppCommands(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings
+	) {
+		return ArrayResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings) };
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getServerAppCommand(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID,
+		RequestSettings<ObjectResponse<AppCommand>> settings
+	) {
+		return ObjectResponse<AppCommand>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteServerAppCommand(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings), EmptyRespFn() };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::editOriginalInteractionResponse(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/@original", { applicationID, interactionToken }), settings, json::stringifyObj(params)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteOriginalInteractionResponse(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/@original", { applicationID, interactionToken }), settings), EmptyRespFn() };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::createFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, FollowupMessage params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Post, path("webhooks/{application.id}/{interaction.token}", { applicationID, interactionToken }), settings, json::stringifyObj(params)) };
+	}
+
+	ObjectResponse<Message> BaseDiscordClient::editFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings
+	) {
+		return ObjectResponse<Message>{ request(Patch, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings, json::stringifyObj(params)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteFollowupMessage(
+		Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings
+	) {
+		return { request(Delete, path("webhooks/{application.id}/{interaction.token}/messages/{message.id}", { applicationID, interactionToken, messageID }), settings), EmptyRespFn() };
+	}
+	/// <summary>
+	/// Batch edits permissions for all commands in a guild. Takes an array of partial objects including id and permissions.
+	/// https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions
+	/// </summary>
+	BoolResponse BaseDiscordClient::batchEditAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings
+	) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : permissions) {
+			doc.AddMember("id", command.ID.number(), allocator);
+			rapidjson::Value arr{ rapidjson::Type::kArrayType };
+			for (auto& permission : command.permissions) {
+				arr.PushBack(json::toJSON(permission, allocator), allocator);
+			}
+			doc.AddMember("permissions", arr, allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings , json::stringify(doc)) };
+	}
+	/// <summary>
+	/// Edits command permissions for a specific command for your application in a guild.
+	/// https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions
+	/// </summary>
+	BoolResponse BaseDiscordClient::editServerAppCommandPermission(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommand::Permissions> permissions, RequestSettings<BoolResponse> settings
+	) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		rapidjson::Value arr{ rapidjson::Type::kArrayType };
+		for (auto& permission : permissions) {
+			arr.PushBack(json::toJSON(permission, allocator), allocator);
+		}
+		doc.AddMember("permissions", arr, allocator);
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings , json::stringify(doc)) };
+	}
+	/// <summary>
+	/// Fetches command permissions for all commands for your application in a guild.
+	/// https://discord.com/developers/docs/interactions/slash-commands#get-guild-application-command-permissions
+	/// </summary>
+	ArrayResponse<ServerAppCommandPermissions> BaseDiscordClient::getServerAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<ServerAppCommandPermissions>> settings
+	) {
+		return ArrayResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/permissions", { applicationID, serverID }), settings) };
+	}
+	/// <summary>
+	/// Fetches command permissions for a specific command for your application in a guild.
+	/// https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions
+	/// </summary>
+	ObjectResponse<ServerAppCommandPermissions> BaseDiscordClient::getAppCommandPermissions(
+		Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<ServerAppCommandPermissions>> settings
+	) {
+		return ObjectResponse<ServerAppCommandPermissions>{ request(Get, path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions", { applicationID, serverID, commandID }), settings) };
+	}
+
+	ArrayResponse<AppCommand> BaseDiscordClient::getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings) {
+		if (serverID.empty()) return getGlobalAppCommands(applicationID, settings);
+		return getServerAppCommands(applicationID, serverID, settings);
+	}
+
+	ObjectResponse<AppCommand> BaseDiscordClient::getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings) {
+		if (serverID.empty()) return getGlobalAppCommand(applicationID, commandID, settings);
+		return getServerAppCommand(applicationID, serverID, commandID,  settings);
+	}
+
+	BoolResponse BaseDiscordClient::deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings) {
+		if (serverID.empty()) return deleteGlobalAppCommand(applicationID, commandID, settings);
+		return deleteServerAppCommand(applicationID, serverID, commandID, settings);
+	}
+
+	BoolResponse BaseDiscordClient::bulkOverwriteServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetArray();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : commands) {
+			doc.PushBack(json::toJSON(command, allocator), allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/guilds/{guild.id}/commands", {applicationID, serverID}), settings, json::stringify(doc)) };
+	}
+
+	BoolResponse BaseDiscordClient::bulkOverwriteGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetArray();
+		auto& allocator = doc.GetAllocator();
+		for (auto& command : commands) {
+			doc.PushBack(json::toJSON(command, allocator), allocator);
+		}
+		return BoolResponse{ request(Put, path("applications/{application.id}/commands", {applicationID}), settings, json::stringify(doc)) };
+	}
+
+	ObjectResponse<User> BaseDiscordClient::createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<ObjectResponse<User>> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		const std::string& channelIDStr = channelID.string();
+		doc.AddMember("channel_id", rapidjson::Value::StringRefType{ channelIDStr.c_str(), channelIDStr.length() }, allocator);
+		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		if (privacyLevel != StageInstance::PrivacyLevel::NotSet)
+			doc.AddMember("privacy_level", static_cast<StageInstance::PrivacyLevelRaw>(privacyLevel), allocator);
+		return ObjectResponse<User>{
+			request(Post, path("/stage-instances", {}), settings, json::stringify(doc))
+		};
+	}
+
+	ObjectResponse<StageInstance> BaseDiscordClient::getStageInstance(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<StageInstance>> settings) {
+		return ObjectResponse<StageInstance>{ request(Get, path("/stage-instances/{channel.id}", { channelID }), settings)};
+	}
+
+	BoolResponse BaseDiscordClient::editStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel, RequestSettings<BoolResponse> settings) {
+		rapidjson::Document doc;
+		doc.SetObject();
+		auto& allocator = doc.GetAllocator();
+		doc.AddMember("topic", rapidjson::Value::StringRefType{ topic.c_str(), topic.length() }, allocator);
+		if (privacyLevel != StageInstance::PrivacyLevel::NotSet)
+			doc.AddMember("privacy_level", static_cast<StageInstance::PrivacyLevelRaw>(privacyLevel), allocator);
+		return BoolResponse{ request(Patch, path("/stage-instances/{channel.id}", {channelID}), settings, json::stringify(doc)) };
+	}
+
+	BoolResponse BaseDiscordClient::deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings) {
+		return BoolResponse{ request(Delete, path("/stage-instances/{channel.id}", {channelID}), settings) };
+	}
+
+	std::string CDN_path(const std::initializer_list<std::string> path) {
+		static constexpr auto CDN_URL = BaseDiscordClient::getCDN_URL();
+		std::size_t pathLength = CDN_URL.length();
+		for (const std::string& str : path) {
+			pathLength += str.length();
+		}
+		std::string CDN_path;
+		CDN_path.reserve(pathLength);
+		CDN_path += CDN_URL.data();
+		for (const std::string& str : path) {
+			CDN_path += str;
+		}
+		return CDN_path;
+	}
+
+	//CDN
+	void BaseDiscordClient::getServerBanner(Snowflake<Server> serverID, std::string banner, std::string format, std::function<void(StandardResponse&)> callback) {
+		static constexpr const char* pathMid = "banners/";
+		const std::string path = CDN_path({pathMid, serverID, "/", banner, format});
+		postTask([path, callback]() {
+			Session session;
+			session.setUrl(path);
+			auto response = StandardResponse{session.request(Get)};
+			callback(response);
+		});
 	}
 }

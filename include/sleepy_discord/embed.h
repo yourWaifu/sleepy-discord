@@ -10,7 +10,9 @@ namespace SleepyDiscord {
 		EmbedThumbnail() = default;
 		//EmbedThumbnail(const std::string * rawJSON);
 		EmbedThumbnail(const json::Value & json);
-		EmbedThumbnail(const nonstd::string_view & json);
+		EmbedThumbnail(const nonstd::string_view & json) :
+			EmbedThumbnail(json::fromJSON<EmbedThumbnail>(json)) {
+		}
 		//EmbedThumbnail(const json::Values values);
 		std::string url;
 		std::string proxyUrl;
@@ -36,7 +38,9 @@ namespace SleepyDiscord {
 	public:
 		EmbedVideo() = default;
 		EmbedVideo(const json::Value & json);
-		EmbedVideo(const nonstd::string_view & json);
+		EmbedVideo(const nonstd::string_view & json) :
+			EmbedVideo(json::fromJSON<EmbedVideo>(json)) {
+		}
 		std::string url;
 		int64_t height = 0;
 		int64_t width = 0;
@@ -59,7 +63,9 @@ namespace SleepyDiscord {
 	public:
 		EmbedImage() = default;
 		EmbedImage(const json::Value & json);
-		EmbedImage(const nonstd::string_view & json);
+		EmbedImage(const nonstd::string_view & json) :
+			EmbedImage(json::fromJSON<EmbedImage>(json)) {
+		}
 		std::string url;
 		std::string proxyUrl;
 		int64_t height = 0;
@@ -84,7 +90,9 @@ namespace SleepyDiscord {
 		EmbedProvider() = default;
 		//EmbedProvider(const std::string * rawJSON);
 		EmbedProvider(const json::Value & json);
-		EmbedProvider(const nonstd::string_view & json);
+		EmbedProvider(const nonstd::string_view & json) :
+			EmbedProvider(json::fromJSON<EmbedProvider>(json)) {
+		}
 		//EmbedProvider(const json::Values values);
 		std::string name;
 		std::string url;
@@ -106,7 +114,9 @@ namespace SleepyDiscord {
 	public:
 		EmbedAuthor() = default;
 		EmbedAuthor(const json::Value & json);
-		EmbedAuthor(const nonstd::string_view & json);
+		EmbedAuthor(const nonstd::string_view & json) :
+			EmbedAuthor(json::fromJSON<EmbedAuthor>(json)) {
+		}
 		std::string name;
 		std::string url;
 		std::string iconUrl;
@@ -130,7 +140,9 @@ namespace SleepyDiscord {
 	public:
 		EmbedFooter() = default;
 		EmbedFooter(const json::Value & json);
-		EmbedFooter(const nonstd::string_view & json);
+		EmbedFooter(const nonstd::string_view & json) :
+			EmbedFooter(json::fromJSON<EmbedFooter>(json)) {
+		}
 		std::string text;
 		std::string iconUrl;
 		std::string proxyIconUrl;
@@ -152,7 +164,8 @@ namespace SleepyDiscord {
 	public:
 		EmbedField() = default;
 		EmbedField(const json::Value & json);
-		EmbedField(const nonstd::string_view & json);
+		EmbedField(const nonstd::string_view & json) :
+			EmbedField(json::fromJSON<EmbedField>(json)) {}
 		EmbedField(std::string _name, std::string _value, bool _isInline = false)
 			: name(_name), value(_value), isInline(_isInline) {}
 		std::string name = "";
@@ -177,7 +190,8 @@ namespace SleepyDiscord {
 		Embed() = default;
 		//Embed(const std::string * rawJSON);
 		Embed(const json::Value & json);
-		Embed(const nonstd::string_view & json);
+		Embed(const nonstd::string_view & json) :
+			Embed(json::fromJSON<Embed>(json)) {}
 		//Embed(const json::Values values);
 		enum class Flag {
 			INVALID_EMBED = 0,
@@ -222,6 +236,7 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&Embed::fields     , "fields"     , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
+
 	private:
 		friend BaseDiscordClient;
 		friend SendMessageParams;

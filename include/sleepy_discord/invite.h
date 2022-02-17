@@ -21,7 +21,8 @@ namespace SleepyDiscord {
 		//~Invite();
 		//Invite(const std::string * rawJson);
 		Invite(const json::Value & json);
-		Invite(const nonstd::string_view & rawJSON);
+		Invite(const nonstd::string_view& json) :
+			Invite(json::fromJSON<Invite>(json)) {}
 		//Invite(const json::Values values);
 		std::string code;
 		Server server;
@@ -55,7 +56,8 @@ namespace SleepyDiscord {
 		//InviteMetadata(const std::string * rawJson);
 		//InviteMetadata(const json::Values values);
 		InviteMetadata(const json::Value & json);
-		InviteMetadata(const nonstd::string_view & json);
+		InviteMetadata(const nonstd::string_view& json) :
+			InviteMetadata(json::fromJSON<InviteMetadata>(json)) {}
 		User inviter;
 		int uses = 0;
 		int max_users = 0;

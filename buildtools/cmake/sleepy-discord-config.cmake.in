@@ -1,0 +1,65 @@
+# Config file for Sleepy Discord
+# To be used with VCPKG
+
+# Defines
+#  SLEEPY_DISCORD_FOUND - true when the module was found
+#  SLEEPY_DISCORD_INCLUDE_DIR - library's include directory
+#  SLEEPY_DISCORD_INCLUDE_DIRS - all include directories
+#  SLEEPY_DISCORD_LIB - result from find library
+#  SLEEPY_DISCORD_CONFIG - public compile definitions used for configuring the library
+#  SLEEPY_DISCORD_DEPS - list of required packages
+
+# Example Useage
+# add_subdirectory(sleepy-discord)
+# configure_file(
+#  sleepy-discord/buildtools/cmake/sleepy-discord-config.cmake.in
+#  "example/path/to/sleepy-discord-config.cmake"
+#  @ONLY)
+
+# !!!WARNING!!!
+# This is an auto generated file
+# Please make sure you editing the right file so changes don't get overwriten
+
+@PACKAGE_INIT@
+
+set(SLEEPY_DISCORD_CONFIG "@LIB_CONFIG_STR@")
+list(APPEND SLEEPY_DISCORD_CONFIG SLEEPY_DISCORD_CMAKE)
+set(SLEEPY_DISCORD_INCLUDE_DIRS "@PACKAGE_LIBRARIES_INCLUDE_DIRS_STR@")
+set(SLEEPY_DISCORD_DEPS "@REQUIRED_PACKAGES_STR@")
+set(SLEEPY_FILES_TO_FIND "@FILES_TO_FIND_STR@")
+
+if(SLEEPY_FILES_TO_FIND STREQUAL "")
+# This variable is usually empty
+# However, I belive this is needed for some libraries
+else()
+	foreach(file in LISTS SLEEPY_FILES_TO_FIND)
+		find_path(SLEEPY_DISCORD_INCLUDE_DIR NAMES file)
+		if (SLEEPY_DISCORD_INCLUDE_DIR)
+			list(APPEND SLEEPY_DISCORD_INCLUDE_DIRS ${SLEEPY_DISCORD_INCLUDE_DIR})
+		endif()
+	endforeach()
+endif()
+
+find_library(SLEEPY_DISCORD_LIB NAMES sleepy-discord)
+if(SLEEPY_DISCORD_LIB)
+	set(SLEEPY_DISCORD_FOUND True)
+
+	foreach(dep IN LISTS SLEEPY_DISCORD_DEPS)
+		find_package("${dep}" REQUIRED)
+	endforeach()
+
+	add_library(sleepy-discord STATIC IMPORTED)
+
+	set_target_properties(sleepy-discord PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${SLEEPY_DISCORD_INCLUDE_DIRS}"
+		IMPORTED_LINK_INTERFACE_LIBRARIES "@LIBRARIES_TO_LINK_STR@"
+		INTERFACE_COMPILE_DEFINITIONS "${SLEEPY_DISCORD_CONFIG}"
+		IMPORTED_LOCATION "${SLEEPY_DISCORD_LIB}"
+		CXX_STANDARD_REQUIRED ON
+		INTERFACE_COMPILE_FEATURES "cxx_std_11;cxx_return_type_deduction"
+	)
+
+	check_required_components(sleepy-discord)
+else()
+	set(SLEEPY_DISCORD_FOUND False)
+endif()

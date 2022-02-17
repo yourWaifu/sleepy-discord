@@ -36,30 +36,7 @@ namespace SleepyDiscord {
 	BaseDiscordClient::~BaseDiscordClient() {
 		ready = false;
 		if (heart.isValid()) heart.stop();
-	}
-
-	void RateLimiter::limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp) {
-		std::lock_guard<std::mutex> lock(mutex);
-		buckets[bucket] = xBucket;
-		limits[xBucket] = timestamp;
-	}
-
-	const time_t RateLimiter::getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
-		if (isGlobalRateLimited && currentTime < nextRetry)
-				return nextRetry;
-		isGlobalRateLimited = false;
-		std::lock_guard<std::mutex> lock(mutex);
-		auto actualBucket = buckets.find(bucket);
-		if (actualBucket != buckets.end()) {
-			auto bucketResetTimestamp = limits.find(actualBucket->second);
-			if (bucketResetTimestamp != limits.end()) {
-				if (currentTime < bucketResetTimestamp->second)
-					return bucketResetTimestamp->second;
-				limits.erase(bucketResetTimestamp);
-			}
-			buckets.erase(actualBucket);
-		}
-		return 0;
+		stopReconnecting();
 	}
 
 	Response BaseDiscordClient::request(const RequestMethod method, Route path, const std::string jsonParameters,
@@ -98,7 +75,7 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discord.com/api/v6/" + path.url());
+			session.setUrl("https://discord.com/api/v8/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", userAgent },
@@ -129,12 +106,17 @@ namespace SleepyDiscord {
 				//for some reason std::get_time requires gcc 5
 				std::istringstream dateStream(response.header["Date"]);
 				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const time_t reset = std::stoi(response.header["X-RateLimit-Reset"]);
+				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
+				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
 				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 #if defined(_WIN32) || defined(_WIN64)
 				std::tm gmTM;
-				std::tm*const resetGM = &gmTM;
+				std::tm* const resetGM = &gmTM;
 				gmtime_s(resetGM, &reset);
+#elif defined(__STDC_LIB_EXT1__)
+				std::tm gmTM;
+				std::tm* resetGM = &gmTM;
+				gmtime_s(&reset, resetGM);
 #else
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
@@ -150,7 +132,8 @@ namespace SleepyDiscord {
 				{   //this should fall down to default
 					std::string rawRetryAfter = response.header["Retry-After"];
 					//the 5 is an arbitrary number, and there's 1000 ms in a second
-					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5 * 1000;
+					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
+					retryAfter *= 1000; //convert to milliseconds
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
 					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
 					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
@@ -165,27 +148,50 @@ namespace SleepyDiscord {
 					const ErrorCode code = static_cast<ErrorCode>(response.statusCode);
 					setError(code);		//https error
 					if (!response.text.empty()) {
-					//json::Values values = json::getValues(response.text.c_str(),
-					//{ "code", "message" });	//parse json to get code and message
-					rapidjson::Document document;
-					document.Parse(response.text.c_str());
+						//json::Values values = json::getValues(response.text.c_str(),
+						//{ "code", "message" });	//parse json to get code and message
+						rapidjson::Document document;
+						document.Parse(response.text.c_str());
 						if (!document.IsObject()) {
 							onError(GENERAL_ERROR, "No error code or message from Discord");
+							break;
 						}
 
-					auto errorCode = document.FindMember("code");
-					auto errorMessage = document.FindMember("message");
-					if (errorCode != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd()))
-						onError(
-							static_cast<ErrorCode>(errorCode->value.GetInt()),
-							{ errorMessage != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd()) ? errorMessage->value.GetString() : "" }
-						);
-					else if (!response.text.empty())
-						onError(ERROR_NOTE, response.text);
+						auto errorCode = document.FindMember("code");
+						auto errorMessage = document.FindMember("message");
+						if (errorCode != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd())){
+							std::size_t fullErrorMessageSize = 0;
+							fullErrorMessageSize += path.getPath().length();
+							fullErrorMessageSize += 1;
+							fullErrorMessageSize += response.text.length();
+							fullErrorMessageSize += 1;
+							std::string message = (
+									errorMessage != static_cast<rapidjson::GenericValue<rapidjson::UTF8<>>::ConstMemberIterator>(document.MemberEnd())
+									?
+										errorMessage->value.GetString()
+									:
+										""
+							);
+							fullErrorMessageSize += message.length();
+							std::string fullErrorMessage;
+							fullErrorMessage.reserve(fullErrorMessageSize);
+							fullErrorMessage += path.getPath();
+							fullErrorMessage += '\n';
+							fullErrorMessage += response.text;
+							fullErrorMessage += '\n';
+							fullErrorMessage += message;
+
+							onError(
+								static_cast<ErrorCode>(errorCode->value.GetInt()),
+								std::move(fullErrorMessage)
+							);
+						} else if (!response.text.empty()) {
+							onError(ERROR_NOTE, response.text);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-						if (static_cast<int>(mode) & static_cast<int>(ThrowError))
-							throw code;
+							if (static_cast<int>(mode) & static_cast<int>(ThrowError))
+								throw code;
 #endif
+						}
 					}
 				} break;
 			}
@@ -269,7 +275,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
 	#ifndef SLEEPY_HARD_CODED_GATEWAY
-		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=6"
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=8"
 	#endif
 		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
@@ -292,7 +298,7 @@ namespace SleepyDiscord {
 				unsigned int size = position - start;
 				theGateway.reserve(32);
 				theGateway.append(a.text, start, size);
-				theGateway += "/?v=6";
+				theGateway += "/?v=8";
 				break;
 			}
 		}
@@ -394,6 +400,7 @@ namespace SleepyDiscord {
 			voiceConnection.disconnect();
 #endif
 		if (heart.isValid()) heart.stop(); //stop heartbeating
+		stopReconnecting();
 		if (!isDisconnected) disconnectWebsocket(1000);
 		stopClient();
 		if (quiting) onQuit();
@@ -406,6 +413,11 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::reconnect(const unsigned int status) {
+		std::lock_guard<std::mutex> lock(connectionMutex);
+		if (isCurrentlyWaitingToReconnect == true)
+			return; //don't try to reconnect when waiting to reconnect
+		isCurrentlyWaitingToReconnect = true;
+
 		//before disconnecting, heartbeats need to stop or it'll crash
 		//and if it doesn't, it'll cause another reconnect
 		if (heart.isValid()) heart.stop();
@@ -415,22 +427,29 @@ namespace SleepyDiscord {
 		heartbeatInterval = 0;
 
 		disconnectWebsocket(status);
-		if (consecutiveReconnectsCount == 10) getTheGateway();
+		//it's recomemeded to get the gateway again after many reconnection tries
+		// but the chance of the gateway being different is very low so this line is
+		// commmented out as it seems to cause issues
+		//if (consecutiveReconnectsCount % 16 == 10 || theGateway.empty()) getTheGateway();
 		if (reconnectTimer.isValid())
 			reconnectTimer.stop();
 		reconnectTimer = schedule([this]() {
-			//if not a successful reconnection
-			if (consecutiveReconnectsCount != 0)
-				connect(theGateway, this, connection);
+			std::lock_guard<std::mutex> lock(connectionMutex);
+			isCurrentlyWaitingToReconnect = false;
+			connect(theGateway, this, connection);
 		}, getRetryDelay());
 		consecutiveReconnectsCount += 1;
 
 		if (useTrasportConnection == 1)
 			compressionHandler->resetStream();
-
-		for (VoiceConnection& voiceConnection : voiceConnections) {
-			disconnect(4900, "", voiceConnection.connection);
 	}
+
+	void BaseDiscordClient::stopReconnecting() {
+		std::lock_guard<std::mutex> lock(connectionMutex);
+		isCurrentlyWaitingToReconnect = false;
+		consecutiveReconnectsCount = 0;
+		if (reconnectTimer.isValid())
+			reconnectTimer.stop();
 	}
 
 	void BaseDiscordClient::disconnectWebsocket(unsigned int code, const std::string reason) {
@@ -462,194 +481,28 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::processMessage(const std::string &message) {
-		rapidjson::Document document;
+		auto docPtr = std::make_shared<rapidjson::Document>();
+		rapidjson::Document& document = *docPtr;
 		document.Parse(message.c_str(), message.length());
 		//	{ "op", "d", "s", "t" }
 		int op = document["op"].GetInt();
-		const json::Value& t = document["t"];
-		const json::Value& d = document["d"];
+		json::Value& d = document["d"];
 		switch (op) {
 		case DISPATCH:
 			lastSReceived = document["s"].GetInt();
-			switch (hash(json::toStdString(t).c_str())) {
-			case hash("READY"                      ): {
-				Ready readyData = d;
-				sessionID = readyData.sessionID;
-				bot = readyData.user.bot;
-				userID = readyData.user;
-				onReady(readyData);
-				ready = true;
-				consecutiveReconnectsCount = 0; //Successfully connected
-				} break;
-			case hash("RESUMED"                    ): 
-				consecutiveReconnectsCount = 0; //Successfully connected
-				onResumed();
-				break;
-			case hash("GUILD_CREATE"               ): {
-				Server server(d);
-				if (serverCache)
-					serverCache->insert(server);
-				onServer(server);
-				} break;
-			case hash("GUILD_DELETE"               ): {
-				UnavailableServer server(d);
-				if (serverCache) {
-					findServerInCache(server.ID, [=](ServerCache::iterator& found) {
-						serverCache->erase(found);
-					});
+			postTask(
+				[this, docPtr, &d]() {
+					rapidjson::Document& document = *docPtr;
+					const json::Value& t = document["t"];
+					handleDispatchEvent(t, d);
 				}
-				onDeleteServer(server);
-				} break;
-			case hash("GUILD_UPDATE"               ): {
-				Server server(d);
-				accessServerFromCache(server.ID, [server](Server& foundServer) {
-					foundServer = server;
-				});
-				onEditServer(server);
-				} break;
-			case hash("GUILD_BAN_ADD"              ): onBan  (d["guild_id"], d["user"]); break;
-			case hash("GUILD_BAN_REMOVE"           ): onUnban(d["guild_id"], d["user"]); break;
-			case hash("GUILD_INTEGRATIONS_UPDATE"  ):                          break; //to do add this
-			case hash("GUILD_MEMBER_ADD"           ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				ServerMember member(d);
-				appendObjectToCache(serverID, &Server::members, member);
-				onMember(serverID, member);
-				} break;
-			case hash("GUILD_MEMBER_REMOVE"        ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				User user = d["user"];
-				eraseObjectFromCache(serverID, &Server::members, user.ID);
-				onRemoveMember(serverID, user);
-				} break;
-			case hash("GUILD_MEMBER_UPDATE"        ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				User user = d["user"];
-				std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
-				auto nickValue = d.FindMember("nick");
-				std::string nick = nickValue != d.MemberEnd() && nickValue->value.IsString() ?
-					json::toStdString(nickValue->value) : "";
-				accessObjectFromCache(serverID, &Server::members, user.ID,
-					[user, roles, nick](Server&, ServerMember& member) {
-						member.user = user;
-						member.roles = roles;
-						member.nick = nick;
-					}
-				);
-				onEditMember(serverID, user, roles, nick);
-				} break;
-			case hash("GUILD_MEMBERS_CHUNK"        ): onMemberChunk       (d); break;
-			case hash("GUILD_ROLE_CREATE"          ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				Role role = d["role"];
-				appendObjectToCache(serverID, &Server::roles, role);
-				onRole(serverID, role);
-				} break;
-			case hash("GUILD_ROLE_UPDATE"):
-			{
-				Snowflake<Server> serverID = d["guild_id"];
-				Role role = d["role"];
-				accessObjectFromCache(serverID, &Server::roles, role.ID,
-					[role](Server&, Role& foundRole) {
-						foundRole = role;
-					}
-				);
-				onEditRole(serverID, role);
-			} break;
-			case hash("GUILD_ROLE_DELETE"          ): {
-				Snowflake<Server> serverID = d["guild_id"];
-				Snowflake<Role> roleID = d["role_id"];
-				eraseObjectFromCache(serverID, &Server::roles, roleID);
-				onDeleteRole(serverID, roleID);
-				} break;
-			case hash("GUILD_EMOJIS_UPDATE"        ): onEditEmojis        (d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
-			case hash("CHANNEL_CREATE"             ): {
-				Channel channel = d;
-				appendObjectToCache(channel.serverID, &Server::channels, channel);
-				onChannel(d);
-				} break;
-			case hash("CHANNEL_UPDATE"             ): {
-				Channel channel = d;
-				accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
-					[channel](Server&, Channel& foundChannel) {
-						foundChannel = channel;
-					}
-				);
-				onEditChannel(d); 
-				} break;
-			case hash("CHANNEL_DELETE"             ): {
-				Channel channel = d;
-				eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
-				onDeleteChannel(d);
-				} break;
-			case hash("CHANNEL_PINS_UPDATE"): {
-				const json::Value& lastPinTimeValue = d["last_pin_timestamp"];
-				onPinMessage(
-					d["channel_id"],
-					lastPinTimeValue.IsString() ?
-					json::toStdString(d["last_pin_timestamp"]) : ""
-				);
-			} break;
-			case hash("PRESENCE_UPDATE"            ): onPresenceUpdate    (d); break;
-			case hash("PRESENCES_REPLACE"          ):                          break;
-			case hash("USER_UPDATE"                ): onEditUser          (d); break;
-			case hash("USER_SETTINGS_UPDATE"       ): onEditUserSettings  (d); break;
-			case hash("VOICE_STATE_UPDATE"         ): {
-				VoiceState state(d);
-#ifdef SLEEPY_VOICE_ENABLED
-				if (!waitingVoiceContexts.empty()) {
-					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&state](const VoiceContext* w) { 
-						return state.channelID == w->channelID && w->sessionID == "";
-					});
-					if (iterator != waitingVoiceContexts.end()) {
-						VoiceContext& context = **iterator;
-						context.sessionID = state.sessionID;
-						connectToVoiceIfReady(context);
-					}
-				}
-#endif
-				onEditVoiceState(state);
-				} break;
-			case hash("TYPING_START"               ): onTyping            (d["channel_id"], d["user_id"], d["timestamp"].GetInt64() * 1000); break;
-			case hash("MESSAGE_CREATE"             ): onMessage           (d); break;
-			case hash("MESSAGE_UPDATE"             ): onEditMessage       (d); break;
-			case hash("MESSAGE_DELETE"             ): onDeleteMessages    (d["channel_id"], { d["id"] }); break;
-			case hash("MESSAGE_DELETE_BULK"        ): onDeleteMessages    (d["channel_id"], json::toArray<Snowflake<Message>>(d["ids"])); break;
-			case hash("VOICE_SERVER_UPDATE"        ): {
-				VoiceServerUpdate voiceServer(d);
-#ifdef SLEEPY_VOICE_ENABLED
-				if (!waitingVoiceContexts.empty()) {
-					auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
-						[&voiceServer](const VoiceContext* w) {
-						return voiceServer.serverID == w->serverID && w->endpoint == "";
-					});
-					if (iterator != waitingVoiceContexts.end()) {
-						VoiceContext& context = **iterator;
-						context.token    = voiceServer.token;
-						context.endpoint = voiceServer.endpoint;
-						connectToVoiceIfReady(context);
-					}
-				}
-#endif
-				onEditVoiceServer(voiceServer);
-				} break;
-			case hash("MESSAGE_REACTION_ADD"       ): onReaction          (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE"    ): onDeleteReaction    (d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
-			case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction (d["guild_id"], d["channel_id"], d["message_id"]); break;
-			default: 
-				onUnknownEvent(json::toStdString(t), d);
-				break;
-			}
-			onDispatch(d);
+			);
 		break;
 		case HELLO:
 			heartbeatInterval = d["heartbeat_interval"].GetInt();
 			heartbeat();
 			if (!ready) sendIdentity();
 			else sendResume();
-			if (reconnectTimer.isValid())
-				reconnectTimer.stop();
 			break;
 		case RECONNECT:
 			reconnect();
@@ -667,6 +520,187 @@ namespace SleepyDiscord {
 			onHeartbeatAck();
 			break;
 		}
+	}
+
+	void BaseDiscordClient::handleDispatchEvent(const json::Value& t, json::Value& d) {
+		switch (hash(json::toStdString(t).c_str())) {
+		case hash("READY"): {
+			Ready readyData = d;
+			sessionID = readyData.sessionID;
+			bot = readyData.user.bot;
+			userID = readyData.user;
+			onReady(readyData);
+			ready = true;
+			stopReconnecting(); //Successfully connected
+		} break;
+		case hash("RESUMED"):
+			stopReconnecting(); //Successfully connected
+			onResumed();
+			break;
+		case hash("GUILD_CREATE"): {
+			Server server(d);
+			if (serverCache)
+				serverCache->insert(server);
+			onServer(server);
+		} break;
+		case hash("GUILD_DELETE"): {
+			UnavailableServer server(d);
+			if (serverCache) {
+				findServerInCache(server.ID, [=](ServerCache::iterator& found) {
+					serverCache->erase(found);
+					});
+			}
+			onDeleteServer(server);
+		} break;
+		case hash("GUILD_UPDATE"): {
+			Server server(d);
+			accessServerFromCache(server.ID, [server](Server& foundServer) {
+				json::mergeObj(foundServer, server);
+				});
+			onEditServer(server);
+		} break;
+		case hash("GUILD_BAN_ADD"): onBan(d["guild_id"], d["user"]); break;
+		case hash("GUILD_BAN_REMOVE"): onUnban(d["guild_id"], d["user"]); break;
+		case hash("GUILD_INTEGRATIONS_UPDATE"):                          break; //to do add this
+		case hash("GUILD_MEMBER_ADD"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			ServerMember member(d);
+			appendObjectToCache(serverID, &Server::members, member);
+			onMember(serverID, member);
+		} break;
+		case hash("GUILD_MEMBER_REMOVE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			User user = d["user"];
+			eraseObjectFromCache(serverID, &Server::members, user.ID);
+			onRemoveMember(serverID, user);
+		} break;
+		case hash("GUILD_MEMBER_UPDATE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			User user = d["user"];
+			std::vector<Snowflake<Role>> roles = json::toArray<Snowflake<Role>>(d["roles"]);
+			auto nickValue = d.FindMember("nick");
+			std::string nick = nickValue != d.MemberEnd() && nickValue->value.IsString() ?
+				json::toStdString(nickValue->value) : "";
+			accessObjectFromCache(serverID, &Server::members, user.ID,
+				[user, roles, nick](Server&, ServerMember& member) {
+					member.user = user;
+					member.roles = roles;
+					member.nick = nick;
+				}
+			);
+			onEditMember(serverID, user, roles, nick);
+		} break;
+		case hash("GUILD_MEMBERS_CHUNK"): onMemberChunk(d); break;
+		case hash("GUILD_ROLE_CREATE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			Role role = d["role"];
+			appendObjectToCache(serverID, &Server::roles, role);
+			onRole(serverID, role);
+		} break;
+		case hash("GUILD_ROLE_UPDATE"):
+		{
+			Snowflake<Server> serverID = d["guild_id"];
+			Role role = d["role"];
+			accessObjectFromCache(serverID, &Server::roles, role.ID,
+				[role](Server&, Role& foundRole) {
+					foundRole = role;
+				}
+			);
+			onEditRole(serverID, role);
+		} break;
+		case hash("GUILD_ROLE_DELETE"): {
+			Snowflake<Server> serverID = d["guild_id"];
+			Snowflake<Role> roleID = d["role_id"];
+			eraseObjectFromCache(serverID, &Server::roles, roleID);
+			onDeleteRole(serverID, roleID);
+		} break;
+		case hash("GUILD_EMOJIS_UPDATE"): onEditEmojis(d["guild_id"], json::toArray<Emoji>(d["emojis"])); break;
+		case hash("CHANNEL_CREATE"): {
+			Channel channel = d;
+			appendObjectToCache(channel.serverID, &Server::channels, channel);
+			onChannel(d);
+		} break;
+		case hash("CHANNEL_UPDATE"): {
+			Channel channel = d;
+			accessObjectFromCache(channel.serverID, &Server::channels, channel.ID,
+				[channel](Server&, Channel& foundChannel) {
+					foundChannel = channel;
+				}
+			);
+			onEditChannel(d);
+		} break;
+		case hash("CHANNEL_DELETE"): {
+			Channel channel = d;
+			eraseObjectFromCache(channel.serverID, &Server::channels, channel.ID);
+			onDeleteChannel(d);
+		} break;
+		case hash("CHANNEL_PINS_UPDATE"): {
+			const json::Value& lastPinTimeValue = d["last_pin_timestamp"];
+			onPinMessage(
+				d["channel_id"],
+				lastPinTimeValue.IsString() ?
+				json::toStdString(d["last_pin_timestamp"]) : ""
+			);
+		} break;
+		case hash("PRESENCE_UPDATE"): onPresenceUpdate(d); break;
+		case hash("PRESENCES_REPLACE"):                          break;
+		case hash("USER_UPDATE"): onEditUser(d); break;
+		case hash("USER_SETTINGS_UPDATE"): onEditUserSettings(d); break;
+		case hash("VOICE_STATE_UPDATE"): {
+			VoiceState state(d);
+#ifdef SLEEPY_VOICE_ENABLED
+			if (!waitingVoiceContexts.empty()) {
+				auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+					[&state](const VoiceContext* w) {
+						return state.channelID == w->channelID && w->sessionID == "";
+					});
+				if (iterator != waitingVoiceContexts.end()) {
+					VoiceContext& context = **iterator;
+					context.sessionID = state.sessionID;
+					connectToVoiceIfReady(context);
+				}
+			}
+#endif
+			onEditVoiceState(state);
+		} break;
+		case hash("TYPING_START"): onTyping(d["channel_id"], d["user_id"], d["timestamp"].GetInt64() * 1000); break;
+		case hash("MESSAGE_CREATE"): onMessage(d); break;
+		case hash("MESSAGE_UPDATE"): onEditMessage(d); break;
+		case hash("MESSAGE_DELETE"): onDeleteMessages(d["channel_id"], { d["id"] }); break;
+		case hash("MESSAGE_DELETE_BULK"): onDeleteMessages(d["channel_id"], json::toArray<Snowflake<Message>>(d["ids"])); break;
+		case hash("VOICE_SERVER_UPDATE"): {
+			VoiceServerUpdate voiceServer(d);
+#ifdef SLEEPY_VOICE_ENABLED
+			if (!waitingVoiceContexts.empty()) {
+				auto iterator = find_if(waitingVoiceContexts.begin(), waitingVoiceContexts.end(),
+					[&voiceServer](const VoiceContext* w) {
+						return voiceServer.serverID == w->serverID && w->endpoint == "";
+					});
+				if (iterator != waitingVoiceContexts.end()) {
+					VoiceContext& context = **iterator;
+					context.token = voiceServer.token;
+					context.endpoint = voiceServer.endpoint;
+					connectToVoiceIfReady(context);
+				}
+			}
+#endif
+			onEditVoiceServer(voiceServer);
+		} break;
+		case hash("MESSAGE_REACTION_ADD"): onReaction(d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
+		case hash("MESSAGE_REACTION_REMOVE"): onDeleteReaction(d["user_id"], d["channel_id"], d["message_id"], d["emoji"]); break;
+		case hash("MESSAGE_REACTION_REMOVE_ALL"): onDeleteAllReaction(d["guild_id"], d["channel_id"], d["message_id"]); break;
+		case hash("APPLICATION_COMMAND_CREATE"): onAppCommand(d); break;
+		case hash("APPLICATION_COMMAND_UPDATE"): onEditAppCommand(d); break;
+		case hash("APPLICATION_COMMAND_DELETE"): onDeleteAppCommand(d); break;
+		case hash("INTERACTION_CREATE"): onInteraction(d); break;
+		case hash("STAGE_INSTANCE_CREATE"): onStageInstance(d); break;
+		case hash("STAGE_INSTANCE_UPDATE"): onEditStageInstance(d); break;
+		case hash("STAGE_INSTANCE_DELETE"): onDeleteStageInstance(d); break;
+		default:
+			onUnknownEvent(json::toStdString(t), d);
+			break;
+		}
+		onDispatch(d);
 	}
 
 	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
@@ -693,20 +727,12 @@ namespace SleepyDiscord {
 			if (streamEnded || endsWithFlushSiginal) {
 				std::shared_ptr<std::string> uncompressed = std::make_shared<std::string>();
 				compressionHandler->getOutput(*uncompressed);
-				postTask(
-					[this, uncompressed]() {
-						processMessage(*uncompressed);
-					}
-				);
+				processMessage(*uncompressed);
 			}
 			break;
 		}
 		case WebSocketMessage::OPCode::text: {
-			postTask(
-				[this, message]() {
-					processMessage(message.payload);
-				}
-			);
+			processMessage(message.payload);
 			break;
 		}
 		default: break;
@@ -775,83 +801,6 @@ namespace SleepyDiscord {
 		if (heart.isValid())
 			heart.stop();
 		heart = schedule(&BaseDiscordClient::heartbeat, heartbeatInterval);
-	}
-
-	//The number 10 comes from the largest unsigned int being 10 digits long
-	using DBuffer = std::array<char, 10>;
-	//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
-	using HeartbeatBuffer = std::array<char, 18 + std::tuple_size<DBuffer>::value>;
-
-	struct Heartbeat {
-		HeartbeatBuffer buffer;
-		std::size_t length;
-	};
-
-	//please only call during compile time
-	constexpr std::size_t length(const char* str) {
-		return *str ? 1 + length(str + 1) : 0;
-	}
-
-	//no reason for this to be so optimized but I just felt like it one day
-#ifdef __cpp_lib_array_constexpr
-	constexpr
-#endif
-	Heartbeat generateHeatbeat(const unsigned int lastSReceived) {
-		DBuffer dBuffer {};
-		//can't find a number to std array so a custom one is made here
-		auto reverseNext = dBuffer.end();
-		auto trunc = lastSReceived;
-		do {
-			reverseNext -= 1;
-			*reverseNext = '0' + (trunc % 10);
-			trunc /= 10;
-		} while (trunc != 0);
-		
-		const nonstd::string_view d{&(*reverseNext),
-			std::size_t(dBuffer.end() - reverseNext)};
-
-		constexpr auto startBuffer =
-		"{"
-			"\"op\":1,"
-			"\"d\":";
-		const
-		constexpr auto endBuffer = 
-			"}";
-		constexpr auto startLength = length(startBuffer);
-		//this works because char is one btye
-		constexpr auto endLength = length(endBuffer);
-		constexpr auto start = nonstd::string_view{startBuffer, startLength};
-		constexpr auto end = nonstd::string_view{endBuffer, endLength};
-
-
-		const std::array<nonstd::string_view, 3> toConcat {{
-			start, d, end
-		}};
-
-		Heartbeat heartbeat = {};
-		HeartbeatBuffer& heartbeatBuffer = heartbeat.buffer;
-		std::size_t& index = heartbeat.length;
-		for (const auto& source : toConcat)
-		{
-			auto dest = heartbeatBuffer.begin() + index;
-
-			//memcpy not avaiable at compile time
-			for (std::size_t index = 0; index < source.length(); index += 1) {
-				dest[index] = source[index];
-			}
-			index += source.length();
-		}
-
-		return heartbeat;
-	}
-
-	void BaseDiscordClient::sendHeartbeat() {
-		const auto heartbeat = generateHeatbeat(lastSReceived);
-		const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
-		//to do switch sendL to string_view
-		sendL(std::string{message.data(), message.length()});
-		wasHeartbeatAcked = false;
-		onHeartbeat();
 	}
 
 	//

@@ -19,6 +19,8 @@
 #include "permissions.h"
 #include "gateway.h"
 #include "voice.h"
+#include "slash_commands.h"
+#include "stage_instance.h"
 
 #include "error.h"
 #include "session.h"
@@ -27,19 +29,19 @@
 #include "timer.h"
 #include "voice_connection.h"
 #include "asio_schedule.h"
+#include "rate_limiter.h"
 #include "compression.h"
 
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 
 	struct Request;
+	class BaseDiscordClient;
 
 	//to dos
-	//intents
 	//custom rapid json error
 	//detect cloudflare error
 	//emojis rate limits
-	//async
 	//merge to master
 	//cache
 
@@ -48,45 +50,6 @@ namespace SleepyDiscord {
 		USER_CONTROLED_THREADS = 1,
 		USE_RUN_THREAD = 3,
 		DEFAULT_THREADS = USER_CONTROLED_THREADS
-	};
-
-	class Route {
-	public:
-		using Bucket = std::string;
-		Route(const std::string route, const std::initializer_list<std::string>& _values = {});
-		Route(const char* route);
-		inline const std::string& url() {
-			return _url;
-		}
-		const Bucket bucket(RequestMethod method);
-		inline operator const std::string&() {
-			return url();
-		}
-
-	private:
-		const std::string path;
-		std::string _url;
-		const std::initializer_list<std::string>& values;
-
-		//for the snowflake part, discord class should do
-		std::unordered_map<std::string, Snowflake<User>::RawType>
-			majorParameters = {
-			{ "channel.id", {} },
-			{ "guild.id"  , {} },
-			{ "webhook.id", {} }
-		};
-	};
-
-	struct RateLimiter {
-		std::atomic<bool> isGlobalRateLimited = { false };
-		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp);
-		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime);
-		//isLimited also returns the next Retry timestamp
-	private:
-		std::unordered_map<Route::Bucket, std::string> buckets;
-		std::unordered_map<std::string, time_t> limits;
-		std::mutex mutex;
 	};
 
 	enum class TTS : char {
@@ -235,6 +198,9 @@ namespace SleepyDiscord {
 
 		void testFunction(std::string teststring);
 
+		//gateway functions
+		ObjectResponse<Gateway> getGateway(RequestSettings<ObjectResponse<Gateway>> settings = {});
+
 		//channel functions
 		ObjectResponse<Channel     > getChannel              (Snowflake<Channel> channelID                                                                                 , RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > editChannel             (Snowflake<Channel> channelID, std::string name = "", std::string topic = ""                                  , RequestSettings<ObjectResponse<Channel>> settings = {});
@@ -248,14 +214,16 @@ namespace SleepyDiscord {
 			return Embed::Flag::INVALID_EMBED;
 		}
 		//maybe move this to message.h
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
-		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed = Embed::Flag::INVALID_EMBED, MessageReference replyingTo = {}, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > uploadFile              (SendMessageParams params, std::string fileLocation                                                           , RequestSettings<ObjectResponse<Message>> settings = {});
 		BoolResponse                 addReaction             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<BoolResponse           > settings = {});
 		BoolResponse                 removeReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji, Snowflake<User> userID = "@me");
 		ArrayResponse <User        > getReactions            (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji                                , RequestSettings<ArrayResponse<Reaction>> settings = {});
 		StandardResponse             removeAllReactions      (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<StandardResponse       > settings = {});
 		ObjectResponse<Message     > editMessage             (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed = Embed::Flag::INVALID_EMBED, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > editMessage             (EditMessageParams params, RequestSettings<ObjectResponse<Message>> settings = {});
 		BoolResponse                 deleteMessage           (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
 		BoolResponse                 bulkDeleteMessages      (Snowflake<Channel> channelID, std::vector<Snowflake<Message>> messageIDs                                     , RequestSettings<BoolResponse           > settings = {});
 		/*allow is a bitwise value of all allowed permissions
@@ -280,7 +248,7 @@ namespace SleepyDiscord {
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage, Embed embed = Embed::Flag::INVALID_EMBED) { return editMessage(message.channelID, message.ID, newMessage, embed); }
 		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
-			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, TTS::Default, settings);
+			return sendMessage(channelID, message, Embed::Flag::INVALID_EMBED, MessageReference{}, TTS::Default, settings);
 		}
 
 		//server functions
@@ -290,6 +258,7 @@ namespace SleepyDiscord {
 		ObjectResponse<Server      > deleteServer            (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<Server      >> settings = {});
 		ArrayResponse <Channel     > getServerChannels       (Snowflake<Server> serverID                                                         , RequestSettings<ArrayResponse<Channel      >> settings = {});
 		ObjectResponse<Channel     > createTextChannel       (Snowflake<Server> serverID, std::string name                                       , RequestSettings<ObjectResponse<Channel     >> settings = {});
+		ObjectResponse<Channel     > createChannel       (Snowflake<Server> serverID, std::string name, Channel::ChannelType Type                , RequestSettings<ObjectResponse<Channel     >> settings = {});
 		ArrayResponse <Channel     > editChannelPositions    (Snowflake<Server> serverID, std::vector<std::pair<std::string, uint64_t>> positions, RequestSettings<ArrayResponse<Channel      >> settings = {});
 		ObjectResponse<ServerMember> getMember               (Snowflake<Server> serverID, Snowflake<User> userID                                 , RequestSettings<ObjectResponse<ServerMember>> settings = {});
 		ArrayResponse <ServerMember> listMembers             (Snowflake<Server> serverID, uint16_t limit = 0, std::string after = ""             , RequestSettings<ArrayResponse<ServerMember >> settings = {});
@@ -317,7 +286,7 @@ namespace SleepyDiscord {
 		BoolResponse                 editIntergration        (Snowflake<Server> serverID, std::string integrationID, int expireBegavior, int expireGracePeriod, bool enbleEmoticons); //to do test
 		BoolResponse                 deleteIntegration       (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
 		BoolResponse                 syncIntegration         (Snowflake<Server> serverID, std::string integrationID                              , RequestSettings<BoolResponse                 > settings = {});  //to do test this
-		ObjectResponse<ServerEmbed > getServerEmbed          (Snowflake<Server> serverID                                                         , RequestSettings<ObjectResponse<ServerEmbed  >> settings = {});
+		ObjectResponse<ServerWidget > getServerWidget          (Snowflake<Server> serverID                                                       , RequestSettings<ObjectResponse<ServerWidget>> settings = {});
 		//edit server embed   I don't know what the perms are
 
 		//Invite functions
@@ -352,9 +321,108 @@ namespace SleepyDiscord {
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, std::vector<Embed> embeds, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false); //to do test this
 		ObjectResponse<Webhook> executeWebhook               (Snowflake<Webhook> webhookID, std::string webhookToken, filePathPart file, bool wait = false, std::string username = "", std::string avatar_url = "", bool tts = false);         //to do test this
 
+		//slash commands
+		//Command Options have issues with copying so to avoid any copying, we use templates for the edit and create functions
+		//This way, we can use use the EmptyOptions type as default and still let uses options via a vector or list without any copying
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createGlobalAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, std::string name, std::string description, Options options = (std::nullptr_t)nullptr,
+			bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Post, path("applications/{application.id}/commands", { applicationID }), settings,
+				createApplicationCommandBody(name, description, options, defaultPermission, type)) };
+		}
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editGlobalAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, std::string name, std::string description, Options options = (std::nullptr_t)nullptr,
+			bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Patch,
+				path("applications/{application.id}/commands/{command.id}", { applicationID, commandID }), settings,
+				createApplicationCommandBody(name, description, options, defaultPermission, type, true)) };
+		}
+		ArrayResponse<AppCommand> getGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getGlobalAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteGlobalAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createServerAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Options options = (std::nullptr_t)nullptr, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Post,
+				path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings,
+				createApplicationCommandBody(name, description, options)) };
+		}
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editServerAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			std::string description, Options options = (std::nullptr_t)nullptr,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			return ObjectResponse<AppCommand>{ request(Patch,
+				path("applications/{application.id}/guilds/{guild.id}/commands/{command.id}", { applicationID, serverID, commandID }), settings,
+				createApplicationCommandBody(name, description, options, true)) };
+		}
+		ArrayResponse<AppCommand> getServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteServerAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		template<typename Type>
+		BoolResponse createInteractionResponse(Snowflake<Interaction> interactionID, std::string token, Type response, RequestSettings<BoolResponse> settings = {}) {
+			static_assert(std::is_same<InteractionCallbackType, decltype(response.type)>::value, "response needs to be a Interaction::Response Type");
+			return { request(Post, path("interactions/{interaction.id}/{interaction.token}/callback", { interactionID, token }), settings, json::stringifyObj(response)), EmptyRespFn() };
+		}
+		ObjectResponse<Message> editOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteOriginalInteractionResponse(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> createFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, FollowupMessage params, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<Message> editFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, EditWebhookParams params, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteFollowupMessage(Snowflake<DiscordObject>::RawType applicationID, std::string interactionToken, Snowflake<Message> messageID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse batchEditAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<ServerAppCommandPermissions> permissions, RequestSettings<BoolResponse> settings = {});
+		BoolResponse editServerAppCommandPermission(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::vector<AppCommand::Permissions> permissions, RequestSettings<BoolResponse> settings = {});
+		ArrayResponse<ServerAppCommandPermissions> getServerAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<ServerAppCommandPermissions>> settings = {});
+		ObjectResponse<ServerAppCommandPermissions> getAppCommandPermissions(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<ServerAppCommandPermissions>> settings = {});
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> createAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
+			Options options = (std::nullptr_t)nullptr, bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			if (serverID.empty()) return createGlobalAppCommand(applicationID, name, description, options, defaultPermission, type, settings);
+			return createServerAppCommand(applicationID, serverID, name, description, options, defaultPermission, type, settings);
+		}
+		template<typename Options = const AppCommand::EmptyOptions>
+		ObjectResponse<AppCommand> editAppCommand(
+			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, std::string name,
+			std::string description, Options options = (std::nullptr_t)nullptr,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
+		) {
+			if (serverID.empty()) return editGlobalAppCommand(applicationID, commandID, name, description, options, settings);
+			return editServerAppCommand(applicationID, serverID, commandID, name, description, options, settings);
+		}
+		ArrayResponse<AppCommand> getAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, RequestSettings<ArrayResponse<AppCommand>> settings = {});
+		ObjectResponse<AppCommand> getAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<ObjectResponse<AppCommand>> settings = {});
+		BoolResponse deleteAppCommand(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, Snowflake<AppCommand> commandID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse bulkOverwriteServerAppCommands(Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings = {});
+		BoolResponse bulkOverwriteGlobalAppCommands(Snowflake<DiscordObject>::RawType applicationID, std::vector<AppCommand> commands, RequestSettings<BoolResponse> settings = {});
+
+		//stage instances
+		ObjectResponse<User> createStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<ObjectResponse<User>> settings = {});
+		ObjectResponse<StageInstance> getStageInstance(Snowflake<Channel> channelID, RequestSettings<ObjectResponse<StageInstance>> settings = {});
+		BoolResponse editStageInstance(Snowflake<Channel> channelID, std::string topic, StageInstance::PrivacyLevel privacyLevel = StageInstance::PrivacyLevel::NotSet, RequestSettings<BoolResponse> settings = {});
+		BoolResponse deleteStageInstance(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
+
 		//websocket functions
 		void updateStatus(std::string gameName = "", uint64_t idleSince = 0, Status status = online, bool afk = false);
 		void requestServerMembers(ServerMembersRequest request);
+
+		//CDN stuff
+		#define SLEEPY_CDN_URL "https://cdn.discordapp.com/"
+		static inline constexpr nonstd::string_view getCDN_URL() {
+			return { SLEEPY_CDN_URL, sizeof(SLEEPY_CDN_URL) };	
+		}
+		void getServerBanner(Snowflake<Server> serverID, std::string serverBanner, std::string format, std::function<void(StandardResponse&)> callback);
+		inline void getServerBanner(Server& server, std::string format) { return getServerBanner(server.ID, server.banner, format, [](StandardResponse&){}); }
 
 		void waitTilReady();  ////Deprecated, uses sleep. No replacment for now
 		const bool isReady() { return ready; }
@@ -568,6 +636,13 @@ namespace SleepyDiscord {
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );
 		virtual void onDispatch          (const json::Value& jsonMessage);
+		virtual void onInteraction       (Interaction        interaction) {}
+		virtual void onAppCommand        (AppCommand         appCommand ) {}
+		virtual void onEditAppCommand    (AppCommand         appCommand ) {}
+		virtual void onDeleteAppCommand  (AppCommand         appCommand ) {}
+		virtual void onStageInstance     (StageInstance      instance   ) {}
+		virtual void onDeleteStageInstance(StageInstance      instance   ) {}
+		virtual void onEditStageInstance (StageInstance      instance   ) {}
 		virtual void onUnknownEvent      (std::string name, const json::Value& data); //for extending old library versions
 
 		//websocket stuff
@@ -591,7 +666,14 @@ namespace SleepyDiscord {
 		void processMessage(const WebSocketMessage message) override;
 		void processCloseCode(const int16_t code) override;
 		void heartbeat();
-		void sendHeartbeat();
+		void sendHeartbeat() {
+			const auto heartbeat = generateHeatbeat(lastSReceived);
+			const nonstd::string_view message(heartbeat.buffer.data(), heartbeat.length);
+			//to do switch sendL to string_view
+			sendL(std::string{ message.data(), message.length() });
+			wasHeartbeatAcked = false;
+			onHeartbeat();
+		}
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
@@ -668,14 +750,18 @@ namespace SleepyDiscord {
 		void restart();
 		void disconnectWebsocket(unsigned int code, const std::string reason = "");
 		bool sendL(std::string message);    //the L stands for Limited
+		void handleDispatchEvent(const json::Value& t, json::Value& d);
 		int64_t nextHalfMin = 0;
+		std::mutex connectionMutex;
+		bool isCurrentlyWaitingToReconnect = false;
+		void stopReconnecting();
 
 		//Cache
 		std::shared_ptr<ServerCache> serverCache;
 
 		//rate limiting
 		int8_t messagesRemaining = 0;
-		RateLimiter rateLimiter;
+		RateLimiter<BaseDiscordClient> rateLimiter;
 
 		//error handling
 		void setError(int errorCode);
@@ -697,6 +783,43 @@ namespace SleepyDiscord {
 		//compression
 		std::unique_ptr<GenericCompression> compressionHandler;
 		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
+
+		template<class Options, class Allocator>
+		typename std::enable_if<std::is_same<std::nullptr_t, std::remove_cv_t<Options>>::value, void>::type
+			createOptionsValue(
+				rapidjson::Document& doc, Allocator& allocator, Options& options
+		) {
+			return;
+		}
+
+		template<class Options, class Allocator>
+		typename std::enable_if<!std::is_pointer<Options>::value && !std::is_same<const Options, const SleepyDiscord::AppCommand::EmptyOptions>::value, void>::type
+			createOptionsValue(rapidjson::Document& doc, Allocator& allocator, Options& options) {
+			if (!options.empty()) {
+				rapidjson::Value arr{ rapidjson::Type::kArrayType };
+				for (auto& option : options) {
+					arr.PushBack(json::toJSON(option, allocator), allocator);
+				}
+				doc.AddMember("options", arr, allocator);
+			}
+		}
+
+		template<class Options>
+		std::string createApplicationCommandBody(std::string name, std::string description, Options& options, const bool defaultPermission, AppCommand::Type type, const bool allOptional = false) {
+			rapidjson::Document doc;
+			doc.SetObject();
+			auto& allocator = doc.GetAllocator();
+			if (allOptional || !name.empty())
+				doc.AddMember("name", rapidjson::Value::StringRefType{ name.c_str(), name.length() }, allocator);
+			if (allOptional || !description.empty())
+				doc.AddMember("description", rapidjson::Value::StringRefType{ description.c_str(), description.length() }, allocator);
+			if (allOptional || defaultPermission != true) //default is true
+				doc.AddMember("default_permission", defaultPermission, allocator);
+			if (allOptional || type != AppCommand::Type::NONE)
+				doc.AddMember("type", static_cast<GetEnumBaseType<AppCommand::Type>::Value>(type), allocator);
+			createOptionsValue<Options>(doc, allocator, options);
+			return json::stringify(doc);
+		}
 
 		template<class Callback>
 		void findServerInCache(Snowflake<Server>& serverID, Callback onSuccessCallback) {
@@ -769,6 +892,70 @@ namespace SleepyDiscord {
 					(server.*(container)).erase(found);
 				}
 			);
+		}
+
+		//The number 10 comes from the largest unsigned int being 10 digits long
+		using DBuffer = std::array<char, 10>;
+		//The number 18 comes from 1 plus the length of {\"op\":1,\"d\":}
+		using HeartbeatBuffer = std::array<char, 18 + std::tuple_size<DBuffer>::value>;
+
+		struct Heartbeat {
+			HeartbeatBuffer buffer;
+			std::size_t length;
+		};
+
+		//no reason for this to be so optimized because I just felt like it one day
+#ifdef __cpp_lib_array_constexpr
+		constexpr
+#endif
+			Heartbeat generateHeatbeat(const unsigned int lastSReceived) {
+			DBuffer dBuffer{};
+			//can't find a number to std array so a custom one is made here
+			auto reverseNext = dBuffer.end();
+			auto trunc = lastSReceived;
+			do {
+				reverseNext -= 1;
+				*reverseNext = '0' + (trunc % 10);
+				trunc /= 10;
+			} while (trunc != 0);
+
+			const nonstd::string_view d{ &(*reverseNext),
+				std::size_t(dBuffer.end() - reverseNext) };
+
+#define SLEEPY_HEARTBEAT_START "{"\
+				"\"op\":1,"\
+				"\"d\":"
+
+#define SLEEPY_HEARTBEAT_END "}"
+
+			constexpr auto startBuffer = SLEEPY_HEARTBEAT_START;
+			constexpr auto endBuffer = SLEEPY_HEARTBEAT_END;
+			constexpr auto startLength = sizeof(SLEEPY_HEARTBEAT_START) - 1;
+			//this works because char is one btye
+			constexpr auto endLength = sizeof(SLEEPY_HEARTBEAT_END) - 1;
+			constexpr auto start = nonstd::string_view{ startBuffer, startLength };
+			constexpr auto end = nonstd::string_view{ endBuffer, endLength };
+
+
+			const std::array<nonstd::string_view, 3> toConcat{ {
+				start, d, end
+			} };
+
+			Heartbeat heartbeat = {};
+			HeartbeatBuffer& heartbeatBuffer = heartbeat.buffer;
+			std::size_t& index = heartbeat.length;
+			for (const auto& source : toConcat)
+			{
+				auto dest = heartbeatBuffer.begin() + index;
+
+				//memcpy not avaiable at compile time
+				for (std::size_t index = 0; index < source.length(); index += 1) {
+					dest[index] = source[index];
+				}
+				index += source.length();
+			}
+
+			return heartbeat;
 		}
 	};
 

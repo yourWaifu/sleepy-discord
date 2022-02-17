@@ -19,35 +19,20 @@ namespace SleepyDiscord {
 		ServerMember(json::fromJSON<ServerMember>(json)) {
 		ID = user.ID;
 	}
-	ServerMember::ServerMember(const nonstd::string_view & json) :
-		ServerMember(json::fromJSON<ServerMember>(json)) {
-	}
 
 	Server::Server(const json::Value & json) :
-		Server(json::fromJSON<Server>(json)) {
-	}
-	Server::Server(const nonstd::string_view & json) :
 		Server(json::fromJSON<Server>(json)) {
 	}
 
 	UnavailableServer::UnavailableServer(const json::Value & json) :
 		UnavailableServer(json::fromJSON<UnavailableServer>(json)) {
 	}
-	UnavailableServer::UnavailableServer(const nonstd::string_view & json) :
-		UnavailableServer(json::fromJSON<UnavailableServer>(json)) {
-	}
 
-	ServerEmbed::ServerEmbed(const json::Value & json) :
-		ServerEmbed(json::fromJSON<ServerEmbed>(json)) {
-	}
-	ServerEmbed::ServerEmbed(const nonstd::string_view & json) :
-		ServerEmbed(json::fromJSON<ServerEmbed>(json)) {
+	ServerWidget::ServerWidget(const json::Value & json) :
+		ServerWidget(json::fromJSON<ServerWidget>(json)) {
 	}
 
 	ServerMembersRequest::ServerMembersRequest(const json::Value& json) :
-		ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {
-	}
-	ServerMembersRequest::ServerMembersRequest(const nonstd::string_view & json) :
 		ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {
 	}
 }

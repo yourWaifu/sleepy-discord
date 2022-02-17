@@ -7,6 +7,46 @@
 #include "server.h"
 
 namespace SleepyDiscord {
+	struct SessionStartLimit : public DiscordObject {
+		SessionStartLimit() = default;
+		SessionStartLimit(const json::Value & rawJSON);
+		SessionStartLimit(const nonstd::string_view & json) :
+			SessionStartLimit(json::fromJSON<SessionStartLimit>(json)) {}
+
+		int total = 0;
+		int remaining = 0;
+		int resetAfter = 0;
+		int maxConcurency = 0;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&SessionStartLimit::total        , "total"          , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::remaining    , "remaining"      , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::resetAfter   , "reset_after"    , json::OPTIONAL_FIELD),
+				json::pair(&SessionStartLimit::maxConcurency, "max_concurrency", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+	
+	struct Gateway {
+		Gateway() = default;
+		Gateway(const json::Value & rawJSON);
+		Gateway(const nonstd::string_view & json) :
+			Gateway(json::fromJSON<Gateway>(json)) {}
+
+		std::string url;
+		int shards;
+		SessionStartLimit sessionStartLimit;
+
+		JSONStructStart
+			std::make_tuple(
+				json::pair(&Gateway::url              , "url"                , json::OPTIONAL_FIELD),
+				json::pair(&Gateway::shards           , "shards"             , json::OPTIONAL_FIELD),
+				json::pair(&Gateway::sessionStartLimit, "session_start_limit", json::OPTIONAL_FIELD)
+			);
+		JSONStructEnd
+	};
+
 	enum Status {
 		statusError = 0,
 		online         ,
@@ -32,7 +72,8 @@ namespace SleepyDiscord {
 		Ready() = default;
 		//Ready(const std::string * rawJSON);
 		Ready(const json::Value & rawJSON);
-		Ready(const nonstd::string_view & rawJSON);
+		Ready(const nonstd::string_view& json) :
+			Ready(json::fromJSON<Ready>(json)) {}
 		//Ready(const json::Values values);
 		int v;	//gateway protocol version
 		User user;
@@ -78,6 +119,9 @@ namespace SleepyDiscord {
 		static inline json::Value fromType(const Type& value, json::Value::AllocatorType& allocator) {
 			return TypeHelper::fromType(value, allocator);
 		}
+		static inline bool isType(const json::Value& value) {
+			return TypeHelper::isType(value);
+		}
 	};
 
 	struct ActivityTimestamp : public DiscordObject {
@@ -85,9 +129,10 @@ namespace SleepyDiscord {
 		ActivityTimestamp() = default;
 		~ActivityTimestamp() = default;
 		ActivityTimestamp(const json::Value & json);
-		ActivityTimestamp(const nonstd::string_view & json);
-		Time start;
-		Time end;
+		ActivityTimestamp(const nonstd::string_view& json) :
+			ActivityTimestamp(json::fromJSON<ActivityTimestamp>(json)) {}
+		Time start = 0;
+		Time end = 0;
 
 		JSONStructStart
 			std::make_tuple(
@@ -102,7 +147,8 @@ namespace SleepyDiscord {
 		ActivityParty() = default;
 		~ActivityParty() = default;
 		ActivityParty(const json::Value & json);
-		ActivityParty(const nonstd::string_view & json);
+		ActivityParty(const nonstd::string_view& json) :
+			ActivityParty(json::fromJSON<ActivityParty>(json)) {}
 		std::string ID;
 		std::array<int64_t, 2> size;
 		int64_t& currentSize = size[0];
@@ -121,7 +167,8 @@ namespace SleepyDiscord {
 		ActivityAssets() = default;
 		~ActivityAssets() = default;
 		ActivityAssets(const json::Value & json);
-		ActivityAssets(const nonstd::string_view & json);
+		ActivityAssets(const nonstd::string_view& json) :
+			ActivityAssets(json::fromJSON<ActivityAssets>(json)) {}
 		std::string largeImage;
 		std::string largeText;
 		std::string smallImage;
@@ -142,7 +189,8 @@ namespace SleepyDiscord {
 		ActivitySecrets() = default;
 		~ActivitySecrets() = default;
 		ActivitySecrets(const json::Value & json);
-		ActivitySecrets(const nonstd::string_view & json);
+		ActivitySecrets(const nonstd::string_view& json) :
+			ActivitySecrets(json::fromJSON<ActivitySecrets>(json)) {}
 		std::string join;
 		std::string spectate;
 		std::string match;
@@ -164,7 +212,8 @@ namespace SleepyDiscord {
 		Activity() = default;
 		~Activity() = default;
 		Activity(const json::Value & json);
-		Activity(const nonstd::string_view & json);
+		Activity(const nonstd::string_view& json) :
+			Activity(json::fromJSON<Activity>(json)) {}
 		std::string name;
 		enum ActivityType {
 			ACTIVITY_TYPE_NONE = -1,
@@ -221,10 +270,9 @@ namespace SleepyDiscord {
 		PresenceUpdate() = default;
 		~PresenceUpdate() = default;
 		PresenceUpdate(const json::Value & json);
-		PresenceUpdate(const nonstd::string_view & json);
+		PresenceUpdate(const nonstd::string_view& json) :
+			PresenceUpdate(json::fromJSON<PresenceUpdate>(json)) {}
 		User user;
-		std::vector<Snowflake<Role>> roleIDs;
-		Activity currentActivity;
 		Snowflake<Server> serverID;
 		std::string status;
 		std::vector<Activity> activities;
@@ -232,8 +280,6 @@ namespace SleepyDiscord {
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&PresenceUpdate::user           , "user"      , json::REQUIRIED_FIELD),
-				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::roleIDs        , "roles"     , json::REQUIRIED_FIELD),
-				json::pair                           (&PresenceUpdate::currentActivity, "game"      , json::NULLABLE_FIELD ),
 				json::pair                           (&PresenceUpdate::serverID       , "guild_id"  , json::OPTIONAL_FIELD ),
 				json::pair                           (&PresenceUpdate::status         , "status"    , json::REQUIRIED_FIELD),
 				json::pair<json::ContainerTypeHelper>(&PresenceUpdate::activities     , "activities", json::REQUIRIED_FIELD)
@@ -244,7 +290,8 @@ namespace SleepyDiscord {
 	struct ServerMembersChunk {
 		ServerMembersChunk() = default;
 		ServerMembersChunk(const json::Value& json);
-		ServerMembersChunk(const nonstd::string_view & json);
+		ServerMembersChunk(const nonstd::string_view& json) :
+			ServerMembersChunk(json::fromJSON<ServerMembersChunk>(json)) {}
 		Snowflake<Server> serverID;
         std::vector<ServerMember> members;
 		int chunkIndex;

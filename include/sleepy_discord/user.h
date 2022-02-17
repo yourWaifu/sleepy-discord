@@ -23,7 +23,8 @@ namespace SleepyDiscord {
 		User() = default;
 		//~User();
 		//User(const std::string * rawJSON);
-		User(const nonstd::string_view & json);
+		User(const nonstd::string_view& json) :
+			User(json::fromJSON<User>(json)) {}
 		User(const json::Value& json);
 		//User(const json::Values values);
 
@@ -94,7 +95,8 @@ namespace SleepyDiscord {
 	struct Connection : public IdentifiableDiscordObject<Connection> {
 	public:
 		Connection() = default;
-		Connection(const nonstd::string_view & json);
+		Connection(const nonstd::string_view& json) :
+			Connection(json::fromJSON<Connection>(json)) {}
 		Connection(const json::Value& json);
 		std::string name;
 		std::string type;

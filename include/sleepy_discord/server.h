@@ -3,12 +3,15 @@
 #include "discord_object_interface.h"
 #include "user.h"
 #include "channel.h"
+#include "stage_instance.h"
 #include "snowflake.h"
 #include "cache.h"
+#include "voice.h"
 
 namespace SleepyDiscord {
-	enum Permission : int64_t;
+	enum Permission : uint64_t;
 	struct Role;
+	struct StageInstance;
 	
 	/*Guild Member Structure
 	Field     Type     Description
@@ -22,7 +25,8 @@ namespace SleepyDiscord {
 	struct ServerMember : public IdentifiableDiscordObject<User> {
 		ServerMember() = default;
 		//ServerMember(const std::string * rawJson);
-		ServerMember(const nonstd::string_view & rawJSON);
+		ServerMember(const nonstd::string_view& json) :
+			ServerMember(json::fromJSON<ServerMember>(json)) {}
 		ServerMember(const json::Value& json);
 		//ServerMember(const json::Values values);
 		User user;
@@ -31,6 +35,8 @@ namespace SleepyDiscord {
 		std::string joinedAt;
 		bool deaf = false;
 		bool mute = false;
+		Permission permissions;
+		bool pending = false;
 
 		inline operator User&() {
 			return user;
@@ -44,21 +50,23 @@ namespace SleepyDiscord {
 				json::pair<json::ContainerTypeHelper>(&ServerMember::roles   , "roles"    , json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::joinedAt, "joined_at", json::OPTIONAL_FIELD),
 				json::pair                           (&ServerMember::deaf    , "deaf"     , json::OPTIONAL_FIELD),
-				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD)
+				json::pair                           (&ServerMember::mute    , "mute"     , json::OPTIONAL_FIELD),
+				json::pair<UInt64StrTypeHelper>      (&ServerMember::permissions, "permissions", json::OPTIONAL_FIELD),
+				json::pair                           (&ServerMember::pending , "pending"  , json::OPTIONAL_FIELD)
 			);
 		JSONStructEnd
 	};
-
+    
 	struct Server : public IdentifiableDiscordObject<Server> {
-		//~Server();
+		~Server() = default;
 		Server() = default;
-		//Server(const std::string * rawJson);
-		Server(const nonstd::string_view & rawJSON);
+		Server(const nonstd::string_view& json) :
+			Server(json::fromJSON<Server>(json)) {}
 		Server(const json::Value& json);
-		//Server(const json::Values values);
 		std::string name;
 		std::string icon;
 		std::string splash;
+		std::string discoverySplash;
 		Snowflake<User> ownerID;
 		Permission permissions;
 		std::string region;
@@ -68,19 +76,37 @@ namespace SleepyDiscord {
 		std::string embedChannelID;
 		int verificationLevel;
 		int defaultMessageNotifications;
+		int explicitContentFilter;
+        
 		std::list<Role> roles;
-		//voice_states
+		std::list<VoiceState> voiceStates;
 		//emojis
-		//features
+		std::vector<std::string> features;
 		bool unavailable;
-
+		std::vector<StageInstance> stageInstances;
+		Snowflake<DiscordObject> applicationID;
+		Snowflake<Channel> systemChannelID;
+		int systemChannelFlags;
+		Snowflake<Channel> rulesChannelID;
 		//presences
 		int MFALevel;
 		std::string joinedAt;
-		
+		int maxMembers = 0;
+		std::string vanityUrlCode;
+		std::string description;
+		std::string banner;
+		int premiumTier = 0;
+		int premiumSubscriptionCount = 0;
+		std::string preferredLocale;
+		Snowflake<Channel> publicUpdatesChannelID;
+		int maxVideoChannelUsers;
+		int approximateMemberCount;
+		int approximatePresenceCount;
+		int nsfwLevel = 0;
+        
 		//those are only filled in from the onServer event
 		bool large;
-
+		int memberCount = 0;
 		std::list<ServerMember> members;
 		std::list<Channel> channels;
 
@@ -88,29 +114,50 @@ namespace SleepyDiscord {
 		std::list<Channel>::iterator findChannel(const Snowflake<Channel> channelID);
 		std::list<Role>::iterator findRole(const Snowflake<Role> roleID);
 
-		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&Server::ID                         , "id"                           , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::name                       , "name"                         , json::REQUIRIED_FIELD),
 				json::pair                           (&Server::icon                       , "icon"                         , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::splash                     , "splash"                       , json::NULLABLE_FIELD ),
+				json::pair                           (&Server::discoverySplash            , "discovery_splash"             , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::ownerID                    , "owner_id"                     , json::OPTIONAL_FIELD ),
-				json::pair<json::EnumTypeHelper     >(&Server::permissions                , "permissions"                  , json::OPTIONAL_FIELD ),
+				json::pair<UInt64StrTypeHelper      >(&Server::permissions                , "permissions"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::region                     , "region"                       , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::AFKchannelID               , "afk_channel_id"               , json::NULLABLE_FIELD ),
 				json::pair                           (&Server::AFKTimeout                 , "afk_timeout"                  , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::embedEnable                , "embed_enabled"                , json::OPTIONAL_FIELD ),
-				json::pair                           (&Server::embedChannelID             , "embed_channel_id"             , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::embedEnable                , "widget_enabled"               , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::embedChannelID             , "widget_channel_id"            , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::verificationLevel          , "verification_level"           , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::defaultMessageNotifications, "default_message_notifications", json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::explicitContentFilter      , "explicit_content_filter"      , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::roles                      , "roles"                        , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::features                   , "features"                     , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::unavailable                , "unavailable"                  , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::MFALevel                   , "mfa_level"                    , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::applicationID              , "application_id"               , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::systemChannelID            , "system_channel_id"            , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::systemChannelFlags         , "system_channel_flags"         , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::rulesChannelID             , "rules_channel_id"             , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::joinedAt                   , "joined_at"                    , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::large                      , "large"                        , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::memberCount                , "member_count"                 , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::voiceStates                , "voice_states"                 , json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&Server::members                    , "members"                      , json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD )
+				json::pair<json::ContainerTypeHelper>(&Server::channels                   , "channels"                     , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::maxMembers                 , "max_members"                  , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::vanityUrlCode              , "vanity_url_code"              , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::description                , "description"                  , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::banner                     , "banner"                       , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::premiumTier                , "premium_tier"                 , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::premiumSubscriptionCount   , "premium_subscription_count"   , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::preferredLocale            , "preferred_locale"             , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::publicUpdatesChannelID     , "public_updates_channel_id"    , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::maxVideoChannelUsers       , "max_video_channel_users"      , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::approximateMemberCount     , "approximate_member_count"     , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::approximatePresenceCount   , "approximate_presence_count"   , json::OPTIONAL_FIELD ),
+				json::pair                           (&Server::nsfwLevel                  , "nsfw_level"                   , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::stageInstances             , "stage_instances"              , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};
@@ -118,12 +165,13 @@ namespace SleepyDiscord {
 	struct UnavailableServer : public IdentifiableDiscordObject<Server> {
 		UnavailableServer() = default;
 		//UnavailableServer(const std::string * rawJson);
-		UnavailableServer(const nonstd::string_view & rawJSON);
+		UnavailableServer(const nonstd::string_view& json) :
+			UnavailableServer(json::fromJSON<UnavailableServer>(json)) {}
 		UnavailableServer(const json::Value& json);
 		//UnavailableServer(const json::Values values);
 
-		enum class AvailableFlag : int8_t {
-			NotSet = '\xFE', //-2 in hex
+		enum class AvailableFlag {
+			NotSet = -2,
 			Unavaiable = true,
 			avaiable = false,
 		};
@@ -183,20 +231,21 @@ namespace SleepyDiscord {
 		}
 	};
 
-	struct ServerEmbed : public DiscordObject {
-		ServerEmbed() = default;
-		//ServerEmbed(const std::string * rawJson);
-		ServerEmbed(const nonstd::string_view & rawJSON);
-		ServerEmbed(const json::Value& json);
-		//ServerEmbed(const json::Values values);
+	struct ServerWidget : public DiscordObject {
+		ServerWidget() = default;
+		//ServerWidget(const std::string * rawJson);
+		ServerWidget(const nonstd::string_view& json) :
+			ServerWidget(json::fromJSON<ServerWidget>(json)) {}
+		ServerWidget(const json::Value& json);
+		//ServerWidget(const json::Values values);
 		bool enabled;
-		Snowflake<ServerEmbed> channelID;
+		Snowflake<Channel> channelID;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&ServerEmbed::enabled  , "enabled"   , json::REQUIRIED_FIELD),
-				json::pair(&ServerEmbed::channelID, "channel_id", json::NULLABLE_FIELD )
+				json::pair(&ServerWidget::enabled  , "enabled"   , json::REQUIRIED_FIELD),
+				json::pair(&ServerWidget::channelID, "channel_id", json::NULLABLE_FIELD )
 			);
 		JSONStructEnd
 	};
@@ -204,22 +253,24 @@ namespace SleepyDiscord {
 	struct ServerMembersRequest {
 		ServerMembersRequest() = default;
 		ServerMembersRequest(const json::Value& json);
-		ServerMembersRequest(const nonstd::string_view & json);
+		ServerMembersRequest(const nonstd::string_view& json) :
+			ServerMembersRequest(json::fromJSON<ServerMembersRequest>(json)) {}
 		Snowflake<Server> serverID;
-		std::string query;
-		int limit;
-		bool presence;
+		//since empty and undefined mean different things to the API, we need optional
+		tl::optional<std::string> query;
+		int limit = 0;
+		bool presence = false;
 		std::vector<Snowflake<User>> userIDs;
 		std::string nonce;
 		
 		JSONStructStart
 			std::make_tuple(
-				json::pair(&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
-				json::pair(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
-				json::pair(&ServerMembersRequest::limit   , "limit"    , json::OPTIONAL_FIELD ),
-				json::pair(&ServerMembersRequest::presence, "presences", json::OPTIONAL_FIELD ),
+				json::pair                           (&ServerMembersRequest::serverID, "guild_id" , json::REQUIRIED_FIELD),
+				json::pair<json::OptionalTypeHelper >(&ServerMembersRequest::query   , "query"    , json::OPTIONAL_FIELD ),
+				json::pair                           (&ServerMembersRequest::limit   , "limit"    , json::REQUIRIED_FIELD),
+				json::pair                           (&ServerMembersRequest::presence, "presences", json::OPTIONAL_FIELD ),
 				json::pair<json::ContainerTypeHelper>(&ServerMembersRequest::userIDs , "user_ids" , json::OPTIONAL_FIELD ), 
-				json::pair(&ServerMembersRequest::nonce   , "nonce"    , json::OPTIONAL_FIELD )
+				json::pair                           (&ServerMembersRequest::nonce   , "nonce"    , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

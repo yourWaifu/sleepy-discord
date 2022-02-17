@@ -1,13 +1,14 @@
-#ifdef EXISTENT_ZLIB_NG
-#include "zlib-ng_compression.h"
+#if defined(EXISTENT_ZLIB) || defined(EXISTENT_ZLIB_NG)
+#include "zlib_compression.h"
+#include <memory.h>
 
 namespace SleepyDiscord {
 	ZLibCompression::ZLibCompression() {
-		stream = zng_stream{};
+		stream = ZLib::Stream{};
 		memset(&stream, 0, sizeof(stream));
-		statusCode = zng_inflateInit(&stream);
+		statusCode = ZLib::inflateInitStream(&stream);
 		if (statusCode != Z_OK) {
-			zng_inflateEnd(&stream);
+			ZLib::inflateEndStream(&stream);
 		}
 		if (output.empty()) //since are using back(), we need at least one buffer in the output
 			output.emplace_back(); //make a new output buffer
@@ -16,7 +17,7 @@ namespace SleepyDiscord {
 	void ZLibCompression::uncompress(const std::string& compressed) {
 		std::lock_guard<std::mutex> lock(mutex);
 
-		stream.next_in = reinterpret_cast<const uint8_t*>(compressed.c_str());
+		stream.next_in = (ZLib::ConstByte*)(compressed.c_str());
 		stream.avail_in = static_cast<uint32_t>(compressed.length());
 
 		statusCode = Z_BUF_ERROR;
@@ -25,17 +26,17 @@ namespace SleepyDiscord {
 			Output::Data& data = buffer.first;
 			std::size_t& size = buffer.second;
 
-			stream.next_out = reinterpret_cast<uint8_t*>(data.data() + size);
+			stream.next_out = reinterpret_cast<ZLib::Btye*>(data.data() + size);
 			stream.avail_out = static_cast<uint32_t>(data.size() - size);
 
-			statusCode = zng_inflate(&stream, Z_SYNC_FLUSH);
+			statusCode = ZLib::inflateStream(&stream, Z_SYNC_FLUSH);
 
 			auto oldSize = size;
 			size = data.size() - stream.avail_out;
 			auto deltaSize = size - oldSize;
 
 			if (statusCode == Z_STREAM_END) {
-				statusCode = zng_inflateReset(&stream);
+				statusCode = ZLib::inflateResetStream(&stream);
 			}
 			else if (deltaSize == 0) { //if did anything
 				if (stream.avail_out == 0)

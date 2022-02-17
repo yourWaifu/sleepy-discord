@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <algorithm>
+#include <cstdlib>
 #include "discord_object_interface.h"
 #include "snowflake.h"
+#include "user.h"
 
 //source: discord api docs | /topics/Permissions.md | Nov 16
 
@@ -12,7 +14,8 @@ namespace SleepyDiscord {
 	struct Overwrite;
 	struct Channel;
 
-	enum Permission : int64_t {
+	using PermissionRaw = uint64_t;
+	enum Permission : PermissionRaw {
 		CREATE_INSTANT_INVITE = 0x00000001, //Allows creation of instant invites
 		KICK_MEMBERS    /**/  = 0x00000002, //Allows kicking members
 		BAN_MEMBERS     /**/  = 0x00000004, //Allows banning members
@@ -80,6 +83,27 @@ namespace SleepyDiscord {
 	Permission overwritePermissions(const Permission basePermissions, const Server& server, const ServerMember& member, const Channel& channel);
 	Permission getPermissions(const Server& server, const ServerMember& member, const Channel& channel);
 
+	template<class Type>
+	struct UInt64StrTypeHelper {
+		static inline Permission toType(const json::Value& value) {
+			//c++11 has strtoull which requires a std::string
+			//c++17 has from_chars tho
+			return Type(std::strtoull(value.GetString(), nullptr, 10));
+		}
+		static inline json::Value fromType(const Type& value, json::Value::AllocatorType&) {
+			std::string valueStr = std::to_string(static_cast<uint64_t>(value));
+			return json::Value(valueStr.c_str(), valueStr.length());
+		}
+		static inline bool empty(const Type& value) {;
+			return value == Type(0);
+		}
+		static inline bool isType(const json::Value& value) {
+			return value.IsString();
+		}
+	};
+
+	struct User;
+
 	/*
 	Role Structure
 
@@ -98,7 +122,8 @@ namespace SleepyDiscord {
 		~Role() {}
 		//Role(const std::string * rawJson);
 		Role(const json::Value & rawJSON);
-		Role(const nonstd::string_view& json);
+		Role(const nonstd::string_view& json) :
+			Role(json::fromJSON<Role>(json)) {}
 		//Role(const json::Values values);
 		std::string name;
 		int color = -1;
@@ -108,20 +133,39 @@ namespace SleepyDiscord {
 		bool managed = false;
 		bool mentionable = false;
 
+		struct Tags : public DiscordObject {
+			Tags() = default;
+			~Tags() {}
+			Tags(const json::Value& rawJSON);
+			Tags(const nonstd::string_view& json) :
+				Tags(json::fromJSON<Tags>(json)) {}
+			Snowflake<User> botID;
+			Snowflake<DiscordObject> integrationID;
+
+			JSONStructStart
+				std::make_tuple(
+					json::pair(&Tags::botID        , "bot_id"        , json::OPTIONAL_FIELD),
+					json::pair(&Tags::integrationID, "integration_id", json::OPTIONAL_FIELD)
+				);
+			JSONStructEnd
+		};
+		Tags tags;
+
 		inline bool operator==(Role& right) {
 			return ID == right.ID;
 		}
 
 		JSONStructStart
 			std::make_tuple(
-				json::pair                      (&Role::ID         , "id"         , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::name       , "name"       , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::color      , "color"      , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::hoist      , "hoist"      , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::position   , "position"   , json::REQUIRIED_FIELD),
-				json::pair<json::EnumTypeHelper>(&Role::permissions, "permissions", json::REQUIRIED_FIELD),
-				json::pair                      (&Role::managed    , "managed"    , json::REQUIRIED_FIELD),
-				json::pair                      (&Role::mentionable, "mentionable", json::REQUIRIED_FIELD)
+				json::pair                     (&Role::ID         , "id"         , json::REQUIRIED_FIELD),
+				json::pair                     (&Role::name       , "name"       , json::REQUIRIED_FIELD),
+				json::pair                     (&Role::color      , "color"      , json::REQUIRIED_FIELD),
+				json::pair                     (&Role::hoist      , "hoist"      , json::REQUIRIED_FIELD),
+				json::pair                     (&Role::position   , "position"   , json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper>(&Role::permissions, "permissions", json::REQUIRIED_FIELD),
+				json::pair                     (&Role::managed    , "managed"    , json::REQUIRIED_FIELD),
+				json::pair                     (&Role::mentionable, "mentionable", json::REQUIRIED_FIELD),
+				json::pair                     (&Role::tags       , "tags"       , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

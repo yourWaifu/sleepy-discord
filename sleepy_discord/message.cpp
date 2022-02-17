@@ -2,11 +2,7 @@
 #include "client.h"
 
 namespace SleepyDiscord {
-	Message::Message(const json::Value& json) :
-		Message(json::fromJSON<Message>(json))
-	{}
-
-	Message::Message(const nonstd::string_view& json) :
+	Message::Message(json::Value& json) :
 		Message(json::fromJSON<Message>(json))
 	{}
 
@@ -30,7 +26,7 @@ namespace SleepyDiscord {
 	}
 
 	Message Message::send(BaseDiscordClient* client) {
-		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), static_cast<TTS>(tts));
+		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), messageReference, static_cast<TTS>(tts));
 	}
 
 	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed)
@@ -38,14 +34,14 @@ namespace SleepyDiscord {
 		return client->sendMessage(channelID, message, embed);
 	}
 
+	Message::Interaction::Interaction(const json::Value& json) :
+		Interaction(json::fromJSON<Message::Interaction>(json))
+	{}
+
 	Emoji::~Emoji() {
 	}
 
 	Emoji::Emoji(const json::Value& json) :
-		Emoji(json::fromJSON<Emoji>(json)) {
-	}
-
-	Emoji::Emoji(const nonstd::string_view& json) :
 		Emoji(json::fromJSON<Emoji>(json)) {
 	}
 
@@ -56,7 +52,37 @@ namespace SleepyDiscord {
 		Reaction(json::fromJSON<Reaction>(json)) {
 	}
 
-	Reaction::Reaction(const nonstd::string_view& json) :
-		Reaction(json::fromJSON<Reaction>(json)) {
-	}
+	StickerPack::~StickerPack() {}
+	StickerPack::StickerPack(const json::Value & json):
+		StickerPack(json::fromJSON<StickerPack>(json))
+	{}
+
+	Sticker::~Sticker() {}
+	Sticker::Sticker(const json::Value & json):
+		Sticker(json::fromJSON<Sticker>(json))
+	{}
+
+	MessageReference::MessageReference(const json::Value & json):
+		MessageReference(json::fromJSON<MessageReference>(json))
+	{}
+	AllowedMentions::AllowedMentions(const json::Value & json):
+		AllowedMentions(json::fromJSON<AllowedMentions>(json))
+	{}
+
+	ActionRow::ActionRow(json::Value& json) :
+		ActionRow(json::fromJSON<ActionRow>(json))
+	{}
+	Button::Button(const json::Value& json) :
+		Button(json::fromJSON<Button>(json))
+	{}
+	SelectMenu::SelectMenu(const json::Value& json) :
+		SelectMenu(json::fromJSON<SelectMenu>(json))
+	{}
+	SelectMenu::Option::Option(const json::Value& json) :
+		SelectMenu::Option(json::fromJSON<SelectMenu::Option>(json))
+	{}
+	TextInputs::TextInputs(const json::Value& json) :
+		TextInputs(json::fromJSON<TextInputs>(json))
+	{}
+
 }

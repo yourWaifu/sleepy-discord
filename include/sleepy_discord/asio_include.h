@@ -1,5 +1,4 @@
 #pragma once
-#define ASIO_STANDALONE
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -8,6 +7,7 @@
 #endif
 
 #if !defined(SLEEPY_USE_BOOST) && !defined(EXISTENT_BOOST_ASIO)
+	#define ASIO_STANDALONE
 	#include "websocketpp_common.h"
 	#ifdef NONEXISTENT_WEBSOCKETPP
 		#include <asio.hpp>

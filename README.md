@@ -3,7 +3,7 @@ C++ library for Discord
 
 Note: Sleepy Discord is pronounced as CP Discord, like the letters C and P. Actually, that's a joke. Sleepy should be pronounced the way you would normally pronounce sleepy.
 
-[![Discord Server](https://discordapp.com/api/guilds/566681036935790615/embed.png?style=banner2)](https://discord.gg/5VDrVfK)
+[![Discord Server](https://discordapp.com/api/guilds/566681036935790615/widget.png?style=banner2)](https://discord.gg/5VDrVfK)
 
 # [Documentation](https://yourwaifu.dev/sleepy-discord/docs/)
 [Getting Started](https://yourwaifu.dev/sleepy-discord/docs/)<br />
@@ -34,6 +34,7 @@ public:
 
 int main() {
 	MyClientClass client("token", SleepyDiscord::USER_CONTROLED_THREADS);
+	client.setIntents(SleepyDiscord::Intent::SERVER_MESSAGES);
 	client.run();
 }
 ```

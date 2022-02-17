@@ -63,6 +63,10 @@ namespace SleepyDiscord {
 			return json::ClassTypeHelper<RawType>::fromType(raw, alloc);
 		}
 
+		static inline const bool isType(const typename json::Value& value) {
+			return value.IsString();
+		}
+
 		template<class iterator>
 		inline iterator findObject(iterator begin, iterator end) const {
 			return std::find_if(begin, end, [&](const DiscordObject& object) {
@@ -116,4 +120,13 @@ namespace SleepyDiscord {
 	inline bool operator!=(const char * left, Snowflake<DiscordOject>& right) {
 		return left != right.operator const std::string&().c_str();
 	}
+}
+
+namespace std {
+	template<typename DiscordObject>
+	struct hash<SleepyDiscord::Snowflake<DiscordObject>> {
+		inline size_t operator()(const SleepyDiscord::Snowflake<DiscordObject>& snowflake) const {
+			return std::hash<string>{}(static_cast<const string&>(snowflake));
+		}
+	};
 }

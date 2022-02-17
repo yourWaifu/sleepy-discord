@@ -9,22 +9,36 @@ namespace SleepyDiscord {
 		Overwrite() = default;
 		//Overwrite(const std::string * rawJson);
 		Overwrite(const json::Value & rawJSON);
-		Overwrite(const nonstd::string_view & rawJSON);
+		Overwrite(const nonstd::string_view& json) :
+			Overwrite(json::fromJSON<Overwrite>(json)) {
+		}
 		//Overwrite(const json::Values values);
 		~Overwrite() {}
-		std::string type;
+		enum class Type : int {
+			TYPE_NONE = -400,
+			role = 0,
+			member = 1
+		};
+		Type type;
 		Permission allow = Permission::NONE;
 		Permission deny = Permission::NONE;
 
 		//const static std::initializer_list<const char*const> fields;
 		JSONStructStart
 			std::make_tuple(
-				json::pair<json::ClassTypeHelper>(&Overwrite::ID   , "id"   , json::REQUIRIED_FIELD),
-				json::pair<json::ClassTypeHelper>(&Overwrite::type , "type" , json::REQUIRIED_FIELD),
-				json::pair<json::EnumTypeHelper >(&Overwrite::allow, "allow", json::REQUIRIED_FIELD),
-				json::pair<json::EnumTypeHelper >(&Overwrite::deny , "deny" , json::REQUIRIED_FIELD)
+				json::pair                      (&Overwrite::ID   , "id"   , json::REQUIRIED_FIELD),
+				json::pair<json::EnumTypeHelper>(&Overwrite::type , "type" , json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::allow, "allow", json::REQUIRIED_FIELD),
+				json::pair<UInt64StrTypeHelper >(&Overwrite::deny , "deny" , json::REQUIRIED_FIELD)
 			);
 		JSONStructEnd
+	};
+
+	template<>
+	struct GetDefault<Overwrite::Type> {
+		static inline const Overwrite::Type get() {
+			return Overwrite::Type::TYPE_NONE;
+		}
 	};
 
 	//forward declearion
@@ -36,7 +50,9 @@ namespace SleepyDiscord {
 		Channel() = default;
 		//Channel(const std::string * rawJson);
 		Channel(const json::Value & rawJSON);
-		Channel(const nonstd::string_view & rawJSON);
+		Channel(const nonstd::string_view& json) :
+			Channel(json::fromJSON<Channel>(json)) {
+		}
 		//Channel(const json::Values values);
 		~Channel();
 		
@@ -48,7 +64,8 @@ namespace SleepyDiscord {
 			GROUP_DM          = 3,
 			SERVER_CATEGORY   = 4,
 			GUILD_NEWS        = 5,
-			GUILD_STORE       = 6
+			GUILD_STORE       = 6,
+			GUILD_STAGE_VOICE = 13
 		} type = CHANNEL_TYPE_NONE;
 		Snowflake<Server>      serverID;             //optional,                  used in server       channels
 		int                    position = 0;         //optional,                  used in server       channels
