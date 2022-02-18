@@ -635,7 +635,6 @@ namespace SleepyDiscord {
 		virtual void onMessage           (Message            message    );
 		virtual void onServer            (Server             server     );
 		virtual void onChannel           (Channel            channel    );
-		virtual void onDispatch          (const json::Value& jsonMessage);
 		virtual void onInteraction       (Interaction        interaction) {}
 		virtual void onAppCommand        (AppCommand         appCommand ) {}
 		virtual void onEditAppCommand    (AppCommand         appCommand ) {}
@@ -644,6 +643,7 @@ namespace SleepyDiscord {
 		virtual void onDeleteStageInstance(StageInstance      instance   ) {}
 		virtual void onEditStageInstance (StageInstance      instance   ) {}
 		virtual void onUnknownEvent      (std::string name, const json::Value& data); //for extending old library versions
+		virtual void onDispatch          (const json::Value& t, json::Value& d) {}
 
 		//websocket stuff
 		virtual void onHeartbeat();

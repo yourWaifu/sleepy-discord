@@ -700,7 +700,7 @@ namespace SleepyDiscord {
 			onUnknownEvent(json::toStdString(t), d);
 			break;
 		}
-		onDispatch(d);
+		onDispatch(t, d);
 	}
 
 	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
