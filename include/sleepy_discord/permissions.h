@@ -142,6 +142,10 @@ namespace SleepyDiscord {
 			Snowflake<User> botID;
 			Snowflake<DiscordObject> integrationID;
 
+			inline const bool empty() const {
+				return botID.empty() && integrationID.empty();
+			}
+
 			JSONStructStart
 				std::make_tuple(
 					json::pair(&Tags::botID        , "bot_id"        , json::OPTIONAL_FIELD),
