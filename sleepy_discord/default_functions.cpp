@@ -144,10 +144,6 @@ namespace SleepyDiscord {
 
 	}
 
-	void BaseDiscordClient::onDispatch(const json::Value& jsonMessage) {
-
-	}
-
 	void BaseDiscordClient::onInvaldSession() {
 
 	}
