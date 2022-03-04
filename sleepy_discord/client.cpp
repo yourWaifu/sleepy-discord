@@ -187,12 +187,12 @@ namespace SleepyDiscord {
 							);
 						} else if (!response.text.empty()) {
 							onError(ERROR_NOTE, response.text);
+						}
+					}
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 							if (static_cast<int>(mode) & static_cast<int>(ThrowError))
 								throw code;
 #endif
-						}
-					}
 				} break;
 			}
 
