@@ -90,9 +90,10 @@ namespace SleepyDiscord {
 			//c++17 has from_chars tho
 			return Type(std::strtoull(value.GetString(), nullptr, 10));
 		}
-		static inline json::Value fromType(const Type& value, json::Value::AllocatorType&) {
+		static inline json::Value fromType(const Type& value, json::Value::AllocatorType& alloc) {
 			std::string valueStr = std::to_string(static_cast<uint64_t>(value));
-			return json::Value(valueStr.c_str(), valueStr.length());
+			//we need to allocate some memory so that the value isn't invalid after returning
+			return json::Value(valueStr.c_str(), valueStr.length(), alloc); //allocates and copies
 		}
 		static inline bool empty(const Type& value) {;
 			return value == Type(0);
