@@ -349,11 +349,12 @@ namespace SleepyDiscord {
 		template<typename Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> createServerAppCommand(
 			Snowflake<DiscordObject>::RawType applicationID, Snowflake<Server> serverID, std::string name, std::string description,
-			Options options = (std::nullptr_t)nullptr, RequestSettings<ObjectResponse<AppCommand>> settings = {}
+			Options options = (std::nullptr_t)nullptr, bool defaultPermission = true, AppCommand::Type type = AppCommand::Type::NONE,
+			RequestSettings<ObjectResponse<AppCommand>> settings = {}
 		) {
 			return ObjectResponse<AppCommand>{ request(Post,
 				path("applications/{application.id}/guilds/{guild.id}/commands", { applicationID, serverID }), settings,
-				createApplicationCommandBody(name, description, options)) };
+				createApplicationCommandBody(name, description, options, defaultPermission, type, true)) };
 		}
 		template<typename Options = const AppCommand::EmptyOptions>
 		ObjectResponse<AppCommand> editServerAppCommand(
@@ -809,13 +810,13 @@ namespace SleepyDiscord {
 			rapidjson::Document doc;
 			doc.SetObject();
 			auto& allocator = doc.GetAllocator();
-			if (allOptional || !name.empty())
+			if (!allOptional || !name.empty())
 				doc.AddMember("name", rapidjson::Value::StringRefType{ name.c_str(), name.length() }, allocator);
-			if (allOptional || !description.empty())
+			if (!allOptional || !description.empty())
 				doc.AddMember("description", rapidjson::Value::StringRefType{ description.c_str(), description.length() }, allocator);
-			if (allOptional || defaultPermission != true) //default is true
+			if (!allOptional || defaultPermission != true) //default is true
 				doc.AddMember("default_permission", defaultPermission, allocator);
-			if (allOptional || type != AppCommand::Type::NONE)
+			if (type != AppCommand::Type::NONE)
 				doc.AddMember("type", static_cast<GetEnumBaseType<AppCommand::Type>::Value>(type), allocator);
 			createOptionsValue<Options>(doc, allocator, options);
 			return json::stringify(doc);
