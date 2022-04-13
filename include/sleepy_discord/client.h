@@ -207,8 +207,8 @@ namespace SleepyDiscord {
 		ObjectResponse<Channel     > editChannelName         (Snowflake<Channel> channelID, std::string name                                                               , RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > editChannelTopic        (Snowflake<Channel> channelID, std::string topic                                                              , RequestSettings<ObjectResponse<Channel>> settings = {});
 		ObjectResponse<Channel     > deleteChannel           (Snowflake<Channel> channelID                                                                                 , RequestSettings<ObjectResponse<Channel>> settings = {});
-		enum GetMessagesKey {na, around, before, after, limit};
-		ArrayResponse <Message     > getMessages             (Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t limit = 0);
+		enum class GetMessagesKey {na, around, before, after, limit};
+		ArrayResponse <Message     > getMessages             (Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t limit = 0           , RequestSettings<ArrayResponse<Message>> settings = {});
 		ObjectResponse<Message     > getMessage              (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<ObjectResponse<Message>> settings = {});  //to do add more then one message return
 		const Embed createInvalidEmbed() {
 			return Embed::Flag::INVALID_EMBED;

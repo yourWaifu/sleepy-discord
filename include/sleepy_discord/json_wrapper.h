@@ -155,8 +155,8 @@ namespace SleepyDiscord {
 
 			template<class Container>
 			bool get(Container& value) {
-				static const auto getter = [&](DocType& doc) {
-					value = get<Container>(doc);
+				const auto getter = [&value](DocType& doc) {
+					value = std::move(get<Container>(doc));
 				};
 				return Base::getDoc(getter);
 			}

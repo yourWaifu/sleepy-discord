@@ -122,21 +122,21 @@ namespace SleepyDiscord {
 		return ObjectResponse<Channel>{ request(Get, path("channels/{channel.id}", { channelID }), settings) };
 	}
 
-	ArrayResponse<Message> BaseDiscordClient::getMessages(Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t _limit) {
+	ArrayResponse<Message> BaseDiscordClient::getMessages(Snowflake<Channel> channelID, GetMessagesKey when, Snowflake<Message> messageID, uint8_t _limit, RequestSettings<ArrayResponse<Message>> settings) {
 		const uint8_t trueLimit = 100 < _limit ? 100 : _limit;
 		std::string key;
 		switch (when) {
-		case around: key = "?around=" + messageID; break;
-		case before: key = "?before=" + messageID; break;
-		case after:  key = "?after="  + messageID; break;
-		case limit:  key = "?"                    ; break;
+		case GetMessagesKey::around: key = "?around=" + messageID; break;
+		case GetMessagesKey::before: key = "?before=" + messageID; break;
+		case GetMessagesKey::after:  key = "?after=" + messageID; break;
+		case GetMessagesKey::limit:  key = "?"                    ; break;
 		default:     key = ""                     ; break;
 		}
-		if (trueLimit != 0 && when != limit) key += '&';
+		if (trueLimit != 0 && when != GetMessagesKey::limit) key += '&';
 		return ArrayResponse<Message>{
 			request(Get,
 				path("channels/{channel.id}/messages{key}{limit}", { channelID, key,
-				(trueLimit != 0 ? "limit=" + std::to_string(trueLimit) : "") })
+				(trueLimit != 0 ? "limit=" + std::to_string(trueLimit) : "") }), settings
 			)
 		};
 	}
