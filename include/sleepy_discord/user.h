@@ -13,6 +13,7 @@ namespace SleepyDiscord {
 	username        string      the user's username, not unique across the platform         identify
 	discriminator   string      the user's 4-digit discord-tag                              identify
 	avatar          string      the user's avatar hash                                      identify
+	banner          string      the user's banner hash                                      identify
 	bot             bool        whether the user belongs to an OAuth2 application           identify
 	mfa_enabled     bool        whether the user has two factor enabled on their account	identify
 	verified        bool        whether the email on this account has been verified	        email
@@ -55,6 +56,7 @@ namespace SleepyDiscord {
 		std::string username;
 		std::string discriminator;
 		std::string avatar;			//base64 encoded jpeg image
+		std::string banner;			//base64 encoded jpeg image
 		//these are optional
 		bool bot = false;
 		bool mfa_enabled = false;	//true if two-factor authentication is enabled
@@ -71,6 +73,7 @@ namespace SleepyDiscord {
 				json::pair                      (&User::username     , "username"     , json::OPTIONAL_FIELD         ),
 				json::pair                      (&User::discriminator, "discriminator", json::OPTIONAL_FIELD         ),
 				json::pair                      (&User::avatar       , "avatar"       , json::OPTIONAL_NULLABLE_FIELD),
+				json::pair                      (&User::banner       , "banner"       , json::OPTIONAL_NULLABLE_FIELD),
 				json::pair                      (&User::bot          , "bot"          , json::OPTIONAL_FIELD         ),
 				json::pair                      (&User::mfa_enabled  , "mfa_enabled"  , json::OPTIONAL_FIELD         ),
 				json::pair                      (&User::verified     , "verified"     , json::OPTIONAL_FIELD         ),
