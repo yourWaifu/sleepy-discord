@@ -78,7 +78,7 @@ namespace SleepyDiscord {
 		int v;	//gateway protocol version
 		User user;
 		std::list<Channel> privateChannels;
-		std::list<UnavailableServer> servers;
+		std::list<Server> servers;
 		std::string sessionID;
 		//std::vector<std::string> trace;
 		std::array<int, 2> shard = { {0, 1} };
