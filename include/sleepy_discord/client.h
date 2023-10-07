@@ -141,7 +141,7 @@ namespace SleepyDiscord {
 	#elif defined(SLEEPY_DEFAULT_REQUEST_MODE_SYNC)
 		#define SLEEPY_DEFAULT_REQUEST_MODE Sync;
 	#else
-		#define SLEEPY_DEFAULT_REQUEST_MODE Sync_AsyncQueue;
+		#define SLEEPY_DEFAULT_REQUEST_MODE Async;
 	#endif
 #endif
 
