@@ -21,6 +21,7 @@
 #include "voice.h"
 #include "slash_commands.h"
 #include "stage_instance.h"
+#include "thread.h"
 
 #include "error.h"
 #include "session.h"
@@ -622,6 +623,12 @@ namespace SleepyDiscord {
 		virtual void onDeleteChannel     (Channel            channel    );
 		virtual void onEditChannel       (Channel            channel    );
 		virtual void onPinMessage        (Snowflake<Channel> channelID, std::string lastPinTimestamp);
+		virtual void onThread            (Channel            channel    ) {}
+		virtual void onThreadUpdate      (Channel            channel    ) {}
+		virtual void onDeleteThread      (Channel            channel    ) {}
+		virtual void onThreadListSync    (ThreadListSync     sync       ) {}
+		virtual void onEditThreadMember  (ThreadMember member, Snowflake<Server> serverID) {}
+		virtual void onEditThreadMembers (ThreadMembersUpdate update    ) {}
 		virtual void onPresenceUpdate    (PresenceUpdate     presenseUpdate);
 		virtual void onEditUser          (User               user       );
 		virtual void onEditUserSettings  (const json::Value& jsonMessage);

@@ -24,7 +24,7 @@ add_library(sleepy-discord STATIC
 	websocketpp_websocket.cpp
 	zlib_compression.cpp
 	stage_instance.cpp
-)
+ "thread.cpp")
 
 target_include_directories(sleepy-discord
 	PUBLIC
