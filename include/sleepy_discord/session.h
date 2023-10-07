@@ -18,6 +18,8 @@
 #elif defined(SLEEPY_DISCORD_CMAKE)
 	#if defined(EXISTENT_CPR)
 		#include "cpr_session.h"
+	#elif defined(EXISTENT_BEAST)
+		#include ""
 	#else
 		#include "custom_session.h"
 	#endif
