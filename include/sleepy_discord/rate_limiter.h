@@ -79,7 +79,7 @@ namespace SleepyDiscord {
 		private:
 			friend RateLimiter;
 			std::list<typename Client::Request> awaitingRequest;
-			time_t nextTry = 0; // to do for v8, make this seconds
+			time_t nextTry = 0;
 			static constexpr int defaultLimit = 1;
 			int limit = defaultLimit;
 			int remaining = defaultLimit;

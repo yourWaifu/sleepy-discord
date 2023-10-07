@@ -44,7 +44,7 @@ namespace SleepyDiscord {
 	) {
 		//check if rate limited
 		Response response;
-		const time_t currentTime = getEpochTimeMillisecond();
+		const time_t currentTime = getEpochTimeSecond();
 		response.birth = currentTime;
 		Route::Bucket bucket = path.bucket(method);
 
@@ -75,7 +75,7 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discord.com/api/v8/" + path.url());
+			session.setUrl("https://discord.com/api/v10/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", userAgent },
@@ -120,8 +120,8 @@ namespace SleepyDiscord {
 #else
 				std::tm* resetGM = std::gmtime(&reset);
 #endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeMillisecond());
+				const time_t resetDelta = std::mktime(resetGM) - std::mktime(&date);
+				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeSecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
 
@@ -131,11 +131,10 @@ namespace SleepyDiscord {
 			case TOO_MANY_REQUESTS:
 				{   //this should fall down to default
 					std::string rawRetryAfter = response.header["Retry-After"];
-					//the 5 is an arbitrary number, and there's 1000 ms in a second
+					//the 5 is an arbitrary number
 					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
-					retryAfter *= 1000; //convert to milliseconds
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
-					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
+					rateLimiter.nextRetry = getEpochTimeSecond() + retryAfter;
 					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
 						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
@@ -889,6 +888,11 @@ namespace SleepyDiscord {
 
 	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
+		return ms.time_since_epoch().count();
+	}
+
+	const time_t BaseDiscordClient::getEpochTimeSecond() {
+		auto ms = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
 	}
 

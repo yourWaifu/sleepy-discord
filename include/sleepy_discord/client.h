@@ -707,6 +707,7 @@ namespace SleepyDiscord {
 		}
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
+		virtual const time_t getEpochTimeSecond();
 
 	private:
 		using GenericMessageReceiver::initialize;
