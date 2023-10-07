@@ -240,6 +240,13 @@ namespace SleepyDiscord {
 		BoolResponse                 unpinMessage            (Snowflake<Channel> channelID, Snowflake<Message> messageID                                                   , RequestSettings<BoolResponse           > settings = {});
 		StandardResponse             addRecipient            (Snowflake<Channel> channelID, Snowflake<User> userID                                                         , RequestSettings<StandardResponse       > settings = {});
 		StandardResponse             removeRecipient         (Snowflake<Channel> channelID, Snowflake<User> userID                                                         , RequestSettings<StandardResponse       > settings = {});
+		ObjectResponse<Channel     > startThreadMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string name, int autoArchiveDuration = 0, int rateLimitPerUser = -1, RequestSettings<ObjectResponse<Channel>> settings = {});
+		BoolResponse                 joinThread              (Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse                 addThreadMember         (Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse                 leaveThread             (Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings = {});
+		BoolResponse                 removeThreadMember      (Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings = {});
+		ObjectResponse<ThreadMember> getThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, bool withMember = false, RequestSettings<ObjectResponse<ThreadMember>> settings = {});
+
 		//IntelliSense Help
 		/*functions with more then one name to make life easy for users that use IntelliSense*/
 		inline BoolResponse          deleteReaction          (Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string emoji) { return removeReaction         (channelID, messageID, emoji); }

@@ -223,6 +223,40 @@ namespace SleepyDiscord {
 		return StandardResponse{ request(Delete, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }), settings) };
 	}
 
+	ObjectResponse<Channel> BaseDiscordClient::startThreadMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string name, int autoArchiveDuration, int rateLimitPerUser, RequestSettings<ObjectResponse<Channel>> settings)
+	{
+		return ObjectResponse<Channel>{
+			request(Post, path("channels/{channel.id}/messages/{message.id}/threads", { channelID, messageID }), settings)
+		};
+	}
+
+	BoolResponse BaseDiscordClient::joinThread(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Put, path("channels/{channel.id}/thread-members/@me", {channelID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::addThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Put, path("channels/{channel.id}/thread-members/{user.id}", {channelID, userID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::leaveThread(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Delete, path("channels/{channel.id}/thread-members/@me", {channelID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::removeThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Delete, path("channels/{channel.id}/thread-members/{user.id}", {channelID, userID}), settings), EmptyRespFn() };
+	}
+
+	ObjectResponse<ThreadMember> BaseDiscordClient::getThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, bool withMember, RequestSettings<ObjectResponse<ThreadMember>> settings)
+	{
+		return ObjectResponse<ThreadMember>{
+			request(Get, path("channels/{channel.id}/thread-members/{user.id}?with_member={withMember}", { channelID, userID, withMember ? "true": "false" }), settings)
+		};
+	}
+
 	//
 	//server functions
 	//

@@ -5,7 +5,7 @@
 #include "user.h"
 
 namespace SleepyDiscord {
-	struct ThreadMember : public IdentifiableDiscordObject<Channel> {
+	struct ThreadMember : IdentifiableDiscordObject<Channel> {
 		ThreadMember() = default;
 		ThreadMember(const nonstd::string_view& json) :
 			ThreadMember(json::fromJSON<ThreadMember>(json)) {}
