@@ -216,6 +216,7 @@ namespace SleepyDiscord {
 		}
 		//maybe move this to message.h
 		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, std::vector<Embed> embeds = {}, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embeds = Embed::Flag::INVALID_EMBED, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message, std::vector<Embed> embeds = {}, MessageReference replyingTo = {}, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (SendMessageParams params, std::string fileLocation                                                           , RequestSettings<ObjectResponse<Message>> settings = {});

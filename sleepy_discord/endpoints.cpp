@@ -48,6 +48,10 @@ namespace SleepyDiscord {
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embeds, replyingTo, tts)) };
 	}
 
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, MessageReference replyingTo, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed.empty() ? {} : { embed }, replyingTo, tts)) }
+	}
+
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(SendMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringifyObj(params)) };
 	}
