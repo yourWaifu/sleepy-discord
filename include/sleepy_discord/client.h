@@ -257,7 +257,7 @@ namespace SleepyDiscord {
 		//For Convenience
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage, std::vector<Embed> embeds = {}) { return editMessage(message.channelID, message.ID, newMessage, embeds); }
 		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
-			return sendMessage(channelID, message, {}, MessageReference{}, TTS::Default, settings);
+			return sendMessage(channelID, message, std::vector<Embed>{}, MessageReference{}, TTS::Default, settings);
 		}
 
 		//server functions
