@@ -102,10 +102,9 @@ namespace SleepyDiscord {
 
 			//rate limit check
 			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
 				const std::string& resetAfter = response.header["X-RateLimit-Reset-After"];
 				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
-				const double resetDelta = std::stod(resetAfter);
+				const double resetDelta = !resetAfter.empty() ? std::stod(resetAfter) : 5.0;
 				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeSecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
