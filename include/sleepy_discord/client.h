@@ -89,6 +89,7 @@ namespace SleepyDiscord {
 		DIRECT_MESSAGES          = 1 << 12,
 		DIRECT_MESSAGE_REACTIONS = 1 << 13,
 		DIRECT_MESSAGE_TYPING    = 1 << 14,
+		MESSAGE_CONTENT          = 1 << 15,
 	};
 
 	class BaseDiscordClient : public GenericMessageReceiver {
@@ -215,8 +216,8 @@ namespace SleepyDiscord {
 			return Embed::Flag::INVALID_EMBED;
 		}
 		//maybe move this to message.h
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, std::vector<Embed> embeds = {}, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
-		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embeds = Embed::Flag::INVALID_EMBED, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, std::vector<Embed> embeds, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
+		ObjectResponse<Message     > sendMessage             (Snowflake<Channel> channelID, std::string message, Embed embeds, MessageReference replyingTo = {}, TTS tts = TTS::Default, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > sendMessage             (SendMessageParams params                                                                                     , RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (Snowflake<Channel> channelID, std::string fileLocation, std::string message, std::vector<Embed> embeds = {}, MessageReference replyingTo = {}, RequestSettings<ObjectResponse<Message>> settings = {});
 		ObjectResponse<Message     > uploadFile              (SendMessageParams params, std::string fileLocation                                                           , RequestSettings<ObjectResponse<Message>> settings = {});
@@ -258,6 +259,9 @@ namespace SleepyDiscord {
 		inline ObjectResponse<Message> editMessage(Message message, std::string newMessage, std::vector<Embed> embeds = {}) { return editMessage(message.channelID, message.ID, newMessage, embeds); }
 		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message, RequestSettings<ObjectResponse<Message>> settings) {
 			return sendMessage(channelID, message, std::vector<Embed>{}, MessageReference{}, TTS::Default, settings);
+		}
+		inline ObjectResponse<Message> sendMessage(Snowflake<Channel> channelID, std::string message) {
+			return sendMessage(channelID, message, std::vector<Embed>{}, MessageReference{}, TTS::Default, {});
 		}
 
 		//server functions
@@ -569,8 +573,8 @@ namespace SleepyDiscord {
 
 	protected:
 		//Rest events
-		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, time_t timeTilReset);
-		virtual void onExceededRateLimit(bool global, std::time_t timeTilRetry, Request request, bool& continueRequest);
+		virtual void onDepletedRequestSupply(const Route::Bucket& bucket, double timeTilReset);
+		virtual void onExceededRateLimit(bool global, double timeTilRetry, Request request, bool& continueRequest);
 
 		/* list of events
 		READY
@@ -722,7 +726,7 @@ namespace SleepyDiscord {
 		}
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
-		virtual const time_t getEpochTimeSecond();
+		virtual const double getEpochTimeSecond();
 
 	private:
 		using GenericMessageReceiver::initialize;

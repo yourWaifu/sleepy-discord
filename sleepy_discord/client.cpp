@@ -44,7 +44,7 @@ namespace SleepyDiscord {
 	) {
 		//check if rate limited
 		Response response;
-		const time_t currentTime = getEpochTimeSecond();
+		const double currentTime = getEpochTimeSecond();
 		response.birth = currentTime;
 		Route::Bucket bucket = path.bucket(method);
 
@@ -53,7 +53,7 @@ namespace SleepyDiscord {
 			if (shouldCallCallback && callback)
 				callback(response);
 		};
-		const auto handleExceededRateLimit = [=, &shouldCallCallback](std::time_t timeTilRetry) {
+		const auto handleExceededRateLimit = [=, &shouldCallCallback](double timeTilRetry) {
 			onExceededRateLimit(
 				rateLimiter.isGlobalRateLimited, timeTilRetry,
 				{ *this, method, path, jsonParameters, multipartParameters, callback, mode },
@@ -61,7 +61,7 @@ namespace SleepyDiscord {
 			);
 		};
 
-		time_t nextTry = rateLimiter.getLiftTime(bucket, currentTime);
+		double nextTry = rateLimiter.getLiftTime(bucket, currentTime);
 		if (0 < nextTry) {
 			handleExceededRateLimit(nextTry - currentTime);
 			response.statusCode = TOO_MANY_REQUESTS;
@@ -103,24 +103,9 @@ namespace SleepyDiscord {
 			//rate limit check
 			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
 				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
-				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
+				const std::string& resetAfter = response.header["X-RateLimit-Reset-After"];
 				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm* const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#elif defined(__STDC_LIB_EXT1__)
-				std::tm gmTM;
-				std::tm* resetGM = &gmTM;
-				gmtime_s(&reset, resetGM);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = std::mktime(resetGM) - std::mktime(&date);
+				const double resetDelta = std::stod(resetAfter);
 				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeSecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
@@ -130,17 +115,17 @@ namespace SleepyDiscord {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
 			case TOO_MANY_REQUESTS:
 				{   //this should fall down to default
-					std::string rawRetryAfter = response.header["Retry-After"];
+					const std::string& resetAfterStr = response.header["X-RateLimit-Reset-After"];
 					//the 5 is an arbitrary number
-					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
+					double resetAfter = resetAfterStr != "" ? std::stod(resetAfterStr) : 5.0;
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
-					rateLimiter.nextRetry = getEpochTimeSecond() + retryAfter;
+					rateLimiter.nextRetry = getEpochTimeSecond() + resetAfter;
 					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
 						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
-						onDepletedRequestSupply(bucket, retryAfter);
+						onDepletedRequestSupply(bucket, resetAfter);
 					}
-					handleExceededRateLimit(retryAfter);
+					handleExceededRateLimit(resetAfter);
 				}
 			default:
 				{		//error
@@ -216,17 +201,17 @@ namespace SleepyDiscord {
 			*serverCache = getServers().get<Cache>();
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
+	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, double) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request, bool& continueRequest) {
+	void BaseDiscordClient::onExceededRateLimit(bool, double timeTilRetry, Request request, bool& continueRequest) {
 		bool shouldScheduleNewRequest =
 			static_cast<int>(request.mode) & static_cast<int>(AsyncQueue);
 		continueRequest = !shouldScheduleNewRequest;
 		if (shouldScheduleNewRequest) {
 			//since we are scheduling the request, I think we should make it async
 			request.mode = Async;
-			schedule(request, timeTilRetry);
+			schedule(request, static_cast<time_t>(timeTilRetry * 1000.0));
 		}
 	}
 
@@ -897,9 +882,9 @@ namespace SleepyDiscord {
 		return ms.time_since_epoch().count();
 	}
 
-	const time_t BaseDiscordClient::getEpochTimeSecond() {
-		auto ms = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::steady_clock::now());
-		return ms.time_since_epoch().count();
+	const double BaseDiscordClient::getEpochTimeSecond() {
+		auto seconds = std::chrono::time_point_cast<std::chrono::duration<double, std::ratio<1>>>(std::chrono::steady_clock::now());
+		return seconds.time_since_epoch().count();
 	}
 
 	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) {
