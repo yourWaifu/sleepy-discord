@@ -24,7 +24,7 @@ add_library(sleepy-discord STATIC
 	websocketpp_websocket.cpp
 	zlib_compression.cpp
 	stage_instance.cpp
-)
+ "thread.cpp")
 
 target_include_directories(sleepy-discord
 	PUBLIC
@@ -175,6 +175,25 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		list(APPEND LIB_CONFIG "EXISTENT_ZLIB")
 	else()
 		list(APPEND LIB_CONFIG "NONEXISTENT_ZLIB")
+	endif()
+
+	if(USE_BEAST)
+		if(SLEEPY_VCPKG)
+			list(APPEND LIBRARIES_TO_LINK "Boost::beast")
+		else()
+			list(APPEND LIBRARIES_INCLUDE_DIRS "${beast_SOURCE_DIR}/include/")
+		endif()
+		find_package(OpenSSL REQUIRED)
+		list(APPEND REQUIRED_PACKAGES "OpenSSL")
+		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
+		if (UNIX)
+			find_package(Threads REQUIRED)
+			list(APPEND REQUIRED_PACKAGES "Threads")
+			list(APPEND LIBRARIES_TO_LINK "Threads::Threads")
+		endif()
+		list(APPEND LIB_CONFIG "EXISTENT_BEAST")
+	else()
+		list(APPEND LIB_CONFIG "NONEXISTENT_BEAST")
 	endif()
 
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})

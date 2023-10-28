@@ -65,7 +65,13 @@ namespace SleepyDiscord {
 			SERVER_CATEGORY   = 4,
 			GUILD_NEWS        = 5,
 			GUILD_STORE       = 6,
-			GUILD_STAGE_VOICE = 13
+			ANNOUNCEMENT_THREAD = 10,
+			PUBLIC_THREAD       = 11,
+			PRIVATE_THREAD      = 12,
+			GUILD_STAGE_VOICE = 13,
+			GUILD_DIRECTORY   = 14,
+			GUILD_FORUM       = 15,
+			GUILD_MEDIA       = 16,
 		} type = CHANNEL_TYPE_NONE;
 		Snowflake<Server>      serverID;             //optional,                  used in server       channels
 		int                    position = 0;         //optional,                  used in server       channels

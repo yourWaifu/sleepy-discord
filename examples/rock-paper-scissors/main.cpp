@@ -139,6 +139,7 @@ int main() {
 	GameClient client("Your Token Goes Here", SleepyDiscord::USER_CONTROLED_THREADS);
 	client.setIntents(
 		SleepyDiscord::Intent::SERVER_MESSAGES,
-		SleepyDiscord::Intent::DIRECT_MESSAGES);
+		SleepyDiscord::Intent::DIRECT_MESSAGES,
+		SleepyDiscord::Intent::MESSAGE_CONTENT);
 	client.run();
 }

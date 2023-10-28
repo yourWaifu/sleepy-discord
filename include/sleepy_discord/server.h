@@ -109,6 +109,7 @@ namespace SleepyDiscord {
 		int memberCount = 0;
 		std::list<ServerMember> members;
 		std::list<Channel> channels;
+		std::list<Channel> threads;
 
 		std::list<ServerMember>::iterator findMember(const Snowflake<User> userID);
 		std::list<Channel>::iterator findChannel(const Snowflake<Channel> channelID);
@@ -157,7 +158,8 @@ namespace SleepyDiscord {
 				json::pair                           (&Server::approximateMemberCount     , "approximate_member_count"     , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::approximatePresenceCount   , "approximate_presence_count"   , json::OPTIONAL_FIELD ),
 				json::pair                           (&Server::nsfwLevel                  , "nsfw_level"                   , json::OPTIONAL_FIELD ),
-				json::pair<json::ContainerTypeHelper>(&Server::stageInstances             , "stage_instances"              , json::OPTIONAL_FIELD )
+				json::pair<json::ContainerTypeHelper>(&Server::stageInstances             , "stage_instances"              , json::OPTIONAL_FIELD ),
+				json::pair<json::ContainerTypeHelper>(&Server::threads                    , "threads"                      , json::OPTIONAL_FIELD )
 			);
 		JSONStructEnd
 	};

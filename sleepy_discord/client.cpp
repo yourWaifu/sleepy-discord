@@ -44,7 +44,7 @@ namespace SleepyDiscord {
 	) {
 		//check if rate limited
 		Response response;
-		const time_t currentTime = getEpochTimeMillisecond();
+		const double currentTime = getEpochTimeSecond();
 		response.birth = currentTime;
 		Route::Bucket bucket = path.bucket(method);
 
@@ -53,7 +53,7 @@ namespace SleepyDiscord {
 			if (shouldCallCallback && callback)
 				callback(response);
 		};
-		const auto handleExceededRateLimit = [=, &shouldCallCallback](std::time_t timeTilRetry) {
+		const auto handleExceededRateLimit = [=, &shouldCallCallback](double timeTilRetry) {
 			onExceededRateLimit(
 				rateLimiter.isGlobalRateLimited, timeTilRetry,
 				{ *this, method, path, jsonParameters, multipartParameters, callback, mode },
@@ -61,7 +61,7 @@ namespace SleepyDiscord {
 			);
 		};
 
-		time_t nextTry = rateLimiter.getLiftTime(bucket, currentTime);
+		double nextTry = rateLimiter.getLiftTime(bucket, currentTime);
 		if (0 < nextTry) {
 			handleExceededRateLimit(nextTry - currentTime);
 			response.statusCode = TOO_MANY_REQUESTS;
@@ -75,7 +75,7 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
-			session.setUrl("https://discord.com/api/v8/" + path.url());
+			session.setUrl("https://discord.com/api/v10/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
 				{ "User-Agent", userAgent },
@@ -102,26 +102,10 @@ namespace SleepyDiscord {
 
 			//rate limit check
 			if (response.header["X-RateLimit-Remaining"] == "0" && response.statusCode != TOO_MANY_REQUESTS) {
-				std::tm date = {};
-				//for some reason std::get_time requires gcc 5
-				std::istringstream dateStream(response.header["Date"]);
-				dateStream >> std::get_time(&date, "%a, %d %b %Y %H:%M:%S GMT");
-				const double resetTime = std::stod(response.header["X-RateLimit-Reset"]);
-				const time_t reset = time_t(resetTime) + 1; //add one second for lost precision
+				const std::string& resetAfter = response.header["X-RateLimit-Reset-After"];
 				const std::string& xBucket = response.header["X-RateLimit-Bucket"];
-#if defined(_WIN32) || defined(_WIN64)
-				std::tm gmTM;
-				std::tm* const resetGM = &gmTM;
-				gmtime_s(resetGM, &reset);
-#elif defined(__STDC_LIB_EXT1__)
-				std::tm gmTM;
-				std::tm* resetGM = &gmTM;
-				gmtime_s(&reset, resetGM);
-#else
-				std::tm* resetGM = std::gmtime(&reset);
-#endif
-				const time_t resetDelta = (std::mktime(resetGM) - std::mktime(&date)) * 1000;
-				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeMillisecond());
+				const double resetDelta = !resetAfter.empty() ? std::stod(resetAfter) : 5.0;
+				rateLimiter.limitBucket(bucket, xBucket, resetDelta + getEpochTimeSecond());
 				onDepletedRequestSupply(bucket, resetDelta);
 			}
 
@@ -130,18 +114,17 @@ namespace SleepyDiscord {
 			case OK: case CREATED: case NO_CONTENT: case NOT_MODIFIED: break;
 			case TOO_MANY_REQUESTS:
 				{   //this should fall down to default
-					std::string rawRetryAfter = response.header["Retry-After"];
-					//the 5 is an arbitrary number, and there's 1000 ms in a second
-					int retryAfter = rawRetryAfter != "" ? std::stoi(rawRetryAfter) : 5;
-					retryAfter *= 1000; //convert to milliseconds
+					const std::string& resetAfterStr = response.header["X-RateLimit-Reset-After"];
+					//the 5 is an arbitrary number
+					double resetAfter = resetAfterStr != "" ? std::stod(resetAfterStr) : 5.0;
 					rateLimiter.isGlobalRateLimited = response.header.find("X-RateLimit-Global") != response.header.end();
-					rateLimiter.nextRetry = getEpochTimeMillisecond() + retryAfter;
+					rateLimiter.nextRetry = getEpochTimeSecond() + resetAfter;
 					const std::string& xBucket = response.header["X-RateLimit-Bucket"];
 					if (!rateLimiter.isGlobalRateLimited) {
 						rateLimiter.limitBucket(bucket, xBucket, rateLimiter.nextRetry);
-						onDepletedRequestSupply(bucket, retryAfter);
+						onDepletedRequestSupply(bucket, resetAfter);
 					}
-					handleExceededRateLimit(retryAfter);
+					handleExceededRateLimit(resetAfter);
 				}
 			default:
 				{		//error
@@ -217,17 +200,17 @@ namespace SleepyDiscord {
 			*serverCache = getServers().get<Cache>();
 	}
 
-	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, time_t) {
+	void BaseDiscordClient::onDepletedRequestSupply(const Route::Bucket&, double) {
 	}
 
-	void BaseDiscordClient::onExceededRateLimit(bool, std::time_t timeTilRetry, Request request, bool& continueRequest) {
+	void BaseDiscordClient::onExceededRateLimit(bool, double timeTilRetry, Request request, bool& continueRequest) {
 		bool shouldScheduleNewRequest =
 			static_cast<int>(request.mode) & static_cast<int>(AsyncQueue);
 		continueRequest = !shouldScheduleNewRequest;
 		if (shouldScheduleNewRequest) {
 			//since we are scheduling the request, I think we should make it async
 			request.mode = Async;
-			schedule(request, timeTilRetry);
+			schedule(request, static_cast<time_t>(timeTilRetry * 1000.0));
 		}
 	}
 
@@ -275,7 +258,7 @@ namespace SleepyDiscord {
 	void BaseDiscordClient::getTheGateway() {
 #ifdef SLEEPY_USE_HARD_CODED_GATEWAY
 	#ifndef SLEEPY_HARD_CODED_GATEWAY
-		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=8"
+		#define SLEEPY_HARD_CODED_GATEWAY "wss://gateway.discord.gg/?v=10"
 	#endif
 		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
@@ -298,7 +281,7 @@ namespace SleepyDiscord {
 				unsigned int size = position - start;
 				theGateway.reserve(32);
 				theGateway.append(a.text, start, size);
-				theGateway += "/?v=8";
+				theGateway += "/?v=10";
 				break;
 			}
 		}
@@ -642,6 +625,12 @@ namespace SleepyDiscord {
 				json::toStdString(d["last_pin_timestamp"]) : ""
 			);
 		} break;
+		case hash("THREAD_CREATE"): onThread(d); break;
+		case hash("THREAD_UPDATE"): onThreadUpdate(d); break;
+		case hash("THREAD_DELETE"): onDeleteThread(d); break;
+		case hash("THREAD_LIST_SYNC"): onThreadListSync(d); break;
+		case hash("THREAD_MEMBER_UPDATE"): onEditThreadMember(d, d["guild_id"]); break;
+		case hash("THREAD_MEMBERS_UPDATE"): onEditThreadMembers(d); break;
 		case hash("PRESENCE_UPDATE"): onPresenceUpdate(d); break;
 		case hash("PRESENCES_REPLACE"):                          break;
 		case hash("USER_UPDATE"): onEditUser(d); break;
@@ -890,6 +879,11 @@ namespace SleepyDiscord {
 	const time_t BaseDiscordClient::getEpochTimeMillisecond() {
 		auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 		return ms.time_since_epoch().count();
+	}
+
+	const double BaseDiscordClient::getEpochTimeSecond() {
+		auto seconds = std::chrono::time_point_cast<std::chrono::duration<double, std::ratio<1>>>(std::chrono::steady_clock::now());
+		return seconds.time_since_epoch().count();
 	}
 
 	const std::string BaseDiscordClient::getEditPositionString(const std::vector<std::pair<std::string, uint64_t>>& positions) {

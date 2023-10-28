@@ -37,14 +37,14 @@ namespace SleepyDiscord {
 	template<class Client>
 	struct RateLimiter {
 		std::atomic<bool> isGlobalRateLimited = { false };
-		std::atomic<time_t> nextRetry = { 0 };
-		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, time_t timestamp)  {
+		std::atomic<double> nextRetry = { 0 };
+		void limitBucket(const Route::Bucket& bucket, const std::string& xBucket, double timestamp)  {
 			std::lock_guard<std::mutex> lock(mutex);
 			buckets[bucket] = xBucket;
 			limits[xBucket].nextTry = timestamp;
 		}
 		
-		const time_t getLiftTime(Route::Bucket& bucket, const time_t& currentTime) {
+		const double getLiftTime(Route::Bucket& bucket, const double& currentTime) {
 			if (isGlobalRateLimited && currentTime < nextRetry)
 					return nextRetry;
 			isGlobalRateLimited = false;
@@ -79,7 +79,7 @@ namespace SleepyDiscord {
 		private:
 			friend RateLimiter;
 			std::list<typename Client::Request> awaitingRequest;
-			time_t nextTry = 0; // to do for v8, make this seconds
+			double nextTry = 0;
 			static constexpr int defaultLimit = 1;
 			int limit = defaultLimit;
 			int remaining = defaultLimit;

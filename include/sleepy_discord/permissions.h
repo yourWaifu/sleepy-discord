@@ -47,6 +47,11 @@ namespace SleepyDiscord {
 		MANAGE_EMOJIS   /**/  = 0x40000000, //Allows management and editing of emojis
 		//              /**/ These permissions require the owner account to use two-factor authentication when used on a guild that has server-wide 2FA enabled.
 
+		MANAGE_THREADS        = 0x0000000400000000,
+		CREATE_PUBLIC_THREADS = 0x0000000800000000,
+		CREATE_PRIVATE_THREADS = 0x0000001000000000,
+		SEND_MESSAGES_IN_THREADS = 0x0000004000000000,
+
 		NONE                  = 0x000000000, //this permission doens't exist, I made it up
 		ALL                   = 0xFFFFFFFFF,
 

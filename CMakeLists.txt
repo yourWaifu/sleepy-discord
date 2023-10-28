@@ -17,6 +17,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
 	option(USE_ZLIB                      "Use zlib for data compression"                                      OFF)
+	#option(USE_Boost_BEAST               "Use Boost Beast for http library"                                   OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -246,6 +247,24 @@ endif()
 if(USE_ZLIB)
 	find_package(ZLIB REQUIRED)
 	#to do add auto download
+endif()
+
+if (USE_BEAST)
+	if(SLEEPY_VCPKG)
+		find_package(Boost REQUIRED COMPONENTS beast)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           beast
+				GIT_REPOSITORY https://github.com/boostorg/beast.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/beast
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+	endif()
+
+	add_subdirectory(deps/beast)
 endif()
 
 # Get Version Info

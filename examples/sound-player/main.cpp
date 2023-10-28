@@ -319,6 +319,7 @@ int main()
 	auto intentsList = {
 		SleepyDiscord::Intent::SERVER_MESSAGES,	//required for commands via messages
 		SleepyDiscord::Intent::SERVER_VOICE_STATES, //required for connecting to voice
+		SleepyDiscord::Intent::MESSAGE_CONTENT,
 	};
 	client.setIntents(intentsList);
 	client.run();

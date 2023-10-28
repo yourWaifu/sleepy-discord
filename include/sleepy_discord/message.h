@@ -631,14 +631,14 @@ namespace SleepyDiscord {
 	struct MessageParams : public DiscordObject {
 		Snowflake<Channel> channelID;
 		std::string content = {};
-		Embed embed = Embed::Flag::INVALID_EMBED;
+		std::vector<Embed> embed;
 		AllowedMentions allowedMentions;
 		std::vector<std::shared_ptr<BaseComponent>> components;
 
 		JSONStructStart
 			std::make_tuple(
 				json::pair                           (&Type::content        , "content"         , json::OPTIONAL_FIELD),
-				json::pair                           (&Type::embed          , "embed"           , json::OPTIONAL_FIELD),
+				json::pair<json::ContainerTypeHelper>(&Type::embed          , "embed"           , json::OPTIONAL_FIELD),
 				json::pair                           (&Type::allowedMentions, "allowed_mentions", json::OPTIONAL_FIELD),
 				json::pair<json::ContainerTypeHelper>(&Type::components     , "components"      , json::OPTIONAL_FIELD)
 			);
