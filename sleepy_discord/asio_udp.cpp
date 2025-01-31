@@ -6,20 +6,20 @@
 namespace SleepyDiscord {
 	//Note: you need to be using a ASIOBasedScheduleHandler for this to work
 	ASIOUDPClient::ASIOUDPClient(BaseDiscordClient& client) :
-		ASIOUDPClient(static_cast<ASIOBasedScheduleHandler&>(client.getScheduleHandler()).getIOService())
+		ASIOUDPClient(static_cast<ASIOBasedScheduleHandler&>(client.getScheduleHandler()).getIOContext())
 	{}
 
-	ASIOUDPClient::ASIOUDPClient(asio::io_service& service) :
-		iOService(&service),
-		uDPSocket(*iOService, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0)),
-		resolver (*iOService)
+	ASIOUDPClient::ASIOUDPClient(asio::io_context& context) :
+		iOContext(&context),
+		uDPSocket(context, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0)),
+		resolver (context)
 	{
 
 	}
 
 	bool ASIOUDPClient::connect(const std::string & to, const uint16_t port) {
-		if (iOService == nullptr) return false;
-		endpoint = *resolver.resolve({ asio::ip::udp::v4(), to, std::to_string(port) });
+		if (iOContext == nullptr) return false;
+		endpoint = *(resolver.resolve(asio::ip::udp::v4(), to, std::to_string(port)).begin());
 		return true;
 	}
 
@@ -36,14 +36,14 @@ namespace SleepyDiscord {
 		size_t bufferLength,
 		SendHandler handler
 	) {
-		if (iOService == nullptr) return;
+		if (iOContext == nullptr) return;
 		uDPSocket.async_send_to(asio::buffer(_buffer, bufferLength), endpoint,
 			std::bind(&handle_send, std::placeholders::_1, std::placeholders::_2, handler)
 		);
 	}
 
 	void ASIOUDPClient::receive(ReceiveHandler handler) {
-		if (iOService == nullptr) return;
+		if (iOContext == nullptr) return;
 		uDPSocket.async_receive_from(asio::buffer(buffer, bufferSize), endpoint, 0,
 			std::bind(
 				&ASIOUDPClient::handle_receive, this, std::placeholders::_1,

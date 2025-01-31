@@ -14,16 +14,17 @@ namespace SleepyDiscord {
 	class ASIOBasedScheduleHandler : public GenericScheduleHandler {
 	public:
 		virtual ~ASIOBasedScheduleHandler() = default;
-		virtual asio::io_service& getIOService() = 0;
+		virtual asio::io_context& getIOContext() = 0;
 	};
 
 	class ASIOScheduleHandler : public ASIOBasedScheduleHandler {
 	public:
-		ASIOScheduleHandler() {}
+		ASIOScheduleHandler(std::shared_ptr<asio::io_context> _io):
+			io(_io) {}
 		virtual ~ASIOScheduleHandler() = default;
 
-		inline asio::io_service& getIOService() override {
-			return io;
+		inline asio::io_context& getIOContext() override {
+			return *io;
 		}
 
 		static void handleTimer(const asio::error_code &ec, std::function<void()>& code) {
@@ -32,7 +33,7 @@ namespace SleepyDiscord {
 			}
 		}
 
-		inline Timer schedule(TimedTask code, const time_t milliseconds) override {
+		inline static Timer schedule(asio::io_context& io, TimedTask code, const time_t milliseconds) {
 			auto timer = std::make_shared<asio::steady_timer>(io, asio::chrono::milliseconds(milliseconds));
 			timer->async_wait(std::bind(&handleTimer, std::placeholders::_1, code));
 			return Timer([timer]() {
@@ -40,12 +41,16 @@ namespace SleepyDiscord {
 			});
 		}
 
+		inline Timer schedule(TimedTask code, const time_t milliseconds) override {
+			return ASIOScheduleHandler::schedule(*io, std::move(code), std::move(milliseconds));
+		}
+
 		inline void run() {
-			io.run();
+			io->run();
 		}
 
 	private:
-		asio::io_service io;
+		std::shared_ptr<asio::io_context> io;
 	};
 #endif
 }

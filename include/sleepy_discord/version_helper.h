@@ -58,6 +58,8 @@ namespace SleepyDiscord {
 #define SLEEPY_FEATURE_LIST_OF_AVAILABLE_FEATURES
 #define SLEEPY_FEATURE_V8_API
 #define SLEEPY_FEATURE_V10_API
+	/*
+	* The following prevents code from linking, so it's disabled for now
 	std::unordered_set<std::string> availableFeatures{
 		"Available Feature List",
 		"List of Available Features",
@@ -67,4 +69,5 @@ namespace SleepyDiscord {
 	inline bool isFeatureAvaiable(std::string& featureName) {
 		return availableFeatures.find(featureName) != availableFeatures.end();
 	}
+	*/
 }
