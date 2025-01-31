@@ -697,16 +697,16 @@ namespace SleepyDiscord {
 		void resetHeartbeatValues();
 		inline std::string getToken() { return *token.get(); }
 		inline void setToken(const std::string& value) { token = std::unique_ptr<std::string>(new std::string(value)); }
-		void start(const std::string _token, const char maxNumOfThreads = DEFAULT_THREADS, int _shardID = 0, int _shardCount = 0);
+		void start(const std::string _token, const char _n = 0, int _shardID = 0, int _shardCount = 0);
 		inline void connect() {
 			postTask([this]() {
 				getTheGateway();
-				connect(theGateway, this, connection);
+				connect(theGateway, *this, connection);
 			});
 		}
 		virtual bool connect(
 			const std::string & /*uri*/,                    //IN
-			GenericMessageReceiver* /*messageProcessor*/,   //IN  When a message is receved, this will process it
+			GenericMessageReceiver& /*messageProcessor*/,   //IN  When a message is receved, this will process it
 			WebsocketConnection& /*connection*/             //OUT data needed in order to send a message. nullptr by default
 		) { return false; }
 		void handleFailToConnect() override { reconnect(); }
@@ -804,6 +804,14 @@ namespace SleepyDiscord {
 		//compression
 		std::unique_ptr<GenericCompression> compressionHandler;
 		int8_t useTrasportConnection = static_cast<int8_t>(-1); //-1 for not set
+
+		//gateway encoding
+		enum class GatewayEncoding : int8_t {
+			JSON,
+			ETF,
+			END
+		};
+		GatewayEncoding encoding = GatewayEncoding::JSON;
 
 		template<class Options, class Allocator>
 		typename std::enable_if<std::is_same<std::nullptr_t, std::remove_cv_t<Options>>::value, void>::type

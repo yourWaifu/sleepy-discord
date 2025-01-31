@@ -24,7 +24,8 @@ add_library(sleepy-discord STATIC
 	websocketpp_websocket.cpp
 	zlib_compression.cpp
 	stage_instance.cpp
- "thread.cpp")
+	"thread.cpp" 
+	"asio_websocket.cpp")
 
 target_include_directories(sleepy-discord
 	PUBLIC
@@ -80,6 +81,9 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		endif()
 		list(APPEND LIB_CONFIG "EXISTENT_ASIO")
 		list(APPEND REQUIRED_PACKAGES "asio")
+		find_package(OpenSSL REQUIRED)
+		list(APPEND REQUIRED_PACKAGES "OpenSSL")
+		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
 	elseif(USE_BOOST_ASIO)
 		#Look for boost as an alt
 		find_package(Boost REQUIRED)
@@ -87,6 +91,9 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		list(APPEND LIB_CONFIG "EXISTENT_BOOST_ASIO")
 		list(APPEND LIB_CONFIG "EXISTENT_ASIO")
 		list(APPEND REQUIRED_PACKAGES "Boost")
+		find_package(OpenSSL REQUIRED)
+		list(APPEND REQUIRED_PACKAGES "OpenSSL")
+		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
 	else()
 		list(APPEND LIB_CONFIG "NONEXISTENT_ASIO")
 	endif()

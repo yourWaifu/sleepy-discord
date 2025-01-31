@@ -18,6 +18,8 @@
 		#include "websocketpp_connection.h"
 	#elif defined(EXISTENT_UWEBSOCKETS)
 		#include "uwebsockets_connection.h"
+	#elif defined(EXISTENT_ASIO)
+		#include "asio_websocketconnection.h"
 	#else
 		#include "custom_connection.h"
 	#endif
@@ -29,14 +31,19 @@
 		#ifdef NONEXISTENT_WEBSOCKETPP
 			#include "uwebsockets_connection.h"
 			#ifdef NONEXISTENT_UWEBSOCKETS
-				//last resort
-				#include "custom_connection.h"
+				#include "asio_websocketconnection.h"
+				#ifdef NONEXISTENT_ASIO
+					//last resort
+					#include "custom_connection.h"
+				#endif
 			#endif
 		#endif
 	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_WEBSOCKETPP
 		#include "websocketpp_connection.h"
 	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_UWEBSOCKETS
 		#include "uwebsockets_connection.h"
+	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_ASIO
+		#include "asio_websocketconnection.h"
 	#else
 		//last resort
 		#include "custom_connection.h"
