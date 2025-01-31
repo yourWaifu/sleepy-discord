@@ -14,11 +14,7 @@
 	#endif
 
 #elif defined(SLEEPY_DISCORD_CMAKE)
-	#if defined(EXISTENT_WEBSOCKETPP)
-		#include "websocketpp_connection.h"
-	#elif defined(EXISTENT_UWEBSOCKETS)
-		#include "uwebsockets_connection.h"
-	#elif defined(EXISTENT_ASIO)
+	#if defined(EXISTENT_ASIO)
 		#include "asio_websocketconnection.h"
 	#else
 		#include "custom_connection.h"
@@ -27,21 +23,11 @@
 //defaults
 #else
 	#ifndef SLEEPY_LOCK_EXISTENT_TO
-		#include "websocketpp_connection.h"
-		#ifdef NONEXISTENT_WEBSOCKETPP
-			#include "uwebsockets_connection.h"
-			#ifdef NONEXISTENT_UWEBSOCKETS
-				#include "asio_websocketconnection.h"
-				#ifdef NONEXISTENT_ASIO
-					//last resort
-					#include "custom_connection.h"
-				#endif
-			#endif
+		#include "asio_websocketconnection.h"
+		#ifdef NONEXISTENT_ASIO
+			//last resort
+			#include "custom_connection.h"
 		#endif
-	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_WEBSOCKETPP
-		#include "websocketpp_connection.h"
-	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_UWEBSOCKETS
-		#include "uwebsockets_connection.h"
 	#elif SLEEPY_LOCK_EXISTENT_TO == SLEEPY_ASIO
 		#include "asio_websocketconnection.h"
 	#else

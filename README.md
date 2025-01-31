@@ -58,9 +58,7 @@ Sleepy Discord doesn't require you to use any libraries, so that you can use any
 
 * [OpenSSL](https://www.openssl.org/)
 * [cpr](https://github.com/whoshuu/cpr)
-* [Websocket++](https://github.com/zaphoyd/websocketpp)
-or
-[uWebSockets](https://github.com/uWebSockets/uWebSockets)
+* [ASIO](https://think-async.com/Asio/)
 
 # Develop Branch
 For the cutting edge of Sleepy Discord, check out the develop branch. Please use the develop branch with caution because it may not even be able to compile or it is 100% not tested at all. Other then that, the branch is used for code that may not work. Also check to see if it's not behind the master branch, unless you want to use an older version of Sleepy Discord.

@@ -9,19 +9,12 @@
 
 	#if !defined(SLEEPY_USE_BOOST) && !defined(EXISTENT_BOOST_ASIO)
 		#define ASIO_STANDALONE
-		#include "websocketpp_common.h"
-		#ifdef NONEXISTENT_WEBSOCKETPP
 			#include <asio.hpp>
 			#ifdef NONEXISTENT_ASIO
 				#undef ASIO_STANDALONE
 				#define SLEEPY_USE_BOOST
 			#endif
-		#else
-			namespace asio {
-				using namespace websocketpp::lib::asio;
-			}
 		#endif
-	#endif
 
 	#if defined(SLEEPY_USE_BOOST) || defined(EXISTENT_BOOST_ASIO)
 		#include <boost/asio.hpp>
