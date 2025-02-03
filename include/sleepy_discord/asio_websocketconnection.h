@@ -4,11 +4,19 @@
 #include <utility>
 #include <iostream>
 #include "asio_include.h"
+#if defined(SLEEPY_USE_BOOST_ASIO)
+#include <boost/asio/ssl.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/streambuf.hpp>
+#else
 #include <asio/ssl.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/write.hpp>
 #include <asio/read.hpp>
 #include <asio/streambuf.hpp>
+#endif
 #include <openssl/x509.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -16,7 +24,7 @@
 #include "endian.h"
 #include "version_helper.h"
 
-// to do: handle muliple frames or imcomplete frames in one read
+// to do: handle muliple frames in one read
 // to do: use a log event and remove iostream include
 
 namespace SleepyDiscord {

@@ -2,6 +2,11 @@
 #include "asio_include.h"
 #ifndef NONEXISTENT_ASIO
 #include "udp.h"
+#if defined(SLEEPY_USE_BOOST_ASIO)
+#include <boost/asio/ip/udp.hpp>
+#else
+#include <asio/ip/udp.hpp>
+#endif
 
 namespace SleepyDiscord {
 
