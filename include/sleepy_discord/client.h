@@ -735,6 +735,8 @@ namespace SleepyDiscord {
 		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
 		bool wasHeartbeatAcked = true;
+		bool firstHeartbeat = true;
+		int64_t lastHeartbeatAcked = 0;
 		std::unique_ptr<GenericScheduleHandler> scheduleHandler = nullptr;
 		Timer heart;
 
