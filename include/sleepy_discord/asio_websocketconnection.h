@@ -482,112 +482,154 @@ namespace SleepyDiscord {
 			});
 		}
 
-		void receive() {
+		void receive(std::size_t min = 2, std::shared_ptr<asio::streambuf> prev = nullptr) {
 			if (!ready.load()) return;
 			using namespace asio::ip;
 			auto self = shared_from_this();
-			std::shared_ptr<asio::streambuf> readBuffer = std::make_shared<asio::streambuf>(); // asio only supports char, and I only found this out very late
-			asio::async_read(*socketPtr, *readBuffer, asio::transfer_at_least(2), [self, readBuffer](const asio::error_code& err, const std::size_t length) {
+			std::shared_ptr<asio::streambuf> readBuffer = prev ? prev : std::make_shared<asio::streambuf>(); // asio only supports char, and I only found this out very late
+			asio::async_read(*socketPtr, *readBuffer, asio::transfer_at_least(min), [self, readBuffer](const asio::error_code& err, const std::size_t length) {
 				if (err) {
 					std::cerr << "failed to read\n";
 					return; // to do clean up
 				}
-
-				// read the frame
-				constexpr auto smallestFrameSize = 2;
-				// based on the spec, there shouldn't be a message with a length of 1 or 0
-				assert(smallestFrameSize <= length);
-
-				std::istream inputStream(readBuffer.get());
-				uint8_t firstByte; { // because of reading from a char array from asio, we have to convert to uint8_t
-					char temp;
-					inputStream.read(&temp, 1);
-					std::memcpy(&firstByte, &temp, 1);
-				}
-				int8_t opCode = firstByte & 0b1111;
-
-				constexpr uint8_t isFinBit = static_cast<uint8_t>(0b1000'0000);
-				bool isFin = (firstByte & isFinBit) == isFinBit;
-				if (!isFin) { // not my problem for now
-					std::cerr << "Websocket fragmentation isn't supported. Ask the dev to add it if this is a problem.\n";
-					return;
-				}
-
-				uint8_t secondByte; {
-					char temp;
-					inputStream.read(&temp, 1);
-					std::memcpy(&secondByte, &temp, 1);
-				}
-
-				constexpr int8_t hasMaskByte = 1; constexpr int8_t hasMaskBit = static_cast<uint8_t>(0b1000'0000);
-				bool hasMask = (secondByte & hasMaskBit) == hasMaskBit;
-				if (hasMask) { // Servers shouldn't sent masked payloads
-					std::cerr << "Recevied masked websocket message, Servers shouldn't send masked payloads\n";
-					return;
-				}
-
-				constexpr int8_t hasExtendedLengthByte = 1; constexpr int8_t hasExtendedLength = static_cast<uint8_t>(0b0111'1111);
-				int8_t length7Bit = secondByte & hasExtendedLength;
-				int extendedLengthPrefixLength;
-				uint64_t payloadLength;
-				switch (length7Bit) {
-				case 126: {
-					constexpr std::size_t size = sizeof(uint16_t);
-					extendedLengthPrefixLength = size;
-					std::array<uint8_t, size> networkInt{}; {
-						std::array<char, size> temp;
-						inputStream.read(temp.data(), networkInt.size());
-						std::memcpy(networkInt.data(), temp.data(), networkInt.size());
-					}
-					payloadLength = net2System16(networkInt);
-				} break;
-				case 127: {
-					constexpr std::size_t size = sizeof(uint64_t);
-					extendedLengthPrefixLength = size;
-					std::array<uint8_t, size> networkInt{}; {
-							std::array<char, size> temp;
-							inputStream.read(temp.data(), networkInt.size());
-							std::memcpy(networkInt.data(), temp.data(), networkInt.size());
-					}
-					payloadLength = net2System64(networkInt);
-				} break;
-				default:
-					extendedLengthPrefixLength = 0;
-					payloadLength = length7Bit;
-					break;
-				}
-				const std::size_t maskStart = 2 + static_cast<size_t>(extendedLengthPrefixLength);
-				const std::size_t maskLength = hasMask ? sizeof(uint32_t) : 0;
-				const std::size_t payloadStart = maskStart + maskLength;
-				const std::size_t fullMessageLength = payloadStart + payloadLength;
-
-				if (length < fullMessageLength) {
-					// we don't have the whole message, loop receive until we have the whole message
-					const std::size_t bytesLeftToGet = fullMessageLength - length;
-					asio::async_read(*(self->socketPtr), *readBuffer, asio::transfer_at_least(bytesLeftToGet), [self, readBuffer, opCode, payloadLength, bytesLeftToGet](const asio::error_code& err, const std::size_t length) {
-						if (err) {
-							std::cerr << "failed to read whole\n";
-							return; // to do clean up
-						}
-						assert(payloadLength <= readBuffer->size());
-						self->onPayload(opCode, *readBuffer, payloadLength);
-						assert(length == bytesLeftToGet); // will there be left over bytes?
-					});
-				}
-				else {
-					// we have the whole message, we don't need to read again
-					self->onPayload(opCode, *readBuffer, payloadLength);
-					assert(length == fullMessageLength); // will there be left over bytes?
-				}
+				self->onFirstFewBytes(readBuffer, length);
 			});
 		}
 
-		void onPayload(int8_t opCode, asio::streambuf& readBuffer, std::size_t payloadLength) {
+		void onFirstFewBytes(std::shared_ptr<asio::streambuf> readBuffer, const std::size_t length) {
+			// read the frame
+			constexpr auto smallestFrameSize = 2;
+			// based on the spec, there shouldn't be a message with a length of 1 or 0
+			assert(smallestFrameSize <= length);
+
+			std::istream inputStream(readBuffer.get());
+			uint8_t firstByte; { // because of reading from a char array from asio, we have to convert to uint8_t
+				char temp;
+				inputStream.read(&temp, 1);
+				std::memcpy(&firstByte, &temp, 1);
+			}
+			int8_t opCode = firstByte & 0b1111;
+
+			constexpr uint8_t isFinBit = static_cast<uint8_t>(0b1000'0000);
+			bool isFin = (firstByte & isFinBit) == isFinBit;
+			if (!isFin) { // not my problem for now
+				std::cerr << "Websocket fragmentation isn't supported. Ask the dev to add it if this is a problem.\n";
+				return;
+			}
+
+			uint8_t secondByte; {
+				char temp;
+				inputStream.read(&temp, 1);
+				std::memcpy(&secondByte, &temp, 1);
+			}
+
+			constexpr int8_t hasMaskByte = 1; constexpr int8_t hasMaskBit = static_cast<uint8_t>(0b1000'0000);
+			bool hasMask = (secondByte & hasMaskBit) == hasMaskBit;
+			const std::size_t maskLength = hasMask ? sizeof(uint32_t) : 0;
+			if (hasMask) { // Servers shouldn't sent masked payloads
+				std::cerr << "Recevied masked websocket message, Servers shouldn't send masked payloads\n";
+				return;
+			}
+
+			constexpr int8_t hasExtendedLengthByte = 1; constexpr int8_t hasExtendedLength = static_cast<uint8_t>(0b0111'1111);
+			int8_t length7Bit = secondByte & hasExtendedLength;
+			std::size_t lengthOfLength;
+			switch (length7Bit) {
+			case 126: lengthOfLength = sizeof(uint16_t); break;
+			case 127: lengthOfLength = sizeof(uint64_t); break;
+			default: lengthOfLength = 0; break;
+			}
+
+			std::size_t bytesTilPayload = lengthOfLength + maskLength;
+			const std::size_t bytesLeft = length - smallestFrameSize;
+			Frame frame = { isFin, opCode, hasMask, length7Bit, maskLength };
+
+			if (bytesTilPayload <= bytesLeft) {
+				// need to receive more
+				onFrame(frame, readBuffer, length);
+			}
+			else {
+				// this is very unlikly but could happen
+				auto self = shared_from_this();
+				auto prevLength = length;
+				asio::async_read(*socketPtr, *readBuffer, asio::transfer_at_least(bytesTilPayload), [self, frame, readBuffer, prevLength](const asio::error_code& err, const std::size_t length) {
+					if (err) {
+						std::cerr << "failed to read frame\n";
+						return; // to do clean up
+					}
+					self->onFrame(frame, readBuffer, prevLength + length);
+				});
+			}
+		}
+
+		struct Frame {
+			bool isFin;
+			int8_t opCode;
+			bool hasMask;
+			int8_t length7Bit;
+			std::size_t maskLength;
+		};
+
+		void onFrame(Frame frame, std::shared_ptr<asio::streambuf> readBuffer, std::size_t length) {
+			auto self = shared_from_this();
+			std::istream inputStream(readBuffer.get());
+			int extendedLengthPrefixLength;
+			uint64_t payloadLength;
+			switch (frame.length7Bit) {
+			case 126: {
+				constexpr std::size_t size = sizeof(uint16_t);
+				extendedLengthPrefixLength = size;
+				std::array<uint8_t, size> networkInt{}; {
+					std::array<char, size> temp;
+					inputStream.read(temp.data(), networkInt.size());
+					std::memcpy(networkInt.data(), temp.data(), networkInt.size());
+				}
+				payloadLength = net2System16(networkInt);
+			} break;
+			case 127: {
+				constexpr std::size_t size = sizeof(uint64_t);
+				extendedLengthPrefixLength = size;
+				std::array<uint8_t, size> networkInt{}; {
+					std::array<char, size> temp;
+					inputStream.read(temp.data(), networkInt.size());
+					std::memcpy(networkInt.data(), temp.data(), networkInt.size());
+				}
+				payloadLength = net2System64(networkInt);
+			} break;
+			default:
+				extendedLengthPrefixLength = 0;
+				payloadLength = frame.length7Bit;
+				break;
+			}
+
+			const std::size_t maskStart = 2 + static_cast<size_t>(extendedLengthPrefixLength);
+			const std::size_t payloadStart = maskStart + frame.maskLength;
+			const std::size_t fullMessageLength = payloadStart + payloadLength;
+
+			if (length < fullMessageLength) {
+				// we don't have the whole message, loop receive until we have the whole message
+				const std::size_t bytesLeftToGet = fullMessageLength - length;
+				asio::async_read(*(self->socketPtr), *readBuffer, asio::transfer_at_least(bytesLeftToGet), [self, readBuffer, frame, payloadLength, bytesLeftToGet](const asio::error_code& err, const std::size_t length) {
+					if (err) {
+						std::cerr << "failed to read whole\n";
+						return; // to do clean up
+					}
+					self->onPayload(frame.opCode, readBuffer, payloadLength);
+					self->afterPayload(length - bytesLeftToGet, readBuffer);
+					});
+			}
+			else {
+				// we have the whole message, we don't need to read again
+				self->onPayload(frame.opCode, readBuffer, payloadLength);
+				afterPayload(length - fullMessageLength, readBuffer);
+			}
+		}
+
+		void onPayload(int8_t opCode, std::shared_ptr<asio::streambuf> readBuffer, std::size_t payloadLength) {
 			std::vector<uint8_t> payload{}; payload.resize(payloadLength); // compiler keeps thinking length is a char array
-			asio::buffer_copy(asio::buffer(payload), readBuffer.data());
+			asio::buffer_copy(asio::buffer(payload), readBuffer->data());
 			readPayload(opCode, std::move(payload));
-			readBuffer.consume(payloadLength);
-			receive(); // continue getting more messages from the server
+			readBuffer->consume(payloadLength);
 		}
 
 		void readPayload(int8_t opCode, std::vector<uint8_t> payload) {
@@ -599,7 +641,6 @@ namespace SleepyDiscord {
 				// I believe utf-8 verification is unnecessary, so the two are basically the same.
 			case textOp: case binaryOp: {
 				// copy payload and share it with the receiver
-				std::cout << std::string(payload.begin(), payload.end()) << '\n';
 				receiver.onMessage(payload);
 			} break;
 			case closeOp: {
@@ -627,6 +668,19 @@ namespace SleepyDiscord {
 			default:
 				std::cerr << "Unknown op code from server\n";
 				return;
+			}
+		}
+
+		void afterPayload(std::size_t notProcessedLength, std::shared_ptr<asio::streambuf> readBuffer) {
+			if (notProcessedLength == 0) {
+				return receive(); // continue recevie loop
+			}
+			else if (notProcessedLength < 2) {
+				return receive(2 - 1, readBuffer); // continue recevie loop but keep buffer
+			}
+			else {
+				// we have enough data to read a frame
+				return onFirstFewBytes(readBuffer, notProcessedLength);
 			}
 		}
 	};
