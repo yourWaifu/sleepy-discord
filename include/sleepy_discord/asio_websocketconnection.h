@@ -429,7 +429,12 @@ namespace SleepyDiscord {
 			std::shared_ptr<asio::steady_timer> timeout;
 		};
 
-		void disconnect(uint16_t code, const std::string& reason) {
+		bool disconnect(uint16_t code, const std::string& reason) {
+			// disconnect is usally called twice by the library, from the heartbeat and close, so disable when disconnecting
+			if (!ready || closeRequestPtr) {
+				return false;
+			}
+
 			// to cleanly disconnect, we need to wait for the stream to end. To do that, we
 			// send a close message to the server and wait to recevice a mirrored close message from the server
 			// we might not get the close from the server, so we might want to close it after a few seconds
@@ -440,6 +445,7 @@ namespace SleepyDiscord {
 				self->close(0, emptryStr, true); // can't send but it should shutdown
 			}) });
 			close(code, reason, false);
+			return true;
 		}
 
 	private:
@@ -652,12 +658,12 @@ namespace SleepyDiscord {
 				std::advance(reasonStart, networkInt.size());
 				std::string reason = std::string{reasonStart, payload.end()};
 				std::cout << "Close " << closeCode << ": " << reason << '\n';
+				receiver.onClose(closeCode, reason); // tell the receiver before closing
+				close(closeCode, reason, true); // echo close or close socket, can be both
+				ready = false; // ready should already be false here but just in case
 				if (closeRequestPtr) { // the close request timeout is no longer needed
 					closeRequestPtr->timeout->cancel();
 				}
-				close(closeCode, reason, true); // echo close or close socket, can be both
-				ready = false; // ready should already be false here but just in case
-				receiver.onClose(closeCode, reason);
 			} break;
 			case pingOp:
 				// I doubt Discord would sent this
