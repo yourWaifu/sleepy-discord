@@ -523,9 +523,8 @@ namespace SleepyDiscord {
 		break;
 		case HELLO:
 			heartbeatInterval = d["heartbeat_interval"].GetInt();
+			firstHeartbeat = true;
 			heartbeat();
-			if (!ready) sendIdentity();
-			else sendResume();
 			break;
 		case RECONNECT:
 			reconnect();
@@ -540,7 +539,15 @@ namespace SleepyDiscord {
 			break;
 		case HEARTBEAT_ACK:
 			wasHeartbeatAcked = true;
+			if (firstHeartbeat) {
+				if (!ready) sendIdentity();
+				else sendResume();
+				firstHeartbeat = false;
+			}
 			onHeartbeatAck();
+			break;
+		case HEARTHBEAT:
+			sendHeartbeat();
 			break;
 		}
 	}
