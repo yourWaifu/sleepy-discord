@@ -82,9 +82,14 @@ namespace SleepyDiscord {
 
 		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& _connection) override {
 			if (auto websocketConnection = _connection.lock()) {
-				websocketConnection->disconnect(code, reason);
+				bool startedDisconnect = websocketConnection->disconnect(code, reason);
+				if (startedDisconnect) {
+					std::cout << "disconnecting\n";
+				}
+				else {
+					// likly already disconnecting
+				}
 			}
-			std::cout << "disconnected\n";
 		}
 
 		void send(std::string message, WebsocketConnection& _connection) override {
