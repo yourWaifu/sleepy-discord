@@ -3,6 +3,11 @@
 #include <string>
 #include <utility>
 #include <iostream>
+#include <algorithm>
+
+#include "sleepy_discord/net_endian.h"
+#include "version_helper.h"
+
 #include "asio_include.h"
 #if defined(SLEEPY_USE_BOOST_ASIO)
 #include <boost/asio/ssl.hpp>
@@ -17,14 +22,12 @@
 #include <asio/read.hpp>
 #include <asio/streambuf.hpp>
 #endif
+
 #include <openssl/x509.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
-#include "endian.h"
-#include "version_helper.h"
 
-// to do: handle muliple frames in one read
 // to do: use a log event and remove iostream include
 
 namespace SleepyDiscord {
@@ -118,11 +121,11 @@ namespace SleepyDiscord {
 					
 				cancelSignal->emit(asio::cancellation_type::all);
 				self->logError("connect took too long, canceling", err);
-				self->socketPtr->async_shutdown();
+				self->socketPtr->async_shutdown([](const asio::error_code& _) {});
 			});
 
 			auto cleanUp = [self, connectDeadline]() {
-				self->socketPtr->async_shutdown();
+				self->socketPtr->async_shutdown([](const asio::error_code& _) {});
 				connectDeadline->cancel();
 			};
 
@@ -238,11 +241,12 @@ namespace SleepyDiscord {
 									std::string headerFieldRight = response.substr(offset, newLinePos - offset);
 									offset = newLinePos + 2;
 									// insert to the map with the key being lowercase ASCII only
-									std::transform(headerFieldLeft.begin(), headerFieldLeft.end(), headerFieldLeft.begin(), std::tolower);
+									std::transform(headerFieldLeft.begin(), headerFieldLeft.end(), headerFieldLeft.begin(), [](char c) { 
+										return std::tolower(c);
+									});
 									headers.insert(std::make_pair(headerFieldLeft, std::move(headerFieldRight)));
 								}
 								offset += 2; // + 2 to skip end of header
-								const auto bodyStart = offset;
 
 								// easyer to write it like this, but a map of functions might be faster
 								{
@@ -253,7 +257,9 @@ namespace SleepyDiscord {
 									}
 									const std::string expectedValue = "websocket";
 									std::string& value = iter->second;
-									std::transform(value.begin(), value.end(), value.begin(), std::tolower);
+									std::transform(value.begin(), value.end(), value.begin(), [](char c) {
+										return std::tolower(c);
+									});
 									if (value != expectedValue) {
 										self->logError("HTTP protocol switch to websocket failed, incorrect Upgrade value from server", err);
 										return cleanUp();
@@ -268,7 +274,9 @@ namespace SleepyDiscord {
 									}
 									const std::string expectedValue = "upgrade";
 									std::string& value = iter->second;
-									std::transform(value.begin(), value.end(), value.begin(), std::tolower);
+									std::transform(value.begin(), value.end(), value.begin(), [](char c) {
+										return std::tolower(c);
+									});
 									if (value != expectedValue) {
 										self->logError("HTTP protocol switch to websocket failed, incorrect Connection value from server", err);
 										return cleanUp();
@@ -344,7 +352,7 @@ namespace SleepyDiscord {
 			// so they are basically the same to us. But, the server might do the validation, so this
 			// should be set correctly by the sender to prevent a invalid UTF-8 error.
 			uint16_t opCode,
-			std::function<void(asio::error_code)> callback
+			std::function<void(const asio::error_code&)> callback
 		) {
 			if (!ready.load()) { // can't send while not connected
 				std::cerr << "Can't send while not connected\n";
@@ -374,11 +382,11 @@ namespace SleepyDiscord {
 
 			switch (shortPayloadLength) {
 			case 126: {
-				auto netInt16 = system2net16(static_cast<uint16_t>(payloadLength));
+				auto netInt16 = system2net16<uint8_t>(static_cast<uint16_t>(payloadLength));
 				message->append(netInt16.data(), netInt16.size());
 			} break;
 			case 127: {
-				auto netInt64 = system2net64(static_cast<uint64_t>(payloadLength));
+				auto netInt64 = system2net64<uint8_t>(static_cast<uint64_t>(payloadLength));
 				message->append(netInt64.data(), netInt64.size());
 			} break;
 			default: break;
@@ -411,10 +419,10 @@ namespace SleepyDiscord {
 
 			if (socketPtr == nullptr) return; // already disconnected
 			auto self = shared_from_this();
-			auto netCloseInt = system2net16(code);
+			auto netCloseInt = system2net16<uint8_t>(code);
 			std::basic_string<uint8_t> closePayload{ netCloseInt.data(), netCloseInt.size() };
 			closePayload.append(reinterpret_cast<const uint8_t*>(reason.data()), reason.length());
-			send(closePayload, 0x8 /*Close*/, [self, closeSocketAfterSend](asio::error_code& err) {
+			send(closePayload, 0x8 /*Close*/, [self, closeSocketAfterSend](const asio::error_code& err) {
 				if (err || closeSocketAfterSend) {
 					self->shutdown();
 				}
@@ -469,7 +477,7 @@ namespace SleepyDiscord {
 
 		void receiveFullHandshake(std::shared_ptr<std::array<char, 256>> responsePtr, const std::size_t length, int score = 0) {
 			const static std::array<char, 4> endOfHandshake = { '\r', '\n', '\r', '\n' };
-			for (int i = 0; i < length; i += 1) {
+			for (std::size_t i = 0; i < length; i += 1) {
 				if (responsePtr->data()[i] == endOfHandshake[score]) {
 					score += 1;
 					if (score == 4) {
@@ -529,7 +537,7 @@ namespace SleepyDiscord {
 				std::memcpy(&secondByte, &temp, 1);
 			}
 
-			constexpr int8_t hasMaskByte = 1; constexpr int8_t hasMaskBit = static_cast<uint8_t>(0b1000'0000);
+			constexpr int8_t hasMaskBit = static_cast<uint8_t>(0b1000'0000);
 			bool hasMask = (secondByte & hasMaskBit) == hasMaskBit;
 			const std::size_t maskLength = hasMask ? sizeof(uint32_t) : 0;
 			if (hasMask) { // Servers shouldn't sent masked payloads
@@ -537,7 +545,7 @@ namespace SleepyDiscord {
 				return;
 			}
 
-			constexpr int8_t hasExtendedLengthByte = 1; constexpr int8_t hasExtendedLength = static_cast<uint8_t>(0b0111'1111);
+			constexpr int8_t hasExtendedLength = static_cast<uint8_t>(0b0111'1111);
 			int8_t length7Bit = secondByte & hasExtendedLength;
 			std::size_t lengthOfLength;
 			switch (length7Bit) {
@@ -580,7 +588,7 @@ namespace SleepyDiscord {
 			auto self = shared_from_this();
 			std::istream inputStream(readBuffer.get());
 			int extendedLengthPrefixLength;
-			uint64_t payloadLength;
+			std::size_t payloadLength;
 			switch (frame.length7Bit) {
 			case 126: {
 				constexpr std::size_t size = sizeof(uint16_t);
@@ -600,7 +608,19 @@ namespace SleepyDiscord {
 					inputStream.read(temp.data(), networkInt.size());
 					std::memcpy(networkInt.data(), temp.data(), networkInt.size());
 				}
-				payloadLength = net2System64(networkInt);
+				uint64_t temp = net2System64(networkInt);
+
+				constexpr bool pointerIsTooSmall = (std::numeric_limits<std::size_t>::max)() < (std::numeric_limits<uint64_t>::max)();
+				if ( // on a 32 bit or 16 bit system, we can't put the message in memory
+					// the compiler should be smart enough to get rid of this on 64-bit systems
+					pointerIsTooSmall && ((std::numeric_limits<std::size_t>::max)() < payloadLength)
+					) { // doubt that Discord would ever sent a 4 GB websocket payload, so just kill it
+					std::cerr << "Can't read message larger then max pointer value\n";
+					disconnect(1009, "sizeof(PTR)<MSG");
+					return;
+				}
+				
+				payloadLength = static_cast<std::size_t>(temp);
 			} break;
 			default:
 				extendedLengthPrefixLength = 0;
@@ -610,11 +630,11 @@ namespace SleepyDiscord {
 
 			const std::size_t maskStart = 2 + static_cast<size_t>(extendedLengthPrefixLength);
 			const std::size_t payloadStart = maskStart + frame.maskLength;
-			const std::size_t fullMessageLength = payloadStart + payloadLength;
+			const std::size_t leftOverLength = length - payloadStart;
 
-			if (length < fullMessageLength) {
+			if (leftOverLength < payloadLength) {
 				// we don't have the whole message, loop receive until we have the whole message
-				const std::size_t bytesLeftToGet = fullMessageLength - length;
+				const std::size_t bytesLeftToGet = payloadLength - leftOverLength;
 				asio::async_read(*(self->socketPtr), *readBuffer, asio::transfer_at_least(bytesLeftToGet), [self, readBuffer, frame, payloadLength, bytesLeftToGet](const asio::error_code& err, const std::size_t length) {
 					if (err) {
 						std::cerr << "failed to read whole\n";
@@ -627,7 +647,7 @@ namespace SleepyDiscord {
 			else {
 				// we have the whole message, we don't need to read again
 				self->onPayload(frame.opCode, readBuffer, payloadLength);
-				afterPayload(length - fullMessageLength, readBuffer);
+				afterPayload(leftOverLength - payloadLength, readBuffer);
 			}
 		}
 
@@ -671,6 +691,8 @@ namespace SleepyDiscord {
 			case pongOp:
 				// only needed if ping send is implemented
 				break;
+			case continueOp:
+				// shouldn't happen because we don't support websocket fragmentation
 			default:
 				std::cerr << "Unknown op code from server\n";
 				return;

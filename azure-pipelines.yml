@@ -4,11 +4,11 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 pool:
-  vmImage: 'VS2017-Win2016'
+  vmImage: 'windows-2022'
 
 variables:
   solution: 'build/*.sln'
-  buildPlatform: Win32
+  buildPlatform: 'x86'
   buildConfiguration: 'Release'
 
 steps:
@@ -24,15 +24,13 @@ steps:
 
 - script: |
     cd vcpkg
-    .\vcpkg install openssl-windows:x86-windows-static
+    .\vcpkg install openssl:x86-windows-static
   displayName: 'OpenSSL Install'
 
 - task: CMake@1
   inputs:
-    CMakeArgs: .. -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
+    CMakeArgs: .. -A Win32 -DBUILD_SLEEPY_DISCORD_EXAMPLES=1 -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR="D:\a\1\s\vcpkg\installed\x86-windows-static" -DBUILD_CPR_TESTS=OFF
 
-- task: VSBuild@1
+- task: CMake@1
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    CMakeArgs: --build . --config Release

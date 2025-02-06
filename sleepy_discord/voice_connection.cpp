@@ -210,7 +210,7 @@ namespace SleepyDiscord {
 		if (reconnectTimer.isValid()) //overwrite reconnect timer
 			reconnectTimer.stop();
 		reconnectTimer = origin->schedule([this]() {
-			origin->connect(getWebSocketURI(context.endpoint), this, connection);
+			origin->connect(getWebSocketURI(context.endpoint), *this, connection);
 		}, getRetryDelay());
 		++consecutiveReconnectsCount;
 	}
