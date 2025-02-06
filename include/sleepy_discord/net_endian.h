@@ -1,8 +1,7 @@
 #pragma once
-#include <utility>
-#include <cstdint>
-#include <cstring>
 #include <array>
+#include <utility>
+#include <cstring>
 #if __cplusplus >= 202002L
 #include <bit>
 #define SLEEPY_ENDIAN_IF if constexpr
@@ -33,7 +32,7 @@ namespace SleepyDiscord {
 #endif
   }
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   const std::array<Byte, 2> getByteOrder2() {
     const short bytes{ 0x0100 };
     const void* address{ static_cast<const void*>(&bytes) };
@@ -41,7 +40,7 @@ namespace SleepyDiscord {
     return std::array<Byte, 2>{byteOrder[0], byteOrder[1]};
   }
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   const std::array<Byte, 8> getByteOrder8() {
     const long long bytes{ 0x0706050403020100 };
     const void* address{ static_cast<const void*>(&bytes) };
@@ -59,7 +58,7 @@ namespace SleepyDiscord {
 
   // you don't need to know the endianness, bitshifting works across endians
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   uint16_t net2System16(const std::array<Byte, 2> value) {
     static_assert(sizeof(uint16_t) == 2, "uint16_t must be 2 bytes large");
     constexpr Endian systemEndian = getSystemEndian();
@@ -75,7 +74,7 @@ namespace SleepyDiscord {
     );
   }
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   uint64_t net2System64(const std::array<Byte, 8> value) {
     static_assert(sizeof(uint64_t) == 8, "uint16_t must be 8 bytes large");
     constexpr Endian systemEndian = getSystemEndian();
@@ -97,7 +96,7 @@ namespace SleepyDiscord {
     );
   }
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   std::array<Byte, 2> system2net16(const uint16_t value) {
     static_assert(sizeof(uint16_t) == 2, "uint16_t must be 8 bytes large");
     std::array<Byte, 2> output{};
@@ -113,7 +112,7 @@ namespace SleepyDiscord {
     return output;
   }
 
-  template<typename Byte = uint8_t>
+  template<typename Byte>
   std::array<Byte, 8> system2net64(const uint64_t value) {
     static_assert(sizeof(uint64_t) == 8, "uint16_t must be 8 bytes large");
     std::array<Byte, 8> output{};

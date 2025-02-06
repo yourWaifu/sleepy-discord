@@ -740,14 +740,13 @@ namespace SleepyDiscord {
 	}
 
 	void BaseDiscordClient::processMessage(const WebSocketMessage message) {
-		switch (message.opCode) {
-		case WebSocketMessage::OPCode::binary: {
+		if (useTrasportConnection != -1) {
 			if (!compressionHandler)
-				break;
+				return;
 			compressionHandler->uncompress(message.payload);
 			
 			//when using transport connections, Discord ends streams the flush siginal
-			constexpr std::array<const char, 4> flushSiginal = { 0, 0, '\xFF', '\xFF'};
+			constexpr std::array<const char, 4> flushSiginal = { 0, 0, '\xFF', '\xFF' };
 			constexpr std::size_t siginalLength = flushSiginal.max_size();
 			bool endsWithFlushSiginal = false;
 			if (useTrasportConnection == 1 && siginalLength <= message.payload.length()) {
@@ -765,13 +764,10 @@ namespace SleepyDiscord {
 				compressionHandler->getOutput(*uncompressed);
 				processMessage(*uncompressed);
 			}
-			break;
-		}
-		case WebSocketMessage::OPCode::text: {
+			return;
+		} else {
 			processMessage(message.payload);
-			break;
-		}
-		default: break;
+			return;
 		}
 	}
 
@@ -897,7 +893,7 @@ namespace SleepyDiscord {
 		voiceConnections.emplace_front( this, context );
 		VoiceConnection& voiceConnection = voiceConnections.front();
 
-		connect(endpoint, &voiceConnection, voiceConnection.connection);
+		connect(endpoint, voiceConnection, voiceConnection.connection);
 
 		//remove from wait list
 		waitingVoiceContexts.remove_if(
