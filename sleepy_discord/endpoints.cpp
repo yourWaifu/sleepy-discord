@@ -21,7 +21,7 @@ namespace SleepyDiscord {
 	//	return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), json::stringifyObj(params)) };
 	//}
 
-	std::string createMessageBody(std::string& message, Embed& embed, MessageReference& replyingTo, TTS tts) {
+	std::string createMessageBody(std::string& message, std::vector<Embed>& embeds, MessageReference& replyingTo, TTS tts) {
 		rapidjson::Document doc;
 		doc.SetObject();
 		rapidjson::Value content;
@@ -29,8 +29,14 @@ namespace SleepyDiscord {
 		content.SetString(message.c_str(), message.length());
 		doc.AddMember("content", content, allocator);
 		if (tts == TTS::EnableTTS) doc.AddMember("tts", true, allocator);
-		if (!embed.empty()) doc.AddMember("embed", json::toJSON(embed, allocator), allocator);
-		if (!replyingTo.messageID.empty()) doc.AddMember("message_reference", json::toJSON(embed, allocator), allocator);
+		if (!embeds.empty()) {
+			json::Value embedList = json::Value(rapidjson::kArrayType);
+			for (auto& embed : embeds) {
+				embedList.PushBack(json::toJSON(embed, allocator), allocator);
+			}
+			doc.AddMember("embeds", embedList, allocator);
+		}
+		if (!replyingTo.messageID.empty()) doc.AddMember("message_reference", json::toJSON(replyingTo, allocator), allocator);
 		return json::stringify(doc);
 	}
 
@@ -38,19 +44,24 @@ namespace SleepyDiscord {
 		return ObjectResponse<Gateway>{ request(Get, "gateway/bot", settings) };
 	}
 
+	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, std::vector<Embed> embeds, MessageReference replyingTo, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embeds, replyingTo, tts)) };
+	}
+
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(Snowflake<Channel> channelID, std::string message, Embed embed, MessageReference replyingTo, TTS tts, RequestSettings<ObjectResponse<Message>> settings) {
-		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embed, replyingTo, tts)) };
+		std::vector<Embed> embeds = embed.empty() ? std::vector<Embed>() : std::vector<Embed>({ std::move(embed) });
+		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { channelID }), settings, createMessageBody(message, embeds, replyingTo, tts)) };
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::sendMessage(SendMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{ request(Post, path("channels/{channel.id}/messages", { params.channelID }), settings, json::stringifyObj(params)) };
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, Embed embed, MessageReference replyingTo, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::uploadFile(Snowflake<Channel> channelID, std::string fileLocation, std::string message, std::vector<Embed> embeds, MessageReference replyingTo, RequestSettings<ObjectResponse<Message>> settings) {
 		return ObjectResponse<Message>{
 			request(Post, path("channels/{channel.id}/messages", { channelID }), settings, "", {
 				{ "file", filePathPart{fileLocation} },
-				{ "payload_json", createMessageBody(message, embed, replyingTo, TTS::DisableTTS) }
+				{ "payload_json", createMessageBody(message, embeds, replyingTo, TTS::DisableTTS) }
 			})
 		};
 	}
@@ -64,9 +75,9 @@ namespace SleepyDiscord {
 		};
 	}
 
-	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, Embed embed, RequestSettings<ObjectResponse<Message>> settings) {
+	ObjectResponse<Message> BaseDiscordClient::editMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string newMessage, std::vector<Embed> embeds, RequestSettings<ObjectResponse<Message>> settings) {
 		MessageReference mr{};
-		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embed, mr, TTS::DisableTTS)) };
+		return ObjectResponse<Message>{ request(Patch, path("channels/{channel.id}/messages/{message.id}", { channelID, messageID }), settings, createMessageBody(newMessage, embeds, mr, TTS::DisableTTS)) };
 	}
 
 	ObjectResponse<Message> BaseDiscordClient::editMessage(EditMessageParams params, RequestSettings<ObjectResponse<Message>> settings) {
@@ -221,6 +232,40 @@ namespace SleepyDiscord {
 
 	StandardResponse BaseDiscordClient::removeRecipient(Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<StandardResponse> settings) {
 		return StandardResponse{ request(Delete, path("channels/{channel.id}/recipients/{user.id}", { channelID, userID }), settings) };
+	}
+
+	ObjectResponse<Channel> BaseDiscordClient::startThreadMessage(Snowflake<Channel> channelID, Snowflake<Message> messageID, std::string name, int autoArchiveDuration, int rateLimitPerUser, RequestSettings<ObjectResponse<Channel>> settings)
+	{
+		return ObjectResponse<Channel>{
+			request(Post, path("channels/{channel.id}/messages/{message.id}/threads", { channelID, messageID }), settings)
+		};
+	}
+
+	BoolResponse BaseDiscordClient::joinThread(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Put, path("channels/{channel.id}/thread-members/@me", {channelID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::addThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Put, path("channels/{channel.id}/thread-members/{user.id}", {channelID, userID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::leaveThread(Snowflake<Channel> channelID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Delete, path("channels/{channel.id}/thread-members/@me", {channelID}), settings), EmptyRespFn() };
+	}
+
+	BoolResponse BaseDiscordClient::removeThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, RequestSettings<BoolResponse> settings)
+	{
+		return { request(Delete, path("channels/{channel.id}/thread-members/{user.id}", {channelID, userID}), settings), EmptyRespFn() };
+	}
+
+	ObjectResponse<ThreadMember> BaseDiscordClient::getThreadMember(Snowflake<Channel> channelID, Snowflake<User> userID, bool withMember, RequestSettings<ObjectResponse<ThreadMember>> settings)
+	{
+		return ObjectResponse<ThreadMember>{
+			request(Get, path("channels/{channel.id}/thread-members/{user.id}?with_member={withMember}", { channelID, userID, withMember ? "true": "false" }), settings)
+		};
 	}
 
 	//

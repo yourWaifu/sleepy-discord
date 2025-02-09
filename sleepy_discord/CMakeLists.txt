@@ -17,14 +17,14 @@ add_library(sleepy-discord STATIC
 	server.cpp
 	slash_commands.cpp
 	user.cpp
-	uwebsockets_websocket.cpp
+	
 	voice.cpp
 	voice_connection.cpp
 	webhook.cpp
-	websocketpp_websocket.cpp
 	zlib_compression.cpp
 	stage_instance.cpp
-)
+	"thread.cpp" 
+	"asio_websocket.cpp")
 
 target_include_directories(sleepy-discord
 	PUBLIC
@@ -80,6 +80,9 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		endif()
 		list(APPEND LIB_CONFIG "EXISTENT_ASIO")
 		list(APPEND REQUIRED_PACKAGES "asio")
+		find_package(OpenSSL REQUIRED)
+		list(APPEND REQUIRED_PACKAGES "OpenSSL")
+		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
 	elseif(USE_BOOST_ASIO)
 		#Look for boost as an alt
 		find_package(Boost REQUIRED)
@@ -87,39 +90,11 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		list(APPEND LIB_CONFIG "EXISTENT_BOOST_ASIO")
 		list(APPEND LIB_CONFIG "EXISTENT_ASIO")
 		list(APPEND REQUIRED_PACKAGES "Boost")
-	else()
-		list(APPEND LIB_CONFIG "NONEXISTENT_ASIO")
-	endif()
-
-	if(USE_WEBSOCKETPP)
-		if(SLEEPY_VCPKG)
-			list(APPEND LIBRARIES_TO_LINK "websocketpp::websocketpp")
-		else()
-			list(APPEND LIBRARIES_INCLUDE_DIRS "${websocketpp_SOURCE_DIR}")
-		endif()
 		find_package(OpenSSL REQUIRED)
 		list(APPEND REQUIRED_PACKAGES "OpenSSL")
 		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
-		if (UNIX)
-			find_package(Threads REQUIRED)
-			list(APPEND REQUIRED_PACKAGES "Threads")
-			list(APPEND LIBRARIES_TO_LINK "Threads::Threads")
-		endif()
-		list(APPEND REQUIRED_PACKAGES "websocketpp")
-		list(APPEND LIB_CONFIG "EXISTENT_WEBSOCKETPP")
 	else()
-		list(APPEND LIB_CONFIG "NONEXISTENT_WEBSOCKETPP")
-	endif()
-
-	if(USE_UWEBSOCKETS)
-		find_library(LIB_UWS uWS
-			PATHS ${uwebsockets_SOURCE_DIR}/lib
-		)
-		list(APPEND LIBRARIES_INCLUDE_DIRS "${UWEBSOCKETS_INCLUDE_DIRS}")
-		list(APPEND LIBRARIES_TO_LINK "${LIB_UWS}")
-		list(APPEND LIB_CONFIG "EXISTENT_UWEBSOCKETS")
-	else()
-		list(APPEND LIB_CONFIG "NONEXISTENT_UWEBSOCKETS")
+		list(APPEND LIB_CONFIG "NONEXISTENT_ASIO")
 	endif()
 
 	if(USE_LIBOPUS)
@@ -177,6 +152,35 @@ if (NOT ONLY_SLEEPY_DISCORD)
 		list(APPEND LIB_CONFIG "NONEXISTENT_ZLIB")
 	endif()
 
+	if(USE_BEAST)
+		if(SLEEPY_VCPKG)
+			list(APPEND LIBRARIES_TO_LINK "Boost::beast")
+		else()
+			list(APPEND LIBRARIES_INCLUDE_DIRS "${beast_SOURCE_DIR}/include/")
+		endif()
+		find_package(OpenSSL REQUIRED)
+		list(APPEND REQUIRED_PACKAGES "OpenSSL")
+		list(APPEND LIBRARIES_TO_LINK "OpenSSL::SSL" "OpenSSL::Crypto")
+		if (UNIX)
+			find_package(Threads REQUIRED)
+			list(APPEND REQUIRED_PACKAGES "Threads")
+			list(APPEND LIBRARIES_TO_LINK "Threads::Threads")
+		endif()
+		list(APPEND LIB_CONFIG "EXISTENT_BEAST")
+	else()
+		list(APPEND LIB_CONFIG "NONEXISTENT_BEAST")
+	endif()
+
+	if (USE_IXWEBSOCKET)
+		list(APPEND LIBRARIES_TO_LINK "${IXWEBSOCKET_LIBRARY}")
+		if(SLEEPY_VCPKG)
+			list(APPEND LIBRARIES_INCLUDE_DIRS "${IXWEBSOCKET_INCLUDE_DIR}")
+		endif()
+		list(APPEND LIB_CONFIG "EXISTENT_IXWEBSOCKET")
+	else()
+		list(APPEND LIB_CONFIG "NONEXISTENT_IXWEBSOCKET")
+	endif()
+
 	target_link_libraries(sleepy-discord PUBLIC ${LIBRARIES_TO_LINK})
 	target_include_directories(sleepy-discord PUBLIC ${LIBRARIES_INCLUDE_DIRS})
 else()
@@ -184,8 +188,6 @@ else()
 		"NONEXISTENT_CPR"
 		"NONEXISTENT_ASIO"
 		"NONEXISTENT_BOOST_ASIO"
-		"NONEXISTENT_WEBSOCKETPP"
-		"NONEXISTENT_UWEBSOCKETS"
 		"NONEXISTENT_OPUS"
 		"NONEXISTENT_SODIUM")
 endif()

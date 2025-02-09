@@ -9,14 +9,14 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	option(AUTO_DOWNLOAD_LIBRARY         "Automatically download sleepy discord standard config dependencies" ON )
 	option(SLEEPY_VCPKG                  "VCPKG with Sleepy Discord"                                          OFF)
 	option(USE_CPR                       "Use CPR http library"                                               ON )
-	option(USE_WEBSOCKETPP               "Use websocketpp websockets library"                                 ON )
-	option(USE_UWEBSOCKETS               "Use uWebsockets websockets library"                                 OFF)
-	option(USE_ASIO                      "Use ASIO network and I/O library (Used for UDP)"                    OFF)
+	option(USE_ASIO                      "Use ASIO network and I/O library (Used for UDP and TCP)"            ON)
 	option(USE_BOOST_ASIO                "Same as USE_ASIO but for boost library"                             OFF)
 	option(USE_LIBOPUS                   "Use Opus audio codec library"                                       OFF)
 	option(USE_LIBSODIUM                 "Use libsodium cryptography library"                                 OFF)
 	option(USE_ZLIB_NG                   "Use zlib-ng for data compression"                                   OFF)
 	option(USE_ZLIB                      "Use zlib for data compression"                                      OFF)
+	#option(USE_Boost_BEAST               "Use Boost Beast for http library"                                   OFF)
+	#option(USE_IXWEBSOCKET               "Use IXWebSocket for websockets"                                     OFF)
 endif()
 
 #Define a variable to use to check if this file has been executed
@@ -30,14 +30,6 @@ endif()
 if(ENABLE_VOICE)
 	set(USE_LIBOPUS ON)
 	set(USE_LIBSODIUM ON)
-endif()
-
-if(USE_WEBSOCKETPP OR USE_UWEBSOCKETS)
-	if(Boost_FOUND OR USE_BOOST_ASIO) #checks if already defined
-		set(USE_BOOST_ASIO ON)
-	else()
-		set(USE_ASIO ON)
-	endif()
 endif()
 
 if(USE_ZLIB_NG AND USE_ZLIB)
@@ -116,8 +108,6 @@ if(USE_ASIO)
 		find_package(asio CONFIG REQUIRED)
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
-			# Note websocketpp doesn't work with the latest version of asio
-			# Remember to go back to the master version after they are fixed
 			download_project(
 				PROJ           asio
 				GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
@@ -129,54 +119,6 @@ if(USE_ASIO)
 
 		if(NOT DEFINED asio_SOURCE_DIR)
 			set(asio_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/asio)
-		endif()
-	endif()
-endif()
-
-if(USE_WEBSOCKETPP)
-	if (SLEEPY_VCPKG)
-		find_package(websocketpp CONFIG REQUIRED)
-	else()
-		if(AUTO_DOWNLOAD_LIBRARY)
-			download_project(
-				PROJ           websocketpp
-				GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
-				GIT_TAG        master
-				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/websocketpp
-				UPDATE_DISCONNECTED 1
-			)
-		endif()
-
-		set(THREADS_PREFER_PTHREAD_FLAG ON)
-		find_package(Threads REQUIRED)
-		add_subdirectory(deps/websocketpp)
-
-		if(NOT DEFINED websocketpp_SOURCE_DIR)
-			set(websocketpp_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/websocketpp)
-		endif()
-	endif()
-endif()
-
-if(USE_UWEBSOCKETS)
-	if(SLEEPY_VCPKG)
-		find_path(UWEBSOCKETS_INCLUDE_DIRS "uwebsockets/App.h")
-		set(uwebsockets_SOURCE_DIR "${UWEBSOCKETS_INCLUDE_DIRS}/..")
-	else()
-		if(AUTO_DOWNLOAD_LIBRARY)
-			#to do install zlib
-			download_project(
-				PROJ           uwebsockets
-				GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
-				GIT_TAG        master
-				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/uwebsockets
-				UPDATE_DISCONNECTED 1
-				BUILD_COMMAND  ${MAKE}
-			)
-			set(UWEBSOCKETS_INCLUDE_DIRS "${uwebsockets_SOURCE_DIR}/include")
-		endif()
-
-		if(NOT DEFINED uwebsockets_SOURCE_DIR)
-			set(uwebsockets_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/uwebsockets)
 		endif()
 	endif()
 endif()
@@ -247,6 +189,45 @@ if(USE_ZLIB)
 	find_package(ZLIB REQUIRED)
 	#to do add auto download
 endif()
+
+if (USE_BEAST)
+	if(SLEEPY_VCPKG)
+		find_package(Boost REQUIRED COMPONENTS beast)
+	else()
+		if(AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           beast
+				GIT_REPOSITORY https://github.com/boostorg/beast.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/beast
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+	endif()
+
+	add_subdirectory(deps/beast)
+endif()
+
+if (USE_IXWEBSOCKET)
+	if (SLEEPY_VCPKG)
+		find_path(IXWEBSOCKET_INCLUDE_DIR ixwebsocket/IXWebSocket.h)
+		find_library(IXWEBSOCKET_LIBRARY ixwebsocket)
+	else()
+		if (AUTO_DOWNLOAD_LIBRARY)
+			download_project(
+				PROJ           IXWebSocket
+				GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
+				GIT_TAG        master
+				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/ixwebsocket
+				UPDATE_DISCONNECTED 1
+			)
+		endif()
+
+		add_subdirectory(deps/ixwebsocket)
+		set(IXWEBSOCKET_LIBRARY ixwebsocket)
+		set(IXWEBSOCKET_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/deps/ixwebsocket/ixwebsocket)
+	endif()
+endif ()
 
 # Get Version Info
 # Not needed for vcpkg

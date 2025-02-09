@@ -26,12 +26,12 @@ namespace SleepyDiscord {
 	}
 
 	Message Message::send(BaseDiscordClient* client) {
-		return client->sendMessage(channelID, content, !embeds.empty() ? embeds[0] : Embed(), messageReference, static_cast<TTS>(tts));
+		return client->sendMessage(channelID, content, embeds, messageReference, static_cast<TTS>(tts));
 	}
 
 	Message Message::reply(BaseDiscordClient * client, std::string message, Embed embed)
 	{
-		return client->sendMessage(channelID, message, embed);
+		return client->sendMessage(channelID, message, { embed });
 	}
 
 	Message::Interaction::Interaction(const json::Value& json) :
