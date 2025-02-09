@@ -58,28 +58,29 @@ namespace SleepyDiscord {
 		EventReceiver receiver;
 
 		using SocketPtrType = std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>>;
+		using MallocDeleter = decltype(&free);
 
 		// https://stackoverflow.com/a/60580965
 		// a few changes made to make this more sane. Firstly, we need to know the length later, so a pair is returned.
 		// if error, 2nd in pair will be -1
 		// Example:
-		// std::pair<std::shared_ptr<char> std::size_t> secKey = encodeBase64(nonce.data(), nonce.size());
+		// auto secKey = encodeBase64(nonce.data(), nonce.size());
 		// if (secKey.second == -1) return;
-		std::pair<std::shared_ptr<char>, std::size_t> encodeBase64(const unsigned char* input, std::size_t length) {
+		std::pair<std::unique_ptr<char, MallocDeleter>, std::size_t> encodeBase64(const unsigned char* input, std::size_t length) {
 			const auto pl = 4 * ((length + 2) / 3);
 			auto output = reinterpret_cast<char*>(calloc(pl + 1, 1)); // +1 for the terminating null that EVP_EncodeBlock adds on
 			const auto ol = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(output), input, static_cast<int>(length));
 			if (pl != ol) { std::cerr << "encode predicted " << pl << " but we got " << ol << "\n"; }
-			return { std::shared_ptr<char>(output, free), ol };
+			return { std::unique_ptr<char, MallocDeleter>(output, free), ol};
 		}
 
 		// this check doesn't seem to handle padding so the check is replaced
-		std::pair<std::shared_ptr<unsigned char>, std::size_t> decodeBase64(const char* input, std::size_t length) {
+		std::pair<std::unique_ptr<unsigned char, MallocDeleter>, std::size_t> decodeBase64(const char* input, std::size_t length) {
 			const auto pl = 3 * length / 4;
 			auto output = reinterpret_cast<unsigned char*>(calloc(pl + 1, 1));
 			const auto ol = EVP_DecodeBlock(output, reinterpret_cast<const unsigned char*>(input), static_cast<int>(length));
 			if (ol == -1) { std::cerr << "decode returned error \n"; }
-			return { std::shared_ptr<unsigned char>(output, free), ol };
+			return { std::unique_ptr<unsigned char, MallocDeleter>(output, free), ol };
 		}
 
 		template<typename Task>
@@ -176,8 +177,8 @@ namespace SleepyDiscord {
 							self->logError("Couldn't connect, random number generator failed", err);
 							return cleanUp();
 						}
-						std::pair<std::shared_ptr<char>, std::size_t> secKey = self->encodeBase64(nonce.data(), nonce.size());
-						std::shared_ptr<char> secKeyPtr = secKey.first;
+						auto secKey = self->encodeBase64(nonce.data(), nonce.size());
+						auto secKeyPtr = std::shared_ptr<char>(std::move(secKey.first));
 						if (secKey.second == -1) return;
 						std::size_t secKeyLength = secKey.second;
 
@@ -290,8 +291,8 @@ namespace SleepyDiscord {
 								std::memcpy(hashInput.data() + secKeyLength, websocketGUID.data(), websocketGUID.length());
 								std::array<unsigned char, SHA_DIGEST_LENGTH> acceptHash{ };
 								SHA1(hashInput.data(), hashInput.size(), acceptHash.data());
-								std::pair<std::shared_ptr<char>, std::size_t> expectedAccept = self->encodeBase64(acceptHash.data(), acceptHash.size());
-								std::shared_ptr<char> expectedAcceptPtr = std::move(expectedAccept.first);
+								auto expectedAccept = self->encodeBase64(acceptHash.data(), acceptHash.size());
+								auto expectedAcceptPtr = std::move(expectedAccept.first);
 								if (expectedAccept.second == -1) {
 									self->logError("Couldn't parse upgrade response, encode base64 failed", err);
 									return cleanUp();
@@ -610,10 +611,11 @@ namespace SleepyDiscord {
 				}
 				uint64_t temp = net2System64(networkInt);
 
-				constexpr bool pointerIsTooSmall = (std::numeric_limits<std::size_t>::max)() < (std::numeric_limits<uint64_t>::max)();
+				constexpr auto pointerMax = (std::numeric_limits<std::size_t>::max)();
+				constexpr bool pointerIsTooSmall = pointerMax < (std::numeric_limits<uint64_t>::max)();
 				if ( // on a 32 bit or 16 bit system, we can't put the message in memory
 					// the compiler should be smart enough to get rid of this on 64-bit systems
-					pointerIsTooSmall && ((std::numeric_limits<std::size_t>::max)() < payloadLength)
+					pointerIsTooSmall && (pointerMax < payloadLength)
 					) { // doubt that Discord would ever sent a 4 GB websocket payload, so just kill it
 					std::cerr << "Can't read message larger then max pointer value\n";
 					disconnect(1009, "sizeof(PTR)<MSG");
@@ -686,10 +688,10 @@ namespace SleepyDiscord {
 				}
 			} break;
 			case pingOp:
-				// I doubt Discord would sent this
+				send(payload, static_cast<uint16_t>(pongOp), nullptr);
 				break;
 			case pongOp:
-				// only needed if ping send is implemented
+				// OK
 				break;
 			case continueOp:
 				// shouldn't happen because we don't support websocket fragmentation
