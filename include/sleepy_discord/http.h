@@ -11,12 +11,12 @@
 namespace SleepyDiscord {
 	//http variables and functions
 	//request functions
-	enum RequestMethod {
-		Post   = 0,
-		Patch  = 1,
-		Delete = 2,
-		Get    = 3,
-		Put	   = 4
+	enum class RequestMethod {
+		Post,
+		Patch,
+		Delete,
+		Get,
+		Put
 	};
 
 	class BaseDiscordClient;
