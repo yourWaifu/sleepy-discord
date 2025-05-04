@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.11)
 project(sleepy-discord)
 
 option(BUILD_EXAMPLES                "Build examples of Sleepy Discord and all dependencies"              OFF)
@@ -51,7 +51,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 	#to do find librarys before downloading them
 
 	include(ExternalProject)
-	include(buildtools/cmake/DownloadProject.cmake)
+	include(FetchContent)
 
 endif()
 
@@ -63,13 +63,13 @@ if(USE_CPR)
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
 			#to do install libssl-dev
-			download_project(
-				PROJ           cpr
+			FetchContent_Declare(
+				cpr
 				GIT_REPOSITORY https://github.com/whoshuu/cpr.git
 				GIT_TAG        41fbaca
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/cpr
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(cpr)
 		endif()
 
 		#the cmake test has issues on visual studio so disable them
@@ -108,13 +108,13 @@ if(USE_ASIO)
 		find_package(asio CONFIG REQUIRED)
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
-			download_project(
-				PROJ           asio
+			FetchContent_Declare(
+				asio
 				GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
 				GIT_TAG        master
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/asio
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(asio)
 		endif()
 
 		if(NOT DEFINED asio_SOURCE_DIR)
@@ -129,13 +129,13 @@ if(USE_LIBOPUS)
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
 			#needs libtool
-			download_project(
-				PROJ           opus
+			FetchContent_Declare(
+				opus
 				GIT_REPOSITORY https://gitlab.xiph.org/xiph/opus.git
 				GIT_TAG        7628d844
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/opus
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(opus)
 		endif()
 
 		add_subdirectory(deps/opus)
@@ -149,13 +149,13 @@ endif()
 if(USE_LIBSODIUM)
 	if(NOT WIN32 AND NOT SLEEPY_VCPKG)
 		if(AUTO_DOWNLOAD_LIBRARY)
-			download_project(
-				PROJ           libsodium
+			FetchContent_Declare(
+				libsodium
 				GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
 				GIT_TAG        stable
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/libsodium
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(libsodium)
 			ExternalProject_Add(libsodium-make
 				SOURCE_DIR          "${libsodium_SOURCE_DIR}"
 				BINARY_DIR          "${libsodium_BINARY_DIR}"
@@ -173,13 +173,13 @@ endif()
 
 if(USE_ZLIB_NG)
 	if(AUTO_DOWNLOAD_LIBRARY)
-		download_project(
-			PROJ           zlib-ng
+		FetchContent_Declare(
+			zlib-ng
 			GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
 			GIT_TAG        develop
 			SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/zlib-ng
-			UPDATE_DISCONNECTED 1
 		)
+		FetchContent_MakeAvailable(zlib-ng)
 	endif()
 
 	add_subdirectory(deps/zlib-ng)
@@ -195,13 +195,13 @@ if (USE_BEAST)
 		find_package(Boost REQUIRED COMPONENTS beast)
 	else()
 		if(AUTO_DOWNLOAD_LIBRARY)
-			download_project(
-				PROJ           beast
+			FetchContent_Declare(
+				beast
 				GIT_REPOSITORY https://github.com/boostorg/beast.git
 				GIT_TAG        master
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/beast
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(beast)
 		endif()
 	endif()
 
@@ -214,13 +214,13 @@ if (USE_IXWEBSOCKET)
 		find_library(IXWEBSOCKET_LIBRARY ixwebsocket)
 	else()
 		if (AUTO_DOWNLOAD_LIBRARY)
-			download_project(
+			FetchContent_Declare(
 				PROJ           IXWebSocket
 				GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
 				GIT_TAG        master
 				SOURCE_DIR     ${PROJECT_SOURCE_DIR}/deps/ixwebsocket
-				UPDATE_DISCONNECTED 1
 			)
+			FetchContent_MakeAvailable(IXWebSocket)
 		endif()
 
 		add_subdirectory(deps/ixwebsocket)
