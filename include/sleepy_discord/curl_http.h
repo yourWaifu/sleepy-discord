@@ -2,10 +2,13 @@
 
 /** Async Curl Wrapper for ASIO C++ **/
 
+// this code doesn't work still
+
 #include <curl/multi.h>
 #include <chrono>
 #include <memory>
 #include <utility>
+#include <list>
 #include "sleepy_discord/asio_include.h"
 #include "sleepy_discord/asio_schedule.h"
 #include <asio/steady_timer.hpp>
@@ -55,6 +58,49 @@ namespace SleepyDiscord {
 		static std::weak_ptr<CurlHTTPGlobal> signalton;
 	};
 
+	class CurlHTTPReceiver {
+	public:
+		void cancel() {
+			curl_multi_remove_handle(clientPtr->getCurlM(), handle);
+		}
+		void setResponseCallback(const ResponseCallback& callback) {
+			responseCallback = callback;
+		}
+#ifdef __cpp_coroutines
+
+#endif
+		void runResponseCallback(CURL* easyHandle) {
+
+		}
+
+		void open(curl_socket_t& socket) {
+			state = State::Open;
+		}
+
+		const State getState() {
+			return state;
+		}
+
+		enum class State : char {
+			None = 0,
+			Open = 1,
+			Closed = 2,
+		};
+
+		void close() {
+			state = State::Closed;
+		}
+
+		std::atomic_bool isReading = false;
+		std::atomic_bool isWriting = false;
+
+	private:
+		std::shared_ptr<CurlHTTPASIOClient> clientPtr;
+		std::shared_ptr<CURL> handle;
+		std::atomic_char state = State::None;
+		ResponseCallback responseCallback;
+	};
+
 	class CurlHTTPASIOClient : std::enable_shared_from_this<CurlHTTPASIOClient> {
 		struct PrivateProps { explicit PrivateProps() = default; std::shared_ptr<asio::io_context> _ioContext; };
 	public:
@@ -77,16 +123,40 @@ namespace SleepyDiscord {
 			return self;
 		}
 
-		int updateSocketActivity(CURL* easyHandle, curl_socket_t& s, int& action, void*) {
+		int checkSocketActivity(CURL* easyHandle, curl_socket_t& socket, int& action, void*) {
+			std::list<std::shared_ptr<CurlHTTPReceiver>>::iterator* iteratorPtr;
+			curl_easy_getinfo(easyHandle, CURLINFO_PRIVATE, iteratorPtr);
+			std::shared_ptr<CurlHTTPReceiver> receiverPtr = (*iteratorPtr);
+
 			int events = 0;
 			switch (action) {
 			case CURL_POLL_IN:
 			case CURL_POLL_OUT:
-			case CURL_POLL_INOUT:
+			case CURL_POLL_INOUT: {
+				switch (receiverPtr->getState()) {
+				case CurlHTTPReceiver::State::Closed:
+				default:
+					// it's possible for socket to already be removed at this point
+					return;
+				case CurlHTTPReceiver::State::None:
+					// start curl context
+					iteratorPtr->start();
+					curl_multi_assign(curlMPtr.get(), socket, reinterpret_cast<void*>(receiverPtr.get()));
+					break;
+				case CurlHTTPReceiver::State::Open:
+					break;
+				}
+
+				// start polling
+				if (/*read*/ action & CURL_POLL_IN) read();
+				if (/*write*/ action & CURL_POLL_OUT) write();
+
+			} break;
 
 			case CURL_POLL_REMOVE:
-				// note s is invalid here
-				
+				// end polling
+				// note socket is invalid here
+				receiverPtr->close();
 				break;
 			default:
 				break;
@@ -94,12 +164,39 @@ namespace SleepyDiscord {
 			return 0;
 		}
 
+		void read() {
+			// read socket
+		}
 
+		void write() {
+			// write socket
+		}
 
-		void checkMultiStatus() {}
+		void checkMultiStatus() {
+			char* doneURL;
+			CURLMsg* message;
+			int pending;
+
+			while (true) {
+				message = curl_multi_info_read(curlMPtr.get(), &pending);
+				if (!message) break;
+				switch (message->msg) {
+				case CURLMSG_DONE: {
+					easyHandle = message->easy_handle;
+					std::list<std::shared_ptr<CurlHTTPReceiver>>::iterator* iteratorPtr;
+					curl_easy_getinfo(easyHandle, CURLINFO_PRIVATE, iteratorPtr);
+					(*iteratorPtr)->get()->runResponseCallback(easyHandle);
+					
+					curl_multi_remove_handle(curlMPtr.get(), easy_handle);
+					curl_easy_cleanup(easy_handle);
+				} break;
+				default: break;
+				}
+			}
+		}
 
 		static int socketCallback(CURL* easyHandle, curl_socket_t s, int what, CurlHTTPASIOClient* clientPtr, void* socketPtr) {
-			return clientPtr->updateSocketActivity(easyHandle, s, what, socketPtr);
+			return clientPtr->checkSocketActivity(easyHandle, s, what, socketPtr);
 		}
 
 		int updateTimeoutTimer(CURLM* multi, long timeoutMS) {
@@ -116,7 +213,7 @@ namespace SleepyDiscord {
 
 					int runningHandles;
 					curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, &runningHandles);
-					// do something replace this comment
+					checkMultiStatus();
 				});
 			}
 			return 0;
@@ -129,12 +226,20 @@ namespace SleepyDiscord {
 		CURLM* getCurlM() {
 			return curlMPtr.get();
 		}
+
+		std::list<std::shared_ptr<CurlHTTPReceiver>>::iterator makeWaiter(std::shared_ptr<CURL> handle) {
+			waiterList.push_back(std::move(std::make_shared<CurlHTTPReceiver>(clientPtr, handle)));
+			auto iterator = std::prev(waiterList.end());
+			return iterator;
+		}
+
 	private:
 		std::unique_ptr<CURLM, decltype(&curl_multi_cleanup)> curlMPtr;
 		std::shared_ptr<CurlHTTPGlobal> curlGPtr;
 		std::shared_ptr<asio::io_context> ioContext;
 		asio::steady_timer timeoutTimer;
 		int runningHandles;
+		std::list<std::shared_ptr<CurlHTTPReceiver>> waiterList;
 	};
 
 	class CurlHTTPRequest {
@@ -211,35 +316,18 @@ namespace SleepyDiscord {
 			mimePtr.reset();
 			mimePtr = { mime, &curl_mime_free };
 		}
-		void setResponseCallback(const ResponseCallback& callback) {
-			responseCallback = callback;
-		}
-		CurlHTTPWaiter send() {
+		std::shared_ptr<CurlHTTPReceiver> send(const ResponseCallback& callback) {
+			auto waiter = clientPtr->makeWaiter(handle);
+			curl_easy_setopt(handle.get(), CURLOPT_PRIVATE, static_cast<void*>(&waiter)); // needed to get the our waiter later
 			curl_multi_add_handle(clientPtr->getCurlM(), handle.get());
 			int runningHandles;
 			curl_multi_socket_action(clientPtr->getCurlM(), CURL_SOCKET_TIMEOUT, 0, runningHandles);
-			return CurlHTTPWaiter{};
+			return *waiter;
 		}
 	private:
 		std::shared_ptr<CurlHTTPASIOClient> clientPtr;
 		std::shared_ptr<CURL> handle;
 		std::unique_ptr<struct curl_slist, decltype(&curl_slist_free_all)> headerListPtr;
 		std::unique_ptr<struct curl_mime, decltype(&curl_mime_free)> mimePtr;
-		ResponseCallback responseCallback;
-	};
-
-	class CurlHTTPWaiter {
-	public:
-		void cancel() {
-			curl_multi_remove_handle(clientPtr->getCurlM(), handle);
-		}
-		void setResponseCallback(const ResponseCallback& callback) {
-		}
-#ifdef __cpp_coroutines
-		
-#endif
-	private:
-		std::shared_ptr<CurlHTTPASIOClient> clientPtr;
-		std::shared_ptr<CURL> handle;
 	};
 }
