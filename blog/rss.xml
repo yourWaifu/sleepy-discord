@@ -7,10 +7,11 @@
         <lastBuildDate>Sun, 07 Feb 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
         <item>
             <title><![CDATA[Welcome]]></title>
             <link>https://yourwaifu.dev/sleepy-discord/blog/welcome</link>
-            <guid>welcome</guid>
+            <guid>https://yourwaifu.dev/sleepy-discord/blog/welcome</guid>
             <pubDate>Sun, 07 Feb 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[Nothing here just yet]]></description>
             <content:encoded><![CDATA[<p>Nothing here just yet</p>]]></content:encoded>

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksleepy_discord_docs=self.webpackChunksleepy_discord_docs||[]).push([[442],{9623:(s,e,c)=>{c.r(e),c.d(e,{default:()=>r});c(6540);var d=c(6347),o=c(4848);const r=function(){return(0,o.jsx)(d.rd,{to:"docs/"})}}}]);

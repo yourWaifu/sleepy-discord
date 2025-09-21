@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksleepy_discord_docs=self.webpackChunksleepy_discord_docs||[]).push([[647],{7121:(e,s,r)=>{r.r(s),r.d(s,{default:()=>n});r(6540);var c=r(4164),d=r(7559),u=r(5500),a=r(2831),l=r(1656),o=r(4848);function n(e){return(0,o.jsx)(u.e3,{className:(0,c.A)(d.G.wrapper.docsPages),children:(0,o.jsx)(l.A,{children:(0,a.v)(e.route.routes)})})}}}]);
