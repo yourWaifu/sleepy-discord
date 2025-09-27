@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksleepy_discord_docs=self.webpackChunksleepy_discord_docs||[]).push([[903],{1912:s=>{s.exports=JSON.parse('{"blogBasePath":"/sleepy-discord/blog","blogTitle":"Blog","authorsListPath":"/sleepy-discord/blog/authors"}')}}]);

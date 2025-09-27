@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksleepy_discord_docs=self.webpackChunksleepy_discord_docs||[]).push([[7472],{5513:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome","permalink":"/sleepy-discord/blog/welcome","unlisted":false,"date":"2021-02-07T00:00:00.000Z"}]}')}}]);
