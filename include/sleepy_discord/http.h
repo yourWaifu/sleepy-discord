@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include "error.h"
+#include <cstdint>
 
 //important note, all requests on sync mode throw on an http error
 
