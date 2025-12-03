@@ -74,7 +74,7 @@ if (NOT ONLY_SLEEPY_DISCORD)
 
 	if(USE_ASIO)
 		if(SLEEPY_VCPKG)
-			list(APPEND LIBRARIES_TO_LINK "asio asio::asio")
+			list(APPEND LIBRARIES_TO_LINK "asio::asio")
 		else()
 			list(APPEND LIBRARIES_INCLUDE_DIRS "${asio_SOURCE_DIR}/asio/include")
 		endif()

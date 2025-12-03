@@ -47,7 +47,7 @@ namespace SleepyDiscord {
 		}
 
 		void postTask(PostableTask code) override {
-			asio::post(code);
+			asio::post(ioContext->get_executor(), code);
 		}
 	protected:
 #include "standard_config_header.h"
