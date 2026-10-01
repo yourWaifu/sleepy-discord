@@ -1,6 +1,7 @@
 #if defined(EXISTENT_ZLIB) || defined(EXISTENT_ZLIB_NG)
 #include "zlib_compression.h"
 #include <memory.h>
+#include <string.h>
 
 namespace SleepyDiscord {
 	ZLibCompression::ZLibCompression() {
