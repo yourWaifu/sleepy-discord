@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <list>
 #include <utility>
 #include <vector>
